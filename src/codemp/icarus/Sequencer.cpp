@@ -331,7 +331,7 @@ sequencerResult_t CSequencer::Run(char* buffer, long size)
 
     // Open the stream as an IBI stream
     if (!blockStream->stream->Open(buffer, size)) {
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "invalid stream");
+        m_ie->I_DPrintln(WL_e::WL_ERROR, "invalid stream");
         return sequencerResult_t::SEQ_FAILED;
     }
 
@@ -369,7 +369,7 @@ sequencerResult_t CSequencer::ParseRun(CBlock* block)
     buffer_size = m_ie->I_LoadFile(newname, (void**)&buffer);
 
     if (buffer_size <= 0) {
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "'%s' : could not open file\n", (char*)block->GetMemberData(0));
+        m_ie->I_DPrintln(WL_e::WL_ERROR, "'{}' : could not open file", (char*)block->GetMemberData(0));
         delete block;
         block = nullptr;
         return sequencerResult_t::SEQ_FAILED;
@@ -380,7 +380,7 @@ sequencerResult_t CSequencer::ParseRun(CBlock* block)
 
     // Begin streaming the file
     if (!new_stream->stream->Open(buffer, buffer_size)) {
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "invalid stream");
+        m_ie->I_DPrintln(WL_e::WL_ERROR, "invalid stream");
         delete block;
         block = nullptr;
         return sequencerResult_t::SEQ_FAILED;
@@ -426,7 +426,7 @@ sequencerResult_t CSequencer::ParseIf(CBlock* block, bstream_t* bstream)
 
     assert(sequence);
     if (sequence == nullptr) {
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "ParseIf: failed to allocate container sequence");
+        m_ie->I_DPrintln(WL_e::WL_ERROR, "ParseIf: failed to allocate container sequence");
         delete block;
         block = nullptr;
         return sequencerResult_t::SEQ_FAILED;
@@ -470,7 +470,7 @@ sequencerResult_t CSequencer::ParseElse(CBlock* block, bstream_t* bstream)
 
     assert(sequence);
     if (sequence == nullptr) {
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "ParseIf: failed to allocate container sequence");
+        m_ie->I_DPrintln(WL_e::WL_ERROR, "ParseIf: failed to allocate container sequence");
         return sequencerResult_t::SEQ_FAILED;
     }
 
@@ -479,7 +479,7 @@ sequencerResult_t CSequencer::ParseElse(CBlock* block, bstream_t* bstream)
     // Add a unique conditional identifier to the block for reference later
     // TODO: Emit warning
     if (m_elseOwner == nullptr) {
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "Invalid 'else' found!\n");
+        m_ie->I_DPrintln(WL_e::WL_ERROR, "Invalid 'else' found!");
         return sequencerResult_t::SEQ_FAILED;
     }
 
@@ -517,7 +517,7 @@ sequencerResult_t CSequencer::ParseLoop(CBlock* block, bstream_t* bstream)
 
     assert(sequence);
     if (sequence == nullptr) {
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "ParseLoop : failed to allocate container sequence");
+        m_ie->I_DPrintln(WL_e::WL_ERROR, "ParseLoop : failed to allocate container sequence");
         delete block;
         block = nullptr;
         return sequencerResult_t::SEQ_FAILED;
@@ -649,7 +649,7 @@ sequencerResult_t CSequencer::ParseAffect(CBlock* block, bstream_t* bstream)
                 break;
             default:
                 // FIXME: Make an enum id for the error...
-                m_ie->I_DPrintf(WL_e::WL_ERROR, "Invalid parameter type on affect _1");
+                m_ie->I_DPrintln(WL_e::WL_ERROR, "Invalid parameter type on affect _1");
                 delete block;
                 block = nullptr;
                 return sequencerResult_t::SEQ_OK;
@@ -661,7 +661,7 @@ sequencerResult_t CSequencer::ParseAffect(CBlock* block, bstream_t* bstream)
 
         default:
             // FIXME: Make an enum id for the error...
-            m_ie->I_DPrintf(WL_e::WL_ERROR, "Invalid parameter type on affect _2");
+            m_ie->I_DPrintln(WL_e::WL_ERROR, "Invalid parameter type on affect _2");
             delete block;
             block = nullptr;
             return sequencerResult_t::SEQ_OK;
@@ -672,7 +672,7 @@ sequencerResult_t CSequencer::ParseAffect(CBlock* block, bstream_t* bstream)
             ent = m_ie->I_GetEntityByName(p1);
         }
         if (!ent) { // a valid entity name was not returned from the get command
-            m_ie->I_DPrintf(WL_e::WL_WARNING, "'%s' : invalid affect() target\n", p1 ? p1 : "");
+            m_ie->I_DPrintln(WL_e::WL_WARNING, "'{}' : invalid affect() target", p1 ? p1 : "");
         }
 
     } // end if(!ent)
@@ -682,7 +682,7 @@ sequencerResult_t CSequencer::ParseAffect(CBlock* block, bstream_t* bstream)
     }
 
     if (stream_sequencer == nullptr) {
-        m_ie->I_DPrintf(WL_e::WL_WARNING, "'%s' : invalid affect() target\n", entname);
+        m_ie->I_DPrintln(WL_e::WL_WARNING, "'{}' : invalid affect() target", entname);
 
         // Fast-forward out of this affect block onto the next valid code
         CSequence* backSeq = m_curSequence;
@@ -743,7 +743,7 @@ sequencerResult_t CSequencer::ParseTask(CBlock* block, bstream_t* bstream)
     group = m_taskManager->AddTaskGroup(taskName);
 
     if (group == nullptr) {
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "unable to allocate a new task group");
+        m_ie->I_DPrintln(WL_e::WL_ERROR, "unable to allocate a new task group");
         delete block;
         block = nullptr;
         return sequencerResult_t::SEQ_FAILED;
@@ -857,7 +857,7 @@ sequencerResult_t CSequencer::Route(CSequence* sequence, bstream_t* bstream)
 
             // TODO: Emit warning
             if (m_elseValid == 0) {
-                m_ie->I_DPrintf(WL_e::WL_ERROR, "Invalid 'else' found!\n");
+                m_ie->I_DPrintln(WL_e::WL_ERROR, "Invalid 'else' found!");
                 return sequencerResult_t::SEQ_FAILED;
             }
 
@@ -899,7 +899,7 @@ sequencerResult_t CSequencer::Route(CSequence* sequence, bstream_t* bstream)
         // Error
         default:
 
-            m_ie->I_DPrintf(WL_e::WL_ERROR, "'%d' : invalid block ID", to_underlying(block->GetBlockID()));
+            m_ie->I_DPrintln(WL_e::WL_ERROR, "'{}' : invalid block ID", to_underlying(block->GetBlockID()));
 
             return sequencerResult_t::SEQ_FAILED;
             break;
@@ -956,7 +956,7 @@ void CSequencer::CheckRun(CBlock** command)
     if (block->GetBlockID() == icarusToken_t::ID_RUN) {
         int id = (int)(*(float*)block->GetMemberData(1));
 
-        m_ie->I_DPrintf(WL_e::WL_DEBUG, "%4d run( \"%s\" ); [%d]", m_ownerID, (char*)block->GetMemberData(0), m_ie->I_GetTime());
+        m_ie->I_DPrintln(WL_e::WL_DEBUG, "{:4} run( \"{}\" ); [{}]", m_ownerID, (char*)block->GetMemberData(0), static_cast<int>(m_ie->I_GetTime()));
 
         if (m_curSequence->HasFlag(sequenceFlags_t::SQ_RETAIN)) {
             PushCommand(block, pushPop_t::PUSH_FRONT);
@@ -973,7 +973,7 @@ void CSequencer::CheckRun(CBlock** command)
         // TODO: Emit warning
         assert(m_curSequence);
         if (m_curSequence == nullptr) {
-            m_ie->I_DPrintf(WL_e::WL_ERROR, "Unable to find 'run' sequence!\n");
+            m_ie->I_DPrintln(WL_e::WL_ERROR, "Unable to find 'run' sequence!");
             *command = nullptr;
             return;
         }
@@ -1041,7 +1041,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
 
     switch (id) {
     case icarusToken_t::TK_FLOAT:
-        Com_sprintf(tempString1, sizeof(tempString1), "%.3f", *(float*)bm->GetData());
+        Q_FormatTo(tempString1, "{:.3f}", *(float*)bm->GetData());
         p1 = (char*)tempString1;
         break;
 
@@ -1054,7 +1054,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
             vec[i] = *(float*)bm->GetData();
         }
 
-        Com_sprintf(tempString1, sizeof(tempString1), "%.3f %.3f %.3f", vec[0], vec[1], vec[2]);
+        Q_FormatTo(tempString1, "{:.3f} {:.3f} {:.3f}", vec[0], vec[1], vec[2]);
         p1 = (char*)tempString1;
 
         break;
@@ -1084,7 +1084,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
             if (m_ie->I_GetFloat(m_ownerID, type, name, &fVal) == false)
                 return false;
 
-            Com_sprintf(tempString1, sizeof(tempString1), "%.3f", fVal);
+            Q_FormatTo(tempString1, "{:.3f}", fVal);
             p1 = (char*)tempString1;
         }
 
@@ -1096,7 +1096,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
             if (m_ie->I_GetFloat(m_ownerID, type, name, &fVal) == false)
                 return false;
 
-            Com_sprintf(tempString1, sizeof(tempString1), "%d", (int)fVal);
+            Q_FormatTo(tempString1, "{}", (int)fVal);
             p1 = (char*)tempString1;
         } break;
 
@@ -1113,7 +1113,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
             if (m_ie->I_GetVector(m_ownerID, type, name, vVal) == false)
                 return false;
 
-            Com_sprintf(tempString1, sizeof(tempString1), "%.3f %.3f %.3f", vVal[0], vVal[1], vVal[2]);
+            Q_FormatTo(tempString1, "{:.3f} {:.3f} {:.3f}", vVal[0], vVal[1], vVal[2]);
             p1 = (char*)tempString1;
         }
 
@@ -1136,7 +1136,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
         // A float value is returned from the function
         t1 = icarusToken_t::TK_FLOAT;
 
-        Com_sprintf(tempString1, sizeof(tempString1), "%.3f", m_ie->I_Random(min, max));
+        Q_FormatTo(tempString1, "{:.3f}", m_ie->I_Random(min, max));
         p1 = (char*)tempString1;
     }
 
@@ -1153,11 +1153,11 @@ int CSequencer::EvaluateConditional(CBlock* block)
 
         // TODO: Emit warning
         if (m_ie->I_GetTag(m_ownerID, name, type, vec) == false) {
-            m_ie->I_DPrintf(WL_e::WL_ERROR, "Unable to find tag \"%s\"!\n", name);
+            m_ie->I_DPrintln(WL_e::WL_ERROR, "Unable to find tag \"{}\"!", name);
             return false;
         }
 
-        Com_sprintf(tempString1, sizeof(tempString1), "%.3f %.3f %.3f", vec[0], vec[1], vec[2]);
+        Q_FormatTo(tempString1, "{:.3f} {:.3f} {:.3f}", vec[0], vec[1], vec[2]);
         p1 = (char*)tempString1;
 
         break;
@@ -1165,7 +1165,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
 
     default:
         // FIXME: Make an enum id for the error...
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "Invalid parameter type on conditional");
+        m_ie->I_DPrintln(WL_e::WL_ERROR, "Invalid parameter type on conditional");
         return false;
         break;
     }
@@ -1186,7 +1186,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
         break;
 
     default:
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "Invalid operator type found on conditional!\n");
+        m_ie->I_DPrintln(WL_e::WL_ERROR, "Invalid operator type found on conditional!");
         return false; // FIXME: Emit warning
         break;
     }
@@ -1202,7 +1202,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
 
     switch (id) {
     case icarusToken_t::TK_FLOAT:
-        Com_sprintf(tempString2, sizeof(tempString2), "%.3f", *(float*)bm->GetData());
+        Q_FormatTo(tempString2, "{:.3f}", *(float*)bm->GetData());
         p2 = (char*)tempString2;
         break;
 
@@ -1215,7 +1215,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
             vec[i] = *(float*)bm->GetData();
         }
 
-        Com_sprintf(tempString2, sizeof(tempString2), "%.3f %.3f %.3f", vec[0], vec[1], vec[2]);
+        Q_FormatTo(tempString2, "{:.3f} {:.3f} {:.3f}", vec[0], vec[1], vec[2]);
         p2 = (char*)tempString2;
 
         break;
@@ -1245,7 +1245,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
             if (m_ie->I_GetFloat(m_ownerID, type, name, &fVal) == false)
                 return false;
 
-            Com_sprintf(tempString2, sizeof(tempString2), "%.3f", fVal);
+            Q_FormatTo(tempString2, "{:.3f}", fVal);
             p2 = (char*)tempString2;
         }
 
@@ -1257,7 +1257,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
             if (m_ie->I_GetFloat(m_ownerID, type, name, &fVal) == false)
                 return false;
 
-            Com_sprintf(tempString2, sizeof(tempString2), "%d", (int)fVal);
+            Q_FormatTo(tempString2, "{}", (int)fVal);
             p2 = (char*)tempString2;
         } break;
 
@@ -1274,7 +1274,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
             if (m_ie->I_GetVector(m_ownerID, type, name, vVal) == false)
                 return false;
 
-            Com_sprintf(tempString2, sizeof(tempString2), "%.3f %.3f %.3f", vVal[0], vVal[1], vVal[2]);
+            Q_FormatTo(tempString2, "{:.3f} {:.3f} {:.3f}", vVal[0], vVal[1], vVal[2]);
             p2 = (char*)tempString2;
         }
 
@@ -1299,7 +1299,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
         // A float value is returned from the function
         t2 = icarusToken_t::TK_FLOAT;
 
-        Com_sprintf(tempString2, sizeof(tempString2), "%.3f", m_ie->I_Random(min, max));
+        Q_FormatTo(tempString2, "{:.3f}", m_ie->I_Random(min, max));
         p2 = (char*)tempString2;
     }
 
@@ -1318,11 +1318,11 @@ int CSequencer::EvaluateConditional(CBlock* block)
 
         // TODO: Emit warning
         if (m_ie->I_GetTag(m_ownerID, name, type, vec) == false) {
-            m_ie->I_DPrintf(WL_e::WL_ERROR, "Unable to find tag \"%s\"!\n", name);
+            m_ie->I_DPrintln(WL_e::WL_ERROR, "Unable to find tag \"{}\"!", name);
             return false;
         }
 
-        Com_sprintf(tempString2, sizeof(tempString2), "%.3f %.3f %.3f", vec[0], vec[1], vec[2]);
+        Q_FormatTo(tempString2, "{:.3f} {:.3f} {:.3f}", vec[0], vec[1], vec[2]);
         p2 = (char*)tempString2;
 
         break;
@@ -1330,7 +1330,7 @@ int CSequencer::EvaluateConditional(CBlock* block)
 
     default:
         // FIXME: Make an enum id for the error...
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "Invalid parameter type on conditional");
+        m_ie->I_DPrintln(WL_e::WL_ERROR, "Invalid parameter type on conditional");
         return false;
         break;
     }
@@ -1371,7 +1371,7 @@ void CSequencer::CheckIf(CBlock** command)
             // TODO: Emit warning
             assert(successSeq);
             if (successSeq == nullptr) {
-                m_ie->I_DPrintf(WL_e::WL_ERROR, "Unable to find conditional success sequence!\n");
+                m_ie->I_DPrintln(WL_e::WL_ERROR, "Unable to find conditional success sequence!");
                 *command = nullptr;
                 return;
             }
@@ -1402,7 +1402,7 @@ void CSequencer::CheckIf(CBlock** command)
             // TODO: Emit warning
             assert(failureSeq);
             if (failureSeq == nullptr) {
-                m_ie->I_DPrintf(WL_e::WL_ERROR, "Unable to find conditional failure sequence!\n");
+                m_ie->I_DPrintln(WL_e::WL_ERROR, "Unable to find conditional failure sequence!");
                 *command = nullptr;
                 return;
             }
@@ -1517,7 +1517,7 @@ void CSequencer::CheckLoop(CBlock** command)
         // TODO: Emit warning
         assert(loop);
         if (loop == nullptr) {
-            m_ie->I_DPrintf(WL_e::WL_ERROR, "Unable to find 'loop' sequence!\n");
+            m_ie->I_DPrintln(WL_e::WL_ERROR, "Unable to find 'loop' sequence!");
             *command = nullptr;
             return;
         }
@@ -1698,7 +1698,7 @@ void CSequencer::CheckAffect(CBlock** command)
                     break;
                 default:
                     // FIXME: Make an enum id for the error...
-                    m_ie->I_DPrintf(WL_e::WL_ERROR, "Invalid parameter type on affect _1");
+                    m_ie->I_DPrintln(WL_e::WL_ERROR, "Invalid parameter type on affect _1");
                     return;
                     break;
                 }
@@ -1708,7 +1708,7 @@ void CSequencer::CheckAffect(CBlock** command)
 
             default:
                 // FIXME: Make an enum id for the error...
-                m_ie->I_DPrintf(WL_e::WL_ERROR, "Invalid parameter type on affect _2");
+                m_ie->I_DPrintln(WL_e::WL_ERROR, "Invalid parameter type on affect _2");
                 return;
                 break;
             } // end id switch
@@ -1717,7 +1717,7 @@ void CSequencer::CheckAffect(CBlock** command)
                 ent = m_ie->I_GetEntityByName(p1);
             }
             if (!ent) { // a valid entity name was not returned from the get command
-                m_ie->I_DPrintf(WL_e::WL_WARNING, "'%s' : invalid affect() target\n", p1 ? p1 : "");
+                m_ie->I_DPrintln(WL_e::WL_WARNING, "'{}' : invalid affect() target", p1 ? p1 : "");
             }
 
         } // end if(!ent)
@@ -1808,7 +1808,7 @@ void CSequencer::CheckDo(CBlock** command)
         assert(group);
         if (group == nullptr) {
             // TODO: Give name/number of entity trying to execute, too
-            m_ie->I_DPrintf(WL_e::WL_ERROR, "ICARUS Unable to find task group \"%s\"!\n", groupName);
+            m_ie->I_DPrintln(WL_e::WL_ERROR, "ICARUS Unable to find task group \"{}\"!", groupName);
             *command = nullptr;
             return;
         }
@@ -1817,7 +1817,7 @@ void CSequencer::CheckDo(CBlock** command)
         assert(sequence);
         if (sequence == nullptr) {
             // TODO: Give name/number of entity trying to execute, too
-            m_ie->I_DPrintf(WL_e::WL_ERROR, "ICARUS Unable to find task 'group' sequence!\n");
+            m_ie->I_DPrintln(WL_e::WL_ERROR, "ICARUS Unable to find task 'group' sequence!");
             *command = nullptr;
             return;
         }
@@ -1962,7 +1962,7 @@ sequencerResult_t CSequencer::Callback(CTaskManager* taskManager, CBlock* block,
     }
 
     // FIXME: This could be more descriptive
-    m_ie->I_DPrintf(WL_e::WL_ERROR, "command could not be called back\n");
+    m_ie->I_DPrintln(WL_e::WL_ERROR, "command could not be called back");
     assert(0);
 
     return sequencerResult_t::SEQ_FAILED;
@@ -2040,7 +2040,7 @@ sequencerResult_t CSequencer::Affect(int id, icarusToken_t type)
         break;
 
     default:
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "unknown affect type found");
+        m_ie->I_DPrintln(WL_e::WL_ERROR, "unknown affect type found");
         break;
     }
 
@@ -2113,7 +2113,7 @@ sequencerResult_t CSequencer::RemoveSequence(CSequence* sequence)
         // TODO: Emit warning
         assert(temp);
         if (temp == nullptr) {
-            m_ie->I_DPrintf(WL_e::WL_WARNING, "Unable to find child sequence on RemoveSequence call!\n");
+            m_ie->I_DPrintln(WL_e::WL_WARNING, "Unable to find child sequence on RemoveSequence call!");
             continue;
         }
 

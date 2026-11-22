@@ -83,7 +83,7 @@ void Sys_PlatformInit(int argc, char* argv[])
     retval = setrlimit(RLIMIT_NOFILE, &rlim);
 
     if (retval == -1) {
-        Com_Warning("Failed to raise open file limit. %s\n", strerror(errno));
+        Q_PrintlnWarning("Failed to raise open file limit. {}", strerror(errno));
     }
 }
 
@@ -221,10 +221,10 @@ void Sys_ListFilteredFiles(const char* basedir, const char* subdirs, const char*
     }
 
     if (strlen(subdirs)) {
-        Com_sprintf(search, sizeof(search), "%s/%s", basedir, subdirs);
+        Q_FormatTo(search, "{}/{}", basedir, subdirs);
     }
     else {
-        Com_sprintf(search, sizeof(search), "%s", basedir);
+        Q_FormatTo(search, "{}", basedir);
     }
 
     if ((fdir = opendir(search)) == nullptr) {
@@ -232,17 +232,17 @@ void Sys_ListFilteredFiles(const char* basedir, const char* subdirs, const char*
     }
 
     while ((d = readdir(fdir)) != nullptr) {
-        Com_sprintf(filename, sizeof(filename), "%s/%s", search, d->d_name);
+        Q_FormatTo(filename, "{}/{}", search, d->d_name);
         if (stat(filename, &st) == -1)
             continue;
 
         if (st.st_mode & S_IFDIR) {
             if (Q_stricmp(d->d_name, ".") && Q_stricmp(d->d_name, "..")) {
                 if (strlen(subdirs)) {
-                    Com_sprintf(newsubdirs, sizeof(newsubdirs), "%s/%s", subdirs, d->d_name);
+                    Q_FormatTo(newsubdirs, "{}/{}", subdirs, d->d_name);
                 }
                 else {
-                    Com_sprintf(newsubdirs, sizeof(newsubdirs), "%s", d->d_name);
+                    Q_FormatTo(newsubdirs, "{}", d->d_name);
                 }
                 Sys_ListFilteredFiles(basedir, newsubdirs, filter, list, numfiles);
             }
@@ -250,7 +250,7 @@ void Sys_ListFilteredFiles(const char* basedir, const char* subdirs, const char*
         if (*numfiles >= MAX_FOUND_FILES - 1) {
             break;
         }
-        Com_sprintf(filename, sizeof(filename), "%s/%s", subdirs, d->d_name);
+        Q_FormatTo(filename, "{}/{}", subdirs, d->d_name);
         if (!Com_FilterPath(filter, filename, false))
             continue;
         list[*numfiles] = CopyString(filename);
@@ -311,7 +311,7 @@ char** Sys_ListFiles(const char* directory, const char* extension, const char* f
     }
 
     while ((d = readdir(fdir)) != nullptr) {
-        Com_sprintf(search, sizeof(search), "%s/%s", directory, d->d_name);
+        Q_FormatTo(search, "{}/{}", directory, d->d_name);
         if (stat(search, &st) == -1)
             continue;
         if ((dironly && !(st.st_mode & S_IFDIR)) || (!dironly && (st.st_mode & S_IFDIR)))
@@ -466,7 +466,7 @@ char* Sys_DefaultHomePath(void)
 
     if (!homePath[0]) {
         if ((p = getenv("HOME")) != nullptr) {
-            Com_sprintf(homePath, sizeof(homePath), "%s%c", p, PATH_SEP);
+            Q_FormatTo(homePath, "{}{:c}", p, PATH_SEP);
             Q_strcat(homePath, sizeof(homePath), "Library/Application Support/");
 
             if (com_homepath && com_homepath->string[0])
@@ -485,7 +485,7 @@ char* Sys_DefaultHomePath(void)
 
     if (!homePath[0]) {
         if ((p = getenv("XDG_DATA_HOME")) != nullptr) {
-            Com_sprintf(homePath, sizeof(homePath), "%s%c", p, PATH_SEP);
+            Q_FormatTo(homePath, "{}{:c}", p, PATH_SEP);
             if (com_homepath && com_homepath->string[0])
                 Q_strcat(homePath, sizeof(homePath), com_homepath->string);
             else
@@ -495,7 +495,7 @@ char* Sys_DefaultHomePath(void)
         }
 
         if ((p = getenv("HOME")) != nullptr) {
-            Com_sprintf(homePath, sizeof(homePath), "%s%c.local%cshare%c", p, PATH_SEP, PATH_SEP, PATH_SEP);
+            Q_FormatTo(homePath, "{}{:c}.local{:c}share{:c}", p, PATH_SEP, PATH_SEP, PATH_SEP);
             if (com_homepath && com_homepath->string[0])
                 Q_strcat(homePath, sizeof(homePath), com_homepath->string);
             else
@@ -585,7 +585,7 @@ void Sys_AnsiColorPrint(const char* msg)
             }
             else {
                 // Print the color code
-                Com_sprintf(buffer, sizeof(buffer), "\033[%dm", q3ToAnsi[ColorIndex(*(msg + 1))]);
+                Q_FormatTo(buffer, "\033[{}m", q3ToAnsi[ColorIndex(*(msg + 1))]);
                 fputs(buffer, stderr);
                 msg += 2;
             }

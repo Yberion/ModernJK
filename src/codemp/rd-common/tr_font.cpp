@@ -160,11 +160,11 @@ struct ThaiCodes_t {
                         ri.FS_FreeFile(piData); // dispose of original
                     }
                     else {
-                        m_strInitFailureReason = va("Error with file \"%s\", size = %d!\n", sFILENAME_THAI_WIDTHS, iBytesRead);
+                        m_strInitFailureReason = Q_Format("Error with file \"{}\", size = {}!\n", sFILENAME_THAI_WIDTHS, iBytesRead).c_str();
                     }
                 }
                 else {
-                    m_strInitFailureReason = va("Error with file \"%s\", size = %d!\n", sFILENAME_THAI_CODES, iBytesRead);
+                    m_strInitFailureReason = Q_Format("Error with file \"{}\", size = {}!\n", sFILENAME_THAI_CODES, iBytesRead).c_str();
                 }
             }
         }
@@ -769,8 +769,9 @@ bool Language_UsesSpaces(void)
 static const char* FontDatPath(const char* _fontName)
 {
     static char fontName[MAX_QPATH];
-    sprintf(fontName, "fonts/%s.fontdat", COM_SkipPath(const_cast<char*>(_fontName))); // COM_SkipPath should take a const char *, but it's just possible people
-                                                                                       // use it as a char * I guess, so I have to hack around like this <groan>
+    Q_FormatTo(fontName, "fonts/{}.fontdat",
+               COM_SkipPath(const_cast<char*>(_fontName))); // COM_SkipPath should take a const char *, but it's just possible people
+                                                            // use it as a char * I guess, so I have to hack around like this <groan>
     return fontName;
 }
 CFontInfo::CFontInfo(const char* _fontName)
@@ -848,7 +849,7 @@ CFontInfo::CFontInfo(const char* _fontName)
     g_vFontArray[g_iCurrentFontIndex++] = this;
 
     if (ri.Cvar_VariableIntegerValue("com_buildScript") == 2) {
-        Com_Printf("com_buildScript(2): Registering foreign fonts...\n");
+        Q_Println("com_buildScript(2): Registering foreign fonts...");
         static bool bDone = false; // Do this once only (for speed)...
         if (!bDone) {
             bDone = true;
@@ -863,12 +864,12 @@ CFontInfo::CFontInfo(const char* _fontName)
             for (int i = 0; g_SBCSOverrideLanguages[i].m_psName; i++) {
                 char sTemp[MAX_QPATH];
 
-                sprintf(sTemp, "fonts/%s.tga", g_SBCSOverrideLanguages[i].m_psName);
+                Q_FormatTo(sTemp, "fonts/{}.tga", g_SBCSOverrideLanguages[i].m_psName);
                 ri.FS_FOpenFileRead(sTemp, &f, false);
                 if (f)
                     ri.FS_FCloseFile(f);
 
-                sprintf(sTemp, "fonts/%s.fontdat", g_SBCSOverrideLanguages[i].m_psName);
+                Q_FormatTo(sTemp, "fonts/{}.fontdat", g_SBCSOverrideLanguages[i].m_psName);
                 ri.FS_FOpenFileRead(sTemp, &f, false);
                 if (f)
                     ri.FS_FCloseFile(f);
@@ -909,7 +910,7 @@ CFontInfo::CFontInfo(const char* _fontName)
                 }
 
                 for (int i = 0; i < iGlyphTPs; i++) {
-                    Com_sprintf(sTemp, sizeof(sTemp), "fonts/%s_%d_1024_%d.tga", psLang, 1024 / m_iAsianGlyphsAcross, i);
+                    Q_FormatTo(sTemp, "fonts/{}_{}_1024_{}.tga", psLang, 1024 / m_iAsianGlyphsAcross, i);
 
                     // RE_RegisterShaderNoMip( sTemp );	// don't actually need to load it, so...
                     ri.FS_FOpenFileRead(sTemp, &f, false);
@@ -987,7 +988,7 @@ void CFontInfo::UpdateAsianIfNeeded(bool bForceReEval /* = false */)
                             // failed to load a needed file, reset to English...
                             //
                             ri.Cvar_Set("se_language", "english");
-                            Com_Error(errorParm_t::ERR_DROP, "%s", psFailureReason);
+                            Q_Error(errorParm_t::ERR_DROP, "{}", psFailureReason);
                         }
                     }
                 } break;
@@ -1007,7 +1008,7 @@ void CFontInfo::UpdateAsianIfNeeded(bool bForceReEval /* = false */)
                     // (Note!!  assumption for S,T calculations: all Asian glyph textures pages are square except for last one)
                     //
                     char sTemp[MAX_QPATH];
-                    Com_sprintf(sTemp, sizeof(sTemp), "fonts/%s_%d_1024_%d", psLang, 1024 / m_iAsianGlyphsAcross, i);
+                    Q_FormatTo(sTemp, "fonts/{}_{}_1024_{}", psLang, 1024 / m_iAsianGlyphsAcross, i);
                     //
                     // returning 0 here will automatically inhibit Asian glyph calculations at runtime...
                     //
@@ -1264,7 +1265,7 @@ static CFontInfo* GetFont_SBCSOverride(CFontInfo* pFont, Language_e eLanguageSBC
                 // need to register this alternative SBCS font...
                 //
                 int iAltFontIndex =
-                    RE_RegisterFont(va("%s/%s", COM_SkipPath(pFont->m_sFontName), psLanguageNameSBCS)); // ensure unique name (eg: "lcd/russian")
+                    RE_RegisterFont(Q_Format("{}/{}", COM_SkipPath(pFont->m_sFontName), psLanguageNameSBCS).c_str()); // ensure unique name (eg: "lcd/russian")
                 CFontInfo* pAltFont = GetFont_Actual(iAltFontIndex);
                 if (pAltFont) {
                     // work out the scaling factor for this font's glyphs...( round it to 1 decimal place to cut down on silly scale factors like 0.53125 )
@@ -1476,7 +1477,7 @@ void RE_Font_DrawString(int ox, int oy, const char* psText, const float* rgba, c
     //	if (GetLanguageEnum() == Language_e::eJapanese)
     //	{
     //		static char sBlah[200];
-    //		sprintf(sBlah,va("%c%c%c%c%c%c%c%c",0x82,0xA9,0x82,0xC8,0x8A,0xBF,0x8E,0x9A));
+    //		Q_FormatTo(sBlah, "{:c}{:c}{:c}{:c}{:c}{:c}{:c}{:c}", 0x82, 0xA9, 0x82, 0xC8, 0x8A, 0xBF, 0x8E, 0x9A);
     //		psText = &sBlah[0];
     //	}
     //	else
@@ -1658,7 +1659,8 @@ int RE_RegisterFont(const char* psName)
 
         if (oriFont->GetNumVariants() == 0) {
             for (int i = 0; i < MAX_FONT_VARIANTS; i++) {
-                const char* variantName = va("%s_sharp%i", psName, i + 1);
+                const formatText_t variantNameText = Q_Format("{}_sharp{}", psName, i + 1);
+                const char* variantName = variantNameText.c_str();
                 const char* fontDatPath = FontDatPath(variantName);
                 if (ri.FS_ReadFile(fontDatPath, nullptr) > 0) {
                     int replacerFontHandle = RE_RegisterFont_Real(variantName);
@@ -1678,7 +1680,7 @@ int RE_RegisterFont(const char* psName)
         }
     }
     else {
-        Com_Warning("RE_RegisterFont: Couldn't find font %s\n", psName);
+        Q_PrintlnWarning("RE_RegisterFont: Couldn't find font {}", psName);
     }
 
     return oriFontHandle;
@@ -1699,17 +1701,16 @@ R_FontList_f
 */
 void R_FontList_f(void)
 {
-    Com_Printf("------------------------------------\n");
+    Q_Println("------------------------------------");
 
     FontIndexMap_t::iterator it;
     for (it = g_mapFontIndexes.begin(); it != g_mapFontIndexes.end(); ++it) {
         CFontInfo* font = GetFont((*it).second);
         if (font) {
-            Com_Printf("%3i:%s  ps:%hi h:%hi a:%hi d:%hi\n", (*it).second, font->m_sFontName, font->mPointSize, font->mHeight, font->mAscender,
-                       font->mDescender);
+            Q_Println("{:3}:{}  ps:{} h:{} a:{} d:{}", (*it).second, font->m_sFontName, font->mPointSize, font->mHeight, font->mAscender, font->mDescender);
         }
     }
-    Com_Printf("------------------------------------\n");
+    Q_Println("------------------------------------");
 }
 
 void R_ShutdownFonts(void)
@@ -1767,10 +1768,10 @@ void R_ReloadFonts_f(void)
             RE_RegisterFont(vstrFonts[iFont].c_str());
 #endif
         }
-        Com_Printf("Done.\n");
+        Q_Println("Done.");
     }
     else {
-        Com_Printf("Problem encountered finding current fonts, ignoring.\n"); // poo. Oh well, forget it.
+        Q_Println("Problem encountered finding current fonts, ignoring."); // poo. Oh well, forget it.
     }
 }
 

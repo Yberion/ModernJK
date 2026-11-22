@@ -64,7 +64,7 @@ Q3_ReadScript
 extern int ICARUS_GetScript(const char* name, char** buf); // g_icarus.cpp
 static int Q3_ReadScript(const char* name, void** buf)
 {
-    return ICARUS_GetScript(va("%s/%s", Q3_SCRIPT_DIR, name), (char**)buf); // get a (hopefully) cached file
+    return ICARUS_GetScript(Q_Format("{}/{}", Q3_SCRIPT_DIR, name).c_str(), (char**)buf); // get a (hopefully) cached file
 }
 
 /*
@@ -76,16 +76,18 @@ Q3_CenterPrint
   Argument		: ...
 ============
 */
-static void Q3_CenterPrint(const char* format, ...) __attribute__((format(printf, 1, 2)));
-static void Q3_CenterPrint(const char* format, ...)
+static void Q3_VCenterPrint(fmt::string_view format, fmt::format_args args);
+template <typename... T> void Q3_CenterPrint(fmt::format_string<T...> format, T&&... args)
+{
+    Q3_VCenterPrint(format.get(), Q_FormatArgs(args...));
+}
+
+static void Q3_VCenterPrint(fmt::string_view format, fmt::format_args args)
 {
 
-    va_list argptr;
     char text[1024];
 
-    va_start(argptr, format);
-    Q_vsnprintf(text, sizeof(text), format, argptr);
-    va_end(argptr);
+    Q_VFormatToCut(text, format, args);
 
     // FIXME: added '!' so you can print something that's hasn't been precached, '@' searches only for precache text
     // this is just a TEMPORARY placeholder until objectives are in!!!  -- dmv 11/26/01
@@ -93,14 +95,14 @@ static void Q3_CenterPrint(const char* format, ...)
     if ((text[0] == '@') || text[0] == '!') // It's a key
     {
         if (text[0] == '!') {
-            SV_SendServerCommand(nullptr, "cp \"%s\"", (text + 1));
+            SV_SendServerCommand(nullptr, "cp \"{}\"", (text + 1));
             return;
         }
 
-        SV_SendServerCommand(nullptr, "cp \"%s\"", text);
+        SV_SendServerCommand(nullptr, "cp \"{}\"", text);
     }
 
-    Q3_DebugPrint(WL_e::WL_VERBOSE, "%s\n", text); // Just a developers note
+    Q3_DebugPrintln(WL_e::WL_VERBOSE, "{}", text); // Just a developers note
 
     return;
 }
@@ -372,7 +374,7 @@ void Q3_SetVar(int taskID, int entID, const char* type_name, const char* data)
         return;
     }
 
-    Q3_DebugPrint(WL_e::WL_ERROR, "%s variable or field not found!\n", type_name);
+    Q3_DebugPrintln(WL_e::WL_ERROR, "{} variable or field not found!", type_name);
 }
 
 /*
@@ -428,7 +430,7 @@ static int Q3_Evaluate(icarusToken_t p1Type, const char* p1, icarusToken_t p2Typ
 
     // Cannot compare two disimilar types
     if (p1Type != p2Type) {
-        Q3_DebugPrint(WL_e::WL_ERROR, "Q3_Evaluate comparing two disimilar types!\n");
+        Q3_DebugPrintln(WL_e::WL_ERROR, "Q3_Evaluate comparing two disimilar types!");
         return false;
     }
 
@@ -456,7 +458,7 @@ static int Q3_Evaluate(icarusToken_t p1Type, const char* p1, icarusToken_t p2Typ
         break;
 
     default:
-        Q3_DebugPrint(WL_e::WL_WARNING, "Q3_Evaluate unknown type used!\n");
+        Q3_DebugPrintln(WL_e::WL_WARNING, "Q3_Evaluate unknown type used!");
         return false;
     }
 
@@ -491,7 +493,7 @@ static int Q3_Evaluate(icarusToken_t p1Type, const char* p1, icarusToken_t p2Typ
             break;
 
         default:
-            Q3_DebugPrint(WL_e::WL_ERROR, "Q3_Evaluate unknown type used!\n");
+            Q3_DebugPrintln(WL_e::WL_ERROR, "Q3_Evaluate unknown type used!");
             return false;
         }
 
@@ -513,18 +515,18 @@ static int Q3_Evaluate(icarusToken_t p1Type, const char* p1, icarusToken_t p2Typ
             break;
 
         case icarusToken_t::TK_VECTOR:
-            Q3_DebugPrint(WL_e::WL_ERROR, "Q3_Evaluate vector comparisons of type GREATER THAN cannot be performed!");
+            Q3_DebugPrintln(WL_e::WL_ERROR, "Q3_Evaluate vector comparisons of type GREATER THAN cannot be performed!");
             return false;
             break;
 
         case icarusToken_t::TK_STRING:
         case icarusToken_t::TK_IDENTIFIER:
-            Q3_DebugPrint(WL_e::WL_ERROR, "Q3_Evaluate string comparisons of type GREATER THAN cannot be performed!");
+            Q3_DebugPrintln(WL_e::WL_ERROR, "Q3_Evaluate string comparisons of type GREATER THAN cannot be performed!");
             return false;
             break;
 
         default:
-            Q3_DebugPrint(WL_e::WL_ERROR, "Q3_Evaluate unknown type used!\n");
+            Q3_DebugPrintln(WL_e::WL_ERROR, "Q3_Evaluate unknown type used!");
             return false;
         }
 
@@ -546,18 +548,18 @@ static int Q3_Evaluate(icarusToken_t p1Type, const char* p1, icarusToken_t p2Typ
             break;
 
         case icarusToken_t::TK_VECTOR:
-            Q3_DebugPrint(WL_e::WL_ERROR, "Q3_Evaluate vector comparisons of type LESS THAN cannot be performed!");
+            Q3_DebugPrintln(WL_e::WL_ERROR, "Q3_Evaluate vector comparisons of type LESS THAN cannot be performed!");
             return false;
             break;
 
         case icarusToken_t::TK_STRING:
         case icarusToken_t::TK_IDENTIFIER:
-            Q3_DebugPrint(WL_e::WL_ERROR, "Q3_Evaluate string comparisons of type LESS THAN cannot be performed!");
+            Q3_DebugPrintln(WL_e::WL_ERROR, "Q3_Evaluate string comparisons of type LESS THAN cannot be performed!");
             return false;
             break;
 
         default:
-            Q3_DebugPrint(WL_e::WL_ERROR, "Q3_Evaluate unknown type used!\n");
+            Q3_DebugPrintln(WL_e::WL_ERROR, "Q3_Evaluate unknown type used!");
             return false;
         }
 
@@ -588,14 +590,14 @@ static int Q3_Evaluate(icarusToken_t p1Type, const char* p1, icarusToken_t p2Typ
             break;
 
         default:
-            Q3_DebugPrint(WL_e::WL_ERROR, "Q3_Evaluate unknown type used!\n");
+            Q3_DebugPrintln(WL_e::WL_ERROR, "Q3_Evaluate unknown type used!");
             return false;
         }
 
         break;
 
     default:
-        Q3_DebugPrint(WL_e::WL_ERROR, "Q3_Evaluate unknown operator used!\n");
+        Q3_DebugPrintln(WL_e::WL_ERROR, "Q3_Evaluate unknown operator used!");
         break;
     }
 
@@ -609,7 +611,7 @@ Q3_CameraFade
 */
 static void Q3_CameraFade(float sr, float sg, float sb, float sa, float dr, float dg, float db, float da, float duration)
 {
-    Q3_DebugPrint(WL_e::WL_WARNING, "Q3_CameraFade: NOT SUPPORTED IN MP\n");
+    Q3_DebugPrintln(WL_e::WL_WARNING, "Q3_CameraFade: NOT SUPPORTED IN MP");
 }
 
 /*
@@ -619,7 +621,7 @@ Q3_CameraPath
 */
 static void Q3_CameraPath(const char* name)
 {
-    Q3_DebugPrint(WL_e::WL_WARNING, "Q3_CameraPath: NOT SUPPORTED IN MP\n");
+    Q3_DebugPrintln(WL_e::WL_WARNING, "Q3_CameraPath: NOT SUPPORTED IN MP");
 }
 
 /*
@@ -627,29 +629,25 @@ static void Q3_CameraPath(const char* name)
 Q3_DebugPrint
 -------------------------
 */
-void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
-void Q3_DebugPrint(WL_e level, const char* format, ...)
+void Q3_VDebugPrintln(WL_e level, fmt::string_view format, fmt::format_args args)
 {
     // Don't print messages they don't want to see
     // if ( g_ICARUSDebug->integer < to_underlying( level ) )
     if (!com_developer || !com_developer->integer)
         return;
 
-    va_list argptr;
     char text[1024];
 
-    va_start(argptr, format);
-    Q_vsnprintf(text, sizeof(text), format, argptr);
-    va_end(argptr);
+    Q_VFormatToCut(text, format, args);
 
     // Add the color formatting
     switch (level) {
     case WL_e::WL_ERROR:
-        Com_PrintError("%s", text);
+        Q_PrintlnError("{}", text);
         break;
 
     case WL_e::WL_WARNING:
-        Com_Warning("%s", text);
+        Q_PrintlnWarning("{}", text);
         break;
 
     case WL_e::WL_DEBUG: {
@@ -667,19 +665,19 @@ void Q3_DebugPrint(WL_e level, const char* format, ...)
         if ((entNum < 0) || (entNum >= MAX_GENTITIES))
             entNum = 0;
 
-        Com_Printf(S_COLOR_BLUE "DEBUG: %s(%d): %s\n", SV_GentityNum(entNum)->script_targetname, entNum, buffer);
+        Q_Println(S_COLOR_BLUE "DEBUG: {}({}): {}", SV_GentityNum(entNum)->script_targetname, entNum, buffer);
         break;
     }
     default:
     case WL_e::WL_VERBOSE:
-        Com_Printf(S_COLOR_GREEN "INFO: %s", text);
+        Q_Println(S_COLOR_GREEN "INFO: {}", text);
         break;
     }
 }
 
 void CGCam_Anything(void)
 {
-    Q3_DebugPrint(WL_e::WL_WARNING, "Camera functions NOT SUPPORTED IN MP\n");
+    Q3_DebugPrintln(WL_e::WL_WARNING, "Camera functions NOT SUPPORTED IN MP");
 }
 
 // These are useless for MP. Just taking it for now since I don't want to remove all calls to this in ICARUS.
@@ -942,8 +940,8 @@ void Interface_Init(interface_export_t* pe)
 
     // General
     pe->I_LoadFile = Q3_ReadScript;
-    pe->I_CenterPrint = Q3_CenterPrint;
-    pe->I_DPrintf = Q3_DebugPrint;
+    pe->I_VCenterPrint = Q3_VCenterPrint;
+    pe->I_VDPrintln = Q3_VDebugPrintln;
     pe->I_GetEntityByName = Q3_GetEntityByName;
     pe->I_GetTime = Q3_GetTime;
     pe->I_GetTimeScale = Q3_GetTimeScale;

@@ -30,6 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Vector Library
 ////////////////////////////////////////////////////////////////////////////////////////
 
+#include <shared/qcommon/q_fmt.h>
 #include <assert.h>
 
 #include <shared/qcommon/q_libm.h>
@@ -380,10 +381,10 @@ void CVec4::FromStr(const char* s)
 ////////////////////////////////////////////////////////////////////////////////////////
 // Write Values To A String
 ////////////////////////////////////////////////////////////////////////////////////////
-void CVec4::ToStr(char* s) const
+void CVec4::ToStr(std::span<char> s) const
 {
-    //	assert(s);
-    sprintf(s, "(%3.3f %3.3f %3.3f %3.3f)", v[0], v[1], v[2], v[3]);
+    //	assert(!s.empty());
+    Q_FormatTo(s, "({:3.3f} {:3.3f} {:3.3f} {:3.3f})", v[0], v[1], v[2], v[3]);
 }
 
 #ifdef _DEBUG
@@ -910,10 +911,10 @@ void CVec3::FromStr(const char* s)
 ////////////////////////////////////////////////////////////////////////////////////////
 // Write Values To A String
 ////////////////////////////////////////////////////////////////////////////////////////
-void CVec3::ToStr(char* s) const
+void CVec3::ToStr(std::span<char> s) const
 {
-    assert(s);
-    sprintf(s, "(%3.3f %3.3f %3.3f)", v[0], v[1], v[2]);
+    assert(!s.empty());
+    Q_FormatTo(s, "({:3.3f} {:3.3f} {:3.3f})", v[0], v[1], v[2]);
 }
 
 #ifdef _DEBUG

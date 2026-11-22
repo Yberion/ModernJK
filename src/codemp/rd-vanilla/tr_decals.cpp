@@ -176,7 +176,7 @@ void RE_AddDecalToScene(qhandle_t decalShader, const vec3_t origin, const vec3_t
         return;
 
     if (radius <= 0)
-        Com_Error(errorParm_t::ERR_FATAL, "RE_AddDecalToScene:  called with <= 0 radius");
+        Q_Error(errorParm_t::ERR_FATAL, "RE_AddDecalToScene:  called with <= 0 radius");
 
     // create the texture axis
     VectorNormalize2(dir, axis[0]);

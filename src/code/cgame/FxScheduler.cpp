@@ -189,7 +189,7 @@ int CFxScheduler::ScheduleLoopedEffect(int id, int boltInfo, bool isPortal, int 
     {
         if (mLoopedEffectArray[i].mId == id && mLoopedEffectArray[i].mBoltInfo == boltInfo && mLoopedEffectArray[i].mPortalEffect == isPortal) {
 #ifdef _DEBUG
-//			Com_DPrintf( "CFxScheduler::ScheduleLoopedEffect- updating %s\n", mEffectTemplates[id].mEffectName);
+//			Q_DPrintln("CFxScheduler::ScheduleLoopedEffect- updating {}", mEffectTemplates[id].mEffectName);
 #endif
             break;
         }
@@ -206,7 +206,7 @@ int CFxScheduler::ScheduleLoopedEffect(int id, int boltInfo, bool isPortal, int 
 
     if (i == MAX_LOOPED_FX) { // bad
         assert(i != MAX_LOOPED_FX);
-        Com_DPrintf("CFxScheduler::AddLoopedEffect- No Free Slots available for %s\n", mEffectTemplates[id].mEffectName);
+        Q_DPrintln("CFxScheduler::AddLoopedEffect- No Free Slots available for {}", mEffectTemplates[id].mEffectName);
         return -1;
     }
     mLoopedEffectArray[i].mId = id;
@@ -228,7 +228,7 @@ void CFxScheduler::StopEffect(const char* file, int boltInfo, bool isPortal)
     const int id = mEffectIDs[sfile];
 #ifndef FINAL_BUILD
     if (id == 0) {
-        Com_DPrintf("CFxScheduler::StopEffect- unregistered/non-existent effect: %s\n", sfile);
+        Q_DPrintln("CFxScheduler::StopEffect- unregistered/non-existent effect: {}", sfile);
         return;
     }
 #endif
@@ -240,7 +240,7 @@ void CFxScheduler::StopEffect(const char* file, int boltInfo, bool isPortal)
         }
     }
 #ifdef _DEBUG_FX
-    Com_DPrintf("CFxScheduler::StopEffect- (%s) is not looping!\n", file);
+    Q_DPrintln("CFxScheduler::StopEffect- ({}) is not looping!", file);
 #endif
 }
 
@@ -258,7 +258,7 @@ void CFxScheduler::AddLoopedEffects()
                 mLoopedEffectArray[i].mNextTime = theFxHelper.mTime + mEffectTemplates[mLoopedEffectArray[i].mId].mRepeatDelay;
             }
             else {
-                Com_DPrintf("CFxScheduler::AddLoopedEffects- entity was removed without stopping any looping fx it owned.");
+                Q_DPrintln("CFxScheduler::AddLoopedEffects- entity was removed without stopping any looping fx it owned.");
                 memset(&mLoopedEffectArray[i], 0, sizeof(mLoopedEffectArray[i]));
                 continue;
             }
@@ -412,7 +412,7 @@ int CFxScheduler::RegisterEffect(const char* path, bool bHasCorrectPath /*= fals
     }
     else {
         // Add on our extension and prepend the file with the default path
-        Com_sprintf(correctFilenameBuffer, sizeof(correctFilenameBuffer), "%s/%s.efx", FX_FILE_PATH, filenameNoExt);
+        Q_FormatTo(correctFilenameBuffer, "{}/{}.efx", FX_FILE_PATH, filenameNoExt);
         pfile = correctFilenameBuffer;
     }
 
@@ -420,7 +420,7 @@ int CFxScheduler::RegisterEffect(const char* path, bool bHasCorrectPath /*= fals
     CGenericParser2 parser;
     if (!parser.Parse(pfile)) {
         if (!parser.ValidFile()) {
-            Com_DPrintf("RegisterEffect: INVALID file: %s\n", pfile);
+            Q_DPrintln("RegisterEffect: INVALID file: {}", pfile);
         }
         return false;
         if (parser.ValidFile()) {
@@ -506,7 +506,7 @@ void CFxScheduler::AddPrimitiveToEffect(SEffectTemplate* fx, CPrimitiveTemplate*
     int ct = fx->mPrimitiveCount;
 
     if (ct >= FX_MAX_EFFECT_COMPONENTS) {
-        Com_DPrintf("FxScheduler:  Error--too many primitives in an effect\n");
+        Q_DPrintln("FxScheduler:  Error--too many primitives in an effect");
     }
     else {
         fx->mPrimitives[ct] = prim;
@@ -551,7 +551,7 @@ SEffectTemplate* CFxScheduler::GetNewEffectTemplate(int* id, const char* file)
         }
     }
 
-    Com_DPrintf("FxScheduler:  Error--reached max effects\n");
+    Q_DPrintln("FxScheduler:  Error--reached max effects");
     *id = 0;
     return nullptr;
 }
@@ -591,7 +591,7 @@ SEffectTemplate* CFxScheduler::GetEffectCopy(int fxHandle, int* newHandle)
 {
     if (fxHandle < 1 || fxHandle >= FX_MAX_EFFECTS || !mEffectTemplates[fxHandle].mInUse) {
         // Didn't even request a valid effect to copy!!!
-        Com_DPrintf("FxScheduler: Bad effect file copy request\n");
+        Q_DPrintln("FxScheduler: Bad effect file copy request");
 
         *newHandle = 0;
         return nullptr;
@@ -651,7 +651,7 @@ CPrimitiveTemplate* CFxScheduler::GetPrimitiveCopy(SEffectTemplate* effectCopy, 
 static void ReportPlayEffectError(int id)
 {
 #ifdef _DEBUG
-    Com_DPrintf("CFxScheduler::PlayEffect called with invalid effect ID: %i\n", id);
+    Q_DPrintln("CFxScheduler::PlayEffect called with invalid effect ID: {}", id);
 #endif
 }
 
@@ -731,7 +731,7 @@ void CFxScheduler::PlayEffect(const char* file, vec3_t origin, vec3_t axis[3], c
 
 #ifndef FINAL_BUILD
     if (mEffectIDs[sfile] == 0) {
-        Com_DPrintf("CFxScheduler::PlayEffect unregistered/non-existent effect: %s\n", sfile);
+        Q_DPrintln("CFxScheduler::PlayEffect unregistered/non-existent effect: {}", sfile);
     }
 #endif
 
@@ -762,7 +762,7 @@ void CFxScheduler::PlayEffect(const char* file, int clientID, bool isPortal)
 
 #ifndef FINAL_BUILD
     if (id == 0) {
-        Com_DPrintf("CFxScheduler::PlayEffect unregistered/non-existent effect: %s\n", file);
+        Q_DPrintln("CFxScheduler::PlayEffect unregistered/non-existent effect: {}", file);
     }
 #endif
 
@@ -816,7 +816,7 @@ void CFxScheduler::PlayEffect(const char* file, int clientID, bool isPortal)
                 SScheduledEffect* sfx = mScheduledEffectsPool.Alloc();
 
                 if (sfx == nullptr) {
-                    Com_Error(errorParm_t::ERR_DROP, "ERROR: Failed to allocate EFX from memory pool.");
+                    Q_Error(errorParm_t::ERR_DROP, "ERROR: Failed to allocate EFX from memory pool.");
                     return;
                 }
 
@@ -1086,7 +1086,7 @@ void CFxScheduler::PlayEffect(int id, vec3_t origin, vec3_t axis[3], const int b
                 SScheduledEffect* sfx = mScheduledEffectsPool.Alloc();
 
                 if (sfx == nullptr) {
-                    Com_Error(errorParm_t::ERR_DROP, "ERROR: Failed to allocate EFX from memory pool.");
+                    Q_Error(errorParm_t::ERR_DROP, "ERROR: Failed to allocate EFX from memory pool.");
                     return;
                 }
 
@@ -1165,7 +1165,7 @@ void CFxScheduler::PlayEffect(const char* file, vec3_t origin, bool isPortal)
 
 #ifndef FINAL_BUILD
     if (mEffectIDs[sfile] == 0) {
-        Com_DPrintf("CFxScheduler::PlayEffect unregistered/non-existent effect: %s\n", file);
+        Q_DPrintln("CFxScheduler::PlayEffect unregistered/non-existent effect: {}", file);
     }
 #endif
 }
@@ -1193,7 +1193,7 @@ void CFxScheduler::PlayEffect(const char* file, vec3_t origin, vec3_t forward, b
 
 #ifndef FINAL_BUILD
     if (mEffectIDs[sfile] == 0) {
-        Com_DPrintf("CFxScheduler::PlayEffect unregistered/non-existent effect: %s\n", file);
+        Q_DPrintln("CFxScheduler::PlayEffect unregistered/non-existent effect: {}", file);
     }
 #endif
 }

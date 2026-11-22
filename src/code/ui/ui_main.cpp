@@ -379,7 +379,7 @@ static void UI_UpdateScreenshot(void)
     if (ui_screenshotType.string[0] && isalpha(ui_screenshotType.string[0])) {
         const std::optional<screenshotFormat_t> ssf = UI_GetScreenshotFormatForString(ui_screenshotType.string);
         if (!ssf) {
-            Com_Printf("UI Screenshot Format Type '%s' unrecognised, defaulting to JPEG\n", ui_screenshotType.string);
+            Q_Println("UI Screenshot Format Type '{}' unrecognised, defaulting to JPEG", ui_screenshotType.string);
             uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
             changed = true;
         }
@@ -388,7 +388,7 @@ static void UI_UpdateScreenshot(void)
     }
     else if (ui_screenshotType.integer < to_underlying(screenshotFormat_t::SSF_JPEG) ||
              ui_screenshotType.integer > to_underlying(screenshotFormat_t::SSF_PNG)) {
-        Com_Printf("ui_screenshotType %i is out of range, defaulting to 0 (JPEG)\n", ui_screenshotType.integer);
+        Q_Println("ui_screenshotType {} is out of range, defaulting to 0 (JPEG)", ui_screenshotType.integer);
         uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
         changed = true;
     }
@@ -632,7 +632,7 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
 
     int iNextXpos = ui.R_Font_StrLenPixels(sTemp, iFontIndex, scale);
 
-    Text_Paint(x + iNextXpos, y, scale, color, va("%c", cursor), iMaxPixelWidth, style | ITEM_TEXTSTYLE_BLINK, iFontIndex);
+    Text_Paint(x + iNextXpos, y, scale, color, Q_Format("{}", cursor).c_str(), iMaxPixelWidth, style | ITEM_TEXTSTYLE_BLINK, iFontIndex);
 }
 
 const char* UI_FeederItemText(float feederID, int index, int column, qhandle_t* handle)
@@ -668,22 +668,25 @@ const char* UI_FeederItemText(float feederID, int index, int column, qhandle_t* 
     }
     else if (feederID == FEEDER_PLAYER_SKIN_HEAD) {
         if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadCount) {
-            *handle = ui.R_RegisterShaderNoMip(va("models/players/%s/icon_%s.jpg", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Name,
-                                                  uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHead[index].name));
+            *handle = ui.R_RegisterShaderNoMip(Q_Format("models/players/{}/icon_{}.jpg", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Name,
+                                                        uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHead[index].name)
+                                                   .c_str());
             return uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHead[index].name;
         }
     }
     else if (feederID == FEEDER_PLAYER_SKIN_TORSO) {
         if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorsoCount) {
-            *handle = ui.R_RegisterShaderNoMip(va("models/players/%s/icon_%s.jpg", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Name,
-                                                  uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorso[index].name));
+            *handle = ui.R_RegisterShaderNoMip(Q_Format("models/players/{}/icon_{}.jpg", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Name,
+                                                        uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorso[index].name)
+                                                   .c_str());
             return uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorso[index].name;
         }
     }
     else if (feederID == FEEDER_PLAYER_SKIN_LEGS) {
         if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegCount) {
-            *handle = ui.R_RegisterShaderNoMip(va("models/players/%s/icon_%s.jpg", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Name,
-                                                  uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLeg[index].name));
+            *handle = ui.R_RegisterShaderNoMip(Q_Format("models/players/{}/icon_{}.jpg", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Name,
+                                                        uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLeg[index].name)
+                                                   .c_str());
             return uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLeg[index].name;
         }
     }
@@ -712,22 +715,25 @@ qhandle_t UI_FeederItemImage(float feederID, int index)
     if (feederID == FEEDER_PLAYER_SKIN_HEAD) {
         if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadCount) {
             // return uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadIcons[index];
-            return ui.R_RegisterShaderNoMip(va("models/players/%s/icon_%s.jpg", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Name,
-                                               uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHead[index].name));
+            return ui.R_RegisterShaderNoMip(Q_Format("models/players/{}/icon_{}.jpg", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Name,
+                                                     uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHead[index].name)
+                                                .c_str());
         }
     }
     else if (feederID == FEEDER_PLAYER_SKIN_TORSO) {
         if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorsoCount) {
             // return uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorsoIcons[index];
-            return ui.R_RegisterShaderNoMip(va("models/players/%s/icon_%s.jpg", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Name,
-                                               uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorso[index].name));
+            return ui.R_RegisterShaderNoMip(Q_Format("models/players/{}/icon_{}.jpg", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Name,
+                                                     uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorso[index].name)
+                                                .c_str());
         }
     }
     else if (feederID == FEEDER_PLAYER_SKIN_LEGS) {
         if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegCount) {
             // return uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegIcons[index];
-            return ui.R_RegisterShaderNoMip(va("models/players/%s/icon_%s.jpg", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Name,
-                                               uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLeg[index].name));
+            return ui.R_RegisterShaderNoMip(Q_Format("models/players/{}/icon_{}.jpg", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Name,
+                                                     uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLeg[index].name)
+                                                .c_str());
         }
     }
     else if (feederID == FEEDER_COLORCHOICES) {
@@ -765,9 +771,9 @@ static int CreateNextSaveName(char* fileName)
     // Loop through all the save games and look for the first open name
     for (i = 0; i < MAX_SAVELOADFILES; i++) {
 #ifdef JK2_MODE
-        Com_sprintf(fileName, MAX_SAVELOADNAME, "jkii%02d", i);
+        Q_FormatTo(std::span(fileName, MAX_SAVELOADNAME), "jkii{:02}", i);
 #else
-        Com_sprintf(fileName, MAX_SAVELOADNAME, "jedi_%02d", i);
+        Q_FormatTo(std::span(fileName, MAX_SAVELOADNAME), "jedi_{:02}", i);
 #endif
 
         if (!ui.SG_GetSaveGameComment(fileName, nullptr, nullptr)) {
@@ -852,7 +858,7 @@ static bool UI_RunMenuScript(const char** args)
             if (s_savedata[s_savegame.currentLine].currentSaveFileName) // && (*s_file_desc_field.field.buffer))
             {
                 Menus_CloseAll();
-                ui.Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, va("load %s\n", s_savedata[s_savegame.currentLine].currentSaveFileName));
+                ui.Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, Q_Format("load {}\n", s_savedata[s_savegame.currentLine].currentSaveFileName).c_str());
             }
             // after loading a game, the list box (and it's highlight) get's reset back to 0, but currentLine sticks around, so set it to 0 here
             s_savegame.currentLine = 0;
@@ -861,10 +867,10 @@ static bool UI_RunMenuScript(const char** args)
             if (s_savedata[s_savegame.currentLine].currentSaveFileName) // A line was chosen
             {
 #ifndef FINAL_BUILD
-                Com_Printf("%s\n", "Attempting to delete game");
+                Q_Println("{}", "Attempting to delete game");
 #endif
 
-                ui.Cmd_ExecuteText(cbufExec_t::EXEC_NOW, va("wipe %s\n", s_savedata[s_savegame.currentLine].currentSaveFileName));
+                ui.Cmd_ExecuteText(cbufExec_t::EXEC_NOW, Q_Format("wipe {}\n", s_savedata[s_savegame.currentLine].currentSaveFileName).c_str());
 
                 if ((s_savegame.currentLine > 0) && ((s_savegame.currentLine + 1) == s_savegame.saveFileCnt)) {
                     s_savegame.currentLine--;
@@ -900,7 +906,7 @@ static bool UI_RunMenuScript(const char** args)
             ui.Cvar_VariableStringBuffer("ui_gameDesc", description, sizeof(description));
             ui.SG_StoreSaveGameComment(description);
 
-            ui.Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, va("save %s\n", fileName));
+            ui.Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, Q_Format("save {}\n", fileName).c_str());
             s_savegame.saveFileCnt = -1; // force a refresh the next time around
         }
         else if (Q_stricmp(name, "LoadMods") == 0) {
@@ -971,7 +977,7 @@ static bool UI_RunMenuScript(const char** args)
             Menus_CloseAll();
 
             if (String_Parse(args, &mapName)) {
-                ui.Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, va("maptransition %s\n", mapName));
+                ui.Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, Q_Format("maptransition {}\n", mapName).c_str());
             }
         }
         else if (Q_stricmp(name, "closeingame") == 0) {
@@ -1081,8 +1087,8 @@ static bool UI_RunMenuScript(const char** args)
 
                         uiInfo.moveAnimTime = 0;
                         DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
-                        Com_sprintf(skin, sizeof(skin), "models/players/%s/|%s|%s|%s", Cvar_VariableString("g_char_model"),
-                                    Cvar_VariableString("g_char_skin_head"), Cvar_VariableString("g_char_skin_torso"), Cvar_VariableString("g_char_skin_legs"));
+                        Q_FormatTo(skin, "models/players/{}/|{}|{}|{}", Cvar_VariableString("g_char_model"), Cvar_VariableString("g_char_skin_head"),
+                                   Cvar_VariableString("g_char_skin_torso"), Cvar_VariableString("g_char_skin_legs"));
 
                         ItemParse_model_g2skin_go(item, skin);
                         UI_SaberAttachToChar(item);
@@ -1358,7 +1364,7 @@ static bool UI_RunMenuScript(const char** args)
                 UI_Update(name2);
             }
             else {
-                Com_Printf("update missing cmd\n");
+                Q_Println("update missing cmd");
             }
         }
         else if (Q_stricmp(name, "load_quick") == 0) {
@@ -1384,7 +1390,7 @@ static bool UI_RunMenuScript(const char** args)
             // TODO for MAC_PORT, will only be valid for non-JK2 mode
         }
         else {
-            Com_Printf("unknown UI script %s\n", name);
+            Q_Println("unknown UI script {}", name);
         }
     }
 
@@ -1562,7 +1568,7 @@ static void UI_StopCinematic(int handle)
 }
 static void UI_HandleLoadSelection()
 {
-    Cvar_Set("ui_SelectionOK", va("%d", (s_savegame.currentLine < s_savegame.saveFileCnt)));
+    Cvar_Set("ui_SelectionOK", Q_Format("{:d}", (s_savegame.currentLine < s_savegame.saveFileCnt)).c_str());
     if (s_savegame.currentLine >= s_savegame.saveFileCnt)
         return;
 #ifdef JK2_MODE
@@ -1696,8 +1702,8 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t* item)
                             Cvar_Set("ui_move_desc", datapadMoveData[uiInfo.movesTitleIndex][index].desc);
                         }
 
-                        Com_sprintf(skin, sizeof(skin), "models/players/%s/|%s|%s|%s", Cvar_VariableString("g_char_model"),
-                                    Cvar_VariableString("g_char_skin_head"), Cvar_VariableString("g_char_skin_torso"), Cvar_VariableString("g_char_skin_legs"));
+                        Q_FormatTo(skin, "models/players/{}/|{}|{}|{}", Cvar_VariableString("g_char_model"), Cvar_VariableString("g_char_skin_head"),
+                                   Cvar_VariableString("g_char_skin_torso"), Cvar_VariableString("g_char_skin_legs"));
 
                         ItemParse_model_g2skin_go(item, skin);
                     }
@@ -1792,7 +1798,7 @@ static bool UI_Crosshair_HandleKey(int flags, float* special, fakeAscii_t key)
         else if (uiInfo.currentCrosshair < 0) {
             uiInfo.currentCrosshair = NUM_CROSSHAIRS - 1;
         }
-        Cvar_Set("cg_drawCrosshair", va("%d", uiInfo.currentCrosshair));
+        Cvar_Set("cg_drawCrosshair", Q_Format("{}", uiInfo.currentCrosshair).c_str());
         return true;
     }
     return false;
@@ -1839,7 +1845,7 @@ bool UI_ParseAnimationFile(const char* af_filename)
         return false;
     }
     if (len >= (int)(sizeof(text) - 1)) {
-        Com_Error(errorParm_t::ERR_FATAL, "UI_ParseAnimationFile: File %s too long\n (%d > %zu)", af_filename, len, sizeof(text) - 1);
+        Q_Error(errorParm_t::ERR_FATAL, "UI_ParseAnimationFile: File {} too long\n ({} > {})", af_filename, len, sizeof(text) - 1);
         return false;
     }
 
@@ -1871,7 +1877,7 @@ bool UI_ParseAnimationFile(const char* af_filename)
 // #ifndef FINAL_BUILD
 #ifdef _DEBUG
             if (strcmp(token, "ROOT")) {
-                Com_Warning("Unknown token %s in %s\n", token, af_filename);
+                Q_PrintlnWarning("Unknown token {} in {}", token, af_filename);
             }
 #endif
             while (token[0]) {
@@ -1944,16 +1950,16 @@ bool UI_ParseAnimFileSet(const char* animCFG, int* animFileIndex)
 
     if (ui_numKnownAnimFileSets == MAX_ANIM_FILES) { // TOO MANY!
         for (i = 0; i < MAX_ANIM_FILES; i++) {
-            Com_Printf("animfile[%d]: %s\n", i, ui_knownAnimFileSets[i].filename);
+            Q_Println("animfile[{}]: {}", i, ui_knownAnimFileSets[i].filename);
         }
-        Com_Error(errorParm_t::ERR_FATAL, "UI_ParseAnimFileSet: %d == MAX_ANIM_FILES == %d", ui_numKnownAnimFileSets, MAX_ANIM_FILES);
+        Q_Error(errorParm_t::ERR_FATAL, "UI_ParseAnimFileSet: {} == MAX_ANIM_FILES == {}", ui_numKnownAnimFileSets, MAX_ANIM_FILES);
     }
 
     // Okay, time to parse in a new one
     Q_strncpyz(ui_knownAnimFileSets[ui_numKnownAnimFileSets].filename, strippedName, sizeof(ui_knownAnimFileSets[ui_numKnownAnimFileSets].filename));
 
     // Load and parse animations.cfg file
-    Com_sprintf(afilename, sizeof(afilename), "%s/animation.cfg", strippedName);
+    Q_FormatTo(afilename, "{}/animation.cfg", strippedName);
     if (!UI_ParseAnimationFile(afilename)) {
         *animFileIndex = -1;
         return false;
@@ -2078,14 +2084,14 @@ static bool IsImageFile(const char* dirptr, const char* skinname, bool building)
     char fpath[MAX_QPATH];
     int f;
 
-    Com_sprintf(fpath, MAX_QPATH, "models/players/%s/icon_%s.jpg", dirptr, skinname);
+    Q_FormatTo(std::span(fpath, MAX_QPATH), "models/players/{}/icon_{}.jpg", dirptr, skinname);
     ui.FS_FOpenFile(fpath, &f, fsMode_t::FS_READ);
     if (!f) { // not there, try png
-        Com_sprintf(fpath, MAX_QPATH, "models/players/%s/icon_%s.png", dirptr, skinname);
+        Q_FormatTo(std::span(fpath, MAX_QPATH), "models/players/{}/icon_{}.png", dirptr, skinname);
         ui.FS_FOpenFile(fpath, &f, fsMode_t::FS_READ);
     }
     if (!f) { // not there, try tga
-        Com_sprintf(fpath, MAX_QPATH, "models/players/%s/icon_%s.tga", dirptr, skinname);
+        Q_FormatTo(std::span(fpath, MAX_QPATH), "models/players/{}/icon_{}.tga", dirptr, skinname);
         ui.FS_FOpenFile(fpath, &f, fsMode_t::FS_READ);
     }
     if (f) {
@@ -2140,9 +2146,8 @@ static void UI_BuildPlayerModel_List(bool inGameLoad)
 
     dirlist = (char*)malloc(DIR_LIST_SIZE);
     if (!dirlist) {
-        Com_Warning("Failed to allocate %zu bytes of memory for player model "
-                    "directory list. Using stack allocated buffer of %zu bytes instead.",
-                    DIR_LIST_SIZE, sizeof(stackDirList));
+        Q_PrintlnWarning("Failed to allocate {} bytes of memory for player model directory list. Using stack allocated buffer of {} bytes instead.",
+                         DIR_LIST_SIZE, sizeof(stackDirList));
 
         dirlist = stackDirList;
         dirListSize = sizeof(stackDirList);
@@ -2175,7 +2180,7 @@ static void UI_BuildPlayerModel_List(bool inGameLoad)
         if (!strcmp(dirptr, ".") || !strcmp(dirptr, ".."))
             continue;
 
-        Com_sprintf(fpath, sizeof(fpath), "models/players/%s/PlayerChoice.txt", dirptr);
+        Q_FormatTo(fpath, "models/players/{}/PlayerChoice.txt", dirptr);
         filelen = ui.FS_FOpenFile(fpath, &f, fsMode_t::FS_READ);
 
         if (f) {
@@ -2198,7 +2203,7 @@ static void UI_BuildPlayerModel_List(bool inGameLoad)
             Q_strncpyz(species->Name, dirptr, MAX_QPATH);
 
             if (!UI_ParseColorData(buffer.data(), *species)) {
-                Com_Printf("UI_BuildPlayerModel_List: Errors parsing '%s'\n", fpath);
+                Q_Println("UI_BuildPlayerModel_List: Errors parsing '{}'", fpath);
             }
 
             species->SkinHeadMax = 8;
@@ -2214,17 +2219,17 @@ static void UI_BuildPlayerModel_List(bool inGameLoad)
             int numfiles;
             int iSkinParts = 0;
 
-            numfiles = ui.FS_GetFileList(va("models/players/%s", dirptr), ".skin", filelist, sizeof(filelist));
+            numfiles = ui.FS_GetFileList(Q_Format("models/players/{}", dirptr).c_str(), ".skin", filelist, sizeof(filelist));
             fileptr = filelist;
             for (j = 0; j < numfiles; j++, fileptr += filelen + 1) {
                 if (building) {
-                    ui.FS_FOpenFile(va("models/players/%s/%s", dirptr, fileptr), &f, fsMode_t::FS_READ);
+                    ui.FS_FOpenFile(Q_Format("models/players/{}/{}", dirptr, fileptr).c_str(), &f, fsMode_t::FS_READ);
                     if (f)
                         ui.FS_FCloseFile(f);
-                    ui.FS_FOpenFile(va("models/players/%s/sounds.cfg", dirptr), &f, fsMode_t::FS_READ);
+                    ui.FS_FOpenFile(Q_Format("models/players/{}/sounds.cfg", dirptr).c_str(), &f, fsMode_t::FS_READ);
                     if (f)
                         ui.FS_FCloseFile(f);
-                    ui.FS_FOpenFile(va("models/players/%s/animevents.cfg", dirptr), &f, fsMode_t::FS_READ);
+                    ui.FS_FOpenFile(Q_Format("models/players/{}/animevents.cfg", dirptr).c_str(), &f, fsMode_t::FS_READ);
                     if (f)
                         ui.FS_FCloseFile(f);
                 }
@@ -2266,7 +2271,7 @@ static void UI_BuildPlayerModel_List(bool inGameLoad)
             uiInfo.playerSpeciesCount++;
             if (!inGameLoad && ui_PrecacheModels.integer) {
                 CGhoul2Info_v ghoul2;
-                Com_sprintf(fpath, sizeof(fpath), "models/players/%s/model.glm", dirptr);
+                Q_FormatTo(fpath, "models/players/{}/model.glm", dirptr);
                 int g2Model = DC->g2_InitGhoul2Model(ghoul2, fpath, 0, 0, 0, 0, 0);
                 if (g2Model >= 0) {
                     DC->g2_RemoveGhoul2Model(ghoul2, 0);
@@ -2304,7 +2309,7 @@ void _UI_Init(bool inGameLoad)
     // sod it, parse every menu strip file until we find a gap in the sequence...
     //
     for (int i = 0; i < 10; i++) {
-        if (!ui.SP_Register(va("menus%d", i), /*spRegistrationFlags_t::SP_REGISTER_REQUIRED|*/ spRegistrationFlags_t::SP_REGISTER_MENU))
+        if (!ui.SP_Register(Q_Format("menus{}", i).c_str(), /*spRegistrationFlags_t::SP_REGISTER_REQUIRED|*/ spRegistrationFlags_t::SP_REGISTER_MENU))
             break;
     }
 #endif
@@ -2465,13 +2470,13 @@ void UI_ParseMenu(const char* menuFile)
     int len;
     //	pc_token_t token;
 
-    // Com_DPrintf("Parsing menu file: %s\n", menuFile);
+    // Q_DPrintln("Parsing menu file: {}", menuFile);
     len = PC_StartParseSession(menuFile, &buffer);
 
     holdBuffer = buffer;
 
     if (len <= 0) {
-        Com_Printf("UI_ParseMenu: Unable to load menu %s\n", menuFile);
+        Q_Println("UI_ParseMenu: Unable to load menu {}", menuFile);
         return;
     }
 
@@ -2509,7 +2514,7 @@ void UI_ParseMenu(const char* menuFile)
             continue;
         }
 
-        PC_ParseWarning(va("Invalid keyword '%s'", token2));
+        PC_ParseWarning(Q_Format("Invalid keyword '{}'", token2).c_str());
     }
 
     PC_EndParseSession(buffer);
@@ -2576,11 +2581,11 @@ void UI_LoadMenus(const char* menuFile, bool reset)
     len = ui.FS_ReadFile(menuFile, (void**)&buffer);
 
     if (len < 1) {
-        Com_Printf(S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile);
+        Q_Println(S_COLOR_YELLOW "menu file not found: {}, using default", menuFile);
         len = ui.FS_ReadFile("ui/menus.txt", (void**)&buffer);
 
         if (len < 1) {
-            Com_Error(errorParm_t::ERR_FATAL, "default menu file not found: ui/menus.txt, unable to continue!\n");
+            Q_Error(errorParm_t::ERR_FATAL, "default menu file not found: ui/menus.txt, unable to continue!");
             return;
         }
     }
@@ -2615,12 +2620,12 @@ void UI_LoadMenus(const char* menuFile, bool reset)
             }
         }
         else {
-            Com_Printf("Unknown keyword '%s' in menus file %s\n", token2, menuFile);
+            Q_Println("Unknown keyword '{}' in menus file {}", token2, menuFile);
         }
     }
     COM_EndParseSession();
 
-    Com_Printf("UI menu load time = %d milli seconds\n", Sys_Milliseconds() - start);
+    Q_Println("UI menu load time = {} milli seconds", Sys_Milliseconds() - start);
 
     ui.FS_FreeFile(buffer); // let go of the buffer
 }
@@ -2755,7 +2760,7 @@ bool Asset_Parse(char** buffer)
             char sTemp[1024];
             Q_strncpyz(sTemp, tempStr, sizeof(sTemp));
             if (!ui.SP_Register(sTemp, /*spRegistrationFlags_t::SP_REGISTER_REQUIRED|*/ spRegistrationFlags_t::SP_REGISTER_MENU)) {
-                PC_ParseWarning(va("(.SP file \"%s\" not found)", sTemp));
+                PC_ParseWarning(Q_Format("(.SP file \"{}\" not found)", sTemp).c_str());
                 // return false;	// hmmm... dunno about this, don't want to break scripts for just missing subtitles
             }
             else {
@@ -2995,7 +3000,7 @@ bool Asset_Parse(char** buffer)
         }
     }
 
-    PC_ParseWarning(va("Invalid keyword '%s'", token));
+    PC_ParseWarning(Q_Format("Invalid keyword '{}'", token).c_str());
     return false;
 }
 
@@ -3123,7 +3128,7 @@ static void UI_Update(const char* name)
         }
     }
     else { // failure!!
-        Com_Printf("unknown UI script UPDATE %s\n", name);
+        Q_Println("unknown UI script UPDATE {}", name);
     }
 }
 
@@ -3155,7 +3160,7 @@ void AssetCache(void)
     /*
     for( n = 0; n < NUM_CROSSHAIRS; n++ )
     {
-        uiInfo.uiDC.Assets.crosshairShader[n] = ui.R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a' + n ) );
+        uiInfo.uiDC.Assets.crosshairShader[n] = ui.R_RegisterShaderNoMip( Q_Format("gfx/2d/crosshair{:c}", 'a' + n).c_str() );
     }
     */
 }
@@ -3280,16 +3285,17 @@ static void UI_DrawGLInfo(rectDef_t* rect, float scale, vec4_t color, int textSt
     int y, numLines = 0, i = 0;
 
     y = rect->y;
-    Text_Paint(rect->x, y, scale, color, va("GL_VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string), rect->w, textStyle, iFontIndex);
+    Text_Paint(rect->x, y, scale, color, Q_Format("GL_VENDOR: {}", uiInfo.uiDC.glconfig.vendor_string).c_str(), rect->w, textStyle, iFontIndex);
     y += 15;
-    Text_Paint(rect->x, y, scale, color, va("GL_VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string, uiInfo.uiDC.glconfig.renderer_string), rect->w,
-               textStyle, iFontIndex);
+    Text_Paint(rect->x, y, scale, color, Q_Format("GL_VERSION: {}: {}", uiInfo.uiDC.glconfig.version_string, uiInfo.uiDC.glconfig.renderer_string).c_str(),
+               rect->w, textStyle, iFontIndex);
     y += 15;
     Text_Paint(rect->x, y, scale, color, "GL_PIXELFORMAT:", rect->w, textStyle, iFontIndex);
     y += 15;
     Text_Paint(
         rect->x, y, scale, color,
-        va("Color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits),
+        Q_Format("Color({}-bits) Z({}-bits) stencil({}-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits)
+            .c_str(),
         rect->w, textStyle, iFontIndex);
     y += 15;
     // build null terminated extension strings
@@ -3395,7 +3401,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
     case UI_ALLMAPS_SELECTION: // saved game thumbnail
 
         int levelshot;
-        levelshot = ui.R_RegisterShaderNoMip(va("levelshots/%s", s_savedata[s_savegame.currentLine].currentSaveFileMap));
+        levelshot = ui.R_RegisterShaderNoMip(Q_Format("levelshots/{}", s_savedata[s_savegame.currentLine].currentSaveFileMap).c_str());
 #ifdef JK2_MODE
         if (screenShotBuf[0]) {
             ui.DrawStretchRaw(x, y, w, h, SG_SCR_WIDTH, SG_SCR_HEIGHT, screenShotBuf, 0, true);
@@ -3505,7 +3511,7 @@ int UI_OwnerDrawWidth(int ownerDraw, float scale)
 
         // FIXME BOB
         //	case UI_SERVERREFRESHDATE:
-        //		s = UI_Cvar_VariableString(va("ui_lastServerRefresh_%i", ui_netSource.integer));
+        //		s = UI_Cvar_VariableString(Q_Format("ui_lastServerRefresh_{}", ui_netSource.integer).c_str());
         //		break;
     default:
         break;
@@ -3798,7 +3804,7 @@ static void UI_SetSexandSoundForModel(const char* char_model)
     char soundpath[MAX_QPATH];
     bool isFemale = false;
 
-    i = ui.FS_FOpenFile(va("models/players/%s/sounds.cfg", char_model), &f, fsMode_t::FS_READ);
+    i = ui.FS_FOpenFile(Q_Format("models/players/{}/sounds.cfg", char_model).c_str(), &f, fsMode_t::FS_READ);
     if (!f) { // no?  oh bother.
         Cvar_Reset("snd");
         Cvar_Reset("sex");
@@ -4055,18 +4061,18 @@ static void UI_InitAllocForcePowers(const char* forceName)
     }
 
     char itemName[128];
-    Com_sprintf(itemName, sizeof(itemName), "%s_hexpic", powerEnums[forcePowerI].title);
+    Q_FormatTo(itemName, "{}_hexpic", powerEnums[forcePowerI].title);
     item = (itemDef_s*)Menu_FindItemByName(menu, itemName);
 
     if (item) {
         char itemGraphic[128];
-        Com_sprintf(itemGraphic, sizeof(itemGraphic), "gfx/menus/hex_pattern_%d",
-                    to_underlying(forcelevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : forcelevel));
+        Q_FormatTo(itemGraphic, "gfx/menus/hex_pattern_{}",
+                   to_underlying(forcelevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : forcelevel));
         item->window.background = ui.R_RegisterShaderNoMip(itemGraphic);
 
         // If maxed out on power - don't allow update
         if (forcelevel >= forcePowerLevels_t::FORCE_LEVEL_3) {
-            Com_sprintf(itemName, sizeof(itemName), "%s_fbutton", powerEnums[forcePowerI].title);
+            Q_FormatTo(itemName, "{}_fbutton", powerEnums[forcePowerI].title);
             item = (itemDef_s*)Menu_FindItemByName(menu, itemName);
             if (item) {
                 item->action = nullptr;   // you are bad, no action for you!
@@ -4176,24 +4182,24 @@ static void UI_SetHexPicLevel(const menuDef_t* menu, const int forcePowerI, cons
     itemDef_t* item;
 
     // Find proper hex picture on menu
-    Com_sprintf(itemName, sizeof(itemName), "%s_hexpic", powerEnums[forcePowerI].title);
+    Q_FormatTo(itemName, "{}_hexpic", powerEnums[forcePowerI].title);
     item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)menu, itemName);
 
     // Now give it the proper hex graphic
     if (item) {
         char itemGraphic[128];
         if (goldFlag) {
-            Com_sprintf(itemGraphic, sizeof(itemGraphic), "gfx/menus/hex_pattern_%d_gold",
-                        to_underlying(powerLevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : powerLevel));
+            Q_FormatTo(itemGraphic, "gfx/menus/hex_pattern_{}_gold",
+                       to_underlying(powerLevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : powerLevel));
         }
         else {
-            Com_sprintf(itemGraphic, sizeof(itemGraphic), "gfx/menus/hex_pattern_%d",
-                        to_underlying(powerLevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : powerLevel));
+            Q_FormatTo(itemGraphic, "gfx/menus/hex_pattern_{}",
+                       to_underlying(powerLevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : powerLevel));
         }
 
         item->window.background = ui.R_RegisterShaderNoMip(itemGraphic);
 
-        Com_sprintf(itemName, sizeof(itemName), "%s_fbutton", powerEnums[forcePowerI].title);
+        Q_FormatTo(itemName, "{}_fbutton", powerEnums[forcePowerI].title);
         item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)menu, itemName);
         if (item) {
             if (goldFlag) {
@@ -4322,8 +4328,9 @@ static void UI_RecordForceLevels(void)
     }
 
     const char* s2 = "";
+    formatText_t s2Text; // holds the text s2 points into
     for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
-        s2 = va("%s %i", s2, to_underlying(uiInfo.forcePowerLevel[fp]));
+        s2 = (s2Text = Q_Format("{} {}", s2, to_underlying(uiInfo.forcePowerLevel[fp]))).c_str();
     }
     Cvar_Set("demo_playerfplvl", s2);
 }
@@ -4341,6 +4348,7 @@ static void UI_RecordWeapons(void)
     }
 
     const char* s2 = "";
+    formatText_t s2Text; // holds the text s2 points into
 
     int wpns = 0;
     // always add blaster and saber
@@ -4352,7 +4360,7 @@ static void UI_RecordWeapons(void)
         wpns |= Bit(*uiInfo.selectedWeapon2);
     if (uiInfo.selectedThrowWeapon)
         wpns |= Bit(*uiInfo.selectedThrowWeapon);
-    s2 = va("%i", wpns);
+    s2 = (s2Text = Q_Format("{}", wpns)).c_str();
 
     Cvar_Set("demo_playerwpns", s2);
 }
@@ -4377,7 +4385,7 @@ static void UI_ShutdownForceHelp(void)
         // We just decremented a field so turn all buttons back on
         // Make it so all  buttons can be clicked
         for (i = 0; i < MAX_POWER_ENUMS; i++) {
-            Com_sprintf(itemName, sizeof(itemName), "%s_fbutton", powerEnums[i].title);
+            Q_FormatTo(itemName, "{}_fbutton", powerEnums[i].title);
 
             UI_SetItemVisible(menu, itemName, true);
         }
@@ -4400,7 +4408,7 @@ static void UI_ShutdownForceHelp(void)
         UI_SetItemVisible(menu, "force_desc", true);
         UI_SetItemVisible(menu, "deallocate_fbutton", true);
 
-        item = (itemDef_s*)Menu_FindItemByName(menu, va("%s_fbutton", powerEnums[uiInfo.forcePowerUpdated].title));
+        item = (itemDef_s*)Menu_FindItemByName(menu, Q_Format("{}_fbutton", powerEnums[uiInfo.forcePowerUpdated].title).c_str());
         if (item) {
             item->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
         }
@@ -4420,8 +4428,8 @@ static void UI_ShutdownForceHelp(void)
         }
 
         // Update level description
-        Com_sprintf(itemName, sizeof(itemName), "%s_level%ddesc", powerEnums[uiInfo.forcePowerUpdated].title,
-                    to_underlying(pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum]));
+        Q_FormatTo(itemName, "{}_level{}desc", powerEnums[uiInfo.forcePowerUpdated].title,
+                   to_underlying(pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum]));
 
         item = (itemDef_s*)Menu_FindItemByName(menu, itemName);
         if (item) {
@@ -4435,8 +4443,8 @@ static void UI_ShutdownForceHelp(void)
         char itemiconName[128];
         vec4_t color2 = {1.0f, 1.0f, 1.0f, 1.0f};
 
-        Com_sprintf(itemhexName, sizeof(itemhexName), "%s_hexpic", powerEnums[uiInfo.forcePowerUpdated].title);
-        Com_sprintf(itemiconName, sizeof(itemiconName), "%s_iconpic", powerEnums[uiInfo.forcePowerUpdated].title);
+        Q_FormatTo(itemhexName, "{}_hexpic", powerEnums[uiInfo.forcePowerUpdated].title);
+        Q_FormatTo(itemiconName, "{}_iconpic", powerEnums[uiInfo.forcePowerUpdated].title);
 
         UI_SetItemColor(item, itemhexName, "forecolor", color2);
         UI_SetItemColor(item, itemiconName, "forecolor", color2);
@@ -4504,7 +4512,7 @@ static void UI_DecrementCurrentForcePower(void)
     // We just decremented a field so turn all buttons back on
     // Make it so all  buttons can be clicked
     for (i = 0; i < MAX_POWER_ENUMS; i++) {
-        Com_sprintf(itemName, sizeof(itemName), "%s_fbutton", powerEnums[i].title);
+        Q_FormatTo(itemName, "{}_fbutton", powerEnums[i].title);
         item = (itemDef_s*)Menu_FindItemByName(menu, itemName);
         if (item) // This is okay, because core powers don't have a hex button
         {
@@ -4528,7 +4536,7 @@ static void UI_DecrementCurrentForcePower(void)
         UI_SetItemColor(item, "iconpic", "forecolor", color);
     }
 
-    item = (itemDef_s*)Menu_FindItemByName(menu, va("%s_fbutton", powerEnums[uiInfo.forcePowerUpdated].title));
+    item = (itemDef_s*)Menu_FindItemByName(menu, Q_Format("{}_fbutton", powerEnums[uiInfo.forcePowerUpdated].title).c_str());
     if (item) {
         item->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
     }
@@ -4601,7 +4609,7 @@ static void UI_AffectForcePowerLevel(const char* forceName)
                 continue;
             }
 
-            Com_sprintf(itemName, sizeof(itemName), "%s_fbutton", powerEnums[i].title);
+            Q_FormatTo(itemName, "{}_fbutton", powerEnums[i].title);
             item = (itemDef_s*)Menu_FindItemByName(menu, itemName);
             if (item) // This is okay, because core powers don't have a hex button
             {
@@ -4616,7 +4624,7 @@ static void UI_AffectForcePowerLevel(const char* forceName)
         UI_ForcePowerWeaponsButton(true);
 
         // Make user_info
-        Cvar_Set("ui_forcepower_inc", va("%d", uiInfo.forcePowerUpdated));
+        Cvar_Set("ui_forcepower_inc", Q_Format("{}", uiInfo.forcePowerUpdated).c_str());
 
         // Just grab an item to hand it to the function.
         item = (itemDef_s*)Menu_FindItemByName(menu, "deallocate_fbutton");
@@ -4674,8 +4682,7 @@ static void UI_ShowForceLevelDesc(const char* forceName)
     char itemName[128];
 
     // Update level description
-    Com_sprintf(itemName, sizeof(itemName), "%s_level%ddesc", powerEnums[forcePowerI].title,
-                to_underlying(pState->forcePowerLevel[powerEnums[forcePowerI].powerEnum]));
+    Q_FormatTo(itemName, "{}_level{}desc", powerEnums[forcePowerI].title, to_underlying(pState->forcePowerLevel[powerEnums[forcePowerI].powerEnum]));
 
     item = (itemDef_s*)Menu_FindItemByName(menu, itemName);
     if (item) {
@@ -4715,7 +4722,7 @@ static void UI_ResetForceLevels(void)
 
         // Make it so all  buttons can be clicked
         for (i = 0; i < MAX_POWER_ENUMS; i++) {
-            Com_sprintf(itemName, sizeof(itemName), "%s_fbutton", powerEnums[i].title);
+            Q_FormatTo(itemName, "{}_fbutton", powerEnums[i].title);
             item = (itemDef_s*)Menu_FindItemByName(menu, itemName);
             if (item) // This is okay, because core powers don't have a hex button
             {
@@ -4725,7 +4732,7 @@ static void UI_ResetForceLevels(void)
 
         UI_SetPowerTitleText(false);
 
-        Com_sprintf(itemName, sizeof(itemName), "%s_fbutton", powerEnums[uiInfo.forcePowerUpdated].title);
+        Q_FormatTo(itemName, "{}_fbutton", powerEnums[uiInfo.forcePowerUpdated].title);
         item = (itemDef_s*)Menu_FindItemByName(menu, itemName);
         if (item) {
             // Change description text to tell player they can increment the force point
@@ -4775,7 +4782,7 @@ static void UI_UpdateFightingStyle(void)
     }
     else // Must be at the beginning of the game so the client hasn't been created, shove data in a cvar
     {
-        Cvar_Set("g_fighting_style", va("%d", to_underlying(saberStyle)));
+        Cvar_Set("g_fighting_style", Q_Format("{}", to_underlying(saberStyle)).c_str());
     }
 }
 #endif // !JK2_MODE
@@ -5535,11 +5542,11 @@ static void UI_UpdateCharacterSkin(void)
     item = (itemDef_s*)Menu_FindItemByName(menu, "character");
 
     if (!item) {
-        Com_Error(errorParm_t::ERR_FATAL, "UI_UpdateCharacterSkin: Could not find item (character) in menu (%s)", menu->window.name);
+        Q_Error(errorParm_t::ERR_FATAL, "UI_UpdateCharacterSkin: Could not find item (character) in menu ({})", menu->window.name);
     }
 
-    Com_sprintf(skin, sizeof(skin), "models/players/%s/|%s|%s|%s", Cvar_VariableString("ui_char_model"), Cvar_VariableString("ui_char_skin_head"),
-                Cvar_VariableString("ui_char_skin_torso"), Cvar_VariableString("ui_char_skin_legs"));
+    Q_FormatTo(skin, "models/players/{}/|{}|{}|{}", Cvar_VariableString("ui_char_model"), Cvar_VariableString("ui_char_skin_head"),
+               Cvar_VariableString("ui_char_skin_torso"), Cvar_VariableString("ui_char_skin_legs"));
 
     ItemParse_model_g2skin_go(item, skin);
 }
@@ -5559,12 +5566,12 @@ static void UI_UpdateCharacter(bool changedModel)
     item = (itemDef_s*)Menu_FindItemByName(menu, "character");
 
     if (!item) {
-        Com_Error(errorParm_t::ERR_FATAL, "UI_UpdateCharacter: Could not find item (character) in menu (%s)", menu->window.name);
+        Q_Error(errorParm_t::ERR_FATAL, "UI_UpdateCharacter: Could not find item (character) in menu ({})", menu->window.name);
     }
 
     ItemParse_model_g2anim_go(item, ui_char_anim.string);
 
-    Com_sprintf(modelPath, sizeof(modelPath), "models/players/%s/model.glm", Cvar_VariableString("ui_char_model"));
+    Q_FormatTo(modelPath, "models/players/{}/model.glm", Cvar_VariableString("ui_char_model"));
     ItemParse_asset_model_go(item, modelPath);
 
     if (changedModel) { // set all skins to first skin since we don't know you always have all skins
@@ -5613,7 +5620,7 @@ static void UI_UpdateSaberHilt(bool secondSaber)
     item = (itemDef_s*)Menu_FindItemByName(menu, itemName);
 
     if (!item) {
-        Com_Error(errorParm_t::ERR_FATAL, "UI_UpdateSaberHilt: Could not find item (%s) in menu (%s)", itemName, menu->window.name);
+        Q_Error(errorParm_t::ERR_FATAL, "UI_UpdateSaberHilt: Could not find item ({}) in menu ({})", itemName, menu->window.name);
     }
     DC->getCVarString(saberCvarName, model, sizeof(model));
     // read this from the sabers.cfg
@@ -5640,7 +5647,7 @@ static void UI_UpdateSaberColor( bool secondSaber )
     else
         sabernumber = 1;
 
-    ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("sabercolor %i %s\n",sabernumber, Cvar_VariableString("g_saber_color")));
+    ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, Q_Format("sabercolor {} {}\n", sabernumber, Cvar_VariableString("g_saber_color")).c_str());
 }
 */
 char GoToMenu[1024];
@@ -5668,7 +5675,7 @@ void UI_CheckVid1Data(const char* menuTo, const char* warningMenuName)
     menu = Menu_GetFocused(); // Get current menu (either video or ingame video, I would assume)
 
     if (!menu) {
-        Com_Warning("No videoMenu was found. Video data could not be checked\n");
+        Q_PrintlnWarning("No videoMenu was found. Video data could not be checked");
         return;
     }
 

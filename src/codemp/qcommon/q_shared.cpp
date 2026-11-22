@@ -170,7 +170,7 @@ void COM_BeginParseSession(const char* name)
 {
     com_lines = 1;
     com_tokenline = 0;
-    Com_sprintf(com_parsename, sizeof(com_parsename), "%s", name);
+    Q_FormatTo(com_parsename, "{}", name);
 }
 
 int COM_GetCurrentParseLine(void)
@@ -187,28 +187,22 @@ char* COM_Parse(const char** data_p)
     return COM_ParseExt(data_p, true);
 }
 
-void COM_ParseError(char* format, ...)
+void COM_VParseError(fmt::string_view format, fmt::format_args args)
 {
-    va_list argptr;
     static char string[4096];
 
-    va_start(argptr, format);
-    Q_vsnprintf(string, sizeof(string), format, argptr);
-    va_end(argptr);
+    Q_VFormatToCut(string, format, args);
 
-    Com_PrintError("%s, line %d: %s\n", com_parsename, COM_GetCurrentParseLine(), string);
+    Q_PrintlnError("{}, line {}: {}", com_parsename, COM_GetCurrentParseLine(), string);
 }
 
-void COM_ParseWarning(const char* format, ...)
+void COM_VParseWarning(fmt::string_view format, fmt::format_args args)
 {
-    va_list argptr;
     static char string[4096];
 
-    va_start(argptr, format);
-    Q_vsnprintf(string, sizeof(string), format, argptr);
-    va_end(argptr);
+    Q_VFormatToCut(string, format, args);
 
-    Com_Warning("%s, line %d: %s\n", com_parsename, COM_GetCurrentParseLine(), string);
+    Q_PrintlnWarning("{}, line {}: {}", com_parsename, COM_GetCurrentParseLine(), string);
 }
 
 /*
@@ -497,7 +491,7 @@ void COM_MatchToken(const char** buf_p, const char* match)
 
     token = COM_Parse(buf_p);
     if (strcmp(token, match)) {
-        Com_Error(errorParm_t::ERR_DROP, "MatchToken: %s != %s", token, match);
+        Q_Error(errorParm_t::ERR_DROP, "MatchToken: {} != {}", token, match);
     }
 }
 
@@ -698,7 +692,7 @@ const char* Info_ValueForKey(const char* s, const char* key)
     }
 
     if (strlen(s) >= BIG_INFO_STRING) {
-        Com_Error(errorParm_t::ERR_DROP, "Info_ValueForKey: oversize infostring");
+        Q_Error(errorParm_t::ERR_DROP, "Info_ValueForKey: oversize infostring");
     }
 
     valueindex ^= 1;
@@ -790,7 +784,7 @@ void Info_RemoveKey(char* s, const char* key)
     char value[MAX_INFO_VALUE] = {0};
 
     if (strlen(s) >= MAX_INFO_STRING) {
-        Com_Error(errorParm_t::ERR_DROP, "Info_RemoveKey: oversize infostring");
+        Q_Error(errorParm_t::ERR_DROP, "Info_RemoveKey: oversize infostring");
         return;
     }
 
@@ -844,7 +838,7 @@ void Info_RemoveKey_Big(char* s, const char* key)
     pkey[0] = value[0] = '\0';
 
     if (strlen(s) >= BIG_INFO_STRING) {
-        Com_Error(errorParm_t::ERR_DROP, "Info_RemoveKey_Big: oversize infostring");
+        Q_Error(errorParm_t::ERR_DROP, "Info_RemoveKey_Big: oversize infostring");
         return;
     }
 
@@ -925,12 +919,12 @@ void Info_SetValueForKey(char* s, const char* key, const char* value)
     const char* blacklist = "\\;\"";
 
     if (strlen(s) >= MAX_INFO_STRING) {
-        Com_Error(errorParm_t::ERR_DROP, "Info_SetValueForKey: oversize infostring");
+        Q_Error(errorParm_t::ERR_DROP, "Info_SetValueForKey: oversize infostring");
     }
 
     for (; *blacklist; ++blacklist) {
         if (strchr(key, *blacklist) || strchr(value, *blacklist)) {
-            Com_Printf(S_COLOR_YELLOW "Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value);
+            Q_Println(S_COLOR_YELLOW "Can't use keys or values with a '{}': {} = {}", *blacklist, key, value);
             return;
         }
     }
@@ -939,10 +933,10 @@ void Info_SetValueForKey(char* s, const char* key, const char* value)
     if (!value || !strlen(value))
         return;
 
-    Com_sprintf(newi, sizeof(newi), "\\%s\\%s", key, value);
+    Q_FormatTo(newi, "\\{}\\{}", key, value);
 
     if (strlen(newi) + strlen(s) >= MAX_INFO_STRING) {
-        Com_Printf("Info string length exceeded: %s\n", s);
+        Q_Println("Info string length exceeded: {}", s);
         return;
     }
 
@@ -964,12 +958,12 @@ void Info_SetValueForKey_Big(char* s, const char* key, const char* value)
     const char* blacklist = "\\;\"";
 
     if (strlen(s) >= BIG_INFO_STRING) {
-        Com_Error(errorParm_t::ERR_DROP, "Info_SetValueForKey_Big: oversize infostring");
+        Q_Error(errorParm_t::ERR_DROP, "Info_SetValueForKey_Big: oversize infostring");
     }
 
     for (; *blacklist; ++blacklist) {
         if (strchr(key, *blacklist) || strchr(value, *blacklist)) {
-            Com_Printf(S_COLOR_YELLOW "Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value);
+            Q_Println(S_COLOR_YELLOW "Can't use keys or values with a '{}': {} = {}", *blacklist, key, value);
             return;
         }
     }
@@ -978,10 +972,10 @@ void Info_SetValueForKey_Big(char* s, const char* key, const char* value)
     if (!value)
         return;
 
-    Com_sprintf(newi, sizeof(newi), "\\%s\\%s", key, value);
+    Q_FormatTo(newi, "\\{}\\{}", key, value);
 
     if (strlen(newi) + strlen(s) >= BIG_INFO_STRING) {
-        Com_Printf("BIG Info string length exceeded\n");
+        Q_Println("BIG Info string length exceeded");
         return;
     }
 

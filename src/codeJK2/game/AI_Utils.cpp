@@ -671,8 +671,8 @@ bool AI_RefreshGroup(AIGroupInfo_t* group)
         }
         if ( j < group->numGroup )
         {//found a dupe!
-            Com_PrintError( "member %s(%d) a duplicate group member!!!\n", g_entities[group->member[i].number].targetname, group->member[i].number
-        ); AI_DeleteGroupMember( group, i ); i--; continue;
+            Q_PrintlnError("member {}({}) a duplicate group member!!!", g_entities[group->member[i].number].targetname, group->member[i].number);
+        AI_DeleteGroupMember( group, i ); i--; continue;
         }
         */
         member = &g_entities[group->member[i].number];

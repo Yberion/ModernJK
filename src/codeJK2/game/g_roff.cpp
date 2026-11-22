@@ -118,7 +118,7 @@ void G_RoffNotetrackCallback(gentity_t* cent, const char* notetrack)
         }
 
         if (posoffsetGathered < 3) {
-            sprintf(errMsg, "Offset position argument for 'effect' type is invalid.");
+            Q_FormatTo(errMsg, "Offset position argument for 'effect' type is invalid.");
             goto functionend;
         }
 
@@ -220,17 +220,17 @@ void G_RoffNotetrackCallback(gentity_t* cent, const char* notetrack)
     // else if ...
     else {
         if (type[0]) {
-            Com_Warning("\"%s\" is an invalid ROFF notetrack function\n", type);
+            Q_PrintlnWarning("\"{}\" is an invalid ROFF notetrack function", type);
         }
         else {
-            Com_Warning("Notetrack is missing function and/or arguments\n");
+            Q_PrintlnWarning("Notetrack is missing function and/or arguments");
         }
     }
 
     return;
 
 functionend:
-    Com_Printf("Type-specific notetrack error: %s\n", errMsg);
+    Q_Println("Type-specific notetrack error: {}", errMsg);
     return;
 }
 
@@ -379,12 +379,12 @@ int G_LoadRoff(const char* fileName)
 
     // Before even bothering with all of this, make sure we have a place to store it.
     if (num_roffs >= MAX_ROFFS) {
-        Com_Printf(S_COLOR_RED "MAX_ROFFS count exceeded.  Skipping load of .ROF '%s'\n", fileName);
+        Q_Println(S_COLOR_RED "MAX_ROFFS count exceeded.  Skipping load of .ROF '{}'", fileName);
         return roff_id;
     }
 
     // The actual path
-    sprintf(file, "%s/%s.rof", Q3_SCRIPT_DIR, fileName);
+    Q_FormatTo(file, "{}/{}.rof", Q3_SCRIPT_DIR, fileName);
 
     // See if I'm already precached
     for (i = 0; i < num_roffs; i++) {
@@ -395,14 +395,14 @@ int G_LoadRoff(const char* fileName)
     }
 
 #ifdef _DEBUG
-    Com_Printf(S_COLOR_GREEN "Caching ROF: '%s'\n", file);
+    Q_Println(S_COLOR_GREEN "Caching ROF: '{}'", file);
 #endif
 
     // Read the file in one fell swoop
     len = gi.FS_ReadFile(file, (void**)&data);
 
     if (len <= 0) {
-        Com_Printf(S_COLOR_RED "Could not open .ROF file '%s'\n", fileName);
+        Q_Println(S_COLOR_RED "Could not open .ROF file '{}'", fileName);
         return roff_id;
     }
 
@@ -411,7 +411,7 @@ int G_LoadRoff(const char* fileName)
 
     // ..and make sure it's reasonably valid
     if (!G_ValidRoff(header)) {
-        Com_Printf(S_COLOR_RED "Invalid roff format '%s'\n", fileName);
+        Q_Println(S_COLOR_RED "Invalid roff format '{}'", fileName);
     }
     else {
         G_InitRoff(file, data);
@@ -466,7 +466,8 @@ void G_Roff(gentity_t* ent)
     }
 
 #ifdef _DEBUG
-    Com_DPrintf(S_COLOR_GREEN "ROFF dat: num: %d o:<%.2f %.2f %.2f> a:<%.2f %.2f %.2f>\n", ent->roff_ctr, org[0], org[1], org[2], ang[0], ang[1], ang[2]);
+    Q_DPrintln(S_COLOR_GREEN "ROFF dat: num: {} o:<{:.2f} {:.2f} {:.2f}> a:<{:.2f} {:.2f} {:.2f}>", ent->roff_ctr, org[0], org[1], org[2], ang[0], ang[1],
+               ang[2]);
 #endif
 
     if (ent->client) {
@@ -594,7 +595,7 @@ void G_LoadCachedRoffs()
         saved_game.read_chunk<int32_t>(INT_ID('S', 'L', 'E', 'N'), len);
 
         if (len < 0 || static_cast<size_t>(len) >= sizeof(buffer)) {
-            Com_Error(errorParm_t::ERR_DROP, "invalid length for RSTR string in save game: %d bytes\n", len);
+            Q_Error(errorParm_t::ERR_DROP, "invalid length for RSTR string in save game: {} bytes", len);
         }
 
         saved_game.read_chunk(INT_ID('R', 'S', 'T', 'R'), buffer, len);

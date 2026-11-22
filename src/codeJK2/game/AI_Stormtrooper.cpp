@@ -2138,13 +2138,13 @@ void NPC_BSST_Attack(void)
 #if AI_TIMERS
             int commTime = GetTime(startTime);
             if (commTime > 20) {
-                Com_PrintError("Commander time: %d\n", commTime);
+                Q_PrintlnError("Commander time: {}", commTime);
             }
             else if (commTime > 10) {
-                Com_Warning("Commander time: %d\n", commTime);
+                Q_PrintlnWarning("Commander time: {}", commTime);
             }
             else if (commTime > 2) {
-                Com_Printf(S_COLOR_GREEN "Commander time: %d\n", commTime);
+                Q_Println(S_COLOR_GREEN "Commander time: {}", commTime);
             }
 #endif //	AI_TIMERS
         }

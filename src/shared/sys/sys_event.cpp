@@ -129,7 +129,7 @@ void Sys_QueEvent(int evTime, sysEventType_t evType, int value, int value2, int 
     ev = &eventQue[eventHead & MASK_QUED_EVENTS];
 
     if (eventHead - eventTail >= MAX_QUED_EVENTS) {
-        Com_Printf("Sys_QueEvent(%s,time=%i): overflow\n", Sys_EventName(evType), evTime);
+        Q_Println("Sys_QueEvent({},time={}): overflow", Sys_EventName(evType), evTime);
         // we are discarding an event, but don't leak memory
         if (ev->evPtr) {
             Z_Free(ev->evPtr);

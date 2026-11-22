@@ -37,7 +37,6 @@ bufferlist_t ICARUS_BufferList;
 entlist_t ICARUS_EntList;
 
 extern uint32_t Com_BlockChecksum(const void* buffer, int length);
-extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 
 int ICARUS_entFilter = -1;
 
@@ -90,7 +89,7 @@ int ICARUS_RunScript(sharedEntity_t* ent, const char* name)
 
     // Make sure the caller is valid
     if (gSequencers[ent->s.number] == nullptr) {
-        // Com_Printf( "%s : entity is not a valid script user\n", ent->classname );
+        // Q_Println("{} : entity is not a valid script user", ent->classname);
         return false;
     }
 #ifdef _HACK_FOR_TESTING_ONLY_1
@@ -135,7 +134,7 @@ int ICARUS_RunScript(sharedEntity_t* ent, const char* name)
         return false;
 
     if ((ICARUS_entFilter == -1) || (ICARUS_entFilter == ent->s.number)) {
-        Q3_DebugPrint(WL_e::WL_VERBOSE, "%d Script %s executed by %s %s\n", svs.time, (char*)name, ent->classname, ent->targetname);
+        Q3_DebugPrintln(WL_e::WL_VERBOSE, "{} Script {} executed by {} {}", svs.time, (char*)name, ent->classname, ent->targetname);
     }
 
     return true;
@@ -158,7 +157,7 @@ void ICARUS_Init(void)
     iICARUS = ICARUS_Instance::Create(&interface_export);
 
     if (iICARUS == nullptr) {
-        Com_Error(errorParm_t::ERR_DROP, "Unable to initialize ICARUS instance\n");
+        Q_Error(errorParm_t::ERR_DROP, "Unable to initialize ICARUS instance");
         return;
     }
 }
@@ -272,7 +271,7 @@ bool ICARUS_ValidEnt(sharedEntity_t* ent)
     // Potentially able to call a script
     for (const char* script : ent->behaviorSet) {
         if VALIDSTRING (script) {
-            // Com_Warning( "Entity %d (%s) has behaviorSet but no script_targetname -- using targetname\n", ent->s.number, ent->targetname );
+            // Q_PrintlnWarning("Entity {} ({}) has behaviorSet but no script_targetname -- using targetname", ent->s.number, ent->targetname);
 
             // ent->script_targetname = ent->targetname;
             // rww - You CANNOT do things like this now. We're switching memory around to be able to read this memory from vm land,
@@ -337,7 +336,7 @@ bool ICARUS_RegisterScript(const char* name, bool bCalledDuringInterrogate /* = 
     if (ei != ICARUS_BufferList.end())
         return (bCalledDuringInterrogate) ? false : true;
 
-    Com_sprintf(newname, sizeof(newname), "%s%s", name, IBI_EXT);
+    Q_FormatTo(newname, "{}{}", name, IBI_EXT);
 
     // small update here, if called during interrogate, don't let gi.FS_ReadFile() complain because it can't
     //	find stuff like BS_RUN_AND_SHOOT as scriptname...   During FINALBUILD the message won't appear anyway, hence
@@ -370,7 +369,7 @@ bool ICARUS_RegisterScript(const char* name, bool bCalledDuringInterrogate /* = 
         // File not found, but keep quiet during interrogate stage, because of stuff like BS_RUN_AND_SHOOT as scriptname
         //
         if (!bCalledDuringInterrogate) {
-            Com_Printf(S_COLOR_RED "Could not open file '%s'\n", newname);
+            Q_Println(S_COLOR_RED "Could not open file '{}'", newname);
         }
         return false;
     }
@@ -435,7 +434,7 @@ void ICARUS_InterrogateScript(const char* filename)
         Q_strncpyz(sFilename, filename, sizeof(sFilename));
     }
     else {
-        Q_strncpyz(sFilename, va("%s/%s", Q3_SCRIPT_DIR, filename), sizeof(sFilename));
+        Q_strncpyz(sFilename, Q_Format("{}/{}", Q3_SCRIPT_DIR, filename).c_str(), sizeof(sFilename));
     }
     //
     //////////////////////////////////
@@ -599,7 +598,7 @@ void ICARUS_PrecacheEnt(sharedEntity_t* ent)
             continue;
 
         if (GetIDForString(BSTable, script) == -1) { // not a behavior set
-            Com_sprintf(newname, sizeof(newname), "%s/%s", Q3_SCRIPT_DIR, script);
+            Q_FormatTo(newname, "{}/{}", Q3_SCRIPT_DIR, script);
 
             // Precache this, and all internally referenced scripts
             ICARUS_InterrogateScript(newname);
@@ -685,19 +684,19 @@ void Svcmd_ICARUS_f(void)
 
             if ( ent == nullptr )
             {
-                Com_Printf( "Entity \"%s\" not found!\n", gi.argv(2) );
+                Q_Println("Entity \"{}\" not found!", gi.argv(2));
                 return;
             }
 
             //Start logging
-            Com_Printf("Logging ICARUS info for entity %s\n", gi.argv(2) );
+            Q_Println("Logging ICARUS info for entity {}", gi.argv(2));
 
             ICARUS_entFilter		= ( ent->s.number == ICARUS_entFilter ) ? -1 : ent->s.number;
 
             return;
         }
 
-        Com_Printf("Logging ICARUS info for all entities\n");
+        Q_Println("Logging ICARUS info for all entities");
 
         return;
     }

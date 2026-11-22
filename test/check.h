@@ -22,6 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // program's exit status is the count of failed checks (0: passed).
 #pragma once
 
+#include <fmt/base.h>
+
 #include <cstdio>
 
 namespace test {
@@ -30,7 +32,7 @@ inline int failures = 0;
 
 inline void Fail(const char* file, int line, const char* expression)
 {
-    std::printf("%s:%d: check failed: %s\n", file, line, expression);
+    fmt::println("{}:{}: check failed: {}", file, line, expression);
     ++failures;
 }
 

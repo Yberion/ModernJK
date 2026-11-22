@@ -147,7 +147,7 @@ void MSG_WriteBits(msg_t* msg, int value, int bits)
     }
 
     if (bits == 0 || bits < -31 || bits > 32) {
-        Com_Error(errorParm_t::ERR_DROP, "MSG_WriteBits: bad bits %i", bits);
+        Q_Error(errorParm_t::ERR_DROP, "MSG_WriteBits: bad bits {}", bits);
     }
 
     // check for overflows
@@ -156,7 +156,7 @@ void MSG_WriteBits(msg_t* msg, int value, int bits)
             if (value > ((1 << bits) - 1) || value < 0) {
                 overflows++;
 #ifndef FINAL_BUILD
-//				Com_Printf ("MSG_WriteBits: overflow writing %d in %d bits [index %i]\n", value, bits, gLastBitIndex);
+//				Q_Println("MSG_WriteBits: overflow writing {} in {} bits [index {}]", value, bits, gLastBitIndex);
 #endif
             }
         }
@@ -168,7 +168,7 @@ void MSG_WriteBits(msg_t* msg, int value, int bits)
             if (value > r - 1 || value < -r) {
                 overflows++;
 #ifndef FINAL_BUILD
-//				Com_Printf ("MSG_WriteBits: overflow writing %d in %d bits [index %i]\n", value, bits, gLastBitIndex);
+//				Q_Println("MSG_WriteBits: overflow writing {} in {} bits [index {}]", value, bits, gLastBitIndex);
 #endif
             }
         }
@@ -200,7 +200,7 @@ void MSG_WriteBits(msg_t* msg, int value, int bits)
             msg->bit += 32;
         }
         else {
-            Com_Error(errorParm_t::ERR_DROP, "can't write %d bits\n", bits);
+            Q_Error(errorParm_t::ERR_DROP, "can't write {} bits", bits);
         }
     }
     else {
@@ -282,7 +282,7 @@ int MSG_ReadBits(msg_t* msg, int bits)
             msg->bit += 32;
         }
         else {
-            Com_Error(errorParm_t::ERR_DROP, "can't read %d bits\n", bits);
+            Q_Error(errorParm_t::ERR_DROP, "can't read {} bits", bits);
         }
     }
     else {
@@ -333,7 +333,7 @@ void MSG_WriteChar(msg_t* sb, int c)
 {
 #ifdef PARANOID
     if (c < -128 || c > 127)
-        Com_Error(errorParm_t::ERR_FATAL, "MSG_WriteChar: range error");
+        Q_Error(errorParm_t::ERR_FATAL, "MSG_WriteChar: range error");
 #endif
 
     MSG_WriteBits(sb, c, 8);
@@ -343,7 +343,7 @@ void MSG_WriteByte(msg_t* sb, int c)
 {
 #ifdef PARANOID
     if (c < 0 || c > 255)
-        Com_Error(errorParm_t::ERR_FATAL, "MSG_WriteByte: range error");
+        Q_Error(errorParm_t::ERR_FATAL, "MSG_WriteByte: range error");
 #endif
 
     MSG_WriteBits(sb, c, 8);
@@ -361,7 +361,7 @@ void MSG_WriteShort(msg_t* sb, int c)
 {
 #ifdef PARANOID
     if (c < ((short)0x8000) || c > (short)0x7fff)
-        Com_Error(errorParm_t::ERR_FATAL, "MSG_WriteShort: range error");
+        Q_Error(errorParm_t::ERR_FATAL, "MSG_WriteShort: range error");
 #endif
 
     MSG_WriteBits(sb, c, 16);
@@ -390,7 +390,7 @@ void MSG_WriteString(msg_t* sb, const char* s)
 
         l = strlen(s);
         if (l >= MAX_STRING_CHARS) {
-            Com_Printf("MSG_WriteString: MAX_STRING_CHARS");
+            Q_Print("MSG_WriteString: MAX_STRING_CHARS");
             MSG_WriteData(sb, "", 1);
             return;
         }
@@ -420,7 +420,7 @@ void MSG_WriteBigString(msg_t* sb, const char* s)
 
         l = strlen(s);
         if (l >= BIG_INFO_STRING) {
-            Com_Printf("MSG_WriteString: BIG_INFO_STRING");
+            Q_Print("MSG_WriteString: BIG_INFO_STRING");
             MSG_WriteData(sb, "", 1);
             return;
         }
@@ -631,7 +631,7 @@ extern cvar_t* cl_shownet;
 
 #define LOG(x)                                                                                                                                                 \
     if (cl_shownet && cl_shownet->integer == 4) {                                                                                                              \
-        Com_Printf("%s ", x);                                                                                                                                  \
+        Q_Print("{} ", x);                                                                                                                                     \
     };
 
 void MSG_WriteDelta(msg_t* msg, int oldV, int newV, int bits)
@@ -1131,7 +1131,7 @@ void MSG_WriteDeltaEntity(msg_t* msg, struct entityState_s* from, struct entityS
     }
 
     if (to->number < 0 || to->number >= MAX_GENTITIES) {
-        Com_Error(errorParm_t::ERR_FATAL, "MSG_WriteDeltaEntity: Bad entity number: %i", to->number);
+        Q_Error(errorParm_t::ERR_FATAL, "MSG_WriteDeltaEntity: Bad entity number: {}", to->number);
     }
 
     lc = 0;
@@ -1235,7 +1235,7 @@ void MSG_ReadDeltaEntity(msg_t* msg, entityState_t* from, entityState_t* to, int
     int startBit, endBit;
 
     if (number < 0 || number >= MAX_GENTITIES) {
-        Com_Error(errorParm_t::ERR_DROP, "Bad delta entity number: %i", number);
+        Q_Error(errorParm_t::ERR_DROP, "Bad delta entity number: {}", number);
     }
 
     if (msg->bit == 0) {
@@ -1250,7 +1250,7 @@ void MSG_ReadDeltaEntity(msg_t* msg, entityState_t* from, entityState_t* to, int
         Com_Memset(to, 0, sizeof(*to));
         to->number = MAX_GENTITIES - 1;
         if (cl_shownet && (cl_shownet->integer >= 2 || cl_shownet->integer == -1)) {
-            Com_Printf("%3i: #%-3i remove\n", msg->readcount, number);
+            Q_Println("{:3}: #{:<3} remove", msg->readcount, number);
         }
         return;
     }
@@ -1266,17 +1266,17 @@ void MSG_ReadDeltaEntity(msg_t* msg, entityState_t* from, entityState_t* to, int
     lc = MSG_ReadByte(msg);
 
     if (lc > numFields || lc < 0)
-        Com_Error(errorParm_t::ERR_DROP, "invalid entityState field count (got: %i, expecting: %i)", lc, numFields);
+        Q_Error(errorParm_t::ERR_DROP, "invalid entityState field count (got: {}, expecting: {})", lc, numFields);
 
     // shownet 2/3 will interleave with other printed info, -1 will
     // just print the delta records`
     if (cl_shownet && (cl_shownet->integer >= 2 || cl_shownet->integer == -1)) {
         print = 1;
         if (sv.state != serverState_t::SS_DEAD) {
-            Com_Printf("%3i: #%-3i (%s) ", msg->readcount, number, SV_GentityNum(number)->classname);
+            Q_Print("{:3}: #{:<3} ({}) ", msg->readcount, number, SV_GentityNum(number)->classname);
         }
         else {
-            Com_Printf("%3i: #%-3i ", msg->readcount, number);
+            Q_Print("{:3}: #{:<3} ", msg->readcount, number);
         }
     }
     else {
@@ -1306,14 +1306,14 @@ void MSG_ReadDeltaEntity(msg_t* msg, entityState_t* from, entityState_t* to, int
                         trunc -= FLOAT_INT_BIAS;
                         *(float*)toF = trunc;
                         if (print) {
-                            Com_Printf("%s:%i ", field->name, trunc);
+                            Q_Print("{}:{} ", field->name, trunc);
                         }
                     }
                     else {
                         // full floating point value
                         *toF = MSG_ReadBits(msg, 32);
                         if (print) {
-                            Com_Printf("%s:%f ", field->name, *(float*)toF);
+                            Q_Print("{}:{:f} ", field->name, *(float*)toF);
                         }
                     }
                 }
@@ -1326,7 +1326,7 @@ void MSG_ReadDeltaEntity(msg_t* msg, entityState_t* from, entityState_t* to, int
                     // integer
                     MSG_SetField(to, field, MSG_ReadBits(msg, field->bits));
                     if (print) {
-                        Com_Printf("%s:%i ", field->name, MSG_GetField(to, field));
+                        Q_Print("{}:{} ", field->name, MSG_GetField(to, field));
                     }
                 }
             }
@@ -1344,7 +1344,7 @@ void MSG_ReadDeltaEntity(msg_t* msg, entityState_t* from, entityState_t* to, int
         else {
             endBit = (msg->readcount - 1) * 8 + msg->bit - GENTITYNUM_BITS;
         }
-        Com_Printf(" (%i bits)\n", endBit - startBit);
+        Q_Println(" ({} bits)", endBit - startBit);
     }
 }
 
@@ -1996,14 +1996,14 @@ void MSG_CheckNETFPSFOverrides(bool psfOverrides)
         }
     }
 
-    len = FS_FOpenFileRead(va("ext_data/MP/%s", fileName), &f, false);
+    len = FS_FOpenFileRead(Q_Format("ext_data/MP/{}", fileName).c_str(), &f, false);
 
     if (!f || len < 0) { // silently exit since this file is not needed to proceed.
         return;
     }
 
     if (len >= 4096) {
-        Com_Warning("%s is >= 4096 bytes and is being ignored\n", fileName);
+        Q_PrintlnWarning("{} is >= 4096 bytes and is being ignored", fileName);
         FS_FCloseFile(f);
         return;
     }
@@ -2057,7 +2057,7 @@ void MSG_CheckNETFPSFOverrides(bool psfOverrides)
             entryName[j] = 0;
 
             if (!overrideFile[i]) { // just give up, this shouldn't happen
-                Com_Warning("Parsing error for %s\n", fileName);
+                Q_PrintlnWarning("Parsing error for {}", fileName);
                 return;
             }
 
@@ -2101,11 +2101,11 @@ void MSG_CheckNETFPSFOverrides(bool psfOverrides)
                 }
 
                 if (j == numFields) { // failed to find the value
-                    Com_Warning("Value '%s' from %s is not valid\n", entryName, fileName);
+                    Q_PrintlnWarning("Value '{}' from {} is not valid", entryName, fileName);
                 }
             }
             else { // also should not happen
-                Com_Warning("Parsing error for %s\n", fileName);
+                Q_PrintlnWarning("Parsing error for {}", fileName);
                 return;
             }
         }
@@ -2376,7 +2376,7 @@ void MSG_ReadDeltaPlayerstate(msg_t* msg, playerState_t* from, playerState_t* to
     // just print the delta records
     if (cl_shownet && (cl_shownet->integer >= 2 || cl_shownet->integer == -2)) {
         print = 1;
-        Com_Printf("%3i: playerstate ", msg->readcount);
+        Q_Print("{:3}: playerstate ", msg->readcount);
     }
     else {
         print = 0;
@@ -2406,7 +2406,7 @@ void MSG_ReadDeltaPlayerstate(msg_t* msg, playerState_t* from, playerState_t* to
     lc = MSG_ReadByte(msg);
 
     if (lc > numFields || lc < 0)
-        Com_Error(errorParm_t::ERR_DROP, "invalid playerState field count (got: %i, expecting: %i)", lc, numFields);
+        Q_Error(errorParm_t::ERR_DROP, "invalid playerState field count (got: {}, expecting: {})", lc, numFields);
 
     for (i = 0, field = PSFields; i < lc; i++, field++) {
         toF = (int*)((byte*)to + field->offset);
@@ -2433,14 +2433,14 @@ void MSG_ReadDeltaPlayerstate(msg_t* msg, playerState_t* from, playerState_t* to
                     trunc -= FLOAT_INT_BIAS;
                     *(float*)toF = trunc;
                     if (print) {
-                        Com_Printf("%s:%i ", field->name, trunc);
+                        Q_Print("{}:{} ", field->name, trunc);
                     }
                 }
                 else {
                     // full floating point value
                     *toF = MSG_ReadBits(msg, 32);
                     if (print) {
-                        Com_Printf("%s:%f ", field->name, *(float*)toF);
+                        Q_Print("{}:{:f} ", field->name, *(float*)toF);
                     }
                 }
             }
@@ -2448,7 +2448,7 @@ void MSG_ReadDeltaPlayerstate(msg_t* msg, playerState_t* from, playerState_t* to
                 // integer
                 MSG_SetField(to, field, MSG_ReadBits(msg, field->bits));
                 if (print) {
-                    Com_Printf("%s:%i ", field->name, MSG_GetField(to, field));
+                    Q_Print("{}:{} ", field->name, MSG_GetField(to, field));
                 }
             }
         }
@@ -2517,7 +2517,7 @@ void MSG_ReadDeltaPlayerstate(msg_t* msg, playerState_t* from, playerState_t* to
         else {
             endBit = (msg->readcount - 1) * 8 + msg->bit - GENTITYNUM_BITS;
         }
-        Com_Printf(" (%i bits)\n", endBit - startBit);
+        Q_Println(" ({} bits)", endBit - startBit);
     }
 
 #ifdef _ONEBIT_COMBO
@@ -3103,15 +3103,15 @@ void MSG_initHuffman()
         Huff_addRef(&msgHuff.decompressor, ch); // Do update
         array[ch]++;
     }
-    Com_Printf("msg_hData {\n");
+    Q_Println("msg_hData {{");
     for (i = 0; i < 256; i++) {
         if (array[i] == 0) {
             Huff_addRef(&msgHuff.compressor, i);   // Do update
             Huff_addRef(&msgHuff.decompressor, i); // Do update
         }
-        Com_Printf("%d,			// %d\n", array[i], i);
+        Q_Println("{},			// {}", array[i], i);
     }
-    Com_Printf("};\n");
+    Q_Println("}};");
     FS_FreeFile(data);
     Cbuf_AddText("condump dump.txt\n");
 }
@@ -3142,16 +3142,16 @@ void MSG_ReportChangeVectors_f(void)
 
     numFields = (int)ARRAY_LEN(entityStateFields);
 
-    Com_Printf("Entity State Fields:\n");
+    Q_Println("Entity State Fields:");
     for (i = 0, field = entityStateFields; i < numFields; i++, field++) {
-        Com_Printf("%s\t\t%d\n", field->name, field->mCount);
+        Q_Println("{}\t\t{}", field->name, static_cast<int>(field->mCount));
         field->mCount = 0;
     }
 
-    Com_Printf("\nPlayer State Fields:\n");
+    Q_Println("\nPlayer State Fields:");
     numFields = (int)ARRAY_LEN(playerStateFields);
     for (i = 0, field = playerStateFields; i < numFields; i++, field++) {
-        Com_Printf("%s\t\t%d\n", field->name, field->mCount);
+        Q_Println("{}\t\t{}", field->name, static_cast<int>(field->mCount));
         field->mCount = 0;
     }
 }

@@ -286,7 +286,7 @@ gentity_t* SelectSpawnPoint(vec3_t avoidPoint, team_t team, vec3_t origin, vec3_
 
     if (level.spawntarget[0]) {                                                                       // we have a spawnpoint specified, try to find it
         if ((nearestSpot = spot = G_Find(nullptr, FOFS(targetname), level.spawntarget)) == nullptr) { // you HAVE to be able to find the desired spot
-            Com_Error(errorParm_t::ERR_DROP, "Couldn't find spawntarget %s\n", level.spawntarget);
+            Q_Error(errorParm_t::ERR_DROP, "Couldn't find spawntarget {}", level.spawntarget);
             return nullptr;
         }
     }
@@ -302,7 +302,7 @@ gentity_t* SelectSpawnPoint(vec3_t avoidPoint, team_t team, vec3_t origin, vec3_
 
     // find a single player start spot
     if (!spot) {
-        Com_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point\n");
+        Q_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
     }
 
     VectorCopy(spot->s.origin, origin);
@@ -465,13 +465,13 @@ void ClientUserinfoChanged(int clientNum)
     // send over a subset of the userinfo keys so other clients can
     // print scoreboards, display models, and play custom sounds
     buf[0] = '\0';
-    Q_strcat(buf, sizeof(buf), va("n\\%s\\", client->pers.netname));
-    Q_strcat(buf, sizeof(buf), va("t\\%i\\", to_underlying(client->sess.sessionTeam)));
+    Q_strcat(buf, sizeof(buf), Q_Format("n\\{}\\", client->pers.netname).c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("t\\{}\\", to_underlying(client->sess.sessionTeam)).c_str());
     Q_strcat(buf, sizeof(buf), "headModel\\\\");
     Q_strcat(buf, sizeof(buf), "torsoModel\\\\");
     Q_strcat(buf, sizeof(buf), "legsModel\\\\");
-    Q_strcat(buf, sizeof(buf), va("hc\\%i\\", client->pers.maxHealth));
-    Q_strcat(buf, sizeof(buf), va("snd\\%s\\", sound));
+    Q_strcat(buf, sizeof(buf), Q_Format("hc\\{}\\", client->pers.maxHealth).c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("snd\\{}\\", sound).c_str());
 
     gi.SetConfigstring(CS_PLAYERS + clientNum, buf);
 }
@@ -538,7 +538,7 @@ char* ClientConnect(int clientNum, bool firstTime, SavedGameJustLoaded_e eSavedG
 
         // don't do the "xxx connected" messages if they were caried over from previous level
         if (firstTime) {
-            gi.SendServerCommand(-1, "print \"%s connected\n\"", client->pers.netname);
+            gi.SendServerCommand(-1, "print \"{} connected\n\"", client->pers.netname);
         }
     }
 
@@ -790,15 +790,15 @@ static void G_SetSkin(gentity_t* ent)
     if (Q_stricmp("hoth2", level.mapname) == 0    // hack, is this the only map?
         || Q_stricmp("hoth3", level.mapname) == 0 // no! ;-)
     ) {
-        Com_sprintf(skinName, sizeof(skinName), "models/players/%s/|%s|%s|%s", g_char_model->string, g_char_skin_head->string, "torso_g1", "lower_e1");
+        Q_FormatTo(skinName, "models/players/{}/|{}|{}|{}", g_char_model->string, g_char_skin_head->string, "torso_g1", "lower_e1");
     }
     else if (Q_stricmp(g_char_skin_head->string, "model_default") == 0 && Q_stricmp(g_char_skin_torso->string, "model_default") == 0 &&
              Q_stricmp(g_char_skin_legs->string, "model_default") == 0) {
-        Com_sprintf(skinName, sizeof(skinName), "models/players/%s/model_default.skin", g_char_model->string);
+        Q_FormatTo(skinName, "models/players/{}/model_default.skin", g_char_model->string);
     }
     else {
-        Com_sprintf(skinName, sizeof(skinName), "models/players/%s/|%s|%s|%s", g_char_model->string, g_char_skin_head->string, g_char_skin_torso->string,
-                    g_char_skin_legs->string);
+        Q_FormatTo(skinName, "models/players/{}/|{}|{}|{}", g_char_model->string, g_char_skin_head->string, g_char_skin_torso->string,
+                   g_char_skin_legs->string);
     }
 
     // lets see if it's out there
@@ -893,7 +893,7 @@ void G_NextTestAxes(void)
         whichAxes++;
         if (whichAxes > 216) {
             whichAxes = 0;
-            Com_Printf(S_COLOR_RED "WRAPPED\n");
+            Q_Println(S_COLOR_RED "WRAPPED");
             break;
         }
         axesCount = 0;
@@ -916,9 +916,9 @@ void G_NextTestAxes(void)
              (testAxes[2] - testAxes[0]) == 3 || (testAxes[0] - testAxes[2]) == 3 || testAxes[2] == testAxes[1] || (testAxes[2] - testAxes[1]) == 3 ||
              (testAxes[1] - testAxes[2]) == 3);
 
-    Com_Printf("Up: %s\nRight: %s\nForward: %s\n", AxesNames[testAxes[0]], AxesNames[testAxes[1]], AxesNames[testAxes[2]]);
+    Q_Println("Up: {}\nRight: {}\nForward: {}", AxesNames[testAxes[0]], AxesNames[testAxes[1]], AxesNames[testAxes[2]]);
     if (testAxes[0] == Eorientations::POSITIVE_X && testAxes[1] == Eorientations::POSITIVE_Z && testAxes[2] == Eorientations::POSITIVE_Y) {
-        Com_Printf(S_COLOR_RED "WRAPPED\n");
+        Q_Println(S_COLOR_RED "WRAPPED");
     }
 }
 
@@ -1098,16 +1098,16 @@ bool G_SetG2PlayerModelInfo(gentity_t* ent, const char* modelName, const char* c
 
                 // Setup the Exhausts.
                 for (int i = 0; i < MAX_VEHICLE_EXHAUSTS; i++) {
-                    Com_sprintf(strTemp, 128, "*exhaust%d", i + 1);
+                    Q_FormatTo(std::span(strTemp, 128), "*exhaust{}", i + 1);
                     ent->m_pVehicle->m_iExhaustTag[i] = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], strTemp);
                 }
 
                 // Setup the Muzzles.
                 for (int i = 0; i < MAX_VEHICLE_MUZZLES; i++) {
-                    Com_sprintf(strTemp, 128, "*muzzle%d", i + 1);
+                    Q_FormatTo(std::span(strTemp, 128), "*muzzle{}", i + 1);
                     ent->m_pVehicle->m_iMuzzleTag[i] = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], strTemp);
                     if (ent->m_pVehicle->m_iMuzzleTag[i] == -1) { // ergh, try *flash?
-                        Com_sprintf(strTemp, 128, "*flash%d", i + 1);
+                        Q_FormatTo(std::span(strTemp, 128), "*flash{}", i + 1);
                         ent->m_pVehicle->m_iMuzzleTag[i] = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], strTemp);
                     }
                 }
@@ -1218,7 +1218,7 @@ bool G_SetG2PlayerModelInfo(gentity_t* ent, const char* modelName, const char* c
         ent->rootBone = gi.G2API_GetBoneIndex(&ent->ghoul2[ent->playerModel], "model_root", true);
 #ifndef FINAL_BUILD
         if (g_developer->integer && ent->rootBone == -1) {
-            Com_Error(errorParm_t::ERR_DROP, "ERROR: model %s has no model_root bone (and hence cannot animate)!!!\n", modelName);
+            Q_Error(errorParm_t::ERR_DROP, "ERROR: model {} has no model_root bone (and hence cannot animate)!!!", modelName);
         }
 #endif
         ent->footLBone = BONE_INDEX_INVALID;
@@ -1582,14 +1582,14 @@ void G_SetG2PlayerModel(gentity_t* const ent, const char* modelName, const char*
 
     // ok, lets register the skin name, and then pass that name to the config strings so the client can get it too.
     if (!customSkin) { // use the default
-        Com_sprintf(skinName, sizeof(skinName), "models/players/%s/model_default.skin", modelName);
+        Q_FormatTo(skinName, "models/players/{}/model_default.skin", modelName);
     }
     else {
         if (strchr(customSkin, '|')) { // three part skin
-            Com_sprintf(skinName, sizeof(skinName), "models/players/%s/|%s", modelName, customSkin);
+            Q_FormatTo(skinName, "models/players/{}/|{}", modelName, customSkin);
         }
         else {
-            Com_sprintf(skinName, sizeof(skinName), "models/players/%s/model_%s.skin", modelName, customSkin);
+            Q_FormatTo(skinName, "models/players/{}/model_{}.skin", modelName, customSkin);
         }
     }
     int skin = gi.RE_RegisterSkin(skinName);
@@ -1599,24 +1599,25 @@ void G_SetG2PlayerModel(gentity_t* const ent, const char* modelName, const char*
         // This will register the model and other assets.
         Vehicle_t* pVeh = ent->m_pVehicle;
         pVeh->m_pVehicleInfo->RegisterAssets(pVeh);
-        ent->playerModel = gi.G2API_InitGhoul2Model(ent->ghoul2, va("models/players/%s/model.glm", modelName), pVeh->m_pVehicleInfo->modelIndex,
+        ent->playerModel = gi.G2API_InitGhoul2Model(ent->ghoul2, Q_Format("models/players/{}/model.glm", modelName).c_str(), pVeh->m_pVehicleInfo->modelIndex,
                                                     G_SkinIndex(skinName), NULL_HANDLE, 0, 0);
     }
     else {
         // NOTE: it still loads the default skin's tga's because they're referenced in the .glm.
-        ent->playerModel = gi.G2API_InitGhoul2Model(ent->ghoul2, va("models/players/%s/model.glm", modelName),
-                                                    G_ModelIndex(va("models/players/%s/model.glm", modelName)), G_SkinIndex(skinName), NULL_HANDLE, 0, 0);
+        ent->playerModel =
+            gi.G2API_InitGhoul2Model(ent->ghoul2, Q_Format("models/players/{}/model.glm", modelName).c_str(),
+                                     G_ModelIndex(Q_Format("models/players/{}/model.glm", modelName).c_str()), G_SkinIndex(skinName), NULL_HANDLE, 0, 0);
     }
     if (ent->playerModel == -1) { // try the stormtrooper as a default
-        Com_Printf(S_COLOR_RED "G_SetG2PlayerModel: cannot load model %s\n", modelName);
+        Q_Println(S_COLOR_RED "G_SetG2PlayerModel: cannot load model {}", modelName);
         modelName = "stormtrooper";
-        Com_sprintf(skinName, sizeof(skinName), "models/players/%s/model_default.skin", modelName);
+        Q_FormatTo(skinName, "models/players/{}/model_default.skin", modelName);
         skin = gi.RE_RegisterSkin(skinName);
-        ent->playerModel = gi.G2API_InitGhoul2Model(ent->ghoul2, va("models/players/%s/model.glm", modelName),
-                                                    G_ModelIndex(va("models/players/%s/model.glm", modelName)), NULL_HANDLE, NULL_HANDLE, 0, 0);
+        ent->playerModel = gi.G2API_InitGhoul2Model(ent->ghoul2, Q_Format("models/players/{}/model.glm", modelName).c_str(),
+                                                    G_ModelIndex(Q_Format("models/players/{}/model.glm", modelName).c_str()), NULL_HANDLE, NULL_HANDLE, 0, 0);
     }
     if (ent->playerModel == -1) { // very bad thing here!
-        Com_Error(errorParm_t::ERR_DROP, "Cannot fall back to default model %s!", modelName);
+        Q_Error(errorParm_t::ERR_DROP, "Cannot fall back to default model {}!", modelName);
     }
 
     gi.G2API_SetSkin(&ent->ghoul2[ent->playerModel], G_SkinIndex(skinName), skin); // this is going to set the surfs on/off matching the skin file
@@ -1624,7 +1625,7 @@ void G_SetG2PlayerModel(gentity_t* const ent, const char* modelName, const char*
     // did we find a ghoul2 model? if so, load the animation.cfg file
     if (!G_SetG2PlayerModelInfo(ent, modelName, customSkin, surfOff, surfOn)) { // couldn't set g2 info, fall back to a mouse md3
         NPC_ParseParms("mouse", ent);
-        Com_Printf(S_COLOR_RED "couldn't load playerModel %s!\n", va("models/players/%s/model.glm", modelName));
+        Q_Println(S_COLOR_RED "couldn't load playerModel {}!", Q_Format("models/players/{}/model.glm", modelName));
     }
 }
 /*
@@ -1734,9 +1735,10 @@ void G_InitPlayerFromCvars(gentity_t* ent)
     // set model based on cvars
     if (Q_stricmp(g_char_skin_head->string, "model_default") == 0 && Q_stricmp(g_char_skin_torso->string, "model_default") == 0 &&
         Q_stricmp(g_char_skin_legs->string, "model_default") == 0)
-        G_ChangePlayerModel(ent, va("%s|model_default", g_char_model->string));
+        G_ChangePlayerModel(ent, Q_Format("{}|model_default", g_char_model->string).c_str());
     else
-        G_ChangePlayerModel(ent, va("%s|%s|%s|%s", g_char_model->string, g_char_skin_head->string, g_char_skin_torso->string, g_char_skin_legs->string));
+        G_ChangePlayerModel(
+            ent, Q_Format("{}|{}|{}|{}", g_char_model->string, g_char_skin_head->string, g_char_skin_torso->string, g_char_skin_legs->string).c_str());
 
     // FIXME: parse these 2 from some cvar or require playermodel to be in a *.npc?
     if (ent->NPC_type && gi.bIsFromZone(ent->NPC_type, memtag::TAG_G_ALLOC)) {
@@ -1825,7 +1827,7 @@ void G_ChangePlayerModel(gentity_t* ent, const char* newModel)
             }
         }
         else {
-            Com_Printf(S_COLOR_RED "G_ChangePlayerModel: cannot find NPC %s\n", newModel);
+            Q_Println(S_COLOR_RED "G_ChangePlayerModel: cannot find NPC {}", newModel);
             G_ChangePlayerModel(ent, "stormtrooper"); // need a better fallback?
         }
     }

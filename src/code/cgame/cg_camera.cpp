@@ -507,7 +507,7 @@ void CG_CameraAutoAim(const char* name)
 
     if(!aimEnt)
     {
-        Com_PrintError("%s camera aim target not found\n", name);
+        Q_PrintlnError("{} camera aim target not found", name);
         return;
     }
 
@@ -538,7 +538,7 @@ void CGCam_Track(const char* trackName, float speed, float initLerp)
     trackEnt = G_Find(nullptr, FOFS(targetname), (char*)trackName);
 
     if (!trackEnt) {
-        Com_PrintError("%s camera track target not found\n", trackName);
+        Q_PrintlnError("{} camera track target not found", trackName);
         return;
     }
 
@@ -612,7 +612,7 @@ void CG_CameraAutoTrack(const char* name)
 
     if(!trackEnt)
     {
-        Com_PrintError("%s camera track target not found\n", name);
+        Q_PrintlnError("{} camera track target not found", name);
         return;
     }
 
@@ -662,7 +662,7 @@ void CGCam_FollowUpdate(void)
             */
 
             if (num_subjects >= MAX_CAMERA_GROUP_SUBJECTS) {
-                Com_PrintError("Too many subjects in shot composition %s", client_camera.cameraGroup);
+                Q_PrintlnError("Too many subjects in shot composition {}", client_camera.cameraGroup);
                 break;
             }
 
@@ -717,7 +717,7 @@ void CGCam_FollowUpdate(void)
         if (!num_subjects) // Bad cameragroup
         {
 #ifndef FINAL_BUILD
-            Com_PrintError("Camera Focus unable to locate cameragroup: %s\n", client_camera.cameraGroup);
+            Q_PrintlnError("Camera Focus unable to locate cameragroup: {}", client_camera.cameraGroup);
 #endif
             return;
         }
@@ -742,7 +742,7 @@ void CGCam_FollowUpdate(void)
     /*
     if ( !cg_skippingcin.integer )
     {
-        Com_Printf( S_COLOR_RED"org: %s\n", vtos(center) );
+        Q_Println(S_COLOR_RED"org: {}", vtos(center));
     }
     */
     VectorCopy(center, client_camera.subjectPos);
@@ -760,7 +760,7 @@ void CGCam_FollowUpdate(void)
             cameraAngles[i] = AngleNormalize180(cameraAngles[i]);
         }
 #if 0
-		Com_Printf( "%s\n", vtos(cameraAngles) );
+		Q_Println("{}", vtos(cameraAngles));
 #endif
     }
     else { // Snapping, should do this first time if follow_lerp_to_start_duration is zero
@@ -778,7 +778,7 @@ void CGCam_FollowUpdate(void)
     /*
     if ( !cg_skippingcin.integer )
     {
-        Com_Printf( "ang: %s\n", vtos(cameraAngles) );
+        Q_Println("ang: {}", vtos(cameraAngles));
     }
     */
     VectorCopy(cameraAngles, client_camera.angles);
@@ -914,7 +914,7 @@ void CGCam_TrackUpdate(void)
                 client_camera.speed = desiredSpeed;
             }
 
-            // Com_Printf("Speed: %4.2f (%4.2f)\n", self->moveInfo.speed, aimCent->gent->speed);
+            // Q_Println("Speed: {:4.2f} ({:4.2f})", self->moveInfo.speed, aimCent->gent->speed);
         }
     }
     else {
@@ -1046,8 +1046,8 @@ void CGCam_Update(void)
 
             actualFOV_X = initialPos + vel + acc;
             if (cg_roffdebug.integer) {
-                Com_Printf("%d: fovaccel from %2.1f using vel = %2.4f, acc = %2.4f (current fov calc = %5.6f)\n", cg.time, initialPosVal, velVal, accVal,
-                           actualFOV_X);
+                Q_Println("{}: fovaccel from {:2.1f} using vel = {:2.4f}, acc = {:2.4f} (current fov calc = {:5.6f})", cg.time, initialPosVal, velVal, accVal,
+                          actualFOV_X);
             }
 
             if (actualFOV_X < sanityMin) {
@@ -1320,7 +1320,7 @@ void CGCam_NotetrackProcessFov(const char* addlArg)
     char t[64];
 
     if (!addlArg || !addlArg[0]) {
-        Com_Printf("camera roff 'fov' notetrack missing fov argument\n");
+        Q_Println("camera roff 'fov' notetrack missing fov argument");
         return;
     }
     if (isdigit(addlArg[a])) {
@@ -1341,7 +1341,7 @@ void CGCam_NotetrackProcessFov(const char* addlArg)
         }
 #endif
         if (cg_roffdebug.integer) {
-            Com_Printf("notetrack: 'fov %2.2f' on frame %d\n", newFov, client_camera.roff_frame);
+            Q_Println("notetrack: 'fov {:2.2f}' on frame {}", newFov, client_camera.roff_frame);
         }
         CGCam_Zoom(newFov, 0);
     }
@@ -1353,7 +1353,7 @@ void CGCam_NotetrackProcessFovZoom(const char* addlArg)
     float beginFOV = 0, endFOV = 0, fovTime = 0;
 
     if (!addlArg || !addlArg[0]) {
-        Com_Printf("camera roff 'fovzoom' notetrack missing arguments\n");
+        Q_Println("camera roff 'fovzoom' notetrack missing arguments");
         return;
     }
     //
@@ -1402,7 +1402,7 @@ void CGCam_NotetrackProcessFovZoom(const char* addlArg)
             fovTime = Q_atof(t);
         }
         else {
-            Com_Printf("camera roff 'fovzoom' notetrack missing 'time' argument\n");
+            Q_Println("camera roff 'fovzoom' notetrack missing 'time' argument");
             return;
         }
 #ifndef FINAL_BUILD
@@ -1419,12 +1419,12 @@ void CGCam_NotetrackProcessFovZoom(const char* addlArg)
         }
 #endif
         if (cg_roffdebug.integer) {
-            Com_Printf("notetrack: 'fovzoom %2.2f %2.2f %5.1f' on frame %d\n", beginFOV, endFOV, fovTime, client_camera.roff_frame);
+            Q_Println("notetrack: 'fovzoom {:2.2f} {:2.2f} {:5.1f}' on frame {}", beginFOV, endFOV, fovTime, client_camera.roff_frame);
         }
         CGCam_Zoom2(beginFOV, endFOV, fovTime);
     }
     else {
-        Com_Printf("camera roff 'fovzoom' notetrack missing 'end fov' argument\n");
+        Q_Println("camera roff 'fovzoom' notetrack missing 'end fov' argument");
         return;
     }
 }
@@ -1435,7 +1435,7 @@ void CGCam_NotetrackProcessFovAccel(const char* addlArg)
     float beginFOV = 0, fovDelta = 0, fovDelta2 = 0, fovTime = 0;
 
     if (!addlArg || !addlArg[0]) {
-        Com_Printf("camera roff 'fovaccel' notetrack missing arguments\n");
+        Q_Println("camera roff 'fovaccel' notetrack missing arguments");
         return;
     }
     //
@@ -1498,21 +1498,21 @@ void CGCam_NotetrackProcessFovAccel(const char* addlArg)
                 fovTime = Q_atof(t);
             }
             else {
-                Com_Printf("camera roff 'fovaccel' notetrack missing 'time' argument\n");
+                Q_Println("camera roff 'fovaccel' notetrack missing 'time' argument");
                 return;
             }
             if (cg_roffdebug.integer) {
-                Com_Printf("notetrack: 'fovaccel %2.2f %3.5f %3.5f %f' on frame %d\n", beginFOV, fovDelta, fovDelta2, fovTime, client_camera.roff_frame);
+                Q_Println("notetrack: 'fovaccel {:2.2f} {:3.5f} {:3.5f} {:f}' on frame {}", beginFOV, fovDelta, fovDelta2, fovTime, client_camera.roff_frame);
             }
             CGCam_ZoomAccel(beginFOV, fovDelta, fovDelta2, fovTime);
         }
         else {
-            Com_Printf("camera roff 'fovaccel' notetrack missing 'delta2' argument\n");
+            Q_Println("camera roff 'fovaccel' notetrack missing 'delta2' argument");
             return;
         }
     }
     else {
-        Com_Printf("camera roff 'fovaccel' notetrack missing 'delta' argument\n");
+        Q_Println("camera roff 'fovaccel' notetrack missing 'delta' argument");
         return;
     }
 }
@@ -1578,7 +1578,7 @@ static void CG_RoffNotetrackCallback(const char* notetrack)
     if (strcmp(type, "cut") == 0) {
         client_camera.info_state |= cameraStateFlags_t::CAMERA_CUT;
         if (cg_roffdebug.integer) {
-            Com_Printf("notetrack: 'cut' on frame %d\n", client_camera.roff_frame);
+            Q_Println("notetrack: 'cut' on frame {}", client_camera.roff_frame);
         }
 
         // this is just a really hacky way of getting a cut and a fov command on the same frame
@@ -1591,21 +1591,21 @@ static void CG_RoffNotetrackCallback(const char* notetrack)
             CGCam_NotetrackProcessFov(addlArg);
             return;
         }
-        Com_Printf("camera roff 'fov' notetrack missing fov argument\n");
+        Q_Println("camera roff 'fov' notetrack missing fov argument");
     }
     else if (strcmp(type, "fovzoom") == 0) {
         if (addlArgs) {
             CGCam_NotetrackProcessFovZoom(addlArg);
             return;
         }
-        Com_Printf("camera roff 'fovzoom' notetrack missing 'begin fov' argument\n");
+        Q_Println("camera roff 'fovzoom' notetrack missing 'begin fov' argument");
     }
     else if (strcmp(type, "fovaccel") == 0) {
         if (addlArgs) {
             CGCam_NotetrackProcessFovAccel(addlArg);
             return;
         }
-        Com_Printf("camera roff 'fovaccel' notetrack missing 'begin fov' argument\n");
+        Q_Println("camera roff 'fovaccel' notetrack missing 'begin fov' argument");
     }
 }
 
@@ -1630,7 +1630,7 @@ void CGCam_StartRoff(char* roff)
 
     if (!G_LoadRoff(roff)) {
         // The load failed so don't turn on the roff playback...
-        Com_Printf(S_COLOR_RED "ROFF camera playback failed\n");
+        Q_Println(S_COLOR_RED "ROFF camera playback failed");
         return;
     };
 
@@ -1705,8 +1705,8 @@ static void CGCam_Roff(void)
         ang[ROLL] = -ang[ROLL];
         // might need to to yaw as well.  need a test...
 
-        Com_DPrintf(S_COLOR_GREEN "CamROFF: frame: %d o:<%.2f %.2f %.2f> a:<%.2f %.2f %.2f>\n", client_camera.roff_frame, org[0], org[1], org[2], ang[0],
-                    ang[1], ang[2]);
+        Q_DPrintln(S_COLOR_GREEN "CamROFF: frame: {} o:<{:.2f} {:.2f} {:.2f}> a:<{:.2f} {:.2f} {:.2f}>", client_camera.roff_frame, org[0], org[1], org[2],
+                   ang[0], ang[1], ang[2]);
 
         if (client_camera.roff_frame) {
             // Don't mess with angles if we are following

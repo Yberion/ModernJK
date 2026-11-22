@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <ghoul2/G2.h>
 
-inline constexpr int CGAME_API_VERSION = 3;
+inline constexpr int CGAME_API_VERSION = 4;
 
 enum class uiMenuCommand_t; // ui_public.h
 enum class fakeAscii_t;     // ui/keycodes.h
@@ -197,8 +197,8 @@ inline constexpr int MAX_CG_SHARED_BUFFER_SIZE = 2048;
 
 typedef struct cgameImport_s {
     // common
-    void (*Print)(printLevel_t level, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
-    NORETURN_PTR void (*Error)(errorParm_t code, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
+    void (*Print)(printLevel_t level, lineEnd_t end, fmt::string_view fmt, fmt::format_args args);
+    NORETURN_PTR void (*Error)(errorParm_t code, fmt::string_view fmt, fmt::format_args args);
     void (*SnapVector)(float* v);
     int (*MemoryRemaining)(void);
     void (*RegisterSharedMemory)(char* memory);

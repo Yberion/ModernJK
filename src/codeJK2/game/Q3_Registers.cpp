@@ -27,7 +27,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "Q3_Registers.h"
 #include <code/qcommon/ojk_saved_game_helper.h>
 
-extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
+void Q3_VDebugPrintln(WL_e level, fmt::string_view format, fmt::format_args args);
+template <typename... T> void Q3_DebugPrintln(WL_e level, fmt::format_string<T...> format, T&&... args)
+{
+    Q3_VDebugPrintln(level, format.get(), Q_FormatArgs(args...));
+}
 
 varString_m varStrings;
 varFloat_m varFloats;
@@ -77,7 +81,7 @@ void Q3_DeclareVariable(icarusToken_t type, const char* name)
         return;
 
     if (numVariables > MAX_VARIABLES) {
-        Q3_DebugPrint(WL_e::WL_ERROR, "too many variables already declared, maximum is %d\n", MAX_VARIABLES);
+        Q3_DebugPrintln(WL_e::WL_ERROR, "too many variables already declared, maximum is {}", MAX_VARIABLES);
         return;
     }
 
@@ -95,7 +99,7 @@ void Q3_DeclareVariable(icarusToken_t type, const char* name)
         break;
 
     default:
-        Q3_DebugPrint(WL_e::WL_ERROR, "unknown 'type' for declare() function!\n");
+        Q3_DebugPrintln(WL_e::WL_ERROR, "unknown 'type' for declare() function!");
         return;
         break;
     }
@@ -211,7 +215,7 @@ void Q3_InitVariables(void)
     varVectors.clear();
 
     if (numVariables > 0)
-        Q3_DebugPrint(WL_e::WL_WARNING, "%d residual variables found!\n", numVariables);
+        Q3_DebugPrintln(WL_e::WL_WARNING, "{} residual variables found!", numVariables);
 
     numVariables = 0;
 }
@@ -373,7 +377,7 @@ void Q3_VariableLoadFloats(varFloat_m& fmap)
         saved_game.read_chunk<int32_t>(INT_ID('F', 'I', 'D', 'L'), idSize);
 
         if (idSize < 0 || static_cast<size_t>(idSize) >= sizeof(tempBuffer)) {
-            Com_Error(errorParm_t::ERR_DROP, "invalid length for FIDS string in save game: %d bytes\n", idSize);
+            Q_Error(errorParm_t::ERR_DROP, "invalid length for FIDS string in save game: {} bytes", idSize);
         }
 
         saved_game.read_chunk(INT_ID('F', 'I', 'D', 'S'), tempBuffer, idSize);
@@ -411,7 +415,7 @@ void Q3_VariableLoadStrings(icarusToken_t type, varString_m& fmap)
         saved_game.read_chunk<int32_t>(INT_ID('S', 'I', 'D', 'L'), idSize);
 
         if (idSize < 0 || static_cast<size_t>(idSize) >= sizeof(tempBuffer)) {
-            Com_Error(errorParm_t::ERR_DROP, "invalid length for SIDS string in save game: %d bytes\n", idSize);
+            Q_Error(errorParm_t::ERR_DROP, "invalid length for SIDS string in save game: {} bytes", idSize);
         }
 
         saved_game.read_chunk(INT_ID('S', 'I', 'D', 'S'), tempBuffer, idSize);
@@ -421,7 +425,7 @@ void Q3_VariableLoadStrings(icarusToken_t type, varString_m& fmap)
         saved_game.read_chunk<int32_t>(INT_ID('S', 'V', 'S', 'Z'), idSize);
 
         if (idSize < 0 || static_cast<size_t>(idSize) >= sizeof(tempBuffer2)) {
-            Com_Error(errorParm_t::ERR_DROP, "invalid length for SVAL string in save game: %d bytes\n", idSize);
+            Q_Error(errorParm_t::ERR_DROP, "invalid length for SVAL string in save game: {} bytes", idSize);
         }
 
         saved_game.read_chunk(INT_ID('S', 'V', 'A', 'L'), tempBuffer2, idSize);

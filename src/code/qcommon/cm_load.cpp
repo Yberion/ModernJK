@@ -98,12 +98,12 @@ void CMod_LoadShaders(lump_t* l, clipMap_t& cm)
 
     in = (dshader_t*)(cmod_base + l->fileofs);
     if (l->filelen % sizeof(*in)) {
-        Com_Error(errorParm_t::ERR_DROP, "CMod_LoadShaders: funny lump size");
+        Q_Error(errorParm_t::ERR_DROP, "CMod_LoadShaders: funny lump size");
     }
     count = l->filelen / sizeof(*in);
 
     if (count < 1) {
-        Com_Error(errorParm_t::ERR_DROP, "Map with no shaders");
+        Q_Error(errorParm_t::ERR_DROP, "Map with no shaders");
     }
     cm.shaders = (CCMShader*)Z_Malloc((1 + count) * sizeof(*cm.shaders), memtag::TAG_BSP, true); //+1 for the BOX_SIDES to point at
     cm.numShaders = count;
@@ -130,16 +130,16 @@ void CMod_LoadSubmodels(lump_t* l, clipMap_t& cm)
 
     in = (dmodel_t*)(cmod_base + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Com_Error(errorParm_t::ERR_DROP, "CMod_LoadSubmodels: funny lump size");
+        Q_Error(errorParm_t::ERR_DROP, "CMod_LoadSubmodels: funny lump size");
     count = l->filelen / sizeof(*in);
 
     if (count < 1) {
-        Com_Error(errorParm_t::ERR_DROP, "Map with no models");
+        Q_Error(errorParm_t::ERR_DROP, "Map with no models");
     }
 
     // FIXME: note that MAX_SUBMODELS - 1 is used for BOX_MODEL_HANDLE, if that slot gets used, that would be bad, no?
     if (count > MAX_SUBMODELS) {
-        Com_Error(errorParm_t::ERR_DROP, "MAX_SUBMODELS (%d) exceeded by %d", MAX_SUBMODELS, count - MAX_SUBMODELS);
+        Q_Error(errorParm_t::ERR_DROP, "MAX_SUBMODELS ({}) exceeded by {}", MAX_SUBMODELS, count - MAX_SUBMODELS);
     }
 
     cm.cmodels = (struct cmodel_s*)Z_Malloc(count * sizeof(*cm.cmodels), memtag::TAG_BSP, true);
@@ -194,11 +194,11 @@ void CMod_LoadNodes(lump_t* l, clipMap_t& cm)
 
     in = (dnode_t*)(cmod_base + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Com_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        Q_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
     count = l->filelen / sizeof(*in);
 
     if (count < 1)
-        Com_Error(errorParm_t::ERR_DROP, "Map has no nodes");
+        Q_Error(errorParm_t::ERR_DROP, "Map has no nodes");
     cm.nodes = (cNode_t*)Z_Malloc(count * sizeof(*cm.nodes), memtag::TAG_BSP, false);
     cm.numNodes = count;
 
@@ -245,7 +245,7 @@ void CMod_LoadBrushes(lump_t* l, clipMap_t& cm)
 
     in = (dbrush_t*)(cmod_base + l->fileofs);
     if (l->filelen % sizeof(*in)) {
-        Com_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        Q_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
     }
     count = l->filelen / sizeof(*in);
 
@@ -260,7 +260,7 @@ void CMod_LoadBrushes(lump_t* l, clipMap_t& cm)
 
         out->shaderNum = LittleLong(in->shaderNum);
         if (out->shaderNum < 0 || out->shaderNum >= cm.numShaders) {
-            Com_Error(errorParm_t::ERR_DROP, "CMod_LoadBrushes: bad shaderNum: %i", out->shaderNum);
+            Q_Error(errorParm_t::ERR_DROP, "CMod_LoadBrushes: bad shaderNum: {}", out->shaderNum);
         }
         out->contents = cm.shaders[out->shaderNum].contentFlags;
 #ifdef JK2_MODE
@@ -290,11 +290,11 @@ void CMod_LoadLeafs(lump_t* l, clipMap_t& cm)
 
     in = (dleaf_t*)(cmod_base + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Com_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        Q_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
     count = l->filelen / sizeof(*in);
 
     if (count < 1)
-        Com_Error(errorParm_t::ERR_DROP, "Map with no leafs");
+        Q_Error(errorParm_t::ERR_DROP, "Map with no leafs");
 
     cm.leafs = (cLeaf_t*)Z_Malloc((BOX_LEAFS + count) * sizeof(*cm.leafs), memtag::TAG_BSP, false);
     cm.numLeafs = count;
@@ -333,11 +333,11 @@ void CMod_LoadPlanes(lump_t* l, clipMap_t& cm)
 
     in = (dplane_t*)(cmod_base + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Com_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        Q_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
     count = l->filelen / sizeof(*in);
 
     if (count < 1)
-        Com_Error(errorParm_t::ERR_DROP, "Map with no planes");
+        Q_Error(errorParm_t::ERR_DROP, "Map with no planes");
     cm.planes = (struct cplane_s*)Z_Malloc((BOX_PLANES + count) * sizeof(*cm.planes), memtag::TAG_BSP, false);
     cm.numPlanes = count;
 
@@ -371,7 +371,7 @@ void CMod_LoadLeafBrushes(lump_t* l, clipMap_t& cm)
 
     in = (int*)(cmod_base + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Com_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        Q_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
     count = l->filelen / sizeof(*in);
 
     cm.leafbrushes = (int*)Z_Malloc((BOX_BRUSHES + count) * sizeof(*cm.leafbrushes), memtag::TAG_BSP, false);
@@ -398,7 +398,7 @@ void CMod_LoadLeafSurfaces(lump_t* l, clipMap_t& cm)
 
     in = (int*)(cmod_base + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Com_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        Q_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
     count = l->filelen / sizeof(*in);
 
     cm.leafsurfaces = (int*)Z_Malloc(count * sizeof(*cm.leafsurfaces), memtag::TAG_BSP, false);
@@ -426,7 +426,7 @@ void CMod_LoadBrushSides(lump_t* l, clipMap_t& cm)
 
     in = (dbrushside_t*)(cmod_base + l->fileofs);
     if (l->filelen % sizeof(*in)) {
-        Com_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        Q_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
     }
     count = l->filelen / sizeof(*in);
 
@@ -440,7 +440,7 @@ void CMod_LoadBrushSides(lump_t* l, clipMap_t& cm)
         out->plane = &cm.planes[num];
         out->shaderNum = LittleLong(in->shaderNum);
         if (out->shaderNum < 0 || out->shaderNum >= cm.numShaders) {
-            Com_Error(errorParm_t::ERR_DROP, "CMod_LoadBrushSides: bad shaderNum: %i", out->shaderNum);
+            Q_Error(errorParm_t::ERR_DROP, "CMod_LoadBrushSides: bad shaderNum: {}", out->shaderNum);
         }
         //		out->surfaceFlags = cm.shaders[out->shaderNum].surfaceFlags;
     }
@@ -469,7 +469,7 @@ void CMod_LoadEntityString(lump_t* l, clipMap_t& cm, const char* name)
         FS_Read(cm.entityString, iEntityFileLen, h);
         FS_FCloseFile(h);
         cm.entityString[iEntityFileLen] = '\0';
-        Com_Printf("Loaded entities from %s\n", entName);
+        Q_Println("Loaded entities from {}", entName);
         return;
     }
 
@@ -527,13 +527,13 @@ void CMod_LoadPatches(lump_t* surfs, lump_t* verts, clipMap_t& cm)
 
     in = (dsurface_t*)(cmod_base + surfs->fileofs);
     if (surfs->filelen % sizeof(*in))
-        Com_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        Q_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
     cm.numSurfaces = count = surfs->filelen / sizeof(*in);
     cm.surfaces = (cPatch_t**)Z_Malloc(cm.numSurfaces * sizeof(cm.surfaces[0]), memtag::TAG_BSP, true);
 
     dv = (mapVert_t*)(cmod_base + verts->fileofs);
     if (verts->filelen % sizeof(*dv))
-        Com_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        Q_Error(errorParm_t::ERR_DROP, "MOD_LoadBmodel: funny lump size");
 
     // scan through all the surfaces, but only load patches,
     // not planar faces
@@ -550,7 +550,7 @@ void CMod_LoadPatches(lump_t* surfs, lump_t* verts, clipMap_t& cm)
         height = LittleLong(in->patchHeight);
         c = width * height;
         if (c > MAX_PATCH_VERTS) {
-            Com_Error(errorParm_t::ERR_DROP, "ParseMesh: MAX_PATCH_VERTS");
+            Q_Error(errorParm_t::ERR_DROP, "ParseMesh: MAX_PATCH_VERTS");
         }
 
         dv_p = dv + LittleLong(in->firstVert);
@@ -636,7 +636,7 @@ static void CM_LoadMap_Actual(const char* name, bool clientload, int* checksum, 
     void* subBSPData = nullptr;
 
     if (!name || !name[0]) {
-        Com_Error(errorParm_t::ERR_DROP, "CM_LoadMap: NULL name");
+        Q_Error(errorParm_t::ERR_DROP, "CM_LoadMap: NULL name");
     }
 
 #ifndef BSPC
@@ -644,7 +644,7 @@ static void CM_LoadMap_Actual(const char* name, bool clientload, int* checksum, 
     cm_noCurves = Cvar_Get("cm_noCurves", "0", cvarFlags_t::CVAR_CHEAT);
     cm_playerCurveClip = Cvar_Get("cm_playerCurveClip", "1", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_CHEAT);
 #endif
-    Com_DPrintf("CM_LoadMap( %s, %i )\n", name, clientload);
+    Q_DPrintln("CM_LoadMap( {}, {:d} )", name, clientload);
 
     if (!strcmp(cm.name, name) && clientload) {
         *checksum = last_checksum;
@@ -706,7 +706,7 @@ static void CM_LoadMap_Actual(const char* name, bool clientload, int* checksum, 
         fileHandle_t h;
         const int iBSPLen = FS_FOpenFileRead(name, &h, false);
         if (!h) {
-            Com_Error(errorParm_t::ERR_DROP, "Couldn't load %s", name);
+            Q_Error(errorParm_t::ERR_DROP, "Couldn't load {}", name);
             return;
         }
         // rww - only do this when not loading a sub-bsp!
@@ -744,7 +744,7 @@ static void CM_LoadMap_Actual(const char* name, bool clientload, int* checksum, 
             Z_Free(gpvCachedMapDiskImage);
             gpvCachedMapDiskImage = nullptr;
 
-            Com_Error(errorParm_t::ERR_DROP, "CM_LoadMap: %s has wrong version number (%i should be %i)", name, header.version, BSP_VERSION);
+            Q_Error(errorParm_t::ERR_DROP, "CM_LoadMap: {} has wrong version number ({} should be {})", name, header.version, BSP_VERSION);
         }
 
         cmod_base = (byte*)buf;
@@ -809,8 +809,8 @@ static void CM_LoadMap_Actual(const char* name, bool clientload, int* checksum, 
 void CM_LoadMap(const char* name, bool clientload, int* checksum, bool subBSP)
 {
     if (subBSP) {
-        Com_DPrintf("^5CM_LoadMap->CMLoadSubBSP(%s, %i)\n", name, false);
-        CM_LoadSubBSP(va("maps/%s.bsp", ((const char*)name) + 1), false);
+        Q_DPrintln("^5CM_LoadMap->CMLoadSubBSP({}, {:d})", name, false);
+        CM_LoadSubBSP(Q_Format("maps/{}.bsp", ((const char*)name) + 1).c_str(), false);
         // CM_LoadMap_Actual( name, clientload, checksum, cmg );
     }
     else {
@@ -835,7 +835,7 @@ bool CM_SameMap(const char* server)
         return false;
     }
 
-    if (Q_stricmp(cmg.name, va("maps/%s.bsp", server))) {
+    if (Q_stricmp(cmg.name, Q_Format("maps/{}.bsp", server).c_str())) {
         return false;
     }
 
@@ -879,7 +879,7 @@ cmodel_t* CM_ClipHandleToModel(clipHandle_t handle, clipMap_t** clipMap)
     int count;
 
     if (handle < 0) {
-        Com_Error(errorParm_t::ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle);
+        Q_Error(errorParm_t::ERR_DROP, "CM_ClipHandleToModel: bad handle {}", handle);
     }
     if (handle < cmg.numSubModels) {
         if (clipMap) {
@@ -906,9 +906,9 @@ cmodel_t* CM_ClipHandleToModel(clipHandle_t handle, clipMap_t** clipMap)
     }
 
     if (handle < MAX_SUBMODELS) {
-        Com_Error(errorParm_t::ERR_DROP, "CM_ClipHandleToModel: bad handle %i < %i < %i", cmg.numSubModels, handle, MAX_SUBMODELS);
+        Q_Error(errorParm_t::ERR_DROP, "CM_ClipHandleToModel: bad handle {} < {} < {}", cmg.numSubModels, handle, MAX_SUBMODELS);
     }
-    Com_Error(errorParm_t::ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle + MAX_SUBMODELS);
+    Q_Error(errorParm_t::ERR_DROP, "CM_ClipHandleToModel: bad handle {}", handle + MAX_SUBMODELS);
 
     return nullptr;
 }
@@ -921,7 +921,7 @@ CM_InlineModel
 clipHandle_t CM_InlineModel(int index)
 {
     if (index < 0 || index >= TotalSubModels) {
-        Com_Error(errorParm_t::ERR_DROP, "CM_InlineModel: bad number: %d >= %d (may need to re-BSP map?)", index, TotalSubModels);
+        Q_Error(errorParm_t::ERR_DROP, "CM_InlineModel: bad number: {} >= {} (may need to re-BSP map?)", index, TotalSubModels);
     }
     return index;
 }
@@ -944,7 +944,7 @@ char* CM_SubBSPEntityString(int index)
 int CM_LeafCluster(int leafnum)
 {
     if (leafnum < 0 || leafnum >= cmg.numLeafs) {
-        Com_Error(errorParm_t::ERR_DROP, "CM_LeafCluster: bad number");
+        Q_Error(errorParm_t::ERR_DROP, "CM_LeafCluster: bad number");
     }
     return cmg.leafs[leafnum].cluster;
 }
@@ -952,7 +952,7 @@ int CM_LeafCluster(int leafnum)
 int CM_LeafArea(int leafnum)
 {
     if (leafnum < 0 || leafnum >= cmg.numLeafs) {
-        Com_Error(errorParm_t::ERR_DROP, "CM_LeafArea: bad number");
+        Q_Error(errorParm_t::ERR_DROP, "CM_LeafArea: bad number");
     }
     return cmg.leafs[leafnum].area;
 }
@@ -1072,10 +1072,10 @@ int CM_LoadSubBSP(const char* name, bool clientload)
     }
 
     if (NumSubBSP == MAX_SUB_BSP) {
-        Com_Error(errorParm_t::ERR_DROP, "CM_LoadSubBSP: too many unique sub BSPs");
+        Q_Error(errorParm_t::ERR_DROP, "CM_LoadSubBSP: too many unique sub BSPs");
     }
 
-    Com_DPrintf("CM_LoadSubBSP(%s, %i)\n", name, clientload);
+    Q_DPrintln("CM_LoadSubBSP({}, {:d})", name, clientload);
 
     CM_LoadMap_Actual(name, clientload, &checksum, SubBSP[NumSubBSP]);
     NumSubBSP++;

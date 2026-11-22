@@ -1698,7 +1698,7 @@ void DeathFX(gentity_t* ent)
         VectorCopy(ent->r.currentOrigin, effectPos);
         effectPos[2] -= 5;
         //		statusTextIndex = Q_irand( IGT_RESISTANCEISFUTILE, IGT_NAMEIS8OF12 );
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(va("sound/chars/gonk/misc/death%d.wav", Q_irand(1, 3))));
+        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/chars/gonk/misc/death{}.wav", Q_irand(1, 3)).c_str()));
         G_PlayEffectID(G_EffectIndex("env/med_explode"), effectPos, defaultDir);
         break;
 
@@ -2158,32 +2158,32 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
     }
 
     // log the victim and attacker's names with the method of death
-    Com_sprintf(buf, sizeof(buf), "Kill: %i %i %i: %s killed ", killer, self->s.number, to_underlying(meansOfDeath), killerName);
+    Q_FormatTo(buf, "Kill: {} {} {}: {} killed ", killer, self->s.number, to_underlying(meansOfDeath), killerName);
     if (self->s.eType == entityType_t::ET_NPC) {
         // check for named NPCs
         if (self->targetname)
-            Q_strcat(buf, sizeof(buf), va("%s (%s) by %s\n", self->NPC_type, self->targetname, obit));
+            Q_strcat(buf, sizeof(buf), Q_Format("{} ({}) by {}", self->NPC_type, self->targetname, obit).c_str());
         else
-            Q_strcat(buf, sizeof(buf), va("%s by %s\n", self->NPC_type, obit));
+            Q_strcat(buf, sizeof(buf), Q_Format("{} by {}", self->NPC_type, obit).c_str());
     }
     else
-        Q_strcat(buf, sizeof(buf), va("%s by %s\n", self->client->pers.netname, obit));
-    G_LogPrintf("%s", buf);
+        Q_strcat(buf, sizeof(buf), Q_Format("{} by {}", self->client->pers.netname, obit).c_str());
+    G_LogPrintln("{}", buf);
 
     if (g_austrian.integer && level.gametype == gametype_t::GT_DUEL && level.numPlayingClients >= 2) {
         int spawnTime = (level.clients[level.sortedClients[0]].respawnTime > level.clients[level.sortedClients[1]].respawnTime)
                             ? level.clients[level.sortedClients[0]].respawnTime
                             : level.clients[level.sortedClients[1]].respawnTime;
-        G_LogPrintf("Duel Kill Details:\n");
-        G_LogPrintf("Kill Time: %d\n", level.time - spawnTime);
-        G_LogPrintf("victim: %s, hits on enemy %d\n", self->client->pers.netname, self->client->ps.persistant[persEnum_t::PERS_HITS]);
+        G_LogPrintln("Duel Kill Details:");
+        G_LogPrintln("Kill Time: {}", level.time - spawnTime);
+        G_LogPrintln("victim: {}, hits on enemy {}", self->client->pers.netname, self->client->ps.persistant[persEnum_t::PERS_HITS]);
         if (attacker && attacker->client) {
-            G_LogPrintf("killer: %s, hits on enemy %d, health: %d\n", attacker->client->pers.netname, attacker->client->ps.persistant[persEnum_t::PERS_HITS],
-                        attacker->health);
+            G_LogPrintln("killer: {}, hits on enemy {}, health: {}", attacker->client->pers.netname, attacker->client->ps.persistant[persEnum_t::PERS_HITS],
+                         attacker->health);
             // also - if MOD_SABER, list the animation and saber style
             if (meansOfDeath == meansOfDeath_t::MOD_SABER) {
-                G_LogPrintf("killer saber style: %d, killer saber anim %s\n", to_underlying(attacker->client->ps.fd.saberAnimLevel),
-                            BG_AnimName(attacker->client->ps.torsoAnim));
+                G_LogPrintln("killer saber style: {}, killer saber anim {}", to_underlying(attacker->client->ps.fd.saberAnimLevel),
+                             BG_AnimName(attacker->client->ps.torsoAnim));
             }
         }
     }
@@ -2978,32 +2978,32 @@ void G_Dismember(gentity_t* ent, gentity_t* enemy, vec3_t point, g2ModelParts_t 
     else if (limbType == g2ModelParts_t::G2_MODELPART_LARM) {
         BG_GetRootSurfNameWithVariant(ent->ghoul2, "l_arm", limbName, sizeof(limbName));
         BG_GetRootSurfNameWithVariant(ent->ghoul2, "torso", stubName, sizeof(stubName));
-        Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_l_arm", stubName);
+        Q_FormatTo(stubCapName, "{}_cap_l_arm", stubName);
     }
     else if (limbType == g2ModelParts_t::G2_MODELPART_RARM) {
         BG_GetRootSurfNameWithVariant(ent->ghoul2, "r_arm", limbName, sizeof(limbName));
         BG_GetRootSurfNameWithVariant(ent->ghoul2, "torso", stubName, sizeof(stubName));
-        Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_r_arm", stubName);
+        Q_FormatTo(stubCapName, "{}_cap_r_arm", stubName);
     }
     else if (limbType == g2ModelParts_t::G2_MODELPART_RHAND) {
         BG_GetRootSurfNameWithVariant(ent->ghoul2, "r_hand", limbName, sizeof(limbName));
         BG_GetRootSurfNameWithVariant(ent->ghoul2, "r_arm", stubName, sizeof(stubName));
-        Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_r_hand", stubName);
+        Q_FormatTo(stubCapName, "{}_cap_r_hand", stubName);
     }
     else if (limbType == g2ModelParts_t::G2_MODELPART_LLEG) {
         BG_GetRootSurfNameWithVariant(ent->ghoul2, "l_leg", limbName, sizeof(limbName));
         BG_GetRootSurfNameWithVariant(ent->ghoul2, "hips", stubName, sizeof(stubName));
-        Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_l_leg", stubName);
+        Q_FormatTo(stubCapName, "{}_cap_l_leg", stubName);
     }
     else if (limbType == g2ModelParts_t::G2_MODELPART_RLEG) {
         BG_GetRootSurfNameWithVariant(ent->ghoul2, "r_leg", limbName, sizeof(limbName));
         BG_GetRootSurfNameWithVariant(ent->ghoul2, "hips", stubName, sizeof(stubName));
-        Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_r_leg", stubName);
+        Q_FormatTo(stubCapName, "{}_cap_r_leg", stubName);
     }
     else { // umm... just default to the right leg, I guess (same as on client)
         BG_GetRootSurfNameWithVariant(ent->ghoul2, "r_leg", limbName, sizeof(limbName));
         BG_GetRootSurfNameWithVariant(ent->ghoul2, "hips", stubName, sizeof(stubName));
-        Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_r_leg", stubName);
+        Q_FormatTo(stubCapName, "{}_cap_r_leg", stubName);
     }
 
     if (ent->ghoul2 && limbName[0] &&
@@ -3548,7 +3548,7 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, int* hitLoc, 
 #ifdef _DEBUG
     else
     {
-        Com_PrintError( "surface %s does not belong to any hitLocation!!!\n", surfName );
+        Q_PrintlnError("surface {} does not belong to any hitLocation!!!", surfName);
     }
 #endif //_DEBUG
     */
@@ -3735,7 +3735,7 @@ void G_CheckForDismemberment(gentity_t* ent, gentity_t* enemy, vec3_t point, int
     if (ent->client) {
         G_GetDismemberBolt(ent, boltPoint, static_cast<g2ModelParts_t>(hitLocUse));
         if (g_austrian.integer && (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)) {
-            G_LogPrintf("Duel Dismemberment: %s dismembered at %s\n", ent->client->pers.netname, hitLocName[hitLoc]);
+            G_LogPrintln("Duel Dismemberment: {} dismembered at {}", ent->client->pers.netname, hitLocName[hitLoc]);
         }
     }
     else {
@@ -4502,7 +4502,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, vec3_t
     }
 
     if (g_debugDamage.integer) {
-        Com_Printf("%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number, targ->health, take, asave);
+        Q_Println("{}: client:{} health:{} damage:{} armor:{}", level.time, targ->s.number, targ->health, take, asave);
     }
 
     // add to the damage inflicted on a player this frame

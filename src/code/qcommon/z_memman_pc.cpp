@@ -121,13 +121,13 @@ int Z_Validate(void)
         // this won't happen here, but wtf?
         int& iAllocCount = mapAllocatedZones[pMemory];
         if (iAllocCount <= 0) {
-            Com_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Bad block allocation count!");
+            Q_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Bad block allocation count!");
             return ret;
         }
 #endif
 
         if (pMemory->iMagic != ZONE_MAGIC) {
-            Com_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Corrupt zone header!");
+            Q_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Corrupt zone header!");
             return ret;
         }
 
@@ -145,7 +145,7 @@ int Z_Validate(void)
         }
 
         if (ZoneTailFromHeader(pMemory)->iMagic != ZONE_MAGIC) {
-            Com_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Corrupt zone tail!");
+            Q_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Corrupt zone tail!");
             return ret;
         }
 
@@ -319,9 +319,9 @@ void* Z_Malloc(int iSize, memtag_t eTag, bool bZeroit, int /*unusedAlign*/)
             //
             // findlabel:  "recovermem"
 
-            Com_Printf(S_COLOR_RED "Z_Malloc(): Failed to alloc %d bytes (TAG_%s) !!!!!\n", iSize, psTagStrings[eTag]);
+            Q_Println(S_COLOR_RED "Z_Malloc(): Failed to alloc {} bytes (TAG_{}) !!!!!", iSize, psTagStrings[eTag]);
             Z_Details_f();
-            Com_Error(errorParm_t::ERR_FATAL, "(Repeat): Z_Malloc(): Failed to alloc %d bytes (TAG_%s) !!!!!\n", iSize, psTagStrings[eTag]);
+            Q_Error(errorParm_t::ERR_FATAL, "(Repeat): Z_Malloc(): Failed to alloc {} bytes (TAG_{}) !!!!!", iSize, psTagStrings[eTag]);
             return nullptr;
         }
     }
@@ -377,7 +377,7 @@ void Z_MorphMallocTag(void* pvAddress, memtag_t eDesiredTag)
     zoneHeader_t* pMemory = ((zoneHeader_t*)pvAddress) - 1;
 
     if (pMemory->iMagic != ZONE_MAGIC) {
-        Com_Error(errorParm_t::ERR_FATAL, "Z_MorphMallocTag(): Not a valid zone header!");
+        Q_Error(errorParm_t::ERR_FATAL, "Z_MorphMallocTag(): Not a valid zone header!");
         return; // won't get here
     }
 
@@ -432,7 +432,7 @@ static int Zone_FreeBlock(zoneHeader_t* pMemory)
         // this has already been checked for in execution order, but wtf?
         int& iAllocCount = mapAllocatedZones[pMemory];
         if (iAllocCount == 0) {
-            Com_Error(errorParm_t::ERR_FATAL, "Zone_FreeBlock(): Double-freeing block!");
+            Q_Error(errorParm_t::ERR_FATAL, "Zone_FreeBlock(): Double-freeing block!");
             return -1;
         }
         iAllocCount--;
@@ -448,7 +448,7 @@ bool Z_IsFromZone(const void* pvAddress, memtag_t eTag)
     const zoneHeader_t* pMemory = ((const zoneHeader_t*)pvAddress) - 1;
 #if 1 // debugging double free
     if (pMemory->iMagic == INT_ID('F', 'R', 'E', 'E')) {
-        Com_Printf("Z_IsFromZone(%p): Ptr has been freed already!(%9s)\n", pvAddress, (const char*)pvAddress);
+        Q_Println("Z_IsFromZone({}): Ptr has been freed already!({:>9})", pvAddress, (const char*)pvAddress);
         return false;
     }
 #endif
@@ -476,7 +476,7 @@ int Z_Size(void* pvAddress)
     }
 
     if (pMemory->iMagic != ZONE_MAGIC) {
-        Com_Error(errorParm_t::ERR_FATAL, "Z_Size(): Not a valid zone header!");
+        Q_Error(errorParm_t::ERR_FATAL, "Z_Size(): Not a valid zone header!");
         return 0; // won't get here
     }
 
@@ -493,7 +493,7 @@ void Z_Label(const void* pvAddress, const char* psLabel)
     }
 
     if (pMemory->iMagic != ZONE_MAGIC) {
-        Com_Error(errorParm_t::ERR_FATAL, "_D_Z_Label(): Not a valid zone header!");
+        Q_Error(errorParm_t::ERR_FATAL, "_D_Z_Label(): Not a valid zone header!");
     }
 
     Q_strncpyz(pMemory->sOptionalLabel, psLabel, sizeof(pMemory->sOptionalLabel));
@@ -505,8 +505,8 @@ void Z_Label(const void* pvAddress, const char* psLabel)
 int Z_Free(void* pvAddress)
 {
     if (!TheZone.Stats.iCount) {
-        // Com_Error(errorParm_t::ERR_FATAL, "Z_Free(): Zone has been cleard already!");
-        Com_Printf("Z_Free(%p): Zone has been cleard already!\n", pvAddress);
+        // Q_Error(errorParm_t::ERR_FATAL, "Z_Free(): Zone has been cleard already!");
+        Q_Println("Z_Free({}): Zone has been cleard already!", pvAddress);
         return -1;
     }
 
@@ -514,7 +514,7 @@ int Z_Free(void* pvAddress)
 
 #if 1 // debugging double free
     if (pMemory->iMagic == INT_ID('F', 'R', 'E', 'E')) {
-        Com_Error(errorParm_t::ERR_FATAL, "Z_Free(%p): Block already-freed, or not allocated through Z_Malloc!", pvAddress);
+        Q_Error(errorParm_t::ERR_FATAL, "Z_Free({}): Block already-freed, or not allocated through Z_Malloc!", pvAddress);
         return -1;
     }
 #endif
@@ -529,17 +529,17 @@ int Z_Free(void* pvAddress)
     //
     int& iAllocCount = mapAllocatedZones[pMemory];
     if (iAllocCount <= 0) {
-        Com_Error(errorParm_t::ERR_FATAL, "Z_Free(): Block already-freed, or not allocated through Z_Malloc!");
+        Q_Error(errorParm_t::ERR_FATAL, "Z_Free(): Block already-freed, or not allocated through Z_Malloc!");
         return -1;
     }
 #endif
 
     if (pMemory->iMagic != ZONE_MAGIC) {
-        Com_Error(errorParm_t::ERR_FATAL, "Z_Free(): Corrupt zone header!");
+        Q_Error(errorParm_t::ERR_FATAL, "Z_Free(): Corrupt zone header!");
         return -1;
     }
     if (ZoneTailFromHeader(pMemory)->iMagic != ZONE_MAGIC) {
-        Com_Error(errorParm_t::ERR_FATAL, "Z_Free(): Corrupt zone tail!");
+        Q_Error(errorParm_t::ERR_FATAL, "Z_Free(): Corrupt zone tail!");
         return -1;
     }
 
@@ -591,7 +591,7 @@ static void Z_MemRecoverTest_f(void)
     // needs to be in _DEBUG only, not good for final game!
     //
     if (Cmd_Argc() != 2) {
-        Com_Printf("Usage: zone_memrecovertest max2alloc\n");
+        Q_Println("Usage: zone_memrecovertest max2alloc");
         return;
     }
 
@@ -614,10 +614,10 @@ static void Z_MemRecoverTest_f(void)
 
 static void Z_Stats_f(void)
 {
-    Com_Printf("\nThe zone is using %d bytes (%.2fMB) in %d memory blocks\n", TheZone.Stats.iCurrent, (float)TheZone.Stats.iCurrent / 1024.0f / 1024.0f,
-               TheZone.Stats.iCount);
+    Q_Println("\nThe zone is using {} bytes ({:.2f}MB) in {} memory blocks", TheZone.Stats.iCurrent, (float)TheZone.Stats.iCurrent / 1024.0f / 1024.0f,
+              TheZone.Stats.iCount);
 
-    Com_Printf("The zone peaked at %d bytes (%.2fMB)\n", TheZone.Stats.iPeak, (float)TheZone.Stats.iPeak / 1024.0f / 1024.0f);
+    Q_Println("The zone peaked at {} bytes ({:.2f}MB)", TheZone.Stats.iPeak, (float)TheZone.Stats.iPeak / 1024.0f / 1024.0f);
 }
 
 // Gives a detailed breakdown of the memory blocks in the zone
@@ -625,9 +625,9 @@ static void Z_Stats_f(void)
 static void Z_Details_f(void)
 {
 
-    Com_Printf("---------------------------------------------------------------------------\n");
-    Com_Printf("%20s %9s\n", "Zone Tag", "Bytes");
-    Com_Printf("%20s %9s\n", "--------", "-----");
+    Q_Println("---------------------------------------------------------------------------");
+    Q_Println("{:>20} {:>9}", "Zone Tag", "Bytes");
+    Q_Println("{:>20} {:>9}", "--------", "-----");
     for (memtag i = memtag::TAG_ALL; i < memtag::TAG_COUNT; i++) {
         int iThisCount = TheZone.Stats.iCountsPerTag[i];
         int iThisSize = TheZone.Stats.iSizesPerTag[i];
@@ -639,11 +639,11 @@ static void Z_Details_f(void)
             float fSize = (float)(iThisSize) / 1024.0f / 1024.0f;
             int iSize = fSize;
             int iRemainder = 100.0f * (fSize - Q_floorf(fSize));
-            Com_Printf("%20s %9d (%2d.%02dMB) in %6d blocks (%9d Bytes/block)\n", psTagStrings[i], iThisSize, iSize, iRemainder, iThisCount,
-                       iThisSize / iThisCount);
+            Q_Println("{:>20} {:9} ({:2}.{:02}MB) in {:6} blocks ({:9} Bytes/block)", psTagStrings[i], iThisSize, iSize, iRemainder, iThisCount,
+                      iThisSize / iThisCount);
         }
     }
-    Com_Printf("---------------------------------------------------------------------------\n");
+    Q_Println("---------------------------------------------------------------------------");
 
     Z_Stats_f();
 }
@@ -665,7 +665,7 @@ static void Z_Snapshot_f(void)
     }
 
     giZoneSnaphotNum++;
-    Com_Printf("Ok.    ( Current snapshot num is now %d )\n", giZoneSnaphotNum);
+    Q_Println("Ok.    ( Current snapshot num is now {} )", giZoneSnaphotNum);
 }
 
 static void Z_TagDebug_f(void)
@@ -705,22 +705,22 @@ static void Z_TagDebug_f(void)
         }
     }
     else {
-        Com_Printf("Usage: 'zone_tagdebug [#snap] <tag>', e.g. TAG_GHOUL2, TAG_ALL (careful!)\n");
+        Q_Println("Usage: 'zone_tagdebug [#snap] <tag>', e.g. TAG_GHOUL2, TAG_ALL (careful!)");
         return;
     }
 
-    Com_Printf("Dumping debug data for tag \"%s\"...%s\n\n", psTagStrings[eTag], bSnapShotTestActive ? "( since snapshot only )" : "");
+    Q_Println("Dumping debug data for tag \"{}\"...{}\n", psTagStrings[eTag], bSnapShotTestActive ? "( since snapshot only )" : "");
 
-    Com_Printf("%8s", " "); // to compensate for code further down:   Com_Printf("(%5d) ",iBlocksListed);
+    Q_Print("{:>8}", " "); // to compensate for code further down:   Q_Print("({:5}) ", iBlocksListed);
     if (eTag == memtag::TAG_ALL) {
-        Com_Printf("%20s ", "Zone Tag");
+        Q_Print("{:>20} ", "Zone Tag");
     }
-    Com_Printf("%9s\n", "Bytes");
-    Com_Printf("%8s", " ");
+    Q_Println("{:>9}", "Bytes");
+    Q_Print("{:>8}", " ");
     if (eTag == memtag::TAG_ALL) {
-        Com_Printf("%20s ", "--------");
+        Q_Print("{:>20} ", "--------");
     }
-    Com_Printf("%9s\n", "-----");
+    Q_Println("{:>9}", "-----");
 
     if (bSnapShotTestActive) {
         // dec ref counts in last snapshot for all current blocks (which will make new stuff go negative)
@@ -747,15 +747,15 @@ static void Z_TagDebug_f(void)
             int iSize = fSize;
             int iRemainder = 100.0f * (fSize - Q_floorf(fSize));
 
-            Com_Printf("(%5d) ", iBlocksListed);
+            Q_Print("({:5}) ", iBlocksListed);
 
             if (eTag == memtag::TAG_ALL) {
-                Com_Printf("%20s", psTagStrings[pMemory->eTag]);
+                Q_Print("{:>20}", psTagStrings[pMemory->eTag]);
             }
 
-            Com_Printf(" %9d (%2d.%02dMB) File: \"%s\", Line: %d\n", pMemory->iSize, iSize, iRemainder, pMemory->sSrcFileBaseName, pMemory->iSrcFileLineNum);
+            Q_Println(" {:9} ({:2}.{:02}MB) File: \"{}\", Line: {}", pMemory->iSize, iSize, iRemainder, pMemory->sSrcFileBaseName, pMemory->iSrcFileLineNum);
             if (pMemory->sOptionalLabel[0]) {
-                Com_Printf("( Label: \"%s\" )\n", pMemory->sOptionalLabel);
+                Q_Println("( Label: \"{}\" )", pMemory->sOptionalLabel);
             }
             iBlocksListed++;
             iTotalSize += pMemory->iSize;
@@ -769,7 +769,7 @@ static void Z_TagDebug_f(void)
         pMemory = pMemory->pNext;
     }
 
-    Com_Printf("( %d blocks listed, %d bytes (%.2fMB) total )\n", iBlocksListed, iTotalSize, (float)iTotalSize / 1024.0f / 1024.0f);
+    Q_Println("( {} blocks listed, {} bytes ({:.2f}MB) total )", iBlocksListed, iTotalSize, (float)iTotalSize / 1024.0f / 1024.0f);
 }
 #endif
 
@@ -789,7 +789,7 @@ void Com_ShutdownZoneMemory(void)
 #endif
 
     if (TheZone.Stats.iCount) {
-        Com_Printf("Automatically freeing %d blocks making up %d bytes\n", TheZone.Stats.iCount, TheZone.Stats.iCurrent);
+        Q_Println("Automatically freeing {} blocks making up {} bytes", TheZone.Stats.iCount, TheZone.Stats.iCurrent);
         Z_TagFree(memtag::TAG_ALL);
 
         // assert(!TheZone.Stats.iCount);	// These aren't really problematic per se, it's just warning us that we're freeing extra
@@ -797,7 +797,7 @@ void Com_ShutdownZoneMemory(void)
         //  commands will just simply be wrong in displaying bytes, but in my tests, it's only off
         //  by like 10 bytes / 1 block, which isn't a real problem --eez
         if (TheZone.Stats.iCount < 0) {
-            Com_Warning("Freeing %d extra blocks (%d bytes) not tracked by the zone manager\n", abs(TheZone.Stats.iCount), abs(TheZone.Stats.iCurrent));
+            Q_PrintlnWarning("Freeing {} extra blocks ({} bytes) not tracked by the zone manager", abs(TheZone.Stats.iCount), abs(TheZone.Stats.iCurrent));
         }
     }
 }
@@ -806,7 +806,7 @@ void Com_ShutdownZoneMemory(void)
 
 void Com_InitZoneMemory(void)
 {
-    Com_Printf("Initialising zone memory .....\n");
+    Q_Println("Initialising zone memory .....");
 
     memset(&TheZone, 0, sizeof(TheZone));
     TheZone.Header.iMagic = ZONE_MAGIC;

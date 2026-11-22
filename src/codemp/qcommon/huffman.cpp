@@ -290,7 +290,7 @@ int Huff_Receive(node_t* node, int* ch, byte* fin)
     }
     if (!node) {
         return 0;
-        //		Com_Error(errorParm_t::ERR_DROP, "Illegal tree!\n");
+        //		Q_Error(errorParm_t::ERR_DROP, "Illegal tree!");
     }
     return (*ch = node->symbol);
 }
@@ -315,7 +315,7 @@ void Huff_offsetReceive(node_t* node, int* ch, byte* fin, int* offset, int maxof
     if (!node) {
         *ch = 0;
         return;
-        //		Com_Error(errorParm_t::ERR_DROP, "Illegal tree!\n");
+        //		Q_Error(errorParm_t::ERR_DROP, "Illegal tree!");
     }
     *ch = node->symbol;
     *offset = bloc;

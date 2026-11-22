@@ -385,7 +385,7 @@ CSequencer::sequencerResult_t CSequencer::Run(char* buffer, long size, CIcarus* 
 
     // Open the stream as an IBI stream
     if (!blockStream->stream->Open(buffer, size)) {
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid stream");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid stream");
         return sequencerResult_t::SEQ_FAILED;
     }
 
@@ -424,7 +424,7 @@ CSequencer::sequencerResult_t CSequencer::ParseRun(CBlock* block, CIcarus* icaru
     buffer_size = game->LoadFile(newname, (void**)&buffer);
 
     if (buffer_size <= 0) {
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "'%s' : could not open file\n", (char*)block->GetMemberData(0));
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "'{}' : could not open file", (char*)block->GetMemberData(0));
         block->Free(icarus);
         delete block;
         block = nullptr;
@@ -436,7 +436,7 @@ CSequencer::sequencerResult_t CSequencer::ParseRun(CBlock* block, CIcarus* icaru
 
     // Begin streaming the file
     if (!new_stream->stream->Open(buffer, buffer_size)) {
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid stream");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid stream");
         block->Free(icarus);
         delete block;
         block = nullptr;
@@ -485,7 +485,7 @@ CSequencer::sequencerResult_t CSequencer::ParseIf(CBlock* block, bstream_t* bstr
 
     assert(sequence);
     if (sequence == nullptr) {
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ParseIf: failed to allocate container sequence");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ParseIf: failed to allocate container sequence");
         block->Free(icarus);
         delete block;
         block = nullptr;
@@ -532,7 +532,7 @@ CSequencer::sequencerResult_t CSequencer::ParseElse(CBlock* block, bstream_t* bs
 
     assert(sequence);
     if (sequence == nullptr) {
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ParseIf: failed to allocate container sequence");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ParseIf: failed to allocate container sequence");
         return sequencerResult_t::SEQ_FAILED;
     }
 
@@ -541,7 +541,7 @@ CSequencer::sequencerResult_t CSequencer::ParseElse(CBlock* block, bstream_t* bs
     // Add a unique conditional identifier to the block for reference later
     // TODO: Emit warning
     if (m_elseOwner == nullptr) {
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid 'else' found!\n");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid 'else' found!");
         return sequencerResult_t::SEQ_FAILED;
     }
 
@@ -580,7 +580,7 @@ CSequencer::sequencerResult_t CSequencer::ParseLoop(CBlock* block, bstream_t* bs
 
     assert(sequence);
     if (sequence == nullptr) {
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ParseLoop : failed to allocate container sequence");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ParseLoop : failed to allocate container sequence");
         block->Free(icarus);
         delete block;
         block = nullptr;
@@ -715,7 +715,7 @@ CSequencer::sequencerResult_t CSequencer::ParseAffect(CBlock* block, bstream_t* 
                 break;
             default:
                 // FIXME: Make an enum id for the error...
-                game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _1");
+                game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _1");
                 block->Free(icarus);
                 delete block;
                 block = nullptr;
@@ -728,7 +728,7 @@ CSequencer::sequencerResult_t CSequencer::ParseAffect(CBlock* block, bstream_t* 
 
         default:
             // FIXME: Make an enum id for the error...
-            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _2");
+            game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _2");
             block->Free(icarus);
             delete block;
             block = nullptr;
@@ -740,7 +740,7 @@ CSequencer::sequencerResult_t CSequencer::ParseAffect(CBlock* block, bstream_t* 
             ent = game->GetByName(p1);
         }
         if (ent < 0) { // a valid entity name was not returned from the get command
-            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "'%s' : invalid affect() target\n", p1 ? p1 : "");
+            game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_WARNING, "'{}' : invalid affect() target", p1 ? p1 : "");
         }
 
     } // end if(!ent)
@@ -751,7 +751,7 @@ CSequencer::sequencerResult_t CSequencer::ParseAffect(CBlock* block, bstream_t* 
     }
 
     if (stream_sequencer == nullptr) {
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "'%s' : invalid affect() target\n", entname);
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_WARNING, "'{}' : invalid affect() target", entname);
 
         // Fast-forward out of this affect block onto the next valid code
         CSequence* backSeq = m_curSequence;
@@ -815,7 +815,7 @@ CSequencer::sequencerResult_t CSequencer::ParseTask(CBlock* block, bstream_t* bs
     group = m_taskManager->AddTaskGroup(taskName, icarus);
 
     if (group == nullptr) {
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "unable to allocate a new task group");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "unable to allocate a new task group");
         block->Free(icarus);
         delete block;
         block = nullptr;
@@ -932,7 +932,7 @@ CSequencer::sequencerResult_t CSequencer::Route(CSequence* sequence, bstream_t* 
 
             // TODO: Emit warning
             if (m_elseValid == 0) {
-                game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid 'else' found!\n");
+                game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid 'else' found!");
                 return sequencerResult_t::SEQ_FAILED;
             }
 
@@ -974,7 +974,7 @@ CSequencer::sequencerResult_t CSequencer::Route(CSequence* sequence, bstream_t* 
         // Error
         default:
 
-            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "'%d' : invalid block ID", to_underlying(block->GetBlockID()));
+            game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "'{}' : invalid block ID", to_underlying(block->GetBlockID()));
 
             return sequencerResult_t::SEQ_FAILED;
             break;
@@ -1032,7 +1032,8 @@ void CSequencer::CheckRun(CBlock** command, CIcarus* icarus)
     if (block->GetBlockID() == icarusToken_t::ID_RUN) {
         int id = (int)(*(float*)block->GetMemberData(1));
 
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d run( \"%s\" ); [%d]", m_ownerID, (char*)block->GetMemberData(0), game->GetTime());
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "{:4} run( \"{}\" ); [{}]", m_ownerID, (char*)block->GetMemberData(0),
+                           static_cast<int>(game->GetTime()));
 
         if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
             PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
@@ -1050,7 +1051,7 @@ void CSequencer::CheckRun(CBlock** command, CIcarus* icarus)
         // TODO: Emit warning
         assert(m_curSequence);
         if (m_curSequence == nullptr) {
-            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find 'run' sequence!\n");
+            game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find 'run' sequence!");
             *command = nullptr;
             return;
         }
@@ -1120,7 +1121,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
 
     switch (id) {
     case icarusToken_t::TK_FLOAT:
-        sprintf((char*)tempString1, "%.3f", *(float*)bm->GetData());
+        Q_FormatTo(tempString1, "{:.3f}", *(float*)bm->GetData());
         p1 = (char*)tempString1;
         break;
 
@@ -1133,7 +1134,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
             vec[i] = *(float*)bm->GetData();
         }
 
-        sprintf((char*)tempString1, "%.3f %.3f %.3f", vec[0], vec[1], vec[2]);
+        Q_FormatTo(tempString1, "{:.3f} {:.3f} {:.3f}", vec[0], vec[1], vec[2]);
         p1 = (char*)tempString1;
 
         break;
@@ -1163,7 +1164,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
             if (game->GetFloat(m_ownerID, name, &fVal) == false)
                 return false;
 
-            sprintf((char*)tempString1, "%.3f", fVal);
+            Q_FormatTo(tempString1, "{:.3f}", fVal);
             p1 = (char*)tempString1;
         }
 
@@ -1175,7 +1176,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
             if (game->GetFloat(m_ownerID, name, &fVal) == false)
                 return false;
 
-            sprintf((char*)tempString1, "%d", (int)fVal);
+            Q_FormatTo(tempString1, "{}", (int)fVal);
             p1 = (char*)tempString1;
         } break;
 
@@ -1192,7 +1193,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
             if (game->GetVector(m_ownerID, name, vVal) == false)
                 return false;
 
-            sprintf((char*)tempString1, "%.3f %.3f %.3f", vVal[0], vVal[1], vVal[2]);
+            Q_FormatTo(tempString1, "{:.3f} {:.3f} {:.3f}", vVal[0], vVal[1], vVal[2]);
             p1 = (char*)tempString1;
         }
 
@@ -1215,7 +1216,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
         // A float value is returned from the function
         t1 = icarusToken_t::TK_FLOAT;
 
-        sprintf((char*)tempString1, "%.3f", game->Random(min, max));
+        Q_FormatTo(tempString1, "{:.3f}", game->Random(min, max));
         p1 = (char*)tempString1;
     }
 
@@ -1232,11 +1233,11 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
 
         // TODO: Emit warning
         if (game->GetTag(m_ownerID, name, type, vec) == false) {
-            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find tag \"%s\"!\n", name);
+            game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find tag \"{}\"!", name);
             return false;
         }
 
-        sprintf((char*)tempString1, "%.3f %.3f %.3f", vec[0], vec[1], vec[2]);
+        Q_FormatTo(tempString1, "{:.3f} {:.3f} {:.3f}", vec[0], vec[1], vec[2]);
         p1 = (char*)tempString1;
 
         break;
@@ -1244,7 +1245,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
 
     default:
         // FIXME: Make an enum id for the error...
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on conditional");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on conditional");
         return false;
         break;
     }
@@ -1265,7 +1266,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
         break;
 
     default:
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid operator type found on conditional!\n");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid operator type found on conditional!");
         return false; // FIXME: Emit warning
         break;
     }
@@ -1281,7 +1282,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
 
     switch (id) {
     case icarusToken_t::TK_FLOAT:
-        sprintf((char*)tempString2, "%.3f", *(float*)bm->GetData());
+        Q_FormatTo(tempString2, "{:.3f}", *(float*)bm->GetData());
         p2 = (char*)tempString2;
         break;
 
@@ -1294,7 +1295,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
             vec[i] = *(float*)bm->GetData();
         }
 
-        sprintf((char*)tempString2, "%.3f %.3f %.3f", vec[0], vec[1], vec[2]);
+        Q_FormatTo(tempString2, "{:.3f} {:.3f} {:.3f}", vec[0], vec[1], vec[2]);
         p2 = (char*)tempString2;
 
         break;
@@ -1324,7 +1325,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
             if (game->GetFloat(m_ownerID, name, &fVal) == false)
                 return false;
 
-            sprintf((char*)tempString2, "%.3f", fVal);
+            Q_FormatTo(tempString2, "{:.3f}", fVal);
             p2 = (char*)tempString2;
         }
 
@@ -1336,7 +1337,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
             if (game->GetFloat(m_ownerID, name, &fVal) == false)
                 return false;
 
-            sprintf((char*)tempString2, "%d", (int)fVal);
+            Q_FormatTo(tempString2, "{}", (int)fVal);
             p2 = (char*)tempString2;
         } break;
 
@@ -1353,7 +1354,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
             if (game->GetVector(m_ownerID, name, vVal) == false)
                 return false;
 
-            sprintf((char*)tempString2, "%.3f %.3f %.3f", vVal[0], vVal[1], vVal[2]);
+            Q_FormatTo(tempString2, "{:.3f} {:.3f} {:.3f}", vVal[0], vVal[1], vVal[2]);
             p2 = (char*)tempString2;
         }
 
@@ -1378,7 +1379,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
         // A float value is returned from the function
         t2 = icarusToken_t::TK_FLOAT;
 
-        sprintf((char*)tempString2, "%.3f", game->Random(min, max));
+        Q_FormatTo(tempString2, "{:.3f}", game->Random(min, max));
         p2 = (char*)tempString2;
     }
 
@@ -1397,11 +1398,11 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
 
         // TODO: Emit warning
         if (game->GetTag(m_ownerID, name, type, vec) == false) {
-            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find tag \"%s\"!\n", name);
+            game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find tag \"{}\"!", name);
             return false;
         }
 
-        sprintf((char*)tempString2, "%.3f %.3f %.3f", vec[0], vec[1], vec[2]);
+        Q_FormatTo(tempString2, "{:.3f} {:.3f} {:.3f}", vec[0], vec[1], vec[2]);
         p2 = (char*)tempString2;
 
         break;
@@ -1409,7 +1410,7 @@ int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
 
     default:
         // FIXME: Make an enum id for the error...
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on conditional");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on conditional");
         return false;
         break;
     }
@@ -1451,7 +1452,7 @@ void CSequencer::CheckIf(CBlock** command, CIcarus* icarus)
             // TODO: Emit warning
             assert(successSeq);
             if (successSeq == nullptr) {
-                game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find conditional success sequence!\n");
+                game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find conditional success sequence!");
                 *command = nullptr;
                 return;
             }
@@ -1483,7 +1484,7 @@ void CSequencer::CheckIf(CBlock** command, CIcarus* icarus)
             // TODO: Emit warning
             assert(failureSeq);
             if (failureSeq == nullptr) {
-                game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find conditional failure sequence!\n");
+                game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find conditional failure sequence!");
                 *command = nullptr;
                 return;
             }
@@ -1602,7 +1603,7 @@ void CSequencer::CheckLoop(CBlock** command, CIcarus* icarus)
         // TODO: Emit warning
         assert(loop);
         if (loop == nullptr) {
-            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find 'loop' sequence!\n");
+            game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find 'loop' sequence!");
             *command = nullptr;
             return;
         }
@@ -1787,7 +1788,7 @@ void CSequencer::CheckAffect(CBlock** command, CIcarus* icarus)
                     break;
                 default:
                     // FIXME: Make an enum id for the error...
-                    game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _1");
+                    game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _1");
                     return;
                     break;
                 }
@@ -1797,7 +1798,7 @@ void CSequencer::CheckAffect(CBlock** command, CIcarus* icarus)
 
             default:
                 // FIXME: Make an enum id for the error...
-                game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _2");
+                game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _2");
                 return;
                 break;
             } // end id switch
@@ -1806,7 +1807,7 @@ void CSequencer::CheckAffect(CBlock** command, CIcarus* icarus)
                 ent = game->GetByName(p1);
             }
             if (ent < 0) { // a valid entity name was not returned from the get command
-                game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "'%s' : invalid affect() target\n", p1 ? p1 : "");
+                game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_WARNING, "'{}' : invalid affect() target", p1 ? p1 : "");
             }
 
         } // end if(!ent)
@@ -1909,7 +1910,7 @@ void CSequencer::CheckDo(CBlock** command, CIcarus* icarus)
         assert(group);
         if (group == nullptr) {
             // TODO: Give name/number of entity trying to execute, too
-            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ICARUS Unable to find task group \"%s\"!\n", groupName);
+            game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ICARUS Unable to find task group \"{}\"!", groupName);
             *command = nullptr;
             return;
         }
@@ -1918,7 +1919,7 @@ void CSequencer::CheckDo(CBlock** command, CIcarus* icarus)
         assert(sequence);
         if (sequence == nullptr) {
             // TODO: Give name/number of entity trying to execute, too
-            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ICARUS Unable to find task 'group' sequence!\n");
+            game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ICARUS Unable to find task 'group' sequence!");
             *command = nullptr;
             return;
         }
@@ -2068,7 +2069,7 @@ CSequencer::sequencerResult_t CSequencer::Callback(CTaskManager* taskManager, CB
     }
 
     // FIXME: This could be more descriptive
-    game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "command could not be called back\n");
+    game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "command could not be called back");
     assert(0);
 
     return sequencerResult_t::SEQ_FAILED;
@@ -2143,7 +2144,7 @@ CSequencer::sequencerResult_t CSequencer::Affect(int id, icarusToken_t type, CIc
         break;
 
     default:
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "unknown affect type found");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "unknown affect type found");
         break;
     }
 
@@ -2216,7 +2217,7 @@ CSequencer::sequencerResult_t CSequencer::RemoveSequence(CSequence* sequence, CI
         // TODO: Emit warning
         assert(temp);
         if (temp == nullptr) {
-            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "Unable to find child sequence on RemoveSequence call!\n");
+            game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_WARNING, "Unable to find child sequence on RemoveSequence call!");
             continue;
         }
 

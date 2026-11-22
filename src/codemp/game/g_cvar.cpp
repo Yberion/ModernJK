@@ -22,8 +22,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include <inttypes.h>
-
 #include "bg_public.h"
 #include "g_local.h"
 #include "bg_public.h"
@@ -45,7 +43,7 @@ static void UpdateLegacyFixesConfigstring(legacyFixes_t legacyFix, bool enabled)
     else {
         legacyFixes &= ~Bit(legacyFix);
     }
-    trap->SetConfigstring(CS_LEGACY_FIXES, va("%" PRIu32, legacyFixes));
+    trap->SetConfigstring(CS_LEGACY_FIXES, Q_Format("{}", legacyFixes).c_str());
 }
 
 static void CVU_FixSaberMoveData(void)
@@ -115,7 +113,7 @@ void G_UpdateCvars(void)
                     cv->update();
 
                 if (cv->trackChange)
-                    trap->SendServerCommand(-1, va("print \"Server: %s changed to %s\n\"", cv->cvarName, cv->vmCvar->string));
+                    trap->SendServerCommand(-1, Q_Format("print \"Server: {} changed to {}\n\"", cv->cvarName, cv->vmCvar->string).c_str());
             }
         }
     }

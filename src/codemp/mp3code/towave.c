@@ -460,10 +460,10 @@ char* C_MP3_UnpackRawPCM(void* pvData, int iSourceBytesRemaining, int* piUnpacke
             if (audio.decode_init(&head, iFrameBytes, reduction_code, iRealDataStart, bStereoDesired ? convert_code_stereo : convert_code_mono, freq_limit)) {
                 audio.decode_info(&decinfo);
 
-                //				printf("\n output samprate = %6ld",decinfo.samprate);
-                //				printf("\n output channels = %6d", decinfo.channels);
-                //				printf("\n output bits     = %6d", decinfo.bits);
-                //				printf("\n output type     = %6d", decinfo.type);
+                //				Q_FilePrint(stdout, "\n output samprate = {:6}", decinfo.samprate);
+                //				Q_FilePrint(stdout, "\n output channels = {:6}", decinfo.channels);
+                //				Q_FilePrint(stdout, "\n output bits     = {:6}", decinfo.bits);
+                //				Q_FilePrint(stdout, "\n output type     = {:6}", decinfo.type);
 
                 //===============
 
@@ -554,10 +554,10 @@ char* C_MP3Stream_DecodeInit(LP_MP3STREAM pSFX_MP3Stream, void* pvSourceData, in
             //
             audio.decode_info(&decinfo);
 
-            //			printf("\n output samprate = %6ld",decinfo.samprate);
-            //			printf("\n output channels = %6d", decinfo.channels);
-            //			printf("\n output bits     = %6d", decinfo.bits);
-            //			printf("\n output type     = %6d", decinfo.type);
+            //			Q_FilePrint(stdout, "\n output samprate = {:6}", decinfo.samprate);
+            //			Q_FilePrint(stdout, "\n output channels = {:6}", decinfo.channels);
+            //			Q_FilePrint(stdout, "\n output bits     = {:6}", decinfo.bits);
+            //			Q_FilePrint(stdout, "\n output type     = {:6}", decinfo.type);
 
             // decoder offers half or quarter rate adjustement only...
             //

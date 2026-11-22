@@ -47,7 +47,7 @@ void CG_TargetCommand_f(void)
     }
 
     trap->Cmd_Argv(1, test, 4);
-    trap->SendClientCommand(va("gc %i %i", targetNum, atoi(test)));
+    trap->SendClientCommand(Q_Format("gc {} {}", targetNum, atoi(test)).c_str());
 }
 
 /*
@@ -59,7 +59,7 @@ Keybinding command
 */
 static void CG_SizeUp_f(void)
 {
-    trap->Cvar_Set("cg_viewsize", va("%i", Q_min(cg_viewsize.integer + 10, 100)));
+    trap->Cvar_Set("cg_viewsize", Q_Format("{}", Q_min(cg_viewsize.integer + 10, 100)).c_str());
 }
 
 /*
@@ -71,7 +71,7 @@ Keybinding command
 */
 static void CG_SizeDown_f(void)
 {
-    trap->Cvar_Set("cg_viewsize", va("%i", Q_max(cg_viewsize.integer - 10, 30)));
+    trap->Cvar_Set("cg_viewsize", Q_Format("{}", Q_max(cg_viewsize.integer - 10, 30)).c_str());
 }
 
 /*
@@ -83,8 +83,8 @@ Debugging command to print the current position
 */
 static void CG_Viewpos_f(void)
 {
-    Com_Printf("%s (%i %i %i) : %i\n", cgs.mapname, (int)cg.refdef.vieworg[0], (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2],
-               (int)cg.refdef.viewangles[YAW]);
+    Q_Println("{} ({} {} {}) : {}", cgs.mapname, (int)cg.refdef.vieworg[0], (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2],
+              (int)cg.refdef.viewangles[YAW]);
 }
 
 /*
@@ -144,27 +144,27 @@ void CG_ClientList_f(void)
 
         switch (ci->team) {
         case team_t::TEAM_FREE:
-            Com_Printf("%2d " S_COLOR_YELLOW "F   " S_COLOR_WHITE "%s" S_COLOR_WHITE "%s\n", i, ci->name, (ci->botSkill != -1) ? " (bot)" : "");
+            Q_Println("{:2} " S_COLOR_YELLOW "F   " S_COLOR_WHITE "{}" S_COLOR_WHITE "{}", i, ci->name, (ci->botSkill != -1) ? " (bot)" : "");
             break;
 
         case team_t::TEAM_RED:
-            Com_Printf("%2d " S_COLOR_RED "R   " S_COLOR_WHITE "%s" S_COLOR_WHITE "%s\n", i, ci->name, (ci->botSkill != -1) ? " (bot)" : "");
+            Q_Println("{:2} " S_COLOR_RED "R   " S_COLOR_WHITE "{}" S_COLOR_WHITE "{}", i, ci->name, (ci->botSkill != -1) ? " (bot)" : "");
             break;
 
         case team_t::TEAM_BLUE:
-            Com_Printf("%2d " S_COLOR_BLUE "B   " S_COLOR_WHITE "%s" S_COLOR_WHITE "%s\n", i, ci->name, (ci->botSkill != -1) ? " (bot)" : "");
+            Q_Println("{:2} " S_COLOR_BLUE "B   " S_COLOR_WHITE "{}" S_COLOR_WHITE "{}", i, ci->name, (ci->botSkill != -1) ? " (bot)" : "");
             break;
 
         default:
         case team_t::TEAM_SPECTATOR:
-            Com_Printf("%2d " S_COLOR_YELLOW "S   " S_COLOR_WHITE "%s" S_COLOR_WHITE "%s\n", i, ci->name, (ci->botSkill != -1) ? " (bot)" : "");
+            Q_Println("{:2} " S_COLOR_YELLOW "S   " S_COLOR_WHITE "{}" S_COLOR_WHITE "{}", i, ci->name, (ci->botSkill != -1) ? " (bot)" : "");
             break;
         }
 
         count++;
     }
 
-    Com_Printf("Listed %2d clients\n", count);
+    Q_Println("Listed {:2} clients", count);
 }
 
 static void CG_TellTarget_f(void)
@@ -179,7 +179,7 @@ static void CG_TellTarget_f(void)
     }
 
     trap->Cmd_Args(message, sizeof(message));
-    Com_sprintf(command, sizeof(command), "tell %i %s", clientNum, message);
+    Q_FormatTo(command, "tell {} {}", clientNum, message);
     trap->SendClientCommand(command);
 }
 
@@ -195,7 +195,7 @@ static void CG_TellAttacker_f(void)
     }
 
     trap->Cmd_Args(message, sizeof(message));
-    Com_sprintf(command, sizeof(command), "tell %i %s", clientNum, message);
+    Q_FormatTo(command, "tell {} {}", clientNum, message);
     trap->SendClientCommand(command);
 }
 

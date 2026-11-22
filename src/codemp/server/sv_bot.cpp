@@ -203,7 +203,7 @@ void SV_BotFreeClient(int clientNum)
     client_t* cl;
 
     if (clientNum < 0 || clientNum >= sv_maxclients->integer) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_BotFreeClient: bad clientNum: %i", clientNum);
+        Q_Error(errorParm_t::ERR_DROP, "SV_BotFreeClient: bad clientNum: {}", clientNum);
     }
     cl = &svs.clients[clientNum];
     cl->state = clientState_t::CS_FREE;
@@ -261,7 +261,7 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float* poin
         if (!poly->inuse)
             continue;
         drawPoly(poly->color, poly->numPoints, (float*)poly->points);
-        // Com_Printf("poly %i, numpoints = %d\n", i, poly->numPoints);
+        // Q_Println("poly {}, numpoints = {}", i, poly->numPoints);
     }
 }
 
@@ -434,7 +434,7 @@ BotImport_HunkAlloc
 void* BotImport_HunkAlloc(int size)
 {
     if (Hunk_CheckMark()) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set\n");
+        Q_Error(errorParm_t::ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set");
     }
     return Hunk_Alloc(size, ha_pref::h_high);
 }
@@ -558,7 +558,7 @@ void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, lineColor_t col
 SV_BotClientCommand
 ==================
 */
-void BotClientCommand(int client, char* command)
+void BotClientCommand(int client, const char* command)
 {
     SV_ExecuteClientCommand(&svs.clients[client], command, true);
 }

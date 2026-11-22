@@ -173,10 +173,10 @@ void G_BounceMissile(gentity_t* ent, trace_t* trace)
     }
 
     if (ent->s.weapon == weapon_t::WP_THERMAL) { // slight hack for hit sound
-        G_Sound(ent, soundChannel_t::CHAN_BODY, G_SoundIndex(va("sound/weapons/thermal/bounce%i.wav", Q_irand(1, 2))));
+        G_Sound(ent, soundChannel_t::CHAN_BODY, G_SoundIndex(Q_Format("sound/weapons/thermal/bounce{}.wav", Q_irand(1, 2)).c_str()));
     }
     else if (ent->s.weapon == weapon_t::WP_SABER) {
-        G_Sound(ent, soundChannel_t::CHAN_BODY, G_SoundIndex(va("sound/weapons/saber/bounce%i.wav", Q_irand(1, 3))));
+        G_Sound(ent, soundChannel_t::CHAN_BODY, G_SoundIndex(Q_Format("sound/weapons/saber/bounce{}.wav", Q_irand(1, 3)).c_str()));
     }
     else if (ent->s.weapon == weapon_t::G2_MODEL_PART) {
         // Limb bounce sound?

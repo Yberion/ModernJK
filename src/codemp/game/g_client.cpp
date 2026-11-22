@@ -281,19 +281,19 @@ void ThrowSaberToAttacker(gentity_t* self, gentity_t* attacker)
     if (!ent || ent->enemy != self) { // something has gone very wrong (this should never happen)
                                       // but in case it does.. find the saber manually
 #ifdef _DEBUG
-        Com_Printf("Lost the saber! Attempting to use global pointer..\n");
+        Q_Println("Lost the saber! Attempting to use global pointer..");
 #endif
         ent = gJMSaberEnt;
 
         if (!ent) {
 #ifdef _DEBUG
-            Com_Printf("The global pointer was NULL. This is a bad thing.\n");
+            Q_Println("The global pointer was NULL. This is a bad thing.");
 #endif
             return;
         }
 
 #ifdef _DEBUG
-        Com_Printf("Got it (%i). Setting enemy to client %i.\n", ent->s.number, self->s.number);
+        Q_Println("Got it ({}). Setting enemy to client {}.", ent->s.number, self->s.number);
 #endif
 
         ent->enemy = self;
@@ -422,14 +422,14 @@ void JMSaberTouch(gentity_t* self, gentity_t* other, trace_t* trace)
     G_AddEvent(other, entity_event_t::EV_BECOME_JEDIMASTER, 0);
 
     // Track the jedi master
-    trap->SetConfigstring(CS_CLIENT_JEDIMASTER, va("%i", other->s.number));
+    trap->SetConfigstring(CS_CLIENT_JEDIMASTER, Q_Format("{}", other->s.number).c_str());
 
     if (g_spawnInvulnerability.integer) {
         other->client->ps.eFlags |= entityFlags_t::EF_INVULNERABLE;
         other->client->invulnerableTimer = level.time + g_spawnInvulnerability.integer;
     }
 
-    trap->SendServerCommand(-1, va("cp \"%s %s\n\"", other->client->pers.netname, G_GetStringEdString("MP_SVGAME", "BECOMEJM")));
+    trap->SendServerCommand(-1, Q_Format("cp \"{} {}\n\"", other->client->pers.netname, G_GetStringEdString("MP_SVGAME", "BECOMEJM")).c_str());
 
     other->client->ps.isJediMaster = true;
     other->client->ps.saberIndex = self->s.number;
@@ -743,7 +743,7 @@ gentity_t* SelectRandomFurthestSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3
         if (!numSpots) {
             spot = G_Find(nullptr, FOFS(classname), "info_player_deathmatch");
             if (!spot)
-                Com_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
+                Q_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
             VectorCopy(spot->s.origin, origin);
             origin[2] += 9;
             VectorCopy(spot->s.angles, angles);
@@ -829,7 +829,7 @@ tryAgain:
         // If we got here we found no free duel or DM spots, just try the first DM spot
         spot = G_Find(nullptr, FOFS(classname), "info_player_deathmatch");
         if (!spot)
-            Com_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
+            Q_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
         VectorCopy(spot->s.origin, origin);
         origin[2] += 9;
         VectorCopy(spot->s.angles, angles);
@@ -875,7 +875,7 @@ gentity_t* SelectSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3_t angles, tea
 
     // find a single player start spot
     if (!spot) {
-        Com_Error( errorParm_t::ERR_DROP, "Couldn't find a spawn point" );
+        Q_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
     }
 
     VectorCopy (spot->s.origin, origin);
@@ -1075,7 +1075,7 @@ static bool CopyToBodyQue(gentity_t* ent)
     if (ent->client && ent->client->ps.fd.forceSide == FORCE_LIGHTSIDE) {
         islight = 1;
     }
-    trap->SendServerCommand(-1, va("ircg %i %i %i %i", ent->s.number, body->s.number, to_underlying(body->s.weapon), islight));
+    trap->SendServerCommand(-1, Q_Format("ircg {} {} {} {}", ent->s.number, body->s.number, to_underlying(body->s.weapon), islight).c_str());
 
     body->r.svFlags = ent->r.svFlags | svFlags_t::SVF_BROADCAST;
     VectorCopy(ent->r.mins, body->r.mins);
@@ -1158,7 +1158,7 @@ void MaintainBodyQueue(gentity_t* ent)
     }
 
     if (doRCG) { // bodyque func didn't manage to call ircg so call this to assure our limbs and ragdoll states are proper on the client.
-        trap->SendServerCommand(-1, va("rcg %i", ent->s.clientNum));
+        trap->SendServerCommand(-1, Q_Format("rcg {}", ent->s.clientNum).c_str());
     }
 }
 
@@ -1416,7 +1416,8 @@ bool G_SaberModelSetup(gentity_t* ent)
 
             if (ent->client->weaponGhoul2[i]) {
                 int j = 0;
-                char* tagName;
+                const char* tagName;
+                formatText_t tagNameText; // holds the text tagName points into
                 int tagBolt;
 
                 if (ent->client->saber[i].skin) {
@@ -1432,7 +1433,7 @@ bool G_SaberModelSetup(gentity_t* ent)
 
                 // Add all the bolt points
                 while (j < ent->client->saber[i].numBlades) {
-                    tagName = va("*blade%i", j + 1);
+                    tagName = (tagNameText = Q_Format("*blade{}", j + 1)).c_str();
                     tagBolt = trap->G2API_AddBolt(ent->client->weaponGhoul2[i], 0, tagName);
 
                     if (tagBolt == -1) {
@@ -1493,10 +1494,10 @@ void SetupGameGhoul2Model(gentity_t* ent, const char* modelname, const char* ski
     vec3_t tempVec = {0, 0, 0};
 
     if (strlen(modelname) >= MAX_QPATH) {
-        Com_Error(errorParm_t::ERR_FATAL, "SetupGameGhoul2Model(%s): modelname exceeds MAX_QPATH.\n", modelname);
+        Q_Error(errorParm_t::ERR_FATAL, "SetupGameGhoul2Model({}): modelname exceeds MAX_QPATH.", modelname);
     }
     if (skinName && strlen(skinName) >= MAX_QPATH) {
-        Com_Error(errorParm_t::ERR_FATAL, "SetupGameGhoul2Model(%s): skinName exceeds MAX_QPATH.\n", skinName);
+        Q_Error(errorParm_t::ERR_FATAL, "SetupGameGhoul2Model({}): skinName exceeds MAX_QPATH.", skinName);
     }
 
     // First things first.  If this is a ghoul2 model, then let's make sure we demolish this first.
@@ -1508,7 +1509,7 @@ void SetupGameGhoul2Model(gentity_t* ent, const char* modelname, const char* ski
     if (!precachedKyle) {
         int defSkin;
 
-        Com_sprintf(afilename, sizeof(afilename), "models/players/" DEFAULT_MODEL "/model.glm");
+        Q_FormatTo(afilename, "models/players/" DEFAULT_MODEL "/model.glm");
         handle = trap->G2API_InitGhoul2Model(&precachedKyle, afilename, 0, 0, -20, 0, 0);
 
         if (handle < 0) {
@@ -1539,10 +1540,11 @@ void SetupGameGhoul2Model(gentity_t* ent, const char* modelname, const char* ski
                 strcpy(truncModelName, realModelName);
                 skin[0] = 0;
                 if (ent->m_pVehicle && ent->m_pVehicle->m_pVehicleInfo && ent->m_pVehicle->m_pVehicleInfo->skin && ent->m_pVehicle->m_pVehicleInfo->skin[0]) {
-                    skinHandle = trap->R_RegisterSkin(va("models/players/%s/model_%s.skin", realModelName, ent->m_pVehicle->m_pVehicleInfo->skin));
+                    skinHandle =
+                        trap->R_RegisterSkin(Q_Format("models/players/{}/model_{}.skin", realModelName, ent->m_pVehicle->m_pVehicleInfo->skin).c_str());
                 }
                 else {
-                    skinHandle = trap->R_RegisterSkin(va("models/players/%s/model_default.skin", realModelName));
+                    skinHandle = trap->R_RegisterSkin(Q_Format("models/players/{}/model_default.skin", realModelName).c_str());
                 }
             }
             else {
@@ -1600,19 +1602,20 @@ void SetupGameGhoul2Model(gentity_t* ent, const char* modelname, const char* ski
             }
 
             if (skin[0]) {
-                char* useSkinName;
+                const char* useSkinName;
+                formatText_t useSkinNameText; // holds the text useSkinName points into
 
                 if (strchr(skin, '|')) { // three part skin
-                    useSkinName = va("models/players/%s/|%s", truncModelName, skin);
+                    useSkinName = (useSkinNameText = Q_Format("models/players/{}/|{}", truncModelName, skin)).c_str();
                 }
                 else {
-                    useSkinName = va("models/players/%s/model_%s.skin", truncModelName, skin);
+                    useSkinName = (useSkinNameText = Q_Format("models/players/{}/model_{}.skin", truncModelName, skin)).c_str();
                 }
 
                 skinHandle = trap->R_RegisterSkin(useSkinName);
             }
 
-            strcpy(modelFullPath, va("models/players/%s/model.glm", truncModelName));
+            strcpy(modelFullPath, Q_Format("models/players/{}/model.glm", truncModelName).c_str());
             handle = trap->G2API_InitGhoul2Model(&ent->ghoul2, modelFullPath, 0, skinHandle, -20, 0, 0);
 
             if (handle < 0) { // Huh. Guess we don't have this model. Use the default.
@@ -1639,7 +1642,7 @@ void SetupGameGhoul2Model(gentity_t* ent, const char* modelname, const char* ski
                     ent->s.modelGhoul2 = 1; // so we know to free it on the client when we're removed.
 
                     if (skin[0]) { // append it after a *
-                        strcat(modelFullPath, va("*%s", skin));
+                        strcat(modelFullPath, Q_Format("*{}", skin).c_str());
                     }
 
                     if (ent->client->NPC_class == class_t::CLASS_VEHICLE) { // vehicles are tricky and send over their vehicle names as the model (the model is
@@ -1670,7 +1673,7 @@ void SetupGameGhoul2Model(gentity_t* ent, const char* modelname, const char* ski
 
     if (!BGPAFtextLoaded) {
         if (BG_ParseAnimationFile("models/players/_humanoid/animation.cfg", &bgHumanoidAnimations, true) == -1) {
-            Com_Printf("Failed to load humanoid animation file\n");
+            Q_Println("Failed to load humanoid animation file");
             return;
         }
     }
@@ -1702,7 +1705,7 @@ void SetupGameGhoul2Model(gentity_t* ent, const char* modelname, const char* ski
         }
 
         if (ent->localAnimIndex == -1) {
-            Com_Error(errorParm_t::ERR_DROP, "NPC had an invalid GLA\n");
+            Q_Error(errorParm_t::ERR_DROP, "NPC had an invalid GLA");
         }
     }
     else {
@@ -1730,16 +1733,16 @@ void SetupGameGhoul2Model(gentity_t* ent, const char* modelname, const char* ski
 
         // Setup the Exhausts.
         for (i = 0; i < MAX_VEHICLE_EXHAUSTS; i++) {
-            Com_sprintf(strTemp, 128, "*exhaust%i", i + 1);
+            Q_FormatTo(std::span(strTemp, 128), "*exhaust{}", i + 1);
             ent->m_pVehicle->m_iExhaustTag[i] = trap->G2API_AddBolt(ent->ghoul2, 0, strTemp);
         }
 
         // Setup the Muzzles.
         for (i = 0; i < MAX_VEHICLE_MUZZLES; i++) {
-            Com_sprintf(strTemp, 128, "*muzzle%i", i + 1);
+            Q_FormatTo(std::span(strTemp, 128), "*muzzle{}", i + 1);
             ent->m_pVehicle->m_iMuzzleTag[i] = trap->G2API_AddBolt(ent->ghoul2, 0, strTemp);
             if (ent->m_pVehicle->m_iMuzzleTag[i] == -1) { // ergh, try *flash?
-                Com_sprintf(strTemp, 128, "*flash%i", i + 1);
+                Q_FormatTo(std::span(strTemp, 128), "*flash{}", i + 1);
                 ent->m_pVehicle->m_iMuzzleTag[i] = trap->G2API_AddBolt(ent->ghoul2, 0, strTemp);
             }
         }
@@ -1855,15 +1858,15 @@ void Svcmd_ToggleUserinfoValidation_f(void)
         int i = 0;
         for (i = 0; i < numUserinfoFields; i++) {
             if ((g_userinfoValidate.integer & (1 << i)))
-                Com_Printf("%2d [X] %s\n", i, userinfoFields[i].fieldClean);
+                Q_Println("{:2} [X] {}", i, userinfoFields[i].fieldClean);
             else
-                Com_Printf("%2d [ ] %s\n", i, userinfoFields[i].fieldClean);
+                Q_Println("{:2} [ ] {}", i, userinfoFields[i].fieldClean);
         }
         for (; i < numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX); i++) {
             if ((g_userinfoValidate.integer & (1 << i)))
-                Com_Printf("%2d [X] %s\n", i, userinfoValidateExtra[i - numUserinfoFields]);
+                Q_Println("{:2} [X] {}", i, userinfoValidateExtra[i - numUserinfoFields]);
             else
-                Com_Printf("%2d [ ] %s\n", i, userinfoValidateExtra[i - numUserinfoFields]);
+                Q_Println("{:2} [ ] {}", i, userinfoValidateExtra[i - numUserinfoFields]);
         }
         return;
     }
@@ -1875,25 +1878,27 @@ void Svcmd_ToggleUserinfoValidation_f(void)
         index = atoi(arg);
 
         if (index < 0 || index > numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX) - 1) {
-            Com_Printf("ToggleUserinfoValidation: Invalid range: %i [0, %i]\n", index,
-                       numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX) - 1);
+            Q_Println("ToggleUserinfoValidation: Invalid range: {} [0, {}]", index,
+                      numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX) - 1);
             return;
         }
 
         trap->Cvar_Set("g_userinfoValidate",
-                       va("%i", (1 << index) ^ (g_userinfoValidate.integer &
-                                                ((1 << (numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX))) - 1))));
+                       Q_Format("{}", (1 << index) ^ (g_userinfoValidate.integer &
+                                                      ((1 << (numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX))) - 1)))
+                           .c_str());
         trap->Cvar_Update(&g_userinfoValidate);
 
         if (index < numUserinfoFields)
-            Com_Printf("%s %s\n", userinfoFields[index].fieldClean, ((g_userinfoValidate.integer & (1 << index)) ? "Validated" : "Ignored"));
+            Q_Println("{} {}", userinfoFields[index].fieldClean, ((g_userinfoValidate.integer & (1 << index)) ? "Validated" : "Ignored"));
         else
-            Com_Printf("%s %s\n", userinfoValidateExtra[index - numUserinfoFields], ((g_userinfoValidate.integer & (1 << index)) ? "Validated" : "Ignored"));
+            Q_Println("{} {}", userinfoValidateExtra[index - numUserinfoFields], ((g_userinfoValidate.integer & (1 << index)) ? "Validated" : "Ignored"));
     }
 }
 
 const char* G_ValidateUserinfo(const char* userinfo)
 {
+    static formatText_t text; // the text returned, valid until the next call
     unsigned int i = 0, count = 0;
     size_t length = strlen(userinfo);
     userinfoValidate_t* info = nullptr;
@@ -1964,9 +1969,10 @@ const char* G_ValidateUserinfo(const char* userinfo)
     for (i = 0, info = userinfoFields; i < numUserinfoFields; i++, info++) {
         if (g_userinfoValidate.integer & (1 << i)) {
             if (info->minCount && !fieldCount[i])
-                return va("%s field not found", info->fieldClean);
+                return (text = Q_Format("{} field not found", info->fieldClean)).c_str();
             else if (fieldCount[i] > info->maxCount)
-                return va("Too many %s fields (%i/%i)", info->fieldClean, fieldCount[i], info->maxCount);
+                return (text = Q_Format("Too many {} fields ({}/{})", info->fieldClean, static_cast<int>(fieldCount[i]), static_cast<int>(info->maxCount)))
+                    .c_str();
         }
     }
 
@@ -1991,9 +1997,9 @@ bool ClientUserinfoChanged(int clientNum)
     // check for malformed or illegal info strings
     s = G_ValidateUserinfo(userinfo);
     if (s && *s) {
-        G_SecurityLogPrintf("Client %d (%s) failed userinfo validation: %s [IP: %s]\n", clientNum, ent->client->pers.netname, s, client->sess.IP);
-        trap->DropClient(clientNum, va("Failed userinfo validation: %s", s));
-        G_LogPrintf("Userinfo: %s\n", userinfo);
+        G_SecurityLogPrintln("Client {} ({}) failed userinfo validation: {} [IP: {}]", clientNum, ent->client->pers.netname, s, client->sess.IP);
+        trap->DropClient(clientNum, Q_Format("Failed userinfo validation: {}", s).c_str());
+        G_LogPrintln("Userinfo: {}", userinfo);
         return false;
     }
 
@@ -2023,7 +2029,7 @@ bool ClientUserinfoChanged(int clientNum)
 
     if (client->pers.connected == clientConnected_t::CON_CONNECTED && strcmp(oldname, client->pers.netname)) {
         if (client->pers.netnameTime > level.time) {
-            trap->SendServerCommand(clientNum, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NONAMECHANGE")));
+            trap->SendServerCommand(clientNum, Q_Format("print \"{}\n\"", G_GetStringEdString("MP_SVGAME", "NONAMECHANGE")).c_str());
 
             Info_SetValueForKey(userinfo, "name", oldname);
             trap->SetUserinfo(clientNum, userinfo);
@@ -2032,10 +2038,10 @@ bool ClientUserinfoChanged(int clientNum)
             Q_StripColor(client->pers.netname_nocolor);
         }
         else {
-            trap->SendServerCommand(-1,
-                                    va("print \"%s" S_COLOR_WHITE " %s %s\n\"", oldname, G_GetStringEdString("MP_SVGAME", "PLRENAME"), client->pers.netname));
-            G_LogPrintf("ClientRename: %i [%s] (%s) \"%s^7\" -> \"%s^7\"\n", clientNum, ent->client->sess.IP, ent->client->pers.guid, oldname,
-                        ent->client->pers.netname);
+            trap->SendServerCommand(
+                -1, Q_Format("print \"{}" S_COLOR_WHITE " {} {}\n\"", oldname, G_GetStringEdString("MP_SVGAME", "PLRENAME"), client->pers.netname).c_str());
+            G_LogPrintln("ClientRename: {} [{}] ({}) \"{}^7\" -> \"{}^7\"", clientNum, ent->client->sess.IP, ent->client->pers.guid, oldname,
+                         ent->client->pers.netname);
             client->pers.netnameTime = level.time + 5000;
         }
     }
@@ -2189,33 +2195,33 @@ bool ClientUserinfoChanged(int clientNum)
     // send over a subset of the userinfo keys so other clients can
     // print scoreboards, display models, and play custom sounds
     buf[0] = '\0';
-    Q_strcat(buf, sizeof(buf), va("n\\%s\\", client->pers.netname));
-    Q_strcat(buf, sizeof(buf), va("t\\%i\\", to_underlying(client->sess.sessionTeam)));
-    Q_strcat(buf, sizeof(buf), va("model\\%s\\", model));
+    Q_strcat(buf, sizeof(buf), Q_Format("n\\{}\\", client->pers.netname).c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("t\\{}\\", to_underlying(client->sess.sessionTeam)).c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("model\\{}\\", model).c_str());
     if (gender == gender_t::GENDER_FEMALE)
-        Q_strcat(buf, sizeof(buf), va("ds\\%c\\", 'f'));
+        Q_strcat(buf, sizeof(buf), Q_Format("ds\\{}\\", 'f').c_str());
     else
-        Q_strcat(buf, sizeof(buf), va("ds\\%c\\", 'm'));
-    Q_strcat(buf, sizeof(buf), va("st\\%s\\", client->pers.saber1));
-    Q_strcat(buf, sizeof(buf), va("st2\\%s\\", client->pers.saber2));
-    Q_strcat(buf, sizeof(buf), va("c1\\%s\\", color1));
-    Q_strcat(buf, sizeof(buf), va("c2\\%s\\", color2));
-    Q_strcat(buf, sizeof(buf), va("hc\\%i\\", client->pers.maxHealth));
+        Q_strcat(buf, sizeof(buf), Q_Format("ds\\{}\\", 'm').c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("st\\{}\\", client->pers.saber1).c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("st2\\{}\\", client->pers.saber2).c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("c1\\{}\\", color1).c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("c2\\{}\\", color2).c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("hc\\{}\\", client->pers.maxHealth).c_str());
     if (Any(ent->r.svFlags & svFlags_t::SVF_BOT))
-        Q_strcat(buf, sizeof(buf), va("skill\\%s\\", Info_ValueForKey(userinfo, "skill")));
+        Q_strcat(buf, sizeof(buf), Q_Format("skill\\{}\\", Info_ValueForKey(userinfo, "skill")).c_str());
     if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL) {
-        Q_strcat(buf, sizeof(buf), va("w\\%i\\", client->sess.wins));
-        Q_strcat(buf, sizeof(buf), va("l\\%i\\", client->sess.losses));
+        Q_strcat(buf, sizeof(buf), Q_Format("w\\{}\\", client->sess.wins).c_str());
+        Q_strcat(buf, sizeof(buf), Q_Format("l\\{}\\", client->sess.losses).c_str());
     }
     if (level.gametype == gametype_t::GT_POWERDUEL)
-        Q_strcat(buf, sizeof(buf), va("dt\\%i\\", to_underlying(client->sess.duelTeam)));
+        Q_strcat(buf, sizeof(buf), Q_Format("dt\\{}\\", to_underlying(client->sess.duelTeam)).c_str());
     if (level.gametype >= gametype_t::GT_TEAM) {
-        //	Q_strcat( buf, sizeof( buf ), va( "tt\\%d\\", teamTask ) );
-        Q_strcat(buf, sizeof(buf), va("tl\\%d\\", teamLeader));
+        //	Q_strcat( buf, sizeof( buf ), Q_Format("tt\\{}\\", teamTask).c_str() );
+        Q_strcat(buf, sizeof(buf), Q_Format("tl\\{}\\", teamLeader).c_str());
     }
     if (level.gametype == gametype_t::GT_SIEGE) {
-        Q_strcat(buf, sizeof(buf), va("siegeclass\\%s\\", className));
-        Q_strcat(buf, sizeof(buf), va("sdt\\%i\\", to_underlying(client->sess.siegeDesiredTeam)));
+        Q_strcat(buf, sizeof(buf), Q_Format("siegeclass\\{}\\", className).c_str());
+        Q_strcat(buf, sizeof(buf), Q_Format("sdt\\{}\\", to_underlying(client->sess.siegeDesiredTeam)).c_str());
     }
 
     trap->GetConfigstring(CS_PLAYERS + clientNum, oldClientinfo, sizeof(oldClientinfo));
@@ -2236,9 +2242,9 @@ bool ClientUserinfoChanged(int clientNum)
 
     if (g_logClientInfo.integer) {
         if (strcmp(oldClientinfo, buf))
-            G_LogPrintf("ClientUserinfoChanged: %i %s\n", clientNum, buf);
+            G_LogPrintln("ClientUserinfoChanged: {} {}", clientNum, buf);
         else
-            G_LogPrintf("ClientUserinfoChanged: %i <no change>\n", clientNum);
+            G_LogPrintln("ClientUserinfoChanged: {} <no change>", clientNum);
     }
 
     return true;
@@ -2347,7 +2353,7 @@ const char* ClientConnect(int clientNum, bool firstTime, bool isBot)
     }
 
     if (ent->inuse) { // if a player reconnects quickly after a disconnect, the client disconnect may never be called, thus flag can get lost in the ether
-        G_LogPrintf("Forcing disconnect on active client: %i\n", clientNum);
+        G_LogPrintln("Forcing disconnect on active client: {}", clientNum);
         // so lets just fix up anything that should happen on a disconnect
         ClientDisconnect(clientNum);
     }
@@ -2376,7 +2382,7 @@ const char* ClientConnect(int clientNum, bool firstTime, bool isBot)
         (firstTime || level.newSession)) {                 // if this is the first time then auto-assign a desired siege team and show briefing for that team
         client->sess.siegeDesiredTeam = team_t::TEAM_FREE; // PickTeam(ent->s.number);
         /*
-        trap->SendServerCommand(ent->s.number, va("sb %i", client->sess.siegeDesiredTeam));
+        trap->SendServerCommand(ent->s.number, Q_Format("sb {}", client->sess.siegeDesiredTeam).c_str());
         */
         // don't just show it - they'll see it if they switch to a team on purpose.
     }
@@ -2406,7 +2412,7 @@ const char* ClientConnect(int clientNum, bool firstTime, bool isBot)
     if (!isBot && firstTime) {
         if (!tmpIP[0]) { // No IP sent when connecting, probably an unban hack attempt
             client->pers.connected = clientConnected_t::CON_DISCONNECTED;
-            G_SecurityLogPrintf("Client %i (%s) sent no IP when connecting.\n", clientNum, client->pers.netname);
+            G_SecurityLogPrintln("Client {} ({}) sent no IP when connecting.", clientNum, client->pers.netname);
             return "Invalid userinfo detected";
         }
     }
@@ -2414,11 +2420,12 @@ const char* ClientConnect(int clientNum, bool firstTime, bool isBot)
     if (firstTime)
         Q_strncpyz(client->sess.IP, tmpIP, sizeof(client->sess.IP));
 
-    G_LogPrintf("ClientConnect: %i [%s] (%s) \"%s^7\"\n", clientNum, tmpIP, guid, client->pers.netname);
+    G_LogPrintln("ClientConnect: {} [{}] ({}) \"{}^7\"", clientNum, tmpIP, guid, client->pers.netname);
 
     // don't do the "xxx connected" messages if they were caried over from previous level
     if (firstTime) {
-        trap->SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " %s\n\"", client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLCONNECT")));
+        trap->SendServerCommand(-1,
+                                Q_Format("print \"{}" S_COLOR_WHITE " {}\n\"", client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLCONNECT")).c_str());
     }
 
     if (level.gametype >= gametype_t::GT_TEAM && client->sess.sessionTeam != team_t::TEAM_SPECTATOR) {
@@ -2578,10 +2585,11 @@ void ClientBegin(int clientNum, bool allowTeamReset)
 
     if (client->sess.sessionTeam != team_t::TEAM_SPECTATOR) {
         if (level.gametype != gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL) {
-            trap->SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " %s\n\"", client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLENTER")));
+            trap->SendServerCommand(-1,
+                                    Q_Format("print \"{}" S_COLOR_WHITE " {}\n\"", client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLENTER")).c_str());
         }
     }
-    G_LogPrintf("ClientBegin: %i\n", clientNum);
+    G_LogPrintln("ClientBegin: {}", clientNum);
 
     // count current clients and rank for scoreboard
     CalculateRanks();
@@ -2654,7 +2662,7 @@ void G_BreakArm(gentity_t* ent, brokenLimb_t arm)
     // worry about it.
     G_EntitySound(ent, soundChannel_t::CHAN_VOICE, G_SoundIndex("*pain25.wav"));
     // FIXME: A nice bone snapping sound instead if possible
-    G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(va("sound/player/bodyfall_human%i.wav", Q_irand(1, 3))));
+    G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/player/bodyfall_human{}.wav", Q_irand(1, 3)).c_str()));
 }
 
 // Update the ghoul2 instance anims based on the playerstate values
@@ -2919,7 +2927,8 @@ void ClientSpawn(gentity_t* ent)
     voteFlags_t gameFlags;
     int savedPing, accuracy_hits, accuracy_shots, eventSequence;
     void* g2WeaponPtrs[MAX_SABERS];
-    char userinfo[MAX_INFO_STRING] = {0}, *key = nullptr, *saber = nullptr;
+    char userinfo[MAX_INFO_STRING] = {0}, *saber = nullptr;
+    char key[16];
     const char* value = nullptr;
     bool changedSaber = false, inSiegeWithClass = false;
 
@@ -2931,7 +2940,7 @@ void ClientSpawn(gentity_t* ent)
 
     for (i = 0; i < MAX_SABERS; i++) {
         saber = (i & 1) ? ent->client->pers.saber2 : ent->client->pers.saber1;
-        value = Info_ValueForKey(userinfo, va("saber%i", i + 1));
+        value = Info_ValueForKey(userinfo, Q_Format("saber{}", i + 1).c_str());
         if (saber && value &&
             (Q_stricmp(value, saber) || !saber[0] || !ent->client->saber[0].model[0])) { // doesn't match up (or our saber is BS), we want to try setting it
             if (G_SetSaber(ent, i, value, false))
@@ -2952,7 +2961,7 @@ void ClientSpawn(gentity_t* ent)
 
         for (i = 0; i < MAX_SABERS; i++) {
             saber = (i & 1) ? ent->client->pers.saber2 : ent->client->pers.saber1;
-            key = va("saber%d", i + 1);
+            Q_FormatTo(key, "saber{}", i + 1);
             value = Info_ValueForKey(userinfo, key);
             if (Q_stricmp(value, saber)) { // they don't match up, force the user info
                 Info_SetValueForKey(userinfo, key, saber);
@@ -3579,11 +3588,11 @@ void G_ClearVote(gentity_t* ent)
         if (Any(ent->client->mGameFlags & voteFlags_t::PSG_VOTED)) {
             if (ent->client->pers.vote == 1) {
                 level.voteYes--;
-                trap->SetConfigstring(CS_VOTE_YES, va("%i", level.voteYes));
+                trap->SetConfigstring(CS_VOTE_YES, Q_Format("{}", level.voteYes).c_str());
             }
             else if (ent->client->pers.vote == 2) {
                 level.voteNo--;
-                trap->SetConfigstring(CS_VOTE_NO, va("%i", level.voteNo));
+                trap->SetConfigstring(CS_VOTE_NO, Q_Format("{}", level.voteNo).c_str());
             }
         }
         ent->client->mGameFlags &= ~(voteFlags_t::PSG_VOTED);
@@ -3605,11 +3614,11 @@ void G_ClearTeamVote(gentity_t* ent, team_t team)
         if (Any(ent->client->mGameFlags & voteFlags_t::PSG_TEAMVOTED)) {
             if (ent->client->pers.teamvote == 1) {
                 level.teamVoteYes[voteteam]--;
-                trap->SetConfigstring(CS_TEAMVOTE_YES, va("%i", level.teamVoteYes[voteteam]));
+                trap->SetConfigstring(CS_TEAMVOTE_YES, Q_Format("{}", level.teamVoteYes[voteteam]).c_str());
             }
             else if (ent->client->pers.teamvote == 2) {
                 level.teamVoteNo[voteteam]--;
-                trap->SetConfigstring(CS_TEAMVOTE_NO, va("%i", level.teamVoteNo[voteteam]));
+                trap->SetConfigstring(CS_TEAMVOTE_NO, Q_Format("{}", level.teamVoteNo[voteteam]).c_str());
             }
         }
         ent->client->mGameFlags &= ~(voteFlags_t::PSG_TEAMVOTED);
@@ -3678,7 +3687,7 @@ void ClientDisconnect(int clientNum)
         TossClientItems(ent);
     }
 
-    G_LogPrintf("ClientDisconnect: %i [%s] (%s) \"%s^7\"\n", clientNum, ent->client->sess.IP, ent->client->pers.guid, ent->client->pers.netname);
+    G_LogPrintln("ClientDisconnect: {} [{}] ({}) \"{}^7\"", clientNum, ent->client->sess.IP, ent->client->pers.guid, ent->client->pers.netname);
 
     // if we are playing in tourney mode, give a win to the other player and clear his frags for this round
     if (level.gametype == gametype_t::GT_DUEL && !level.intermissiontime && !level.warmupTime) {

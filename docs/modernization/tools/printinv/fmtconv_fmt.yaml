@@ -1,0 +1,10 @@
+# clang-tidy's conversion of plan step 22 part 3 for the code that calls {fmt} directly (netcodec's tests, benchmarks
+# and tools, the tests of test/): printf and fprintf onto fmt::print and fmt::println, in the strict mode
+Checks: '-*,modernize-use-std-print'
+CheckOptions:
+  modernize-use-std-print.PrintfLikeFunctions: '::printf'
+  modernize-use-std-print.FprintfLikeFunctions: '::fprintf'
+  modernize-use-std-print.ReplacementPrintFunction: 'fmt::print'
+  modernize-use-std-print.ReplacementPrintlnFunction: 'fmt::println'
+  modernize-use-std-print.PrintHeader: '<fmt/base.h>'
+  modernize-use-std-print.StrictMode: true

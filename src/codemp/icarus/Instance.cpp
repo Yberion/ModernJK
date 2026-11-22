@@ -74,7 +74,7 @@ ICARUS_Instance* ICARUS_Instance::Create(interface_export_t* ie)
 {
     ICARUS_Instance* instance = new ICARUS_Instance;
     instance->m_interface = ie;
-    Com_DPrintf("ICARUS Instance successfully created\n");
+    Q_DPrintln("ICARUS Instance successfully created");
     return instance;
 }
 
@@ -138,21 +138,21 @@ int ICARUS_Instance::Delete(void)
 
 #ifdef _DEBUG
 
-    Com_DPrintf("\nICARUS Instance Debug Info:\n---------------------------\n");
+    Q_DPrintln("\nICARUS Instance Debug Info:\n---------------------------");
 
-    Com_DPrintf("Sequencers Allocated:\t%d\n", m_DEBUG_NumSequencerAlloc);
+    Q_DPrintln("Sequencers Allocated:\t{}", m_DEBUG_NumSequencerAlloc);
 
-    Com_DPrintf("Sequencers Freed:\t\t%d\n", m_DEBUG_NumSequencerFreed);
+    Q_DPrintln("Sequencers Freed:\t\t{}", m_DEBUG_NumSequencerFreed);
 
-    Com_DPrintf("Sequencers Residual:\t%d\n\n", m_DEBUG_NumSequencerResidual);
+    Q_DPrintln("Sequencers Residual:\t{}\n", m_DEBUG_NumSequencerResidual);
 
-    Com_DPrintf("Sequences Allocated:\t%d\n", m_DEBUG_NumSequenceAlloc);
+    Q_DPrintln("Sequences Allocated:\t{}", m_DEBUG_NumSequenceAlloc);
 
-    Com_DPrintf("Sequences Freed:\t\t%d\n", m_DEBUG_NumSequenceFreed);
+    Q_DPrintln("Sequences Freed:\t\t{}", m_DEBUG_NumSequenceFreed);
 
-    Com_DPrintf("Sequences Residual:\t\t%d\n\n", m_DEBUG_NumSequenceResidual);
+    Q_DPrintln("Sequences Residual:\t\t{}\n", m_DEBUG_NumSequenceResidual);
 
-    Com_DPrintf("\n");
+    Q_DPrintln("");
 
 #endif
 
@@ -582,25 +582,25 @@ int ICARUS_Instance::Load(void)
 
     // Versions must match!
     if (version != ICARUS_VERSION) {
-        m_interface->I_DPrintf(WL_e::WL_ERROR, "save game data contains outdated ICARUS version information!\n");
+        m_interface->I_DPrintln(WL_e::WL_ERROR, "save game data contains outdated ICARUS version information!");
         return false;
     }
 
     // Load all signals
     if (LoadSignals() == false) {
-        m_interface->I_DPrintf(WL_e::WL_ERROR, "failed to load signals from save game!\n");
+        m_interface->I_DPrintln(WL_e::WL_ERROR, "failed to load signals from save game!");
         return false;
     }
 
     // Load in all sequences
     if (LoadSequences() == false) {
-        m_interface->I_DPrintf(WL_e::WL_ERROR, "failed to load sequences from save game!\n");
+        m_interface->I_DPrintln(WL_e::WL_ERROR, "failed to load sequences from save game!");
         return false;
     }
 
     // Load in all sequencers
     if (LoadSequencers() == false) {
-        m_interface->I_DPrintf(WL_e::WL_ERROR, "failed to load sequencers from save game!\n");
+        m_interface->I_DPrintln(WL_e::WL_ERROR, "failed to load sequencers from save game!");
         return false;
     }
 

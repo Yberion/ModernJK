@@ -135,7 +135,7 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts,
     }
 
     if (!hShader) {
-        Com_Warning("RE_AddPolyToScene: NULL poly shader\n");
+        Q_PrintlnWarning("RE_AddPolyToScene: NULL poly shader");
         return;
     }
 
@@ -147,7 +147,7 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts,
             since we don't plan on changing the const and making for room for those effects
             simply cut this message to developer only
             */
-            Com_DPrintf(S_COLOR_YELLOW "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
+            Q_DPrintln(S_COLOR_YELLOW "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached");
             return;
         }
 
@@ -208,7 +208,7 @@ void RE_AddRefEntityToScene(const refEntity_t* ent)
     }
 
     if (r_numentities >= MAX_REFENTITIES) {
-        Com_DPrintf("RE_AddRefEntityToScene: Dropping refEntity, reached MAX_REFENTITIES\n");
+        Q_DPrintln("RE_AddRefEntityToScene: Dropping refEntity, reached MAX_REFENTITIES");
         return;
     }
 
@@ -216,7 +216,7 @@ void RE_AddRefEntityToScene(const refEntity_t* ent)
         static bool firstTime = true;
         if (firstTime) {
             firstTime = false;
-            Com_Warning("RE_AddRefEntityToScene passed a refEntity which has an origin with a NaN component\n");
+            Q_PrintlnWarning("RE_AddRefEntityToScene passed a refEntity which has an origin with a NaN component");
         }
         return;
     }*/
@@ -234,7 +234,7 @@ void RE_AddRefEntityToScene(const refEntity_t* ent)
 #endif
 
     if ((int)ent->reType < 0 || ent->reType >= refEntityType_t::RT_MAX_REF_ENTITY_TYPE) {
-        Com_Error(errorParm_t::ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", to_underlying(ent->reType));
+        Q_Error(errorParm_t::ERR_DROP, "RE_AddRefEntityToScene: bad reType {}", to_underlying(ent->reType));
     }
 
     backEndData->entities[r_numentities].e = *ent;
@@ -244,7 +244,7 @@ void RE_AddRefEntityToScene(const refEntity_t* ent)
         CGhoul2Info_v& ghoul2 = *((CGhoul2Info_v*)ent->ghoul2);
 
         if (!ghoul2[0].mModel) {
-            Com_Printf("Your ghoul2 instance has no model!\n");
+            Q_Println("Your ghoul2 instance has no model!");
         }
     }
 
@@ -361,7 +361,7 @@ void RE_RenderScene(const refdef_t* fd)
     startTime = ri.Milliseconds() * ri.Cvar_VariableValue("timescale");
 
     if (!tr.world && !Any(fd->rdflags & refdefFlags_t::RDF_NOWORLDMODEL)) {
-        Com_Error(errorParm_t::ERR_DROP, "R_RenderScene: NULL worldmodel");
+        Q_Error(errorParm_t::ERR_DROP, "R_RenderScene: NULL worldmodel");
     }
 
     memcpy(tr.refdef.text, fd->text, sizeof(tr.refdef.text));

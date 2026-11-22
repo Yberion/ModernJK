@@ -57,7 +57,7 @@ bool PD_Store(const char* name, const void* data, size_t size)
 {
     persisentData_t* store = FindEmptyStore(persistentData, MAX_PERSISENT_DATA_STORES);
     if (store == nullptr) {
-        Com_Warning("No persistent data store found.\n");
+        Q_PrintlnWarning("No persistent data store found.");
         return false;
     }
 

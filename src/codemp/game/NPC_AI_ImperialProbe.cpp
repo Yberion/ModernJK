@@ -36,7 +36,7 @@ void NPC_Probe_Precache(void)
     int i;
 
     for (i = 1; i < 4; i++) {
-        G_SoundIndex(va("sound/chars/probe/misc/probetalk%d", i));
+        G_SoundIndex(Q_Format("sound/chars/probe/misc/probetalk{}", i).c_str());
     }
     G_SoundIndex("sound/chars/probe/misc/probedroidloop");
     G_SoundIndex("sound/chars/probe/misc/anger1");
@@ -356,7 +356,7 @@ void ImperialProbe_AttackDecision(void)
     // randomly talk
     if (TIMER_Done(NPCS.NPC, "patrolNoise")) {
         if (TIMER_Done(NPCS.NPC, "angerNoise")) {
-            G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d", Q_irand(1, 3)));
+            G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/probe/misc/probetalk{}", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPCS.NPC, "patrolNoise", Q_irand(4000, 10000));
         }
@@ -500,7 +500,7 @@ void ImperialProbe_Patrol(void)
         }
         // randomly talk
         if (TIMER_Done(NPCS.NPC, "patrolNoise")) {
-            G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d", Q_irand(1, 3)));
+            G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/probe/misc/probetalk{}", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPCS.NPC, "patrolNoise", Q_irand(2000, 4000));
         }

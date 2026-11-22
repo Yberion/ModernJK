@@ -186,7 +186,7 @@ void G_RunObject(gentity_t* ent)
                 VectorNormalize2(ent->s.pos.trDelta, fxDir);
                 VectorScale(fxDir, -1, fxDir);
                 G_PlayEffect(G_EffectIndex("melee/kick_impact"), tr.endpos, fxDir);
-                // G_Sound( ent, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
+                // G_Sound( ent, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str() ) );
             }
             else {
                 G_PlayEffect(G_EffectIndex("melee/kick_impact_silent"), tr.endpos, tr.plane.normal);

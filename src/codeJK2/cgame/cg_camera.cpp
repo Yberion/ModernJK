@@ -472,7 +472,7 @@ void CG_CameraAutoAim(const char* name)
 
     if(!aimEnt)
     {
-        Com_PrintError("%s camera aim target not found\n", name);
+        Q_PrintlnError("{} camera aim target not found", name);
         return;
     }
 
@@ -504,7 +504,7 @@ void CGCam_Track(const char* trackName, float speed, float initLerp)
     trackEnt = G_Find(nullptr, FOFS(targetname), (char*)trackName);
 
     if (!trackEnt) {
-        Com_PrintError("%s camera track target not found\n", trackName);
+        Q_PrintlnError("{} camera track target not found", trackName);
         return;
     }
 
@@ -578,7 +578,7 @@ void CG_CameraAutoTrack(const char* name)
 
     if(!trackEnt)
     {
-        Com_PrintError("%s camera track target not found\n", name);
+        Q_PrintlnError("{} camera track target not found", name);
         return;
     }
 
@@ -628,7 +628,7 @@ void CGCam_FollowUpdate(void)
             */
 
             if (num_subjects >= MAX_CAMERA_GROUP_SUBJECTS) {
-                Com_PrintError("Too many subjects in shot composition %s\n", client_camera.cameraGroup);
+                Q_PrintlnError("Too many subjects in shot composition {}", client_camera.cameraGroup);
                 break;
             }
 
@@ -683,7 +683,7 @@ void CGCam_FollowUpdate(void)
         if (!num_subjects) // Bad cameragroup
         {
 #ifndef FINAL_BUILD
-            Com_PrintError("Camera Focus unable to locate cameragroup: %s\n", client_camera.cameraGroup);
+            Q_PrintlnError("Camera Focus unable to locate cameragroup: {}", client_camera.cameraGroup);
 #endif
             return;
         }
@@ -708,7 +708,7 @@ void CGCam_FollowUpdate(void)
     /*
     if ( !cg_skippingcin.integer )
     {
-        Com_Printf( S_COLOR_RED"org: %s\n", vtos(center) );
+        Q_Println(S_COLOR_RED"org: {}", vtos(center));
     }
     */
     VectorCopy(center, client_camera.subjectPos);
@@ -726,7 +726,7 @@ void CGCam_FollowUpdate(void)
             cameraAngles[i] = AngleNormalize180(cameraAngles[i]);
         }
 #if 0
-		Com_Printf( "%s\n", vtos(cameraAngles) );
+		Q_Println("{}", vtos(cameraAngles));
 #endif
     }
     else { // Snapping, should do this first time if follow_lerp_to_start_duration is zero
@@ -744,7 +744,7 @@ void CGCam_FollowUpdate(void)
     /*
     if ( !cg_skippingcin.integer )
     {
-        Com_Printf( "ang: %s\n", vtos(cameraAngles) );
+        Q_Println("ang: {}", vtos(cameraAngles));
     }
     */
     VectorCopy(cameraAngles, client_camera.angles);
@@ -880,7 +880,7 @@ void CGCam_TrackUpdate(void)
                 client_camera.speed = desiredSpeed;
             }
 
-            // Com_Printf("Speed: %4.2f (%4.2f)\n", self->moveInfo.speed, aimCent->gent->speed);
+            // Q_Println("Speed: {:4.2f} ({:4.2f})", self->moveInfo.speed, aimCent->gent->speed);
         }
     }
     else {
@@ -1224,7 +1224,7 @@ void CGCam_StartRoff(char* roff)
 
     if (!G_LoadRoff(roff)) {
         // The load failed so don't turn on the roff playback...
-        Com_Printf(S_COLOR_RED "ROFF camera playback failed\n");
+        Q_Println(S_COLOR_RED "ROFF camera playback failed");
         return;
     };
 
@@ -1296,7 +1296,7 @@ static void CGCam_Roff(void)
         // might need to to yaw as well.  need a test...
 
 #ifdef _DEBUG
-        Com_DPrintf(S_COLOR_GREEN "CamROFF : o:<%.2f %.2f %.2f> a:<%.2f %.2f %.2f>\n", org[0], org[1], org[2], ang[0], ang[1], ang[2]);
+        Q_DPrintln(S_COLOR_GREEN "CamROFF : o:<{:.2f} {:.2f} {:.2f}> a:<{:.2f} {:.2f} {:.2f}>", org[0], org[1], org[2], ang[0], ang[1], ang[2]);
 #endif
 
         if (client_camera.roff_frame) {

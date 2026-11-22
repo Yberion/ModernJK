@@ -81,9 +81,9 @@ void GL_TextureMode(const char* string)
     }
 
     if (i == numTextureModes) {
-        Com_Printf("bad filter name\n");
+        Q_Println("bad filter name");
         for (i = 0; i < numTextureModes; i++) {
-            Com_Printf("%s\n", modes[i].name);
+            Q_Println("{}", modes[i].name);
         }
         return;
     }
@@ -231,74 +231,74 @@ void R_ImageList_f(void)
     float texBytes = 0.0f;
     const char* yesno[] = {"no ", "yes"};
 
-    Com_Printf("\n      -w-- -h-- -mm- -if-- wrap --name-------\n");
+    Q_Println("\n      -w-- -h-- -mm- -if-- wrap --name-------");
 
     int iNumImages = R_Images_StartIteration();
     while ((image = R_Images_GetNextIteration()) != nullptr) {
         texels += image->width * image->height;
         texBytes += image->width * image->height * R_BytesPerTex(image->internalFormat);
-        Com_Printf("%4i: %4i %4i  %s ", i, image->width, image->height, yesno[image->mipmap]);
+        Q_Print("{:4}: {:4} {:4}  {} ", i, image->width, image->height, yesno[image->mipmap]);
         switch (image->internalFormat) {
         case 1:
-            Com_Printf("I    ");
+            Q_Print("I    ");
             break;
         case 2:
-            Com_Printf("IA   ");
+            Q_Print("IA   ");
             break;
         case 3:
-            Com_Printf("RGB  ");
+            Q_Print("RGB  ");
             break;
         case 4:
-            Com_Printf("RGBA ");
+            Q_Print("RGBA ");
             break;
         case GL_RGBA8:
-            Com_Printf("RGBA8");
+            Q_Print("RGBA8");
             break;
         case GL_RGB8:
-            Com_Printf("RGB8");
+            Q_Print("RGB8");
             break;
         case GL_RGB4_S3TC:
-            Com_Printf("S3TC ");
+            Q_Print("S3TC ");
             break;
         case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
-            Com_Printf("DXT1 ");
+            Q_Print("DXT1 ");
             break;
         case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
-            Com_Printf("DXT5 ");
+            Q_Print("DXT5 ");
             break;
         case GL_RGBA4:
-            Com_Printf("RGBA4");
+            Q_Print("RGBA4");
             break;
         case GL_RGB5:
-            Com_Printf("RGB5 ");
+            Q_Print("RGB5 ");
             break;
         default:
-            Com_Printf("???? ");
+            Q_Print("???? ");
         }
 
         switch (image->wrapClampMode) {
         case GL_REPEAT:
-            Com_Printf("rept ");
+            Q_Print("rept ");
             break;
         case GL_CLAMP:
-            Com_Printf("clmp ");
+            Q_Print("clmp ");
             break;
         case GL_CLAMP_TO_EDGE:
-            Com_Printf("clpE ");
+            Q_Print("clpE ");
             break;
         default:
-            Com_Printf("%4i ", image->wrapClampMode);
+            Q_Print("{:4} ", image->wrapClampMode);
             break;
         }
 
-        Com_Printf("%s\n", image->imgName);
+        Q_Println("{}", image->imgName);
         i++;
     }
-    Com_Printf(" ---------\n");
-    Com_Printf("      -w-- -h-- -mm- -if- wrap --name-------\n");
-    Com_Printf(" %i total texels (not including mipmaps)\n", texels);
-    Com_Printf(" %.2fMB total texture mem (not including mipmaps)\n", texBytes / 1048576.0f);
-    Com_Printf(" %i total images\n\n", iNumImages);
+    Q_Println(" ---------");
+    Q_Println("      -w-- -h-- -mm- -if- wrap --name-------");
+    Q_Println(" {} total texels (not including mipmaps)", texels);
+    Q_Println(" {:.2f}MB total texture mem (not including mipmaps)", texBytes / 1048576.0f);
+    Q_Println(" {} total images\n", iNumImages);
 }
 
 //=======================================================================
@@ -780,22 +780,21 @@ void RE_RegisterImages_Info_f(void)
 
     int iNumImages = R_Images_StartIteration();
     while ((pImage = R_Images_GetNextIteration()) != nullptr) {
-        Com_Printf("%d: (%4dx%4dy) \"%s\"", iImage, pImage->width, pImage->height, pImage->imgName);
-        Com_DPrintf(S_COLOR_RED ", levused %d", pImage->iLastLevelUsedOn);
-        Com_Printf("\n");
+        Q_Println("{}: ({:4}x{:4}y) \"{}\"", iImage, pImage->width, pImage->height, pImage->imgName);
+        Q_DPrintln(S_COLOR_RED "levused {}", pImage->iLastLevelUsedOn);
 
         iTexels += pImage->width * pImage->height;
         iImage++;
     }
-    Com_Printf("%d Images. %d (%.2fMB) texels total, (not including mipmaps)\n", iNumImages, iTexels, (float)iTexels / 1024.0f / 1024.0f);
-    Com_DPrintf(S_COLOR_RED "RE_RegisterMedia_GetLevel(): %d", RE_RegisterMedia_GetLevel());
+    Q_Println("{} Images. {} ({:.2f}MB) texels total, (not including mipmaps)", iNumImages, iTexels, (float)iTexels / 1024.0f / 1024.0f);
+    Q_DPrintln(S_COLOR_RED "RE_RegisterMedia_GetLevel(): {}", RE_RegisterMedia_GetLevel());
 }
 
 // currently, this just goes through all the images and dumps any not referenced on this level...
 //
 bool RE_RegisterImages_LevelLoadEnd(void)
 {
-    Com_DPrintf(S_COLOR_RED "RE_RegisterImages_LevelLoadEnd():\n");
+    Q_DPrintln(S_COLOR_RED "RE_RegisterImages_LevelLoadEnd():");
 
     //	int iNumImages = AllocatedImages.size();	// more for curiosity, really.
 
@@ -812,7 +811,7 @@ bool RE_RegisterImages_LevelLoadEnd(void)
             if (pImage->iLastLevelUsedOn != RE_RegisterMedia_GetLevel()) {
                 // nope, so dump it...
                 //
-                Com_DPrintf(S_COLOR_RED "Dumping image \"%s\"\n", pImage->imgName);
+                Q_DPrintln(S_COLOR_RED "Dumping image \"{}\"", pImage->imgName);
 
                 R_Images_DeleteImageContents(pImage);
 
@@ -832,10 +831,10 @@ bool RE_RegisterImages_LevelLoadEnd(void)
     //	iNumImages = R_Images_StartIteration();
     //	if (iNumImages > MAX_DRAWIMAGES)
     //	{
-    //		Com_Printf(S_COLOR_YELLOW  "Level uses %d images, old limit was MAX_DRAWIMAGES (%d)\n", iNumImages, MAX_DRAWIMAGES);
+    //		Q_Println(S_COLOR_YELLOW  "Level uses {} images, old limit was MAX_DRAWIMAGES ({})", iNumImages, MAX_DRAWIMAGES);
     //	}
 
-    Com_DPrintf(S_COLOR_RED "RE_RegisterImages_LevelLoadEnd(): Ok\n");
+    Q_DPrintln(S_COLOR_RED "RE_RegisterImages_LevelLoadEnd(): Ok");
 
     GL_ResetBinds();
 
@@ -866,13 +865,13 @@ static image_t* R_FindImageFile_NoLoad(const char* name, bool mipmap, bool allow
         //
         if (strcmp(pName, "*white")) {
             if (pImage->mipmap != !!mipmap) {
-                Com_Warning("reused image %s with mixed mipmap parm\n", pName);
+                Q_PrintlnWarning("reused image {} with mixed mipmap parm", pName);
             }
             if (pImage->allowPicmip != !!allowPicmip) {
-                Com_Warning("reused image %s with mixed allowPicmip parm\n", pName);
+                Q_PrintlnWarning("reused image {} with mixed allowPicmip parm", pName);
             }
             if (pImage->wrapClampMode != glWrapClampMode) {
-                Com_Warning("reused image %s with mixed glWrapClampMode parm\n", pName);
+                Q_PrintlnWarning("reused image {} with mixed glWrapClampMode parm", pName);
             }
         }
 
@@ -898,7 +897,7 @@ image_t* R_CreateImage(const char* name, const byte* pic, int width, int height,
     bool isLightmap = false;
 
     if (strlen(name) >= MAX_QPATH) {
-        Com_Error(errorParm_t::ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
+        Q_Error(errorParm_t::ERR_DROP, "R_CreateImage: \"{}\" is too long", name);
     }
 
     if (glConfig.clampToEdgeAvailable && glWrapClampMode == GL_CLAMP) {
@@ -913,7 +912,7 @@ image_t* R_CreateImage(const char* name, const byte* pic, int width, int height,
     }
 
     if ((width & (width - 1)) || (height & (height - 1))) {
-        Com_Error(errorParm_t::ERR_FATAL, "R_CreateImage: %s dimensions (%i x %i) not power of 2!\n", name, width, height);
+        Q_Error(errorParm_t::ERR_FATAL, "R_CreateImage: {} dimensions ({} x {}) not power of 2!", name, width, height);
     }
 
     image = R_FindImageFile_NoLoad(name, mipmap, allowPicmip, allowTC, glWrapClampMode);
@@ -1017,7 +1016,7 @@ image_t* R_FindImageFile(const char* name, bool mipmap, bool allowPicmip, bool a
     // refuse to find any files not power of 2 dims...
     //
     if ((width & (width - 1)) || (height & (height - 1))) {
-        Com_Printf("Refusing to load non-power-2-dims(%d,%d) pic \"%s\"...\n", width, height, name);
+        Q_Println("Refusing to load non-power-2-dims({},{}) pic \"{}\"...", width, height, name);
         return nullptr;
     }
 
@@ -1270,7 +1269,7 @@ void R_CreateBuiltinImages(void)
 
     for (x = 0; x < NUM_SCRATCH_IMAGES; x++) {
         // scratchimage is usually used for cinematic drawing
-        tr.scratchImage[x] = R_CreateImage(va("*scratch%d", x), (byte*)data, DEFAULT_SIZE, DEFAULT_SIZE, GL_RGBA, false, true, false, GL_CLAMP);
+        tr.scratchImage[x] = R_CreateImage(Q_Format("*scratch{}", x).c_str(), (byte*)data, DEFAULT_SIZE, DEFAULT_SIZE, GL_RGBA, false, true, false, GL_CLAMP);
     }
 
     R_CreateDlightImage();

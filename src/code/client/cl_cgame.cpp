@@ -81,7 +81,7 @@ bool CL_InitCGameVM(void* gameLibrary)
         const char* gamename = "jagame";
 #endif
 
-        Com_Printf("CL_InitCGameVM: client game entry point not found in %s" ARCH_STRING DLL_EXT ": %s\n", gamename, Sys_LibraryError());
+        Q_Println("CL_InitCGameVM: client game entry point not found in {}" ARCH_STRING DLL_EXT ": {}", gamename, Sys_LibraryError());
         return false;
     }
 
@@ -121,7 +121,7 @@ bool CL_GetUserCmd(int cmdNumber, usercmd_t* ucmd)
 
     // can't return anything that we haven't created yet
     if (cmdNumber > cl.cmdNumber) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_GetUserCmd: %i >= %i", cmdNumber, cl.cmdNumber);
+        Q_Error(errorParm_t::ERR_DROP, "CL_GetUserCmd: {} >= {}", cmdNumber, cl.cmdNumber);
     }
 
     // the usercmd has been overwritten in the wrapping
@@ -149,8 +149,7 @@ CL_GetParseEntityState
 bool	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
     // can't return anything that hasn't been parsed yet
     if ( parseEntityNumber >= cl.parseEntitiesNum ) {
-        Com_Error( ERR_DROP, "CL_GetParseEntityState: %i >= %i",
-            parseEntityNumber, cl.parseEntitiesNum );
+        Q_Error(ERR_DROP, "CL_GetParseEntityState: {} >= {}", parseEntityNumber, cl.parseEntitiesNum);
     }
 
     // can't return anything that has been overwritten in the circular buffer
@@ -185,7 +184,7 @@ bool CL_GetSnapshot(int snapshotNumber, snapshot_t* snapshot)
     int i, count;
 
     if (snapshotNumber > cl.frame.messageNum) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.frame.messageNum");
+        Q_Error(errorParm_t::ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.frame.messageNum");
     }
 
     // if the frame has fallen out of the circular buffer, we can't return it
@@ -214,7 +213,7 @@ bool CL_GetSnapshot(int snapshotNumber, snapshot_t* snapshot)
     snapshot->ps = clSnap->ps;
     count = clSnap->numEntities;
     if (count > MAX_ENTITIES_IN_SNAPSHOT) {
-        Com_DPrintf("CL_GetSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT);
+        Q_DPrintln("CL_GetSnapshot: truncated {} entities to {}", count, MAX_ENTITIES_IN_SNAPSHOT);
         count = MAX_ENTITIES_IN_SNAPSHOT;
     }
     snapshot->numEntities = count;
@@ -295,7 +294,7 @@ void CL_ConfigstringModified(void)
 
     index = atoi(Cmd_Argv(1));
     if (index < 0 || index >= MAX_CONFIGSTRINGS) {
-        Com_Error(errorParm_t::ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
+        Q_Error(errorParm_t::ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
     }
     s = Cmd_Argv(2);
 
@@ -326,7 +325,7 @@ void CL_ConfigstringModified(void)
         len = strlen(dup);
 
         if (len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS) {
-            Com_Error(errorParm_t::ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
+            Q_Error(errorParm_t::ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
         }
 
         // append it to the gameState string buffer
@@ -355,24 +354,24 @@ bool CL_GetServerCommand(int serverCommandNumber)
 
     // if we have irretrievably lost a reliable command, drop the connection
     if (serverCommandNumber <= clc.serverCommandSequence - MAX_RELIABLE_COMMANDS) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_GetServerCommand: a reliable command was cycled out");
+        Q_Error(errorParm_t::ERR_DROP, "CL_GetServerCommand: a reliable command was cycled out");
         return false;
     }
 
     if (serverCommandNumber > clc.serverCommandSequence) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_GetServerCommand: requested a command not received");
+        Q_Error(errorParm_t::ERR_DROP, "CL_GetServerCommand: requested a command not received");
         return false;
     }
 
     s = clc.serverCommands[serverCommandNumber & (MAX_RELIABLE_COMMANDS - 1)];
 
-    Com_DPrintf("serverCommand: %i : %s\n", serverCommandNumber, s);
+    Q_DPrintln("serverCommand: {} : {}", serverCommandNumber, s);
 
     Cmd_TokenizeString(s);
     cmd = Cmd_Argv(0);
 
     if (!strcmp(cmd, "disconnect")) {
-        Com_Error(errorParm_t::ERR_DISCONNECT, "Server disconnected\n");
+        Q_Error(errorParm_t::ERR_DISCONNECT, "Server disconnected");
     }
 
     if (!strcmp(cmd, "cs")) {
@@ -812,7 +811,7 @@ intptr_t CL_CgameSystemCalls(intptr_t* args)
 #ifdef JK2_MODE
     const std::optional<cgameImport_t> call = CL_ConvertJK2SysCall(static_cast<cgameJK2Import_t>(args[0]));
     if (!call) {
-        Com_Error(errorParm_t::ERR_DROP, "Bad cgame system trap: %ld", (long int)args[0]);
+        Q_Error(errorParm_t::ERR_DROP, "Bad cgame system trap: {}", (long int)args[0]);
     }
     args[0] = to_underlying(*call);
 #endif
@@ -1178,7 +1177,7 @@ intptr_t CL_CgameSystemCalls(intptr_t* args)
         holdPtr = (char**)VMA(1);
 
         if (!holdPtr) {
-            Com_Error(errorParm_t::ERR_FATAL, "CG_UI_PARSEEXT: NULL holdPtr");
+            Q_Error(errorParm_t::ERR_FATAL, "CG_UI_PARSEEXT: NULL holdPtr");
         }
 
         *holdPtr = PC_ParseExt();
@@ -1349,14 +1348,14 @@ intptr_t CL_CgameSystemCalls(intptr_t* args)
                 Q_strncpyz((char*)VMA(2), text, args[3]);
             }
             else {
-                Com_sprintf((char*)VMA(2), args[3], "??%s", (const char*)VMA(1));
+                Q_FormatTo(std::span((char*)VMA(2), args[3]), "??{}", (const char*)VMA(1));
             }
         }
         return strlen(text);
 #endif
 
     default:
-        Com_Error(errorParm_t::ERR_DROP, "Bad cgame system trap: %ld", (long int)args[0]);
+        Q_Error(errorParm_t::ERR_DROP, "Bad cgame system trap: {}", (long int)args[0]);
     }
     return 0;
 }
@@ -1383,7 +1382,7 @@ void CL_InitCGame(void)
     // find the current mapname
     info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
     mapname = Info_ValueForKey(info, "mapname");
-    Com_sprintf(cl.mapname, sizeof(cl.mapname), "maps/%s.bsp", mapname);
+    Q_FormatTo(cl.mapname, "maps/{}.bsp", mapname);
 
     cls.state = connstate_t::CA_LOADING;
 
@@ -1400,7 +1399,7 @@ void CL_InitCGame(void)
 
     // t2 = Sys_Milliseconds();
 
-    // Com_Printf( "CL_InitCGame: %5.2f seconds\n", (t2-t1)/1000.0 );
+    // Q_Println("CL_InitCGame: {:5.2f} seconds", (t2-t1)/1000.0);
     //  have the renderer touch all its images, so they are present
     //  on the card even if the driver does deferred loading
     re.EndRegistration();
@@ -1487,7 +1486,7 @@ void CL_AdjustTimeDelta(void)
             cl.serverTimeDelta = cl.frame.serverTime - cls.realtime;
             cl.oldServerTime = cl.frame.serverTime;
             if ( cl_showTimeDelta->integer ) {
-                Com_Printf( "<RESET> " );
+                Q_Print("<RESET> ");
             }
         }
 
@@ -1502,7 +1501,7 @@ void CL_AdjustTimeDelta(void)
         }
 
         if ( cl_showTimeDelta->integer ) {
-            Com_Printf( "%i ", cl.serverTimeDelta );
+            Q_Print("{} ", cl.serverTimeDelta);
         }
     */
     int newDelta;
@@ -1518,13 +1517,13 @@ void CL_AdjustTimeDelta(void)
         cl.oldServerTime = cl.frame.serverTime; // FIXME: is this a problem for cgame?
         cl.serverTime = cl.frame.serverTime;
         if (cl_showTimeDelta->integer) {
-            Com_Printf("<RESET> ");
+            Q_Print("<RESET> ");
         }
     }
     else if (deltaDelta > 100) {
         // fast adjust, cut the difference in half
         if (cl_showTimeDelta->integer) {
-            Com_Printf("<FAST> ");
+            Q_Print("<FAST> ");
         }
         cl.serverTimeDelta = (cl.serverTimeDelta + newDelta) >> 1;
     }
@@ -1547,7 +1546,7 @@ void CL_AdjustTimeDelta(void)
     }
 
     if (cl_showTimeDelta->integer) {
-        Com_Printf("%i ", cl.serverTimeDelta);
+        Q_Print("{} ", cl.serverTimeDelta);
     }
 }
 
@@ -1602,7 +1601,7 @@ void CL_SetCGameTime(void)
 
     // if we have gotten to this point, cl.frame is guaranteed to be valid
     if (!cl.frame.valid) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_SetCGameTime: !cl.snap.valid");
+        Q_Error(errorParm_t::ERR_DROP, "CL_SetCGameTime: !cl.snap.valid");
     }
 
     // allow pause in single player
@@ -1612,7 +1611,7 @@ void CL_SetCGameTime(void)
     }
 
     if (cl.frame.serverTime < cl.oldFrameServerTime) {
-        Com_Error(errorParm_t::ERR_DROP, "cl.frame.serverTime < cl.oldFrameServerTime");
+        Q_Error(errorParm_t::ERR_DROP, "cl.frame.serverTime < cl.oldFrameServerTime");
     }
     cl.oldFrameServerTime = cl.frame.serverTime;
 

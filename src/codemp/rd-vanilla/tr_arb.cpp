@@ -203,7 +203,7 @@ void ARB_InitGPUShaders(void)
     int errorChar;
     qglGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorChar);
     if (errorChar != -1) {
-        Com_PrintError("Failed to compile gamma correction vertex shader. Error at character %d\n", errorChar);
+        Q_PrintlnError("Failed to compile gamma correction vertex shader. Error at character {}", errorChar);
         glConfigExt.doGammaCorrectionWithShaders = false;
     }
     else {
@@ -213,7 +213,7 @@ void ARB_InitGPUShaders(void)
 
         qglGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorChar);
         if (errorChar != -1) {
-            Com_Printf(S_COLOR_RED "Failed to compile gamma correction pixel shader. Error at character %d\n", errorChar);
+            Q_Println(S_COLOR_RED "Failed to compile gamma correction pixel shader. Error at character {}", errorChar);
             glConfigExt.doGammaCorrectionWithShaders = false;
         }
     }

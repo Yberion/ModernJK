@@ -30,8 +30,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "vmachine.h"
 
-#include <inttypes.h>
-
 intptr_t CL_UISystemCalls(intptr_t* args);
 
 // prototypes
@@ -106,7 +104,7 @@ void Key_KeynumToStringBuf(fakeAscii_t keynum, char* buf, int buflen)
 
     // see if there's a more friendly (or localised) name...
     //
-    const char* psKeyNameFriendly = SE_GetString(va("KEYNAMES_KEYNAME_%s", psKeyName));
+    const char* psKeyNameFriendly = SE_GetString(Q_Format("KEYNAMES_KEYNAME_{}", psKeyName).c_str());
 
     Q_strncpyz(buf, (psKeyNameFriendly && psKeyNameFriendly[0]) ? psKeyNameFriendly : psKeyName, buflen);
 }
@@ -370,7 +368,7 @@ intptr_t CL_UISystemCalls(intptr_t* args)
 
     switch (static_cast<uiImport_t>(args[0])) {
     case uiImport_t::UI_ERROR:
-        Com_Error(errorParm_t::ERR_DROP, "%s", (const char*)VMA(1));
+        Q_Error(errorParm_t::ERR_DROP, "{}", (const char*)VMA(1));
         return 0;
 
     case uiImport_t::UI_CVAR_REGISTER:
@@ -465,7 +463,7 @@ intptr_t CL_UISystemCalls(intptr_t* args)
         //		return 0;
 
     case uiImport_t::UI_CIN_PLAYCINEMATIC:
-        Com_DPrintf("UI_CIN_PlayCinematic\n");
+        Q_DPrintln("UI_CIN_PlayCinematic");
         return CIN_PlayCinematic((const char*)VMA(1), args[2], args[3], args[4], args[5], static_cast<cinematicFlags_t>(args[6]), (const char*)VMA(7));
 
     case uiImport_t::UI_CIN_STOPCINEMATIC:
@@ -495,7 +493,7 @@ intptr_t CL_UISystemCalls(intptr_t* args)
         return 0;
 
     default:
-        Com_Error(errorParm_t::ERR_DROP, "Bad UI system trap: %" PRIdPTR, args[0]);
+        Q_Error(errorParm_t::ERR_DROP, "Bad UI system trap: {}", args[0]);
     }
 
     return 0;

@@ -27,6 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Usage: netcodec_train <train.bin> <jka_tables.inc> [report.bin]
 #include <contexts.h>
 #include <demo_trace.h>
+#include <fmt/base.h>
 #include "write_tables.h"
 
 #include <algorithm>
@@ -56,7 +57,7 @@ bool Count(const char* path, SymbolCounts& counts, size_t& messages)
             });
         streams++;
     }
-    std::printf("%s: %zu streams, %zu messages coded, %zu refused\n", path, streams, messages, refused);
+    fmt::println("{}: {} streams, {} messages coded, {} refused", path, streams, messages, refused);
     return in.Ok() && streams == in.Streams() && refused == 0;
 }
 
@@ -149,16 +150,16 @@ void Report(const SymbolCounts& train, const SymbolCounts& report, size_t messag
     double total = 0;
     for (const Cost& f : fam)
         total += f.symbols + f.raw;
-    std::printf("\n  cost of the report trace with the trained tables, bytes per message (without the 4-byte final state)\n");
-    std::printf("    %-32s %8s %8s %8s %7s %12s\n", "", "symbols", "raw", "total", "share", "frequencies");
+    fmt::println("\n  cost of the report trace with the trained tables, bytes per message (without the 4-byte final state)");
+    fmt::println("    {:32} {:>8} {:>8} {:>8} {:>7} {:>12}", "", "symbols", "raw", "total", "share", "frequencies");
     for (size_t f = 0; f < kFamilyCount; f++)
-        std::printf("    %-32s %8.2f %8.2f %8.2f %6.1f%% %12zu\n", kFamilyName[f], fam[f].symbols / perMessage, fam[f].raw / perMessage,
-                    (fam[f].symbols + fam[f].raw) / perMessage, 100.0 * (fam[f].symbols + fam[f].raw) / total, fam[f].freqs);
-    std::printf("    %-32s %26.2f\n", "total", total / perMessage);
-    std::printf("\n  field values (entities and player states) by kind, bytes per message\n");
+        fmt::println("    {:32} {:8.2f} {:8.2f} {:8.2f} {:6.1f}% {:12}", kFamilyName[f], fam[f].symbols / perMessage, fam[f].raw / perMessage,
+                     (fam[f].symbols + fam[f].raw) / perMessage, 100.0 * (fam[f].symbols + fam[f].raw) / total, fam[f].freqs);
+    fmt::println("    {:32} {:26.2f}", "total", total / perMessage);
+    fmt::println("\n  field values (entities and player states) by kind, bytes per message");
     for (size_t k = 0; k < kind.size(); k++)
-        std::printf("    %-32s %8.2f %8.2f %8.2f\n", kKindName[k], kind[k].symbols / perMessage, kind[k].raw / perMessage,
-                    (kind[k].symbols + kind[k].raw) / perMessage);
+        fmt::println("    {:32} {:8.2f} {:8.2f} {:8.2f}", kKindName[k], kind[k].symbols / perMessage, kind[k].raw / perMessage,
+                     (kind[k].symbols + kind[k].raw) / perMessage);
     static constexpr std::array<const char*, 11> kCommandName{"reference distance",
                                                               "token count",
                                                               "same, after same, number",
@@ -173,9 +174,9 @@ void Report(const SymbolCounts& train, const SymbolCounts& report, size_t messag
     std::array<double, kCommandName.size()> commandBits{};
     for (const auto& [c, b] : command)
         commandBits[std::min<size_t>(c - detail::ctx::Of(detail::ctx::Scalar::kCmdRef), kCommandName.size() - 1)] += b;
-    std::printf("\n  server commands by context, bytes per message\n");
+    fmt::println("\n  server commands by context, bytes per message");
     for (size_t i = 0; i < kCommandName.size(); i++)
-        std::printf("    %-32s %8.2f\n", kCommandName[i], commandBits[i] / perMessage);
+        fmt::println("    {:32} {:8.2f}", kCommandName[i], commandBits[i] / perMessage);
 }
 
 } // namespace
@@ -183,7 +184,7 @@ void Report(const SymbolCounts& train, const SymbolCounts& report, size_t messag
 int main(int argc, char** argv)
 {
     if (argc < 3) {
-        std::fprintf(stderr, "usage: %s train.bin jka_tables.inc [report.bin]\n", argv[0]);
+        fmt::println(stderr, "usage: {} train.bin jka_tables.inc [report.bin]", argv[0]);
         return 2;
     }
     SymbolCounts counts = NewSymbolCounts();

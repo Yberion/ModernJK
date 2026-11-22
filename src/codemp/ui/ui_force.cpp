@@ -189,20 +189,21 @@ void UI_DrawForceStars(rectDef_t* rect, float scale, vec4_t color, int textStyle
 void UI_UpdateClientForcePowers(const char* teamArg)
 {
     trap->Cvar_Set("forcepowers",
-                   va("%i-%i-%i%i%i%i%i%i%i%i%i%i%i%i%i%i%i%i%i%i", to_underlying(uiForceRank), uiForceSide,
-                      to_underlying(uiForcePowersRank[forcePowers_t::FP_HEAL]), to_underlying(uiForcePowersRank[forcePowers_t::FP_LEVITATION]),
-                      to_underlying(uiForcePowersRank[forcePowers_t::FP_SPEED]), to_underlying(uiForcePowersRank[forcePowers_t::FP_PUSH]),
-                      to_underlying(uiForcePowersRank[forcePowers_t::FP_PULL]), to_underlying(uiForcePowersRank[forcePowers_t::FP_TELEPATHY]),
-                      to_underlying(uiForcePowersRank[forcePowers_t::FP_GRIP]), to_underlying(uiForcePowersRank[forcePowers_t::FP_LIGHTNING]),
-                      to_underlying(uiForcePowersRank[forcePowers_t::FP_RAGE]), to_underlying(uiForcePowersRank[forcePowers_t::FP_PROTECT]),
-                      to_underlying(uiForcePowersRank[forcePowers_t::FP_ABSORB]), to_underlying(uiForcePowersRank[forcePowers_t::FP_TEAM_HEAL]),
-                      to_underlying(uiForcePowersRank[forcePowers_t::FP_TEAM_FORCE]), to_underlying(uiForcePowersRank[forcePowers_t::FP_DRAIN]),
-                      to_underlying(uiForcePowersRank[forcePowers_t::FP_SEE]), to_underlying(uiForcePowersRank[forcePowers_t::FP_SABER_OFFENSE]),
-                      to_underlying(uiForcePowersRank[forcePowers_t::FP_SABER_DEFENSE]), to_underlying(uiForcePowersRank[forcePowers_t::FP_SABERTHROW])));
+                   Q_Format("{}-{}-{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", to_underlying(uiForceRank), uiForceSide,
+                            to_underlying(uiForcePowersRank[forcePowers_t::FP_HEAL]), to_underlying(uiForcePowersRank[forcePowers_t::FP_LEVITATION]),
+                            to_underlying(uiForcePowersRank[forcePowers_t::FP_SPEED]), to_underlying(uiForcePowersRank[forcePowers_t::FP_PUSH]),
+                            to_underlying(uiForcePowersRank[forcePowers_t::FP_PULL]), to_underlying(uiForcePowersRank[forcePowers_t::FP_TELEPATHY]),
+                            to_underlying(uiForcePowersRank[forcePowers_t::FP_GRIP]), to_underlying(uiForcePowersRank[forcePowers_t::FP_LIGHTNING]),
+                            to_underlying(uiForcePowersRank[forcePowers_t::FP_RAGE]), to_underlying(uiForcePowersRank[forcePowers_t::FP_PROTECT]),
+                            to_underlying(uiForcePowersRank[forcePowers_t::FP_ABSORB]), to_underlying(uiForcePowersRank[forcePowers_t::FP_TEAM_HEAL]),
+                            to_underlying(uiForcePowersRank[forcePowers_t::FP_TEAM_FORCE]), to_underlying(uiForcePowersRank[forcePowers_t::FP_DRAIN]),
+                            to_underlying(uiForcePowersRank[forcePowers_t::FP_SEE]), to_underlying(uiForcePowersRank[forcePowers_t::FP_SABER_OFFENSE]),
+                            to_underlying(uiForcePowersRank[forcePowers_t::FP_SABER_DEFENSE]), to_underlying(uiForcePowersRank[forcePowers_t::FP_SABERTHROW]))
+                       .c_str());
 
     if (gTouchedForce) {
         if (teamArg && teamArg[0]) {
-            trap->Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, va("forcechanged \"%s\"\n", teamArg));
+            trap->Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, Q_Format("forcechanged \"{}\"\n", teamArg).c_str());
         }
         else {
             trap->Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, "forcechanged\n");
@@ -233,27 +234,27 @@ void UI_SaveForceTemplate()
     bool foundFeederItem = false;
 
     if (!selectedName || !selectedName[0]) {
-        Com_Printf("You did not provide a name for the template.\n");
+        Q_Println("You did not provide a name for the template.");
         return;
     }
 
     if (uiForceSide == FORCE_LIGHTSIDE) { // write it into the light side folder
-        trap->FS_Open(va("forcecfg/light/%s.fcf", selectedName), &f, fsMode_t::FS_WRITE);
+        trap->FS_Open(Q_Format("forcecfg/light/{}.fcf", selectedName).c_str(), &f, fsMode_t::FS_WRITE);
     }
     else { // if it isn't light it must be dark
-        trap->FS_Open(va("forcecfg/dark/%s.fcf", selectedName), &f, fsMode_t::FS_WRITE);
+        trap->FS_Open(Q_Format("forcecfg/dark/{}.fcf", selectedName).c_str(), &f, fsMode_t::FS_WRITE);
     }
 
     if (!f) {
-        Com_Printf("There was an error writing the template file (read-only?).\n");
+        Q_Println("There was an error writing the template file (read-only?).");
         return;
     }
 
-    Com_sprintf(fcfString, sizeof(fcfString), "%i-%i-", to_underlying(uiForceRank), uiForceSide);
+    Q_FormatTo(fcfString, "{}-{}-", to_underlying(uiForceRank), uiForceSide);
     strPlace = strlen(fcfString);
 
     while (forcePlace < forcePowers_t::NUM_FORCE_POWERS) {
-        Com_sprintf(forceStringValue, sizeof(forceStringValue), "%i", to_underlying(uiForcePowersRank[forcePlace]));
+        Q_FormatTo(forceStringValue, "{}", to_underlying(uiForcePowersRank[forcePlace]));
         // Just use the force digit even if multiple digits. Shouldn't be longer than 1.
         fcfString[strPlace] = forceStringValue[0];
         strPlace++;
@@ -265,7 +266,7 @@ void UI_SaveForceTemplate()
     trap->FS_Write(fcfString, strlen(fcfString), f);
     trap->FS_Close(f);
 
-    Com_Printf("Template saved as \"%s\".\n", selectedName);
+    Q_Println("Template saved as \"{}\".", selectedName);
 
     // Now, update the FCF list
     UI_LoadForceConfig_List();
@@ -450,11 +451,11 @@ void UI_ReadLegalForce(void)
     bool updateForceLater = false;
 
     // First, stick them into a string.
-    Com_sprintf(fcfString, sizeof(fcfString), "%i-%i-", to_underlying(uiForceRank), uiForceSide);
+    Q_FormatTo(fcfString, "{}-{}-", to_underlying(uiForceRank), uiForceSide);
     strPlace = strlen(fcfString);
 
     while (forcePlace < forcePowers_t::NUM_FORCE_POWERS) {
-        Com_sprintf(forceStringValue, sizeof(forceStringValue), "%i", to_underlying(uiForcePowersRank[forcePlace]));
+        Q_FormatTo(forceStringValue, "{}", to_underlying(uiForcePowersRank[forcePlace]));
         // Just use the force digit even if multiple digits. Shouldn't be longer than 1.
         fcfString[strPlace] = forceStringValue[0];
         strPlace++;
@@ -868,7 +869,7 @@ bool UI_ForceMaxRank_HandleKey(int flags, float* special, fakeAscii_t key, force
 
         uiMaxRank = num;
 
-        trap->Cvar_Set("g_maxForceRank", va("%i", to_underlying(num)));
+        trap->Cvar_Set("g_maxForceRank", Q_Format("{}", to_underlying(num)).c_str());
 
         // The update force used will remove overallocated powers automatically.
         UpdateForceUsed();
@@ -1040,21 +1041,21 @@ void UI_ForceConfigHandle(int oldindex, int newindex)
         newindex += uiInfo.forceConfigLightIndexBegin;
         if (newindex >= uiInfo.forceConfigCount)
             return;
-        len = trap->FS_Open(va("forcecfg/light/%s.fcf", uiInfo.forceConfigNames[newindex]), &f, fsMode_t::FS_READ);
+        len = trap->FS_Open(Q_Format("forcecfg/light/{}.fcf", uiInfo.forceConfigNames[newindex]).c_str(), &f, fsMode_t::FS_READ);
     }
     else { // else dark
         newindex += uiInfo.forceConfigDarkIndexBegin;
         if (newindex >= uiInfo.forceConfigCount || newindex > uiInfo.forceConfigLightIndexBegin) { // dark gets read in before light
             return;
         }
-        len = trap->FS_Open(va("forcecfg/dark/%s.fcf", uiInfo.forceConfigNames[newindex]), &f, fsMode_t::FS_READ);
+        len = trap->FS_Open(Q_Format("forcecfg/dark/{}.fcf", uiInfo.forceConfigNames[newindex]).c_str(), &f, fsMode_t::FS_READ);
     }
 
     if (len <= 0) { // This should not have happened. But, before we quit out, attempt searching the other light/dark folder for the file.
         if (uiForceSide == FORCE_LIGHTSIDE)
-            len = trap->FS_Open(va("forcecfg/dark/%s.fcf", uiInfo.forceConfigNames[newindex]), &f, fsMode_t::FS_READ);
+            len = trap->FS_Open(Q_Format("forcecfg/dark/{}.fcf", uiInfo.forceConfigNames[newindex]).c_str(), &f, fsMode_t::FS_READ);
         else
-            len = trap->FS_Open(va("forcecfg/light/%s.fcf", uiInfo.forceConfigNames[newindex]), &f, fsMode_t::FS_READ);
+            len = trap->FS_Open(Q_Format("forcecfg/light/{}.fcf", uiInfo.forceConfigNames[newindex]).c_str(), &f, fsMode_t::FS_READ);
 
         if (len <= 0) { // still failure? Oh well.
             return;

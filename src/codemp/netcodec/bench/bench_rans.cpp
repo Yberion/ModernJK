@@ -22,6 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // symbols. Encoding: record + reverse coding. Decoding: three symbol lookups (binary search, linear search, full
 // slot-to-symbol table). Times are the best of several runs over all messages of the trace.
 // Usage: netcodec_bench_rans <rans_trace.bin> [runs]
+#include <fmt/base.h>
 #include <rans_trace.h>
 #include <rans_byte.h>
 
@@ -101,7 +102,7 @@ static inline uint32_t FindLinear(const rans::Table& t, uint32_t slot)
 int main(int argc, char** argv)
 {
     if (argc < 2) {
-        fprintf(stderr, "usage: %s rans_trace.bin [runs]\n", argv[0]);
+        fmt::println(stderr, "usage: {} rans_trace.bin [runs]", argv[0]);
         return 2;
     }
     const int runs = argc > 2 ? atoi(argv[2]) : 20;
@@ -310,11 +311,11 @@ int main(int argc, char** argv)
     const double decRygC8 = decodeRyg([&](uint32_t i, const rans::Table& tb, uint32_t slot) { return c8[i].Find(tb, slot); });
     const double decRygFind = decodeRyg([](uint32_t, const rans::Table& tb, uint32_t slot) { return rans::FindSymbol(tb, slot); });
 
-    printf("trace: %zu messages, %zu units (%zu table symbols), %zu tables\n", nmsg, nunits, nsym, t.tables.size());
-    printf("size: netcodec %zu bytes, ryg (state starts at L) %zu bytes (%+.2f bytes per message)\n", oursTotal, rygTotal,
-           (static_cast<double>(rygTotal) - static_cast<double>(oursTotal)) / static_cast<double>(nmsg));
+    fmt::println("trace: {} messages, {} units ({} table symbols), {} tables", nmsg, nunits, nsym, t.tables.size());
+    fmt::println("size: netcodec {} bytes, ryg (state starts at L) {} bytes ({:+.2f} bytes per message)", oursTotal, rygTotal,
+                 (static_cast<double>(rygTotal) - static_cast<double>(oursTotal)) / static_cast<double>(nmsg));
     auto row = [&](const char* name, double ns) {
-        printf("  %-34s %8.1f ns/message %6.2f ns/unit\n", name, ns / static_cast<double>(nmsg), ns / static_cast<double>(nunits));
+        fmt::println("  {:34} {:8.1f} ns/message {:6.2f} ns/unit", name, ns / static_cast<double>(nmsg), ns / static_cast<double>(nunits));
     };
     row("encode netcodec", encOurs);
     row("encode ryg", encRyg);

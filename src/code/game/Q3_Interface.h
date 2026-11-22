@@ -507,8 +507,8 @@ public:
 
     // General
     int LoadFile(const char* name, void** buf) OVERRIDE;
-    __attribute__((format(printf, 2, 3))) void CenterPrint(const char* format, ...) OVERRIDE;
-    __attribute__((format(printf, 3, 4))) void DebugPrint(e_DebugPrintLevel, const char*, ...) OVERRIDE;
+    void VCenterPrint(fmt::string_view format, fmt::format_args args) OVERRIDE;
+    void VDebugPrintln(e_DebugPrintLevel level, fmt::string_view format, fmt::format_args args) OVERRIDE;
     unsigned int GetTime(void) OVERRIDE; // Gets the current time
     // DWORD	GetTimeScale(void );
     int PlayIcarusSound(int taskID, int entID, const char* name, const char* channel) OVERRIDE;

@@ -56,7 +56,7 @@ void CG_RegisterItemVisuals(int itemNum)
     int handle;
 
     if (itemNum < 0 || itemNum >= bg_numItems) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_RegisterItemVisuals: itemNum %d out of range [0-%d]", itemNum, bg_numItems - 1);
+        Q_Error(errorParm_t::ERR_DROP, "CG_RegisterItemVisuals: itemNum {} out of range [0-{}]", itemNum, bg_numItems - 1);
     }
 
     itemInfo = &cg_items[itemNum];
@@ -1255,7 +1255,7 @@ void CG_DrawWeaponSelect(void)
 
         strcpy(upperKey, cg_weapons[cg.weaponSelect].item->classname);
 
-        if (trap->SE_GetStringTextString(va("SP_INGAME_%s", Q_strupr(upperKey)), text, sizeof(text))) {
+        if (trap->SE_GetStringTextString(Q_Format("SP_INGAME_{}", Q_strupr(upperKey)).c_str(), text, sizeof(text))) {
             CG_DrawProportionalString(320, y + 45 + yOffset, text, textStyleFlags_t::UI_CENTER | textStyleFlags_t::UI_SMALLFONT, textColor);
         }
         else {
@@ -1673,7 +1673,7 @@ void CG_FireWeapon(centity_t* cent, bool altFire)
         return;
     }
     if (ent->weapon >= weapon_t::WP_NUM_WEAPONS) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS");
+        Q_Error(errorParm_t::ERR_DROP, "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS");
         return;
     }
     weap = &cg_weapons[ent->weapon];

@@ -30,10 +30,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <client_trace.h>
 #include "legacy/legacy_codec.h"
 
+#include <fmt/base.h>
+
 #include <algorithm>
 #include <array>
 #include <chrono>
-#include <cinttypes>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -125,18 +127,18 @@ struct Totals {
 void Print(const char* name, const Totals& t)
 {
     const double n = t.packets ? static_cast<double>(t.packets) : 1.0;
-    std::printf("%s\n", name);
-    std::printf("  %" PRIu64 " packets in %.0f s (%.1f per second), %" PRIu64 " not decoded, %" PRIu64 " coded again differently\n", t.packets, t.seconds,
-                static_cast<double>(t.packets) / (t.seconds > 0 ? t.seconds : 1.0), t.notDecoded, t.codedDifferently);
-    std::printf("  %.2f bytes per packet (acknowledges %.2f, client commands %.2f, user commands and end %.2f, last byte unused %.2f), "
-                "%.0f bytes per second\n",
-                static_cast<double>(t.bytes) / n, static_cast<double>(t.headerBits) / 8 / n, static_cast<double>(t.commandBits) / 8 / n,
-                static_cast<double>(t.moveBits) / 8 / n, static_cast<double>(t.bytes * 8 - t.headerBits - t.commandBits - t.moveBits) / 8 / n,
-                static_cast<double>(t.bytes) / (t.seconds > 0 ? t.seconds : 1.0));
-    std::printf("  user commands: %.2f per packet, %.2f of them new; packets without: %" PRIu64 "\n", static_cast<double>(t.userCmds) / n,
-                static_cast<double>(t.newUserCmds) / n, t.withoutMove);
-    std::printf("  client commands: %" PRIu64 " new, in %" PRIu64 " packets; acknowledged snapshot known: %.1f %%\n", t.newCommands, t.withCommands,
-                100.0 * static_cast<double>(t.withSnapshot) / n);
+    fmt::println("{}", name);
+    fmt::println("  {} packets in {:.0f} s ({:.1f} per second), {} not decoded, {} coded again differently", t.packets, t.seconds,
+                 static_cast<double>(t.packets) / (t.seconds > 0 ? t.seconds : 1.0), t.notDecoded, t.codedDifferently);
+    fmt::println("  {:.2f} bytes per packet (acknowledges {:.2f}, client commands {:.2f}, user commands and end {:.2f}, last byte unused {:.2f}), {:.0f} bytes "
+                 "per second",
+                 static_cast<double>(t.bytes) / n, static_cast<double>(t.headerBits) / 8 / n, static_cast<double>(t.commandBits) / 8 / n,
+                 static_cast<double>(t.moveBits) / 8 / n, static_cast<double>(t.bytes * 8 - t.headerBits - t.commandBits - t.moveBits) / 8 / n,
+                 static_cast<double>(t.bytes) / (t.seconds > 0 ? t.seconds : 1.0));
+    fmt::println("  user commands: {:.2f} per packet, {:.2f} of them new; packets without: {}", static_cast<double>(t.userCmds) / n,
+                 static_cast<double>(t.newUserCmds) / n, t.withoutMove);
+    fmt::println("  client commands: {} new, in {} packets; acknowledged snapshot known: {:.1f} %", t.newCommands, t.withCommands,
+                 100.0 * static_cast<double>(t.withSnapshot) / n);
 }
 
 // --dump: each decoded packet as tab-separated text lines, for the measurements of the format (tools/python):
@@ -146,7 +148,7 @@ void Print(const char* name, const Totals& t)
 // C seq text  (one per client command; tab, newline and backslash written as \t, \n, \\)
 void Dump(std::FILE* f, const Record& rec, const legacy::ClientPacketOut& out)
 {
-    std::fprintf(f, "P\t%d\t%d\t%d\t%d\t%.9g\t%.9g\t%.9g\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", rec.svTime, rec.realTime, rec.snapTime,
+    fmt::println(f, "P\t{}\t{}\t{}\t{}\t{:.9g}\t{:.9g}\t{:.9g}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}", rec.svTime, rec.realTime, rec.snapTime,
                  rec.commandTime, static_cast<double>(rec.viewangles[0]), static_cast<double>(rec.viewangles[1]), static_cast<double>(rec.viewangles[2]),
                  rec.deltaAngles[0], rec.deltaAngles[1], rec.deltaAngles[2], rec.weapon, rec.forcePowerSelected, rec.holdableItem, out.serverId, out.messageAck,
                  out.reliableAck, static_cast<int>(out.move), out.headerBits, out.commandBits, out.moveBits, rec.length);
@@ -154,22 +156,23 @@ void Dump(std::FILE* f, const Record& rec, const legacy::ClientPacketOut& out)
         const uint8_t* u = out.userCmds + static_cast<size_t>(i) * legacy::kUserCmdBytes;
         std::array<int32_t, 5> v{}; // serverTime, angles[3], buttons
         std::memcpy(v.data(), u, sizeof v);
-        std::fprintf(f, "U\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", v[0], v[1], v[2], v[3], v[4], u[20], u[21], u[22], u[23],
-                     static_cast<int8_t>(u[24]), static_cast<int8_t>(u[25]), static_cast<int8_t>(u[26]));
+        fmt::println(f, "U\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}", v[0], v[1], v[2], v[3], v[4], static_cast<int8_t>(u[20]),
+                     static_cast<int8_t>(u[21]), static_cast<int8_t>(u[22]), static_cast<int8_t>(u[23]), static_cast<int8_t>(u[24]), static_cast<int8_t>(u[25]),
+                     static_cast<int8_t>(u[26]));
     }
     for (int i = 0; i < out.numCommands; i++) {
-        std::fprintf(f, "C\t%d\t", out.commands[i].seq);
+        std::string text; // the command's text, its tabs, line ends and backslashes escaped
         for (const char* c = out.commands[i].text; *c; c++) {
             if (*c == '\t')
-                std::fputs("\\t", f);
+                text += "\\t";
             else if (*c == '\n')
-                std::fputs("\\n", f);
+                text += "\\n";
             else if (*c == '\\')
-                std::fputs("\\\\", f);
+                text += "\\\\";
             else
-                std::fputc(*c, f);
+                text += *c;
         }
-        std::fputc('\n', f);
+        fmt::println(f, "C\t{}\t{}", out.commands[i].seq, text);
     }
 }
 
@@ -179,12 +182,12 @@ bool ReadFile(const char* path, Totals& t, legacy::ClientPacketOut& out, std::FI
     const std::vector<char> data((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
     FileHeader header{};
     if (data.size() < sizeof header) {
-        std::fprintf(stderr, "%s: too short\n", path);
+        fmt::println(stderr, "{}: too short", path);
         return false;
     }
     std::memcpy(&header, data.data(), sizeof header);
     if (std::memcmp(header.magic.data(), "JKCP", 4) != 0 || header.version != 1 || header.recordSize != sizeof(Record)) {
-        std::fprintf(stderr, "%s: not a version 1 client packet file\n", path);
+        fmt::println(stderr, "{}: not a version 1 client packet file", path);
         return false;
     }
     std::vector<uint8_t> coded(1 << 16);
@@ -333,8 +336,8 @@ void Time(std::vector<Kept>& kept, legacy::ClientPacketOut& out, double& warmEnc
     };
     const double n = static_cast<double>(kept.size());
     const double ce = cold(encode), we = warm(encode), cd = cold(decode), wd = warm(decode);
-    std::printf("legacy coding time, %zu packets: encode %.1f ns per packet (warm %.1f), decode %.1f (warm %.1f)%s\n", kept.size(), ce / n, we / n, cd / n,
-                wd / n, sink ? "" : " ");
+    fmt::println("legacy coding time, {} packets: encode {:.1f} ns per packet (warm {:.1f}), decode {:.1f} (warm {:.1f}){}", kept.size(), ce / n, we / n,
+                 cd / n, wd / n, sink ? "" : " ");
     warmEncode = we / n;
     warmDecode = wd / n;
 }
@@ -403,14 +406,14 @@ int Netcodec(const std::vector<netcodec::trace::ClientTraceStream>& streams, dou
             bytesLegacy += static_cast<uint64_t>(it.t->legacyBytes);
         }
         const double n = s.packets.empty() ? 1.0 : static_cast<double>(s.packets.size());
-        std::printf("netcodec %s: %.2f bytes per packet, legacy %.2f (ratio %.3f)\n", s.name.c_str(), static_cast<double>(bytesNew) / n,
-                    static_cast<double>(bytesLegacy) / n, static_cast<double>(bytesNew) / static_cast<double>(bytesLegacy > 0 ? bytesLegacy : 1));
+        fmt::println("netcodec {}: {:.2f} bytes per packet, legacy {:.2f} (ratio {:.3f})", s.name, static_cast<double>(bytesNew) / n,
+                     static_cast<double>(bytesLegacy) / n, static_cast<double>(bytesNew) / static_cast<double>(bytesLegacy > 0 ? bytesLegacy : 1));
         allNew += bytesNew;
         allLegacy += bytesLegacy;
     }
     const double n = items.empty() ? 1.0 : static_cast<double>(items.size());
-    std::printf("netcodec all: %zu packets, %.2f bytes per packet, legacy %.2f (ratio %.3f), %zu failures\n", items.size(), static_cast<double>(allNew) / n,
-                static_cast<double>(allLegacy) / n, static_cast<double>(allNew) / static_cast<double>(allLegacy > 0 ? allLegacy : 1), failures);
+    fmt::println("netcodec all: {} packets, {:.2f} bytes per packet, legacy {:.2f} (ratio {:.3f}), {} failures", items.size(), static_cast<double>(allNew) / n,
+                 static_cast<double>(allLegacy) / n, static_cast<double>(allNew) / static_cast<double>(allLegacy > 0 ? allLegacy : 1), failures);
 
     std::vector<uint8_t> out;
     size_t sink = 0;
@@ -451,8 +454,9 @@ int Netcodec(const std::vector<netcodec::trace::ClientTraceStream>& streams, dou
         return best;
     };
     const double ce = cold(encode), we = warm(encode), cd = cold(decode), wd = warm(decode);
-    std::printf("netcodec coding time: encode %.1f ns per packet (warm %.1f), decode %.1f (warm %.1f)%s\n", ce / n, we / n, cd / n, wd / n, sink ? "" : " ");
-    std::printf("netcodec / legacy (warm): encode %.3f, decode %.3f\n", we / n / legacyEncode, wd / n / legacyDecode);
+    fmt::println("netcodec coding time: encode {:.1f} ns per packet (warm {:.1f}), decode {:.1f} (warm {:.1f}){}", ce / n, we / n, cd / n, wd / n,
+                 sink ? "" : " ");
+    fmt::println("netcodec / legacy (warm): encode {:.3f}, decode {:.3f}", we / n / legacyEncode, wd / n / legacyDecode);
     return failures != 0 ? 1 : 0;
 }
 
@@ -467,7 +471,7 @@ int main(int argc, char** argv)
         if (std::strcmp(argv[first], "--dump") == 0) {
             dump = std::fopen(argv[first + 1], "w");
             if (!dump) {
-                std::fprintf(stderr, "cannot write %s\n", argv[first + 1]);
+                fmt::println(stderr, "cannot write {}", argv[first + 1]);
                 return 2;
             }
         }
@@ -480,7 +484,7 @@ int main(int argc, char** argv)
         first += 2;
     }
     if (argc <= first) {
-        std::fprintf(stderr, "usage: %s [--dump out.txt] [--trace out.bin] file.jkcp ...\n", argv[0]);
+        fmt::println(stderr, "usage: {} [--dump out.txt] [--trace out.bin] file.jkcp ...", argv[0]);
         return 2;
     }
     const auto out = std::make_unique<legacy::ClientPacketOut>();
@@ -490,7 +494,7 @@ int main(int argc, char** argv)
     for (int a = first; a < argc; a++) {
         Totals t;
         if (dump)
-            std::fprintf(dump, "F\t%s\n", argv[a]);
+            fmt::println(dump, "F\t{}", argv[a]);
         netcodec::trace::ClientTraceStream& stream = streams.emplace_back();
         const char* slash = std::strrchr(argv[a], '/');
         stream.name = slash != nullptr ? slash + 1 : argv[a];

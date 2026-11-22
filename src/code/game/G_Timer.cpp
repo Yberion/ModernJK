@@ -152,7 +152,7 @@ void TIMER_Save(void)
         unsigned char numTimers = TIMER_GetCount(j);
 
         if (!ent->inuse && numTimers) {
-            //			Com_Warning( "ent with timers not inuse\n" );
+            //			Q_PrintlnWarning("ent with timers not inuse");
             assert(numTimers);
             TIMER_Clear(j);
             numTimers = 0;
@@ -215,7 +215,7 @@ void TIMER_Load(void)
             int sg_buffer_size = saved_game.get_buffer_size();
 
             if (sg_buffer_size < 0 || static_cast<size_t>(sg_buffer_size) >= sizeof(tempBuffer)) {
-                Com_Error(errorParm_t::ERR_DROP, "invalid length for TMID string in saved game: %d\n", sg_buffer_size);
+                Q_Error(errorParm_t::ERR_DROP, "invalid length for TMID string in saved game: {}", sg_buffer_size);
             }
 
             std::uninitialized_copy_n(sg_buffer_data, sg_buffer_size, tempBuffer);

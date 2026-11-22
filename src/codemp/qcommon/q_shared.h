@@ -470,8 +470,16 @@ const char* SkipWhitespace(const char* data, bool* hasNewLines);
 char* COM_Parse(const char** data_p);
 char* COM_ParseExt(const char** data_p, bool allowLineBreak);
 int COM_Compress(char* data_p);
-void COM_ParseError(char* format, ...) __attribute__((format(printf, 1, 2)));
-void COM_ParseWarning(const char* format, ...) __attribute__((format(printf, 1, 2)));
+void COM_VParseError(fmt::string_view format, fmt::format_args args);
+template <typename... T> void COM_ParseError(fmt::format_string<T...> format, T&&... args)
+{
+    COM_VParseError(format.get(), Q_FormatArgs(args...));
+}
+void COM_VParseWarning(fmt::string_view format, fmt::format_args args);
+template <typename... T> void COM_ParseWarning(fmt::format_string<T...> format, T&&... args)
+{
+    COM_VParseWarning(format.get(), Q_FormatArgs(args...));
+}
 bool COM_ParseString(const char** data, const char** s);
 bool COM_ParseInt(const char** data, int* i);
 bool COM_ParseFloat(const char** data, float* f);

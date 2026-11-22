@@ -345,7 +345,7 @@ bool FS_Initialized(void)
 static void FS_AssertInitialised(void)
 {
     if (!fs_searchpaths) {
-        Com_Error(errorParm_t::ERR_FATAL, "Filesystem call made without initialization\n");
+        Q_Error(errorParm_t::ERR_FATAL, "Filesystem call made without initialization");
     }
 }
 
@@ -412,20 +412,20 @@ static fileHandle_t FS_HandleForFile(void)
             return i;
         }
     }
-    Com_Error(errorParm_t::ERR_DROP, "FS_HandleForFile: none free");
+    Q_Error(errorParm_t::ERR_DROP, "FS_HandleForFile: none free");
     return 0;
 }
 
 static FILE* FS_FileForHandle(fileHandle_t f)
 {
     if (f < 1 || f >= MAX_FILE_HANDLES) {
-        Com_Error(errorParm_t::ERR_DROP, "FS_FileForHandle: out of range");
+        Q_Error(errorParm_t::ERR_DROP, "FS_FileForHandle: out of range");
     }
     if (fsh[f].zipFile == true) {
-        Com_Error(errorParm_t::ERR_DROP, "FS_FileForHandle: can't get FILE on zip file");
+        Q_Error(errorParm_t::ERR_DROP, "FS_FileForHandle: can't get FILE on zip file");
     }
     if (!fsh[f].handleFiles.file.o) {
-        Com_Error(errorParm_t::ERR_DROP, "FS_FileForHandle: NULL");
+        Q_Error(errorParm_t::ERR_DROP, "FS_FileForHandle: NULL");
     }
 
     return fsh[f].handleFiles.file.o;
@@ -530,9 +530,9 @@ char* FS_BuildOSPath(const char* qpath)
     if (qpath[0] == '\\' || qpath[0] == '/')
         qpath++;
 
-    Com_sprintf(temp, sizeof(temp), "/base/%s", qpath);
+    Q_FormatTo(temp, "/base/{}", qpath);
     FS_ReplaceSeparators(temp);
-    Com_sprintf(ospath[toggle], sizeof(ospath[0]), "%s%s", fs_basepath->string, temp);
+    Q_FormatTo(std::span(ospath[toggle], sizeof(ospath[0])), "{}{}", fs_basepath->string, temp);
 
     return ospath[toggle];
 }
@@ -550,9 +550,9 @@ char* FS_BuildOSPath(const char* base, const char* game, const char* qpath)
         game = fs_gamedir;
     }
 
-    Com_sprintf(temp, sizeof(temp), "/%s/%s", game, qpath);
+    Q_FormatTo(temp, "/{}/{}", game, qpath);
     FS_ReplaceSeparators(temp);
-    Com_sprintf(ospath[toggle], sizeof(ospath[0]), "%s%s", base, temp);
+    Q_FormatTo(std::span(ospath[toggle], sizeof(ospath[0])), "{}{}", base, temp);
 
     return ospath[toggle];
 }
@@ -572,7 +572,7 @@ bool FS_CreatePath(char* OSPath)
     // make absolutely sure that it can't back up the path
     // FIXME: is c: allowed???
     if (strstr(OSPath, "..") || strstr(OSPath, "::")) {
-        Com_Warning("refusing to create relative path \"%s\"\n", OSPath);
+        Q_PrintlnWarning("refusing to create relative path \"{}\"", OSPath);
         return true;
     }
 
@@ -590,7 +590,7 @@ bool FS_CreatePath(char* OSPath)
             // create the directory
             *ofs = 0;
             if (!Sys_Mkdir(path)) {
-                Com_Error(errorParm_t::ERR_FATAL, "FS_CreatePath: failed to create path \"%s\"", path);
+                Q_Error(errorParm_t::ERR_FATAL, "FS_CreatePath: failed to create path \"{}\"", path);
             }
             *ofs = PATH_SEP;
         }
@@ -609,10 +609,7 @@ static void FS_CheckFilenameIsMutable(const char* filename, const char* function
 {
     // Check if the filename ends with the library, or pk3 extension
     if (COM_CompareExtension(filename, DLL_EXT) || COM_CompareExtension(filename, ".pk3")) {
-        Com_Error(errorParm_t::ERR_FATAL,
-                  "%s: Not allowed to manipulate '%s' due "
-                  "to %s extension",
-                  function, filename, COM_GetExtension(filename));
+        Q_Error(errorParm_t::ERR_FATAL, "{}: Not allowed to manipulate '{}' due to {} extension", function, filename, COM_GetExtension(filename));
     }
 }
 
@@ -631,10 +628,10 @@ void FS_CopyFile(char* fromOSPath, char* toOSPath)
 
     FS_CheckFilenameIsMutable(fromOSPath, __func__);
 
-    Com_Printf("copy %s to %s\n", fromOSPath, toOSPath);
+    Q_Println("copy {} to {}", fromOSPath, toOSPath);
 
     if (strstr(fromOSPath, "journal.dat") || strstr(fromOSPath, "journaldata.dat")) {
-        Com_Printf("Ignoring journal files\n");
+        Q_Println("Ignoring journal files");
         return;
     }
 
@@ -648,7 +645,7 @@ void FS_CopyFile(char* fromOSPath, char* toOSPath)
 
     if (len == EOF) {
         fclose(f);
-        Com_Error(errorParm_t::ERR_FATAL, "Bad file length in FS_CopyFile()");
+        Q_Error(errorParm_t::ERR_FATAL, "Bad file length in FS_CopyFile()");
     }
 
     // we are using direct malloc instead of Z_Malloc here, so it
@@ -657,7 +654,7 @@ void FS_CopyFile(char* fromOSPath, char* toOSPath)
     if (fread(buf, 1, len, f) != (unsigned)len) {
         fclose(f);
         free(buf);
-        Com_Error(errorParm_t::ERR_FATAL, "Short read in FS_Copyfiles()\n");
+        Q_Error(errorParm_t::ERR_FATAL, "Short read in FS_Copyfiles()");
     }
     fclose(f);
 
@@ -674,7 +671,7 @@ void FS_CopyFile(char* fromOSPath, char* toOSPath)
     if (fwrite(buf, 1, len, f) != (unsigned)len) {
         fclose(f);
         free(buf);
-        Com_Error(errorParm_t::ERR_FATAL, "Short write in FS_Copyfiles()\n");
+        Q_Error(errorParm_t::ERR_FATAL, "Short write in FS_Copyfiles()");
     }
     fclose(f);
     free(buf);
@@ -735,7 +732,7 @@ bool FS_MoveUserGenFile(const char* filename_src, const char* filename_dst)
     to_ospath = FS_BuildOSPath(fs_homepath->string, fs_gamedir, filename_dst);
 
     if (fs_debug->integer) {
-        Com_Printf("FS_MoveUserGenFile: %s --> %s\n", from_ospath, to_ospath);
+        Q_Println("FS_MoveUserGenFile: {} --> {}", from_ospath, to_ospath);
     }
 
     FS_CheckFilenameIsMutable(to_ospath, __func__);
@@ -761,7 +758,7 @@ void FS_Rmdir(const char* osPath, bool recursive)
         char** filesToRemove = Sys_ListFiles(osPath, "", nullptr, &numfiles, false);
         for (i = 0; i < numfiles; i++) {
             char fileOsPath[MAX_OSPATH];
-            Com_sprintf(fileOsPath, sizeof(fileOsPath), "%s/%s", osPath, filesToRemove[i]);
+            Q_FormatTo(fileOsPath, "{}/{}", osPath, filesToRemove[i]);
             FS_Remove(fileOsPath);
         }
         FS_FreeFileList(filesToRemove);
@@ -772,7 +769,7 @@ void FS_Rmdir(const char* osPath, bool recursive)
                 continue;
             }
             char directoryOsPath[MAX_OSPATH];
-            Com_sprintf(directoryOsPath, sizeof(directoryOsPath), "%s/%s", osPath, directoriesToRemove[i]);
+            Q_FormatTo(directoryOsPath, "{}/{}", osPath, directoriesToRemove[i]);
             FS_Rmdir(directoryOsPath, true);
         }
         FS_FreeFileList(directoriesToRemove);
@@ -868,7 +865,7 @@ fileHandle_t FS_SV_FOpenFileWrite(const char* filename)
     fsh[f].zipFile = false;
 
     if (fs_debug->integer) {
-        Com_Printf("FS_SV_FOpenFileWrite: %s\n", ospath);
+        Q_Println("FS_SV_FOpenFileWrite: {}", ospath);
     }
 
     FS_CheckFilenameIsMutable(ospath, __func__);
@@ -877,7 +874,7 @@ fileHandle_t FS_SV_FOpenFileWrite(const char* filename)
         return 0;
     }
 
-    Com_DPrintf("writing to: %s\n", ospath);
+    Q_DPrintln("writing to: {}", ospath);
     fsh[f].handleFiles.file.o = fopen(ospath, "wb");
 
     Q_strncpyz(fsh[f].name, filename, sizeof(fsh[f].name));
@@ -911,7 +908,7 @@ fileHandle_t FS_SV_FOpenFileAppend(const char* filename)
     ospath[strlen(ospath) - 1] = '\0';
 
     if (fs_debug->integer) {
-        Com_Printf("FS_SV_FOpenFileAppend: %s\n", ospath);
+        Q_Println("FS_SV_FOpenFileAppend: {}", ospath);
     }
 
     FS_CheckFilenameIsMutable(ospath, __func__);
@@ -958,7 +955,7 @@ int FS_SV_FOpenFileRead(const char* filename, fileHandle_t* fp)
     ospath[strlen(ospath) - 1] = '\0';
 
     if (fs_debug->integer) {
-        Com_Printf("FS_SV_FOpenFileRead (fs_homepath): %s\n", ospath);
+        Q_Println("FS_SV_FOpenFileRead (fs_homepath): {}", ospath);
     }
 
     fsh[f].handleFiles.file.o = fopen(ospath, "rb");
@@ -971,7 +968,7 @@ int FS_SV_FOpenFileRead(const char* filename, fileHandle_t* fp)
             ospath[strlen(ospath) - 1] = '\0';
 
             if (fs_debug->integer) {
-                Com_Printf("FS_SV_FOpenFileRead (fs_basepath): %s\n", ospath);
+                Q_Println("FS_SV_FOpenFileRead (fs_basepath): {}", ospath);
             }
 
             fsh[f].handleFiles.file.o = fopen(ospath, "rb");
@@ -989,7 +986,7 @@ int FS_SV_FOpenFileRead(const char* filename, fileHandle_t* fp)
         ospath[strlen(ospath) - 1] = '\0';
 
         if (fs_debug->integer) {
-            Com_Printf("FS_SV_FOpenFileRead (fs_cdpath) : %s\n", ospath);
+            Q_Println("FS_SV_FOpenFileRead (fs_cdpath) : {}", ospath);
         }
 
         fsh[f].handleFiles.file.o = fopen(ospath, "rb");
@@ -1028,7 +1025,7 @@ void FS_SV_Rename(const char* from, const char* to, bool safe)
     to_ospath[strlen(to_ospath) - 1] = '\0';
 
     if (fs_debug->integer) {
-        Com_Printf("FS_SV_Rename: %s --> %s\n", from_ospath, to_ospath);
+        Q_Println("FS_SV_Rename: {} --> {}", from_ospath, to_ospath);
     }
 
     if (safe) {
@@ -1061,7 +1058,7 @@ void FS_Rename(const char* from, const char* to)
     to_ospath = FS_BuildOSPath(fs_homepath->string, fs_gamedir, to);
 
     if (fs_debug->integer) {
-        Com_Printf("FS_Rename: %s --> %s\n", from_ospath, to_ospath);
+        Q_Println("FS_Rename: {} --> {}", from_ospath, to_ospath);
     }
 
     FS_CheckFilenameIsMutable(to_ospath, __func__);
@@ -1124,7 +1121,7 @@ fileHandle_t FS_FOpenFileWrite(const char* filename, bool safe)
     ospath = FS_BuildOSPath(fs_homepath->string, fs_gamedir, filename);
 
     if (fs_debug->integer) {
-        Com_Printf("FS_FOpenFileWrite: %s\n", ospath);
+        Q_Println("FS_FOpenFileWrite: {}", ospath);
     }
 
     if (safe) {
@@ -1137,7 +1134,7 @@ fileHandle_t FS_FOpenFileWrite(const char* filename, bool safe)
 
     // enabling the following line causes a recursive function call loop
     // when running with +set logfile 1 +set developer 1
-    // Com_DPrintf( "writing to: %s\n", ospath );
+    // Q_DPrintln("writing to: {}", ospath);
     fsh[f].handleFiles.file.o = fopen(ospath, "wb");
 
     Q_strncpyz(fsh[f].name, filename, sizeof(fsh[f].name));
@@ -1173,7 +1170,7 @@ fileHandle_t FS_FOpenFileAppend(const char* filename)
     ospath = FS_BuildOSPath(fs_homepath->string, fs_gamedir, filename);
 
     if (fs_debug->integer) {
-        Com_Printf("FS_FOpenFileAppend: %s\n", ospath);
+        Q_Println("FS_FOpenFileAppend: {}", ospath);
     }
 
     FS_CheckFilenameIsMutable(ospath, __func__);
@@ -1322,7 +1319,7 @@ bool Sys_FileOutOfDate(LPCSTR psFinalFileName /* dest */, LPCSTR psDataFileName 
     //
     if (com_developer->integer) {
         if (!Sys_GetFileTime(psDataFileName, ftDataFile)) {
-            Com_Printf("Sys_FileOutOfDate: reading %s but it's not on the net!\n", psFinalFileName);
+            Q_Println("Sys_FileOutOfDate: reading {} but it's not on the net!", psFinalFileName);
         }
     }
 
@@ -1369,11 +1366,11 @@ long FS_FOpenFileRead(const char* filename, fileHandle_t* file, bool uniqueFILE)
     FS_AssertInitialised();
 
     if (file == nullptr) {
-        Com_Error(errorParm_t::ERR_FATAL, "FS_FOpenFileRead: NULL 'file' parameter passed\n");
+        Q_Error(errorParm_t::ERR_FATAL, "FS_FOpenFileRead: NULL 'file' parameter passed");
     }
 
     if (!filename) {
-        Com_Error(errorParm_t::ERR_FATAL, "FS_FOpenFileRead: NULL 'filename' parameter passed\n");
+        Q_Error(errorParm_t::ERR_FATAL, "FS_FOpenFileRead: NULL 'filename' parameter passed");
     }
 
     // qpaths are not supposed to have a leading slash
@@ -1501,13 +1498,13 @@ long FS_FOpenFileRead(const char* filename, fileHandle_t* file, bool uniqueFILE)
                         fsh[*file].zipFile = true;
 
                         if (fs_debug->integer) {
-                            Com_Printf("FS_FOpenFileRead: %s (found in '%s')\n", filename, pak->pakFilename);
+                            Q_Println("FS_FOpenFileRead: {} (found in '{}')", filename, pak->pakFilename);
                         }
 #ifndef DEDICATED
 #ifndef FINAL_BUILD
                         // Check for unprecached files when in game but not in the menus
                         if ((cls.state == connstate_t::CA_ACTIVE) && !Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI)) {
-                            Com_Warning("File %s not precached\n", filename);
+                            Q_PrintlnWarning("File {} not precached", filename);
                         }
 #endif
 #endif // DEDICATED
@@ -1570,7 +1567,7 @@ long FS_FOpenFileRead(const char* filename, fileHandle_t* file, bool uniqueFILE)
                 Q_strncpyz(fsh[*file].name, filename, sizeof(fsh[*file].name));
                 fsh[*file].zipFile = false;
                 if (fs_debug->integer) {
-                    Com_Printf("FS_FOpenFileRead: %s (found in '%s%c%s')\n", filename, dir->path, PATH_SEP, dir->gamedir);
+                    Q_Println("FS_FOpenFileRead: {} (found in '{}{}{}')", filename, dir->path, PATH_SEP, dir->gamedir);
                 }
 
 #ifdef _WIN32
@@ -1589,9 +1586,9 @@ long FS_FOpenFileRead(const char* filename, fileHandle_t* file, bool uniqueFILE)
                     case 2: {
 
                         if (FS_FileCacheable(filename)) {
-                            // maybe change this to Com_DPrintf?   On the other hand...
+                            // maybe change this to Q_DPrintln?   On the other hand...
                             //
-                            Com_Printf("fs_copyfiles(2), Copying: %s to %s\n", netpath, copypath);
+                            Q_Println("fs_copyfiles(2), Copying: {} to {}", netpath, copypath);
 
                             FS_CreatePath(copypath);
 
@@ -1622,7 +1619,7 @@ long FS_FOpenFileRead(const char* filename, fileHandle_t* file, bool uniqueFILE)
 #ifndef FINAL_BUILD
                 // Check for unprecached files when in game but not in the menus
                 if ((cls.state == connstate_t::CA_ACTIVE) && !Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI)) {
-                    Com_Warning("File %s not precached\n", filename);
+                    Q_PrintlnWarning("File {} not precached", filename);
                 }
 #endif
 #endif // dedicated
@@ -1631,10 +1628,10 @@ long FS_FOpenFileRead(const char* filename, fileHandle_t* file, bool uniqueFILE)
         }
     } while (bFasterToReOpenUsingNewLocalFile);
 
-    Com_DPrintf("Can't find %s\n", filename);
+    Q_DPrintln("Can't find {}", filename);
 #ifdef FS_MISSING
     if (missingFiles) {
-        fprintf(missingFiles, "%s\n", filename);
+        Q_FilePrintln(missingFiles, "{}", filename);
     }
 #endif
     *file = 0;
@@ -1649,12 +1646,12 @@ bool FS_FindPureDLL(const char* name)
     fileHandle_t h;
 
     if (!fs_searchpaths)
-        Com_Error(errorParm_t::ERR_FATAL, "Filesystem call made without initialization");
+        Q_Error(errorParm_t::ERR_FATAL, "Filesystem call made without initialization");
 
     if (!Cvar_VariableValue("sv_pure"))
         return true;
 
-    Com_sprintf(dllName, sizeof(dllName), "%sx86.dll", name);
+    Q_FormatTo(dllName, "{}x86.dll", name);
 
     if (FS_FOpenFileRead(dllName, &h, true) > 0) {
         FS_FCloseFile(h);
@@ -1698,12 +1695,12 @@ int FS_Read(void* buffer, int len, fileHandle_t f)
                     tries = 1;
                 }
                 else {
-                    return len - remaining; // Com_Error (errorParm_t::ERR_FATAL, "FS_Read: 0 bytes read");
+                    return len - remaining; // Q_Error(errorParm_t::ERR_FATAL, "FS_Read: 0 bytes read");
                 }
             }
 
             if (read == -1) {
-                Com_Error(errorParm_t::ERR_FATAL, "FS_Read: -1 bytes read");
+                Q_Error(errorParm_t::ERR_FATAL, "FS_Read: -1 bytes read");
             }
 
             remaining -= read;
@@ -1750,13 +1747,13 @@ int FS_Write(const void* buffer, int len, fileHandle_t h)
                 tries = 1;
             }
             else {
-                Com_Printf("FS_Write: 0 bytes written\n");
+                Q_Println("FS_Write: 0 bytes written");
                 return 0;
             }
         }
 
         if (written == -1) {
-            Com_Printf("FS_Write: -1 bytes written\n");
+            Q_Println("FS_Write: -1 bytes written");
             return 0;
         }
 
@@ -1769,14 +1766,11 @@ int FS_Write(const void* buffer, int len, fileHandle_t h)
     return len;
 }
 
-void QDECL FS_Printf(fileHandle_t h, const char* fmt, ...)
+void FS_VPrint(fileHandle_t h, fmt::string_view fmt, fmt::format_args args)
 {
-    va_list argptr;
     char msg[MAXPRINTMSG];
 
-    va_start(argptr, fmt);
-    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-    va_end(argptr);
+    Q_VFormatToCut(msg, fmt, args);
 
     FS_Write(msg, strlen(msg), h);
 }
@@ -1811,7 +1805,7 @@ int FS_Seek(fileHandle_t f, long offset, fsOrigin_t origin)
             break;
         default:
             _origin = SEEK_CUR;
-            Com_Error(errorParm_t::ERR_FATAL, "Bad origin in FS_Seek\n");
+            Q_Error(errorParm_t::ERR_FATAL, "Bad origin in FS_Seek");
             break;
         }
 
@@ -1837,7 +1831,7 @@ int FS_FileIsInPAK(const char* filename, int* pChecksum)
     FS_AssertInitialised();
 
     if (!filename) {
-        Com_Error(errorParm_t::ERR_FATAL, "FS_FOpenFileRead: NULL 'filename' parameter passed\n");
+        Q_Error(errorParm_t::ERR_FATAL, "FS_FOpenFileRead: NULL 'filename' parameter passed");
     }
 
     // qpaths are not supposed to have a leading slash
@@ -1904,7 +1898,7 @@ long FS_ReadFile(const char* qpath, void** buffer)
     FS_AssertInitialised();
 
     if (!qpath || !qpath[0]) {
-        Com_Error(errorParm_t::ERR_FATAL, "FS_ReadFile with empty name\n");
+        Q_Error(errorParm_t::ERR_FATAL, "FS_ReadFile with empty name");
     }
 
     FS_QuietSound();
@@ -1918,7 +1912,7 @@ long FS_ReadFile(const char* qpath, void** buffer)
         if (com_journal && com_journal->integer == 2) {
             int r;
 
-            Com_DPrintf("Loading %s from journal file.\n", qpath);
+            Q_DPrintln("Loading {} from journal file.", qpath);
             r = FS_Read(&len, sizeof(len), com_journalDataFile);
             if (r != sizeof(len)) {
                 if (buffer != nullptr)
@@ -1942,7 +1936,7 @@ long FS_ReadFile(const char* qpath, void** buffer)
 
             r = FS_Read(buf, len, com_journalDataFile);
             if (r != len) {
-                Com_Error(errorParm_t::ERR_FATAL, "Read from journalDataFile failed");
+                Q_Error(errorParm_t::ERR_FATAL, "Read from journalDataFile failed");
             }
 
             // guarantee that it will have a trailing 0 for string operations
@@ -1963,7 +1957,7 @@ long FS_ReadFile(const char* qpath, void** buffer)
         }
         // if we are journalling and it is a config file, write a zero to the journal file
         if (isConfig && com_journal && com_journal->integer == 1) {
-            Com_DPrintf("Writing zero for %s to journal file.\n", qpath);
+            Q_DPrintln("Writing zero for {} to journal file.", qpath);
             len = 0;
             FS_Write(&len, sizeof(len), com_journalDataFile);
             FS_Flush(com_journalDataFile);
@@ -1973,7 +1967,7 @@ long FS_ReadFile(const char* qpath, void** buffer)
 
     if (!buffer) {
         if (isConfig && com_journal && com_journal->integer == 1) {
-            Com_DPrintf("Writing len for %s to journal file.\n", qpath);
+            Q_DPrintln("Writing len for {} to journal file.", qpath);
             FS_Write(&len, sizeof(len), com_journalDataFile);
             FS_Flush(com_journalDataFile);
         }
@@ -2001,7 +1995,7 @@ long FS_ReadFile(const char* qpath, void** buffer)
 
     // if we are journalling and it is a config file, write it to the journal file
     if (isConfig && com_journal && com_journal->integer == 1) {
-        Com_DPrintf("Writing %s to journal file.\n", qpath);
+        Q_DPrintln("Writing {} to journal file.", qpath);
         FS_Write(&len, sizeof(len), com_journalDataFile);
         FS_Write(buf, len, com_journalDataFile);
         FS_Flush(com_journalDataFile);
@@ -2018,7 +2012,7 @@ void FS_FreeFile(void* buffer)
 {
     FS_AssertInitialised();
     if (!buffer) {
-        Com_Error(errorParm_t::ERR_FATAL, "FS_FreeFile( NULL )");
+        Q_Error(errorParm_t::ERR_FATAL, "FS_FreeFile( NULL )");
     }
 
     Z_Free(buffer);
@@ -2038,12 +2032,12 @@ void FS_WriteFile(const char* qpath, const void* buffer, int size)
     FS_AssertInitialised();
 
     if (!qpath || !buffer) {
-        Com_Error(errorParm_t::ERR_FATAL, "FS_WriteFile: NULL parameter");
+        Q_Error(errorParm_t::ERR_FATAL, "FS_WriteFile: NULL parameter");
     }
 
     f = FS_FOpenFileWrite(qpath);
     if (!f) {
-        Com_Printf("Failed to open %s\n", qpath);
+        Q_Println("Failed to open {}", qpath);
         return;
     }
 
@@ -2279,7 +2273,7 @@ char** FS_ListFilteredFiles(const char* path, const char* extension, const char*
     char zpath[MAX_ZPATH];
 
     if (!fs_searchpaths) {
-        Com_Error(errorParm_t::ERR_FATAL, "Filesystem call made without initialization\n");
+        Q_Error(errorParm_t::ERR_FATAL, "Filesystem call made without initialization");
     }
 
     if (!path) {
@@ -2416,7 +2410,7 @@ void FS_FreeFileList(char** fileList)
     int i;
 
     if (!fs_searchpaths) {
-        Com_Error(errorParm_t::ERR_FATAL, "Filesystem call made without initialization\n");
+        Q_Error(errorParm_t::ERR_FATAL, "Filesystem call made without initialization");
     }
 
     if (!fileList) {
@@ -2682,7 +2676,7 @@ void FS_Dir_f(void)
     int i;
 
     if (Cmd_Argc() < 2 || Cmd_Argc() > 3) {
-        Com_Printf("usage: dir <directory> [extension]\n");
+        Q_Println("usage: dir <directory> [extension]");
         return;
     }
 
@@ -2695,13 +2689,13 @@ void FS_Dir_f(void)
         extension = Cmd_Argv(2);
     }
 
-    Com_Printf("Directory of %s %s\n", path, extension);
-    Com_Printf("---------------\n");
+    Q_Println("Directory of {} {}", path, extension);
+    Q_Println("---------------");
 
     dirnames = FS_ListFiles(path, extension, &ndirs);
 
     for (i = 0; i < ndirs; i++) {
-        Com_Printf("%s\n", dirnames[i]);
+        Q_Println("{}", dirnames[i]);
     }
     FS_FreeFileList(dirnames);
 }
@@ -2803,14 +2797,14 @@ void FS_NewDir_f(void)
     int i;
 
     if (Cmd_Argc() < 2) {
-        Com_Printf("usage: fdir <filter>\n");
-        Com_Printf("example: fdir *ffa*.bsp\n");
+        Q_Println("usage: fdir <filter>");
+        Q_Println("example: fdir *ffa*.bsp");
         return;
     }
 
     filter = Cmd_Argv(1);
 
-    Com_Printf("---------------\n");
+    Q_Println("---------------");
 
     dirnames = FS_ListFilteredFiles("", "", filter, &ndirs);
 
@@ -2818,9 +2812,9 @@ void FS_NewDir_f(void)
 
     for (i = 0; i < ndirs; i++) {
         FS_ConvertPath(dirnames[i]);
-        Com_Printf("%s\n", dirnames[i]);
+        Q_Println("{}", dirnames[i]);
     }
-    Com_Printf("%d files listed\n", ndirs);
+    Q_Println("{} files listed", ndirs);
     FS_FreeFileList(dirnames);
 }
 
@@ -2835,28 +2829,28 @@ void FS_Path_f(void)
     searchpath_t* s;
     int i;
 
-    Com_Printf("Current search path:\n");
+    Q_Println("Current search path:");
     for (s = fs_searchpaths; s; s = s->next) {
         if (s->pack) {
-            Com_Printf("%s (%i files)\n", s->pack->pakFilename, s->pack->numfiles);
+            Q_Println("{} ({} files)", s->pack->pakFilename, s->pack->numfiles);
             if (fs_numServerPaks) {
                 if (!FS_PakIsPure(s->pack)) {
-                    Com_Printf("    not on the pure list\n");
+                    Q_Println("    not on the pure list");
                 }
                 else {
-                    Com_Printf("    on the pure list\n");
+                    Q_Println("    on the pure list");
                 }
             }
         }
         else {
-            Com_Printf("%s%c%s\n", s->dir->path, PATH_SEP, s->dir->gamedir);
+            Q_Println("{}{}{}", s->dir->path, PATH_SEP, s->dir->gamedir);
         }
     }
 
-    Com_Printf("\n");
+    Q_Println("");
     for (i = 1; i < MAX_FILE_HANDLES; i++) {
         if (fsh[i].handleFiles.file.o) {
-            Com_Printf("handle %i: %s\n", i, fsh[i].name);
+            Q_Println("handle {}: {}", i, fsh[i].name);
         }
     }
 }
@@ -2874,7 +2868,7 @@ void FS_TouchFile_f(void)
     fileHandle_t f;
 
     if (Cmd_Argc() != 2) {
-        Com_Printf("Usage: touchFile <file>\n");
+        Q_Println("Usage: touchFile <file>");
         return;
     }
 
@@ -2897,7 +2891,7 @@ void FS_Which_f(void)
     filename = Cmd_Argv(1);
 
     if (!filename[0]) {
-        Com_Printf("Usage: which <file>\n");
+        Q_Println("Usage: which <file>");
         return;
     }
 
@@ -2928,7 +2922,7 @@ void FS_Which_f(void)
                     // case and separator insensitive comparisons
                     if (!FS_FilenameCompare(pakFile->name, filename)) {
                         // found it!
-                        Com_Printf("File \"%s\" found in \"%s\"\n", filename, pak->pakFilename);
+                        Q_Println("File \"{}\" found in \"{}\"", filename, pak->pakFilename);
                         return;
                     }
 
@@ -2946,15 +2940,15 @@ void FS_Which_f(void)
                 fclose(filep);
 
                 char buf[MAX_OSPATH];
-                Com_sprintf(buf, sizeof(buf), "%s%c%s", dir->path, PATH_SEP, dir->gamedir);
+                Q_FormatTo(buf, "{}{}{}", dir->path, PATH_SEP, dir->gamedir);
                 FS_ReplaceSeparators(buf);
-                Com_Printf("File \"%s\" found at \"%s\"\n", filename, buf);
+                Q_Println("File \"{}\" found at \"{}\"", filename, buf);
                 return;
             }
         }
     }
 
-    Com_Printf("File not found: \"%s\"\n", filename);
+    Q_Println("File not found: \"{}\"", filename);
 }
 
 /*
@@ -2977,7 +2971,7 @@ static bool FS_CanRestartInPlace(void)
 static void FS_Restart_f(void)
 {
     if (!FS_CanRestartInPlace()) {
-        Com_Warning("Cannot restart file system due to active file handles for pk3 files inside of modules.\n");
+        Q_PrintlnWarning("Cannot restart file system due to active file handles for pk3 files inside of modules.");
         return;
     }
     FS_Restart(fs_checksumFeed, true);
@@ -3132,7 +3126,7 @@ bool FS_idPak(const char* pak, const char* base)
     int i;
 
     for (i = 0; i < NUM_ID_PAKS; i++) {
-        if (!FS_FilenameCompare(pak, va("%s/assets%d", base, i))) {
+        if (!FS_FilenameCompare(pak, Q_Format("{}/assets{}", base, i).c_str())) {
             break;
         }
     }
@@ -3210,7 +3204,7 @@ bool FS_ComparePaks(char* neededpaks, int len, bool dlstring)
 
         // Make sure the server cannot make us write to non-quake3 directories.
         if (FS_CheckDirTraversal(fs_serverReferencedPakNames[i])) {
-            Com_Warning("Invalid download name %s\n", fs_serverReferencedPakNames[i]);
+            Q_PrintlnWarning("Invalid download name {}", fs_serverReferencedPakNames[i]);
             continue;
         }
 
@@ -3226,7 +3220,7 @@ bool FS_ComparePaks(char* neededpaks, int len, bool dlstring)
             read = sscanf(fs_serverReferencedPakNames[i], "%255[^'/']/%255s", moddir, filename);
 
             if (read != 2) {
-                Com_Warning("Unable to parse pak name: %s\n", fs_serverReferencedPakNames[i]);
+                Q_PrintlnWarning("Unable to parse pak name: {}", fs_serverReferencedPakNames[i]);
                 badname = true;
                 continue;
             }
@@ -3254,18 +3248,19 @@ bool FS_ComparePaks(char* neededpaks, int len, bool dlstring)
                 // Local name
                 Q_strcat(currentPak, sizeof(currentPak), "@");
                 // Do we have one with the same name?
-                if (FS_SV_FileExists(va("%s/dl_%s.pk3", moddir, filename))) {
+                if (FS_SV_FileExists(Q_Format("{}/dl_{}.pk3", moddir, filename).c_str())) {
                     // We already have one called this, we need to download it to another name
                     // Make something up with the checksum in it
-                    Q_strcat(currentPak, sizeof(currentPak), va("%s/dl_%s.%08x.pk3", moddir, filename, fs_serverReferencedPaks[i]));
+                    Q_strcat(currentPak, sizeof(currentPak),
+                             Q_Format("{}/dl_{}.{:08x}.pk3", moddir, filename, static_cast<unsigned int>(fs_serverReferencedPaks[i])).c_str());
                 }
                 else {
-                    Q_strcat(currentPak, sizeof(currentPak), va("%s/dl_%s.pk3", moddir, filename));
+                    Q_strcat(currentPak, sizeof(currentPak), Q_Format("{}/dl_{}.pk3", moddir, filename).c_str());
                 }
 
                 // If the currentPak doesn't fit the neededpaks buffer we are likely running into issues
                 if (strlen(neededpaks) + strlen(currentPak) >= (size_t)len) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING (FS_ComparePaks): referenced pk3 files cut off due to too long total length\n");
+                    Q_Println(S_COLOR_YELLOW "WARNING (FS_ComparePaks): referenced pk3 files cut off due to too long total length");
                     break;
                 }
 
@@ -3275,7 +3270,7 @@ bool FS_ComparePaks(char* neededpaks, int len, bool dlstring)
                 Q_strcat(neededpaks, len, fs_serverReferencedPakNames[i]);
                 Q_strcat(neededpaks, len, ".pk3");
                 // Do we have one with the same name?
-                if (FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i]))) {
+                if (FS_SV_FileExists(Q_Format("{}.pk3", fs_serverReferencedPakNames[i]).c_str())) {
                     Q_strcat(neededpaks, len, " (local file exists with wrong checksum)");
                 }
                 Q_strcat(neededpaks, len, "\n");
@@ -3308,9 +3303,7 @@ void FS_Shutdown(bool closemfp, bool keepModuleFiles)
         if (fs_temporaryFileNames[i][0] != '\0') {
             if (!DeleteFile(fs_temporaryFileNames[i])) {
                 DWORD error = GetLastError();
-                Com_DPrintf("FS_Shutdown: failed to delete '%s'. "
-                            "Win32 error code: 0x%08lx\n",
-                            fs_temporaryFileNames[i], error);
+                Q_DPrintln("FS_Shutdown: failed to delete '{}'. Win32 error code: 0x{:08x}", fs_temporaryFileNames[i], error);
             }
 
             fs_temporaryFileNames[i][0] = '\0';
@@ -3323,7 +3316,7 @@ void FS_Shutdown(bool closemfp, bool keepModuleFiles)
             if (!keepModuleFiles)
                 FS_FCloseFile(i);
             else if (fsh[i].zipFile)
-                Com_Error(errorParm_t::ERR_FATAL, "FS_Shutdown: tried to keep module files when at least one module file is inside of a pak");
+                Q_Error(errorParm_t::ERR_FATAL, "FS_Shutdown: tried to keep module files when at least one module file is inside of a pak");
         }
     }
 
@@ -3464,7 +3457,7 @@ void FS_LoadReflists(void)
     f_fl = FS_FOpenFileRead("ref_forcelist.txt", &f_f, false);
 
     if (f_w) {
-        Com_Printf("using whitelist for referenced files...\n");
+        Q_Println("using whitelist for referenced files...");
 
         mv_whitelist = (char*)Hunk_AllocateTempMemory(1 + f_wl + 1);
         mv_whitelist[0] = '\n';
@@ -3473,7 +3466,7 @@ void FS_LoadReflists(void)
     }
 
     if (f_b) {
-        Com_Printf("using blacklist for referenced files...\n");
+        Q_Println("using blacklist for referenced files...");
 
         mv_blacklist = (char*)Hunk_AllocateTempMemory(1 + f_bl + 1);
         mv_blacklist[0] = '\n';
@@ -3482,7 +3475,7 @@ void FS_LoadReflists(void)
     }
 
     if (f_f) {
-        Com_Printf("using forcelist for referenced files...\n");
+        Q_Println("using forcelist for referenced files...");
 
         mv_forcelist = (char*)Hunk_AllocateTempMemory(1 + f_fl + 1);
         mv_forcelist[0] = '\n';
@@ -3492,7 +3485,7 @@ void FS_LoadReflists(void)
 
     for (search = fs_searchpaths; search; search = search->next) {
         if (search->pack) {
-            Com_sprintf(packstr, sizeof(packstr), "\n%s/%s.pk3", search->pack->pakGamename, search->pack->pakBasename);
+            Q_FormatTo(packstr, "\n{}/{}.pk3", search->pack->pakGamename, search->pack->pakBasename);
 
             if (f_w && !Q_stristr(mv_whitelist, packstr)) {
                 search->pack->noref = true;
@@ -3526,7 +3519,7 @@ void FS_Startup(const char* gameName)
 {
     const char* homePath;
 
-    Com_Printf("----- FS_Startup -----\n");
+    Q_Println("----- FS_Startup -----");
 
     fs_packFiles = 0;
 
@@ -3633,14 +3626,14 @@ void FS_Startup(const char* gameName)
 
     FS_LoadReflists();
 
-    Com_Printf("----------------------\n");
+    Q_Println("----------------------");
 
 #ifdef FS_MISSING
     if (missingFiles == nullptr) {
         missingFiles = fopen("\\missing.txt", "ab");
     }
 #endif
-    Com_Printf("%d files in pk3 files\n", fs_packFiles);
+    Q_Println("{} files in pk3 files", fs_packFiles);
 }
 
 /*
@@ -3664,7 +3657,7 @@ const char* FS_LoadedPakChecksums(void)
             continue;
         }
 
-        Q_strcat(info, sizeof(info), va("%i ", search->pack->checksum));
+        Q_strcat(info, sizeof(info), Q_Format("{} ", search->pack->checksum).c_str());
     }
 
     return info;
@@ -3722,7 +3715,7 @@ const char* FS_LoadedPakPureChecksums(void)
             continue;
         }
 
-        Q_strcat(info, sizeof(info), va("%i ", search->pack->pure_checksum));
+        Q_strcat(info, sizeof(info), Q_Format("{} ", search->pack->pure_checksum).c_str());
     }
 
     return info;
@@ -3747,7 +3740,7 @@ const char* FS_ReferencedPakChecksums(void)
         // is the element a pak file?
         if (search->pack) {
             if (Any(search->pack->referenced)) {
-                Q_strcat(info, sizeof(info), va("%i ", search->pack->checksum));
+                Q_strcat(info, sizeof(info), Q_Format("{} ", search->pack->checksum).c_str());
             }
         }
     }
@@ -3789,7 +3782,7 @@ const char* FS_ReferencedPakPureChecksums(void)
         for (search = fs_searchpaths; search; search = search->next) {
             // is the element a pak file and has it been referenced based on flag?
             if (search->pack && Any(search->pack->referenced & nFlags)) {
-                Q_strcat(info, sizeof(info), va("%i ", search->pack->pure_checksum));
+                Q_strcat(info, sizeof(info), Q_Format("{} ", search->pack->pure_checksum).c_str());
                 if (Any(nFlags & (fsRefFlags_t::FS_CGAME_REF | fsRefFlags_t::FS_UI_REF))) {
                     break;
                 }
@@ -3799,12 +3792,12 @@ const char* FS_ReferencedPakPureChecksums(void)
         }
         if (fs_fakeChkSum != 0) {
             // only added if a non-pure file is referenced
-            Q_strcat(info, sizeof(info), va("%i ", fs_fakeChkSum));
+            Q_strcat(info, sizeof(info), Q_Format("{} ", fs_fakeChkSum).c_str());
         }
     }
     // last checksum is the encoded number of referenced pk3s
     checksum ^= numPaks;
-    Q_strcat(info, sizeof(info), va("%i ", checksum));
+    Q_strcat(info, sizeof(info), Q_Format("{} ", checksum).c_str());
 
     return info;
 }
@@ -3888,13 +3881,13 @@ void FS_PureServerSetLoadedPaks(const char* pakSums, const char* pakNames)
     }
 
     if (fs_numServerPaks) {
-        Com_DPrintf("Connected to a pure server.\n");
+        Q_DPrintln("Connected to a pure server.");
     }
     else {
         if (fs_reordered) {
             // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=540
             // force a restart to make sure the search order will be correct
-            Com_DPrintf("FS search reorder is required\n");
+            Q_DPrintln("FS search reorder is required");
             FS_Restart(fs_checksumFeed);
             return;
         }
@@ -4008,7 +4001,7 @@ void FS_InitFilesystem(void)
     // busted and error out now, rather than getting an unreadable
     // graphics screen when the font fails to load
     if (FS_ReadFile(FS_DEFAULT_CFG, nullptr) <= 0) {
-        Com_Error(errorParm_t::ERR_FATAL, "Couldn't load " FS_DEFAULT_CFG);
+        Q_Error(errorParm_t::ERR_FATAL, "Couldn't load " FS_DEFAULT_CFG);
         // bk001208 - SafeMode see below, FIXME?
     }
 
@@ -4055,10 +4048,10 @@ void FS_Restart(int checksumFeed, bool inPlace)
             lastValidBase[0] = '\0';
             lastValidGame[0] = '\0';
             FS_Restart(checksumFeed);
-            Com_Error(errorParm_t::ERR_DROP, "Invalid game folder\n");
+            Q_Error(errorParm_t::ERR_DROP, "Invalid game folder");
             return;
         }
-        Com_Error(errorParm_t::ERR_FATAL, "Couldn't load " FS_DEFAULT_CFG);
+        Q_Error(errorParm_t::ERR_FATAL, "Couldn't load " FS_DEFAULT_CFG);
     }
 
     if (Q_stricmp(fs_gamedirvar->string, lastValidGame) && !fs_forcegame->string[0]) {
@@ -4143,7 +4136,7 @@ int FS_FOpenFileByMode(const char* qpath, fileHandle_t* f, fsMode_t mode)
         }
         break;
     default:
-        Com_Error(errorParm_t::ERR_FATAL, "FSH_FOpenFile: bad mode");
+        Q_Error(errorParm_t::ERR_FATAL, "FSH_FOpenFile: bad mode");
         return -1;
     }
 
@@ -4229,7 +4222,7 @@ bool FS_LoadMachOBundle(const char* name)
 
     // write temporary file of zipped bundle to e.g. uixxxxxx
     // unique filename to avoid any clashes
-    Com_sprintf(dllName, sizeof(dllName), "%sXXXXXX", name);
+    Q_FormatTo(dllName, "{}XXXXXX", name);
 
     tempName = mktemp(dllName);
 
@@ -4253,7 +4246,7 @@ bool FS_LoadMachOBundle(const char* name)
 
     dll = PK3_Open(fn);
 
-    Com_sprintf(dllName, sizeof(dllName), "%s.bundle/Contents/MacOS/%s", name, name);
+    Q_FormatTo(dllName, "{}.bundle/Contents/MacOS/{}", name, name);
 
     for (int i = 0; dll && !dllFile && i < PK3_NumEntries(dll); i++) {
         PK3_GetEntry(dll, i, &entry);
@@ -4270,7 +4263,7 @@ bool FS_LoadMachOBundle(const char* name)
         return false;
     }
 
-    Com_sprintf(dllName, sizeof(dllName), "%s_pk3" DLL_EXT, name);
+    Q_FormatTo(dllName, "{}_pk3" DLL_EXT, name);
 
     f = FS_FOpenFileWrite(dllName, false);
 
@@ -4339,9 +4332,8 @@ bool FS_WriteToTemporaryFile(const void* data, size_t dataLength, char** tempFil
                         }
 
                         error = GetLastError();
-                        Com_DPrintf("FS_WriteToTemporaryFile failed for '%s'. "
-                                    "Win32 error code: 0x%08lx\n",
-                                    fs_temporaryFileNames[fs_temporaryFileWriteIdx], error);
+                        Q_DPrintln("FS_WriteToTemporaryFile failed for '{}'. Win32 error code: 0x{:08x}", fs_temporaryFileNames[fs_temporaryFileWriteIdx],
+                                   error);
 
                         // Failed to delete, possibly because DLL was still in use. This can
                         // happen when running a listen server and you continually restart
@@ -4367,30 +4359,22 @@ bool FS_WriteToTemporaryFile(const void* data, size_t dataLength, char** tempFil
                 }
                 else {
                     error = GetLastError();
-                    Com_DPrintf("FS_WriteToTemporaryFile failed to write '%s'. "
-                                "Win32 error code: 0x%08lx\n",
-                                tempFileName, error);
+                    Q_DPrintln("FS_WriteToTemporaryFile failed to write '{}'. Win32 error code: 0x{:08x}", tempFileName, error);
                 }
             }
             else {
                 error = GetLastError();
-                Com_DPrintf("FS_WriteToTemporaryFile failed to create '%s'. "
-                            "Win32 error code: 0x%08lx\n",
-                            tempFileName, error);
+                Q_DPrintln("FS_WriteToTemporaryFile failed to create '{}'. Win32 error code: 0x{:08x}", tempFileName, error);
             }
         }
         else {
             error = GetLastError();
-            Com_DPrintf("FS_WriteToTemporaryFile failed to generate temporary file name. "
-                        "Win32 error code: 0x%08lx\n",
-                        error);
+            Q_DPrintln("FS_WriteToTemporaryFile failed to generate temporary file name. Win32 error code: 0x{:08x}", error);
         }
     }
     else {
         error = GetLastError();
-        Com_DPrintf("FS_WriteToTemporaryFile failed to get temporary file folder. "
-                    "Win32 error code: 0x%08lx\n",
-                    error);
+        Q_DPrintln("FS_WriteToTemporaryFile failed to get temporary file folder. Win32 error code: 0x{:08x}", error);
     }
 #endif
 
@@ -4408,7 +4392,7 @@ const char* FS_MV_VerifyDownloadPath(const char* pk3file)
         if (!search->pack)
             continue;
 
-        Com_sprintf(path, sizeof(path), "%s/%s", search->pack->pakGamename, search->pack->pakBasename);
+        Q_FormatTo(path, "{}/{}", search->pack->pakGamename, search->pack->pakBasename);
         if (FS_idPak(path, BASEGAME))
             continue;
 

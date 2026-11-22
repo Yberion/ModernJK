@@ -114,7 +114,7 @@ static void Music_Parse_Error(const char* psError)
     extern cvar_t* s_debugdynamic;
     if (s_debugdynamic && s_debugdynamic->integer) {
 #endif
-        Com_Printf(S_COLOR_RED "Error parsing music data ( in \"%s\" ):\n%s\n", sFILENAME_DMS, psError);
+        Q_Println(S_COLOR_RED "Error parsing music data ( in \"{}\" ):\n{}", sFILENAME_DMS, psError);
 #ifdef FINAL_BUILD
     }
 #endif
@@ -129,7 +129,7 @@ static void Music_Parse_Warning(const char* psError)
     extern cvar_t* s_debugdynamic;
     if (s_debugdynamic && s_debugdynamic->integer) {
 #endif
-        Com_Printf(S_COLOR_YELLOW "%s", psError);
+        Q_Print(S_COLOR_YELLOW "{}", psError);
 #ifdef FINAL_BUILD
     }
 #endif
@@ -150,7 +150,7 @@ static const char* Music_BuildFileName(const char* psFileNameBase, MusicState_e 
 
     const char* psDirName = (eMusicState == MusicState_e::eBGRNDTRACK_BOSS) ? gsLevelNameForBossLoad.c_str() : gsLevelNameForLoad.c_str();
 
-    sFileName = va("music/%s/%s.mp3", psDirName, psFileNameBase);
+    sFileName = Q_Format("music/{}/{}.mp3", psDirName, psFileNameBase).c_str();
     return sFileName.c_str();
 }
 
@@ -292,14 +292,14 @@ static bool Music_ParseMusic(CGenericParser2& Parser, MusicData_t* MusicData, CG
                 switch (eMusicState) {
                 case MusicState_e::eBGRNDTRACK_EXPLORE:
                     if (iNumExitPoints > iMAX_EXPLORE_TRANSITIONS) {
-                        MUSIC_PARSE_ERROR(va("\"%s\" has > %d %s transitions defined!\n", psMusicName, iMAX_EXPLORE_TRANSITIONS, psMusicNameKey));
+                        MUSIC_PARSE_ERROR(Q_Format("\"{}\" has > {} {} transitions defined!\n", psMusicName, iMAX_EXPLORE_TRANSITIONS, psMusicNameKey).c_str());
                         return false;
                     }
                     break;
 
                 case MusicState_e::eBGRNDTRACK_ACTION:
                     if (iNumExitPoints > iMAX_ACTION_TRANSITIONS) {
-                        MUSIC_PARSE_ERROR(va("\"%s\" has > %d %s transitions defined!\n", psMusicName, iMAX_ACTION_TRANSITIONS, psMusicNameKey));
+                        MUSIC_PARSE_ERROR(Q_Format("\"{}\" has > {} {} transitions defined!\n", psMusicName, iMAX_ACTION_TRANSITIONS, psMusicNameKey).c_str());
                         return false;
                     }
                     break;
@@ -307,7 +307,7 @@ static bool Music_ParseMusic(CGenericParser2& Parser, MusicData_t* MusicData, CG
                 case MusicState_e::eBGRNDTRACK_BOSS:
                 case MusicState_e::eBGRNDTRACK_DEATH:
 
-                    MUSIC_PARSE_ERROR(va("\"%s\" has %s transitions defined, this is not allowed!\n", psMusicName, psMusicNameKey));
+                    MUSIC_PARSE_ERROR(Q_Format("\"{}\" has {} transitions defined, this is not allowed!\n", psMusicName, psMusicNameKey).c_str());
                     break;
 
                 default:
@@ -323,17 +323,17 @@ static bool Music_ParseMusic(CGenericParser2& Parser, MusicData_t* MusicData, CG
         if (eMusicState != MusicState_e::eBGRNDTRACK_BOSS && eMusicState != MusicState_e::eBGRNDTRACK_DEATH) // boss & death pieces can omit entry/exit stuff
         {
             if (!bEntryFound) {
-                MUSIC_PARSE_ERROR(va("Unable to find subgroup \"%s\" in group \"%s\"\n", sKEY_ENTRY, psMusicName));
+                MUSIC_PARSE_ERROR(Q_Format("Unable to find subgroup \"{}\" in group \"{}\"\n", sKEY_ENTRY, psMusicName).c_str());
                 bReturn = false;
             }
             if (!bExitFound) {
-                MUSIC_PARSE_ERROR(va("Unable to find subgroup \"%s\" in group \"%s\"\n", sKEY_EXIT, psMusicName));
+                MUSIC_PARSE_ERROR(Q_Format("Unable to find subgroup \"{}\" in group \"{}\"\n", sKEY_EXIT, psMusicName).c_str());
                 bReturn = false;
             }
         }
     }
     else {
-        MUSIC_PARSE_ERROR(va("Unable to find musicfiles entry \"%s\"\n", psMusicName));
+        MUSIC_PARSE_ERROR(Q_Format("Unable to find musicfiles entry \"{}\"\n", psMusicName).c_str());
     }
 
     if (bReturn) {
@@ -461,7 +461,7 @@ static bool Music_ParseLeveldata(const char* psLevelName)
                                     //
                                     sSearchName = pValue->GetTopValue();
                                     iSanityLimit++;
-                                    //									Com_DPrintf("Using \"%s\"\n",sSearchName.c_str());
+                                    //									Q_DPrintln("Using \"{}\"", sSearchName.c_str());
                                 }
                                 else {
                                     // no new USE keyword found...
@@ -525,12 +525,12 @@ static bool Music_ParseLeveldata(const char* psLevelName)
                                         gsLevelNameForBossLoad = psName_UseBoss;
                                     }
                                     else {
-                                        MUSIC_PARSE_ERROR(va("'useboss' \"%s\" has no \"boss\" entry!\n", psName_UseBoss));
+                                        MUSIC_PARSE_ERROR(Q_Format("'useboss' \"{}\" has no \"boss\" entry!\n", psName_UseBoss).c_str());
                                         bReturn = false;
                                     }
                                 }
                                 else {
-                                    MUSIC_PARSE_ERROR(va("Unable to find 'useboss' entry \"%s\"\n", psName_UseBoss));
+                                    MUSIC_PARSE_ERROR(Q_Format("Unable to find 'useboss' entry \"{}\"\n", psName_UseBoss).c_str());
                                     bReturn = false;
                                 }
                             }
@@ -556,15 +556,15 @@ static bool Music_ParseLeveldata(const char* psLevelName)
                             }
                         }
                         else {
-                            MUSIC_PARSE_WARNING(va("Unable to find entry for \"%s\" in \"%s\"\n", sLevelName, sFILENAME_DMS));
+                            MUSIC_PARSE_WARNING(Q_Format("Unable to find entry for \"{}\" in \"{}\"\n", sLevelName, sFILENAME_DMS).c_str());
                         }
                     }
                     else {
-                        MUSIC_PARSE_ERROR(va("Unable to find subgroup \"%s\"\n", sKEY_LEVELMUSIC));
+                        MUSIC_PARSE_ERROR(Q_Format("Unable to find subgroup \"{}\"\n", sKEY_LEVELMUSIC).c_str());
                     }
                 }
                 else {
-                    MUSIC_PARSE_ERROR(va("Unable to find subgroup \"%s\"\n", sKEY_MUSICFILES));
+                    MUSIC_PARSE_ERROR(Q_Format("Unable to find subgroup \"{}\"\n", sKEY_MUSICFILES).c_str());
                 }
             }
             else {
@@ -603,7 +603,7 @@ static bool Music_ParseLeveldata(const char* psLevelName)
             //
             const char* psMusicFileName = Music_BuildFileName(MusicFile.sFileNameBase.c_str(), eMusicState);
             if (!S_FileExists(psMusicFileName)) {
-                MUSIC_PARSE_ERROR(va("Music file \"%s\" not found!\n", psMusicFileName));
+                MUSIC_PARSE_ERROR(Q_Format("Music file \"{}\" not found!\n", psMusicFileName).c_str());
                 return false; // have to return, because music data destroyed now
             }
 
@@ -614,7 +614,8 @@ static bool Music_ParseLeveldata(const char* psLevelName)
 
                 const char* psTransitionFileName = Music_BuildFileName(MusicExitPoint.sNextFile.c_str(), eMusicState);
                 if (!S_FileExists(psTransitionFileName)) {
-                    MUSIC_PARSE_ERROR(va("Transition file \"%s\" (entry \"%s\" ) not found!\n", psTransitionFileName, MusicExitPoint.sNextFile.c_str()));
+                    MUSIC_PARSE_ERROR(
+                        Q_Format("Transition file \"{}\" (entry \"{}\" ) not found!\n", psTransitionFileName, MusicExitPoint.sNextFile.c_str()).c_str());
                     return false; // have to return, because music data destroyed now
                 }
 
@@ -634,13 +635,15 @@ static bool Music_ParseLeveldata(const char* psLevelName)
 
                         if (!MusicFile_Explore.MusicEntryTimes.count(psNextMark)) {
                             MUSIC_PARSE_ERROR(
-                                va("Unable to find entry point \"%s\" in description for \"%s\"\n", psNextMark, MusicFile_Explore.sFileNameBase.c_str()));
+                                Q_Format("Unable to find entry point \"{}\" in description for \"{}\"\n", psNextMark, MusicFile_Explore.sFileNameBase.c_str())
+                                    .c_str());
                             return false; // have to return, because music data destroyed now
                         }
                     }
                     else {
-                        MUSIC_PARSE_ERROR(va("Unable to find %s piece to match \"%s\"\n", Music_BaseStateToString(MusicState_e::eBGRNDTRACK_EXPLORE),
-                                             MusicFile.sFileNameBase.c_str()));
+                        MUSIC_PARSE_ERROR(Q_Format("Unable to find {} piece to match \"{}\"\n", Music_BaseStateToString(MusicState_e::eBGRNDTRACK_EXPLORE),
+                                                   MusicFile.sFileNameBase.c_str())
+                                              .c_str());
                         return false; // have to return, because music data destroyed now
                     }
                 }
@@ -659,7 +662,7 @@ static bool Music_ParseLeveldata(const char* psLevelName)
             const char *psMusicState		= (*itMusicData).first.c_str();
             MusicFile_t &MusicFile	= (*itMusicData).second;
 
-            Com_DPrintf("Music State:  \"%s\",  File: \"%s\"\n",psMusicState, MusicFile.sFileNameBase.c_str());
+            Q_DPrintln("Music State:  \"{}\",  File: \"{}\"", psMusicState, MusicFile.sFileNameBase.c_str());
 
             // entry times...
             //
@@ -668,7 +671,7 @@ static bool Music_ParseLeveldata(const char* psLevelName)
                 const char *psMarkerName	= (*itEntryTimes).first.c_str();
                 float	fEntryTime		= (*itEntryTimes).second;
 
-                Com_DPrintf("Entry time for \"%s\": %f\n", psMarkerName, fEntryTime);
+                Q_DPrintln("Entry time for \"{}\": {:f}", psMarkerName, fEntryTime);
             }
 
             // exit points...
@@ -677,7 +680,7 @@ static bool Music_ParseLeveldata(const char* psLevelName)
             {
                 MusicExitPoint_t &MusicExitPoint = MusicFile.MusicExitPoints[i];
 
-                Com_DPrintf("Exit point %d:	sNextFile: \"%s\", sNextMark: \"%s\"\n",i,MusicExitPoint.sNextFile.c_str(),MusicExitPoint.sNextMark.c_str());
+                Q_DPrintln("Exit point {}:	sNextFile: \"{}\", sNextMark: \"{}\"", i, MusicExitPoint.sNextFile.c_str(), MusicExitPoint.sNextMark.c_str());
             }
 
             // exit times...
@@ -686,7 +689,7 @@ static bool Music_ParseLeveldata(const char* psLevelName)
             {
                 MusicExitTime_t &MusicExitTime = MusicFile.MusicExitTimes[i];
 
-                Com_DPrintf("Exit time %d:		fTime: %f, iExitPoint: %d\n",i,MusicExitTime.fTime,MusicExitTime.iExitPoint);
+                Q_DPrintln("Exit time {}:		fTime: {:f}, iExitPoint: {}", i, MusicExitTime.fTime, MusicExitTime.iExitPoint);
             }
         }
     }
@@ -787,7 +790,7 @@ const char* Music_GetFileNameForState(MusicState_e eMusicState)
     default:
 #ifndef FINAL_BUILD
         assert(0); // duh....what state are they asking for?
-        Com_Printf(S_COLOR_RED "Music_GetFileNameForState( %d ) unhandled case!\n", to_underlying(eMusicState));
+        Q_Println(S_COLOR_RED "Music_GetFileNameForState( {} ) unhandled case!", to_underlying(eMusicState));
 #endif
         break;
     }
@@ -929,8 +932,8 @@ bool Music_AllowedToTransition(float fPlayingTimeElapsed, MusicState_e eMusicSta
                                 else {
 #ifndef FINAL_BUILD
                                     assert(0); // sanity, should have been caught elsewhere, but harmless to do this
-                                    Com_Printf(S_COLOR_RED "Music_AllowedToTransition() unable to find entry marker \"%s\" in \"%s\"",
-                                               ExitPoint.sNextMark.c_str(), MusicFile_Explore.sFileNameBase.c_str());
+                                    Q_Print(S_COLOR_RED "Music_AllowedToTransition() unable to find entry marker \"{}\" in \"{}\"", ExitPoint.sNextMark.c_str(),
+                                            MusicFile_Explore.sFileNameBase.c_str());
 #endif
                                     return false;
                                 }
@@ -938,8 +941,8 @@ bool Music_AllowedToTransition(float fPlayingTimeElapsed, MusicState_e eMusicSta
                             else {
 #ifndef FINAL_BUILD
                                 assert(0); // sanity, should have been caught elsewhere, but harmless to do this
-                                Com_Printf(S_COLOR_RED "Music_AllowedToTransition() unable to find %s version of \"%s\"\n",
-                                           Music_BaseStateToString(MusicState_e::eBGRNDTRACK_EXPLORE), pMusicFile->sFileNameBase.c_str());
+                                Q_Println(S_COLOR_RED "Music_AllowedToTransition() unable to find {} version of \"{}\"",
+                                          Music_BaseStateToString(MusicState_e::eBGRNDTRACK_EXPLORE), pMusicFile->sFileNameBase.c_str());
 #endif
                                 return false;
                             }
@@ -953,7 +956,7 @@ bool Music_AllowedToTransition(float fPlayingTimeElapsed, MusicState_e eMusicSta
                     default: {
 #ifndef FINAL_BUILD
                         assert(0);
-                        Com_Printf(S_COLOR_RED "Music_AllowedToTransition(): No code to transition from music type %d\n", to_underlying(eMusicState));
+                        Q_Println(S_COLOR_RED "Music_AllowedToTransition(): No code to transition from music type {}", to_underlying(eMusicState));
 #endif
                         return false;
                     } break;
@@ -962,8 +965,8 @@ bool Music_AllowedToTransition(float fPlayingTimeElapsed, MusicState_e eMusicSta
                 else {
 #ifndef FINAL_BUILD
                     assert(0);
-                    Com_Printf(S_COLOR_RED "Music_AllowedToTransition(): Illegal exit point %d, max = %zu (music: \"%s\")\n", iExitPoint,
-                               pMusicFile->MusicExitPoints.size() - 1, pMusicFile->sFileNameBase.c_str());
+                    Q_Println(S_COLOR_RED "Music_AllowedToTransition(): Illegal exit point {}, max = {} (music: \"{}\")", iExitPoint,
+                              pMusicFile->MusicExitPoints.size() - 1, pMusicFile->sFileNameBase.c_str());
 #endif
                     return false;
                 }
@@ -1013,7 +1016,7 @@ float Music_GetRandomEntryTime(MusicState_e eMusicState)
             }
             iPrevRandomNumber = iRandomEntryNum;
 
-            //			Com_DPrintf("Music_GetRandomEntryTime(): Entry %d\n",iRandomEntryNum);
+            //			Q_DPrintln("Music_GetRandomEntryTime(): Entry {}", iRandomEntryNum);
 
             for (MusicEntryTimes_t::iterator itEntryTime = MusicFile.MusicEntryTimes.begin(); itEntryTime != MusicFile.MusicEntryTimes.end(); ++itEntryTime) {
                 if (!iRandomEntryNum--) {
@@ -1030,10 +1033,11 @@ float Music_GetRandomEntryTime(MusicState_e eMusicState)
 //
 const char* Music_GetLevelSetName(void)
 {
+    static formatText_t text; // the text returned, valid until the next call
     if (Q_stricmp(gsLevelNameForCompare.c_str(), gsLevelNameForLoad.c_str())) {
         // music remap via USES command...
         //
-        return va("%s -> %s", gsLevelNameForCompare.c_str(), gsLevelNameForLoad.c_str());
+        return (text = Q_Format("{} -> {}", gsLevelNameForCompare.c_str(), gsLevelNameForLoad.c_str())).c_str();
     }
 
     return gsLevelNameForLoad.c_str();

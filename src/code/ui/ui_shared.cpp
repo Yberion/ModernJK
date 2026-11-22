@@ -190,22 +190,24 @@ void Window_Init(Window* w)
 PC_SourceError
 =================
 */
-void PC_SourceError(int handle, char* format, ...) __attribute__((format(printf, 2, 3)));
-void PC_SourceError(int handle, char* format, ...)
+void PC_VSourceError(int handle, fmt::string_view format, fmt::format_args args);
+template <typename... T> void PC_SourceError(int handle, fmt::format_string<T...> format, T&&... args)
+{
+    PC_VSourceError(handle, format.get(), Q_FormatArgs(args...));
+}
+
+void PC_VSourceError(int handle, fmt::string_view format, fmt::format_args args)
 {
     int line;
     char filename[128];
-    va_list argptr;
     static char string[4096];
 
-    va_start(argptr, format);
-    Q_vsnprintf(string, sizeof(string), format, argptr);
-    va_end(argptr);
+    Q_VFormatToCut(string, format, args);
 
     filename[0] = '\0';
     line = 0;
 
-    Com_PrintError("%s, line %d: %s\n", filename, line, string);
+    Q_PrintlnError("{}, line {}: {}", filename, line, string);
 }
 
 /*
@@ -282,7 +284,7 @@ bool PC_Script_Parse(const char** out)
         }
 
         if (*(token2 + 1) != '\0') {
-            Q_strcat(script, sizeof(script), va("\"%s\"", token2));
+            Q_strcat(script, sizeof(script), Q_Format("\"{}\"", token2).c_str());
         }
         else {
             Q_strcat(script, sizeof(script), token2);
@@ -395,7 +397,7 @@ bool MenuParse_style(itemDef_t* item)
     }
 
     if (styles[i] == nullptr) {
-        PC_ParseWarning(va("Unknown menu style value '%s'", tempStr));
+        PC_ParseWarning(Q_Format("Unknown menu style value '{}'", tempStr).c_str());
     }
     return true;
 }
@@ -656,7 +658,7 @@ bool MenuParse_descAlignment(itemDef_t* item)
     }
 
     if (alignment[i] == nullptr) {
-        PC_ParseWarning(va("Unknown desc alignment value '%s'", tempStr));
+        PC_ParseWarning(Q_Format("Unknown desc alignment value '{}'", tempStr).c_str());
     }
 
     return true;
@@ -942,7 +944,7 @@ static void Item_ApplyHacks(itemDef_t* item)
             item->disabled = true;
             // Just in case it had focus
             item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
-            Com_Printf("Disabling eax field because current platform does not support EAX.\n");
+            Q_Println("Disabling eax field because current platform does not support EAX.");
         }
     }
 
@@ -954,7 +956,7 @@ static void Item_ApplyHacks(itemDef_t* item)
             item->disabled = item->disabledHidden = true;
             // Just in case it had focus
             item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
-            Com_Printf("Hiding eax_icon object because current platform does not support EAX.\n");
+            Q_Println("Hiding eax_icon object because current platform does not support EAX.");
         }
     }
 
@@ -976,7 +978,7 @@ static void Item_ApplyHacks(itemDef_t* item)
 #endif
             multiPtr->cvarValue[multiPtr->count] = 44;
             multiPtr->count++;
-            Com_Printf("Extended sound quality field to contain very high option.\n");
+            Q_Println("Extended sound quality field to contain very high option.");
         }
     }
 
@@ -998,7 +1000,7 @@ static void Item_ApplyHacks(itemDef_t* item)
 #endif
             multiPtr->cvarValue[multiPtr->count] = 1;
             multiPtr->count++;
-            Com_Printf("Extended subtitles field to contain all voiceovers option.\n");
+            Q_Println("Extended subtitles field to contain all voiceovers option.");
         }
     }
 
@@ -1019,7 +1021,7 @@ static void Item_ApplyHacks(itemDef_t* item)
         editPtr->minVal = 0.5f;
         editPtr->maxVal = cls.glconfig.maxTextureFilterAnisotropy;
         editPtr->defVal = 1.0f;
-        Com_Printf("Converted anisotropic filter field to slider.\n");
+        Q_Println("Converted anisotropic filter field to slider.");
     }
 #endif
 }
@@ -1044,7 +1046,7 @@ bool MenuParse_itemDef(itemDef_t* item)
         Item_ApplyHacks(newItem);
     }
     else {
-        PC_ParseWarning(va("Exceeded item/menu max of %d", MAX_MENUITEMS));
+        PC_ParseWarning(Q_Format("Exceeded item/menu max of {}", MAX_MENUITEMS).c_str());
     }
     return true;
 }
@@ -1323,7 +1325,7 @@ const char* String_Alloc(const char* p)
         return &strPool[ph];
     }
     else {
-        Com_Warning("Ran out of strPool space\n");
+        Q_PrintlnWarning("Ran out of strPool space");
     }
 
     return nullptr;
@@ -1337,16 +1339,16 @@ String_Report
 void String_Report(void)
 {
     float f;
-    Com_Printf("Memory/String Pool Info\n");
-    Com_Printf("----------------\n");
+    Q_Println("Memory/String Pool Info");
+    Q_Println("----------------");
     f = strPoolIndex;
     f /= STRING_POOL_SIZE;
     f *= 100;
-    Com_Printf("String Pool is %.1f%% full, %i bytes out of %i used.\n", f, strPoolIndex, STRING_POOL_SIZE);
+    Q_Println("String Pool is {:.1f}% full, {} bytes out of {} used.", f, strPoolIndex, STRING_POOL_SIZE);
     f = allocPoint;
     f /= MEM_POOL_SIZE;
     f *= 100;
-    Com_Printf("Memory Pool is %.1f%% full, %i bytes out of %i used.\n", f, allocPoint, MEM_POOL_SIZE);
+    Q_Println("Memory Pool is {:.1f}% full, {} bytes out of {} used.", f, allocPoint, MEM_POOL_SIZE);
 }
 
 /*
@@ -1386,7 +1388,7 @@ void* UI_Alloc(int size)
     char* p;
 
     if (allocPoint + size > MEM_POOL_SIZE) {
-        Com_Printf("UI_Alloc: Failure. Out of memory!\n");
+        Q_Println("UI_Alloc: Failure. Out of memory!");
         return nullptr;
     }
 
@@ -1419,7 +1421,7 @@ int Menu_ItemsMatchingGroup(menuDef_t* menu, const char* name)
 
     for (i = 0; i < menu->itemCount; i++) {
         if ((!menu->items[i]->window.name) && (!menu->items[i]->window.group)) {
-            Com_Warning("item has neither name or group\n");
+            Q_PrintlnWarning("item has neither name or group");
             continue;
         }
 
@@ -1490,7 +1492,7 @@ void Menu_ShowItemByName(menuDef_t* menu, const char* p, bool bShow)
     count = Menu_ItemsMatchingGroup(menu, p);
 
     if (!count) {
-        Com_Warning("Menu_ShowItemByName - unable to locate any items named: \"%s\"\n", p);
+        Q_PrintlnWarning("Menu_ShowItemByName - unable to locate any items named: \"{}\"", p);
     }
 
     for (i = 0; i < count; i++) {
@@ -2355,7 +2357,7 @@ bool Script_Delay(itemDef_t* item, const char** args)
         item->window.delayedScript = (char*)*args;    // Copy current location, we'll resume executing here later
     }
     else {
-        Com_Warning("Script_Delay: error parsing\n");
+        Q_PrintlnWarning("Script_Delay: error parsing");
     }
 
     // Stop running
@@ -2381,7 +2383,7 @@ bool Script_Transition(itemDef_t* item, const char** args)
             Menu_TransitionItemByName((menuDef_t*)item->parent, name, &rectFrom, &rectTo, time, amt);
         }
         else {
-            Com_Warning("Script_Transition: error parsing '%s'\n", name);
+            Q_PrintlnWarning("Script_Transition: error parsing '{}'", name);
         }
     }
 
@@ -2408,7 +2410,7 @@ bool Script_Transition2(itemDef_t* item, const char** args)
             Menu_TransitionItemByName((menuDef_t*)item->parent, name, nullptr, &rectTo, time, amt);
         }
         else {
-            Com_Warning("Script_Transition2: error parsing '%s'\n", name);
+            Q_PrintlnWarning("Script_Transition2: error parsing '{}'", name);
         }
     }
 
@@ -2475,7 +2477,7 @@ bool Script_Transition3(itemDef_t* item, const char** args)
         }
     }
     if (name) {
-        Com_Warning("Script_Transition2: error parsing '%s'\n", name);
+        Q_PrintlnWarning("Script_Transition2: error parsing '{}'", name);
     }
     return true;
 }
@@ -2626,7 +2628,7 @@ bool Script_Exec(itemDef_t* item, const char** args)
 {
     const char* val;
     if (String_Parse(args, &val)) {
-        DC->executeText(cbufExec_t::EXEC_APPEND, va("%s ; ", val));
+        DC->executeText(cbufExec_t::EXEC_APPEND, Q_Format("{} ; ", val).c_str());
     }
 
     return true;
@@ -2996,10 +2998,10 @@ bool ItemParse_asset_model(itemDef_t* item)
     char modelPath[MAX_QPATH];
 
     if (!Q_stricmp(temp, "ui_char_model")) {
-        Com_sprintf(modelPath, sizeof(modelPath), "models/players/%s/model.glm", Cvar_VariableString("g_char_model"));
+        Q_FormatTo(modelPath, "models/players/{}/model.glm", Cvar_VariableString("g_char_model"));
     }
     else {
-        Com_sprintf(modelPath, sizeof(modelPath), "%s", temp);
+        Q_FormatTo(modelPath, "{}", temp);
     }
     return (ItemParse_asset_model_go(item, modelPath));
 }
@@ -3199,7 +3201,7 @@ bool ItemParse_model_g2anim_go(itemDef_t* item, const char* animName)
         return true;
     }
 
-    Com_Printf("Could not find '%s' in the anim table\n", animName);
+    Q_Println("Could not find '{}' in the anim table", animName);
     return true;
 }
 
@@ -3254,7 +3256,7 @@ bool ItemParse_flag(itemDef_t* item)
     }
 
     if (itemFlags[i].string == nullptr) {
-        PC_ParseWarning(va("Unknown item flag value '%s'", tempStr));
+        PC_ParseWarning(Q_Format("Unknown item flag value '{}'", tempStr).c_str());
     }
 
     return true;
@@ -3285,7 +3287,7 @@ bool ItemParse_style(itemDef_t* item)
     }
 
     if (styles[i] == nullptr) {
-        PC_ParseWarning(va("Unknown item style value '%s'", tempStr));
+        PC_ParseWarning(Q_Format("Unknown item style value '{}'", tempStr).c_str());
     }
 
     return true;
@@ -3400,7 +3402,7 @@ bool ItemParse_type(itemDef_t* item)
     }
 
     if (types[i] == nullptr) {
-        PC_ParseWarning(va("Unknown item type value '%s'", tempStr));
+        PC_ParseWarning(Q_Format("Unknown item type value '{}'", tempStr).c_str());
     }
     else {
         Item_ValidateTypeData(item);
@@ -3634,7 +3636,7 @@ bool ItemParse_textalign(itemDef_t* item)
     }
 
     if (alignment[i] == nullptr) {
-        PC_ParseWarning(va("Unknown text alignment value '%s'", tempStr));
+        PC_ParseWarning(Q_Format("Unknown text alignment value '{}'", tempStr).c_str());
     }
 
     return true;
@@ -4177,8 +4179,10 @@ bool ItemParse_cvarStrList(itemDef_t* item)
 
     if (!Q_stricmp(token, "feeder") && item->special == FEEDER_PLAYER_SPECIES) {
         for (; multiPtr->count < uiInfo.playerSpeciesCount; multiPtr->count++) {
-            multiPtr->cvarList[multiPtr->count] = String_Alloc(Q_strupr(va("@MENUS_%s", uiInfo.playerSpecies[multiPtr->count].Name))); // look up translation
-            multiPtr->cvarStr[multiPtr->count] = uiInfo.playerSpecies[multiPtr->count].Name;                                           // value
+            char speciesName[MAX_QPATH];
+            Q_FormatTo(speciesName, "@MENUS_{}", uiInfo.playerSpecies[multiPtr->count].Name);
+            multiPtr->cvarList[multiPtr->count] = String_Alloc(Q_strupr(speciesName));       // look up translation
+            multiPtr->cvarStr[multiPtr->count] = uiInfo.playerSpecies[multiPtr->count].Name; // value
         }
         return true;
     }
@@ -4852,13 +4856,13 @@ bool Item_Parse(itemDef_t* item)
             /*			if (!item->window.name)
                         {
                             item->window.name = defaultString;
-                            Com_Warning("Menu item has no name\n");
+                            Q_PrintlnWarning("Menu item has no name");
                         }
 
                         if (!item->window.group)
                         {
                             item->window.group = defaultString;
-                            Com_Warning("Menu item has no group\n");
+                            Q_PrintlnWarning("Menu item has no group");
                         }
             */
             return true;
@@ -4866,12 +4870,12 @@ bool Item_Parse(itemDef_t* item)
 
         key = (keywordHash_s*)KeywordHash_Find(itemParseKeywordHash, token);
         if (!key) {
-            PC_ParseWarning(va("Unknown item keyword '%s'", token));
+            PC_ParseWarning(Q_Format("Unknown item keyword '{}'", token).c_str());
             continue;
         }
 
         if (!key->func(item)) {
-            PC_ParseWarning(va("Couldn't parse item keyword '%s'", token));
+            PC_ParseWarning(Q_Format("Couldn't parse item keyword '{}'", token).c_str());
             return false;
         }
     }
@@ -4936,10 +4940,10 @@ static void Item_TextScroll_BuildLines(itemDef_t* item)
             }
 
             if (uiLetter > 255) {
-                Q_strcat(sLineForDisplay, sizeof(sLineForDisplay), va("%c%c", uiLetter >> 8, uiLetter & 0xFF));
+                Q_strcat(sLineForDisplay, sizeof(sLineForDisplay), Q_Format("{:c}{:c}", uiLetter >> 8, uiLetter & 0xFF).c_str());
             }
             else {
-                Q_strcat(sLineForDisplay, sizeof(sLineForDisplay), va("%c", uiLetter & 0xFF));
+                Q_strcat(sLineForDisplay, sizeof(sLineForDisplay), Q_Format("{:c}", uiLetter & 0xFF).c_str());
             }
 
             if (uiLetter == '\n') {
@@ -5171,7 +5175,7 @@ menuDef_t* Menus_ActivateByName(const char* p)
             Menus_OpenByName("ingameMissionSelect3");
         }
         else {
-            Com_Warning("Menus_ActivateByName: Unable to find menu \"%s\"\n", p);
+            Q_PrintlnWarning("Menus_ActivateByName: Unable to find menu \"{}\"", p);
         }
     }
 
@@ -5536,12 +5540,12 @@ bool Menu_Parse(char* inbuffer, menuDef_t* menu)
         key = KeywordHash_Find(menuParseKeywordHash, token2);
 
         if (!key) {
-            PC_ParseWarning(va("Unknown menu keyword %s", token2));
+            PC_ParseWarning(Q_Format("Unknown menu keyword {}", token2).c_str());
             continue;
         }
 
         if (!key->func((itemDef_t*)menu)) {
-            PC_ParseWarning(va("Couldn't parse menu keyword %s as %s", token2, key->keyword));
+            PC_ParseWarning(Q_Format("Couldn't parse menu keyword {} as {}", token2, key->keyword).c_str());
             return false;
         }
     }
@@ -5626,13 +5630,13 @@ PC_ParseWarning
 */
 void PC_ParseWarning(const char* message)
 {
-    Com_Warning("%s Line #%d of File '%s'\n", message, parseData[parseDataCount].com_lines, parseData[parseDataCount].fileName);
+    Q_PrintlnWarning("{} Line #{} of File '{}'", message, parseData[parseDataCount].com_lines, parseData[parseDataCount].fileName);
 }
 
 char* PC_ParseExt(void)
 {
     if (parseDataCount < 0)
-        Com_Error(errorParm_t::ERR_FATAL, "PC_ParseExt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+        Q_Error(errorParm_t::ERR_FATAL, "PC_ParseExt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
     return (COM_ParseExt(&parseData[parseDataCount].bufferCurrent, true));
 }
 
@@ -5641,7 +5645,7 @@ bool PC_ParseString(const char** string)
     int hold;
 
     if (parseDataCount < 0)
-        Com_Error(errorParm_t::ERR_FATAL, "PC_ParseString: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+        Q_Error(errorParm_t::ERR_FATAL, "PC_ParseString: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 
     hold = COM_ParseString(&parseData[parseDataCount].bufferCurrent, string);
 
@@ -5655,7 +5659,7 @@ bool PC_ParseString(const char** string)
 bool PC_ParseInt(int* number)
 {
     if (parseDataCount < 0)
-        Com_Error(errorParm_t::ERR_FATAL, "PC_ParseInt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+        Q_Error(errorParm_t::ERR_FATAL, "PC_ParseInt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 
     return (COM_ParseInt(&parseData[parseDataCount].bufferCurrent, number));
 }
@@ -5663,7 +5667,7 @@ bool PC_ParseInt(int* number)
 bool PC_ParseFloat(float* number)
 {
     if (parseDataCount < 0)
-        Com_Error(errorParm_t::ERR_FATAL, "PC_ParseFloat: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+        Q_Error(errorParm_t::ERR_FATAL, "PC_ParseFloat: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 
     return (COM_ParseFloat(&parseData[parseDataCount].bufferCurrent, number));
 }
@@ -5671,7 +5675,7 @@ bool PC_ParseFloat(float* number)
 bool PC_ParseColor(vec4_t* color)
 {
     if (parseDataCount < 0)
-        Com_Error(errorParm_t::ERR_FATAL, "PC_ParseColor: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+        Q_Error(errorParm_t::ERR_FATAL, "PC_ParseColor: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 
     return (COM_ParseVec4(&parseData[parseDataCount].bufferCurrent, color));
 }
@@ -5704,8 +5708,8 @@ void Menu_PaintAll(void)
 
     if (uis.debugMode) {
         vec4_t v = {1, 1, 1, 1};
-        DC->drawText(5, 25, .75, v, va("(%d,%d)", DC->cursorx, DC->cursory), 0, 0, DC->Assets.qhMediumFont);
-        DC->drawText(5, 10, .75, v, va("fps: %f", DC->FPS), 0, 0, DC->Assets.qhMediumFont);
+        DC->drawText(5, 25, .75, v, Q_Format("({},{})", DC->cursorx, DC->cursory).c_str(), 0, 0, DC->Assets.qhMediumFont);
+        DC->drawText(5, 10, .75, v, Q_Format("fps: {:f}", DC->FPS).c_str(), 0, 0, DC->Assets.qhMediumFont);
     }
 }
 
@@ -6531,7 +6535,7 @@ void BindingFromName(const char* cvar)
                 Q_strncpyz(sOR, SE_GetString("MENUS_KEYBIND_OR"), sizeof(sOR));
 #endif
 
-                Com_sprintf(g_nameBind, sizeof(g_nameBind), "%s %s %s", keyname[0], sOR, keyname[1]);
+                Q_FormatTo(g_nameBind, "{} {} {}", keyname[0], sOR, keyname[1]);
             }
             else {
                 DC->keynumToStringBuf(*b1, g_nameBind, sizeof(g_nameBind));
@@ -9738,7 +9742,7 @@ static void Scroll_Slider_ThumbFunc(void* p)
     value /= SLIDER_WIDTH;
     value *= (editDef->maxVal - editDef->minVal);
     value += editDef->minVal;
-    DC->setCVar(si->item->cvar, va("%f", value));
+    DC->setCVar(si->item->cvar, Q_Format("{:f}", value).c_str());
 }
 /*
 =================
@@ -9826,7 +9830,7 @@ bool Item_YesNo_HandleKey(itemDef_t* item, fakeAscii_t key)
 {
     if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS) && item->cvar) {
         if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3) {
-            DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
+            DC->setCVar(item->cvar, Q_Format("{:d}", !DC->getCVarValue(item->cvar)).c_str());
             return true;
         }
     }
@@ -9963,10 +9967,10 @@ bool Item_Multi_HandleKey(itemDef_t* item, fakeAscii_t key)
                     else {
                         float value = multiPtr->cvarValue[current];
                         if (((float)((int)value)) == value) {
-                            DC->setCVar(item->cvar, va("%i", (int)value));
+                            DC->setCVar(item->cvar, Q_Format("{}", (int)value).c_str());
                         }
                         else {
-                            DC->setCVar(item->cvar, va("%f", value));
+                            DC->setCVar(item->cvar, Q_Format("{:f}", value).c_str());
                         }
                     }
                     if (item->special) { // its a feeder?
@@ -10007,7 +10011,7 @@ Item_Slider_HandleKey
 */
 bool Item_Slider_HandleKey(itemDef_t* item, fakeAscii_t key, bool down)
 {
-    // Com_Printf("slider handle key\n");
+    // Q_Println("slider handle key");
     // JLF MPMOVED
 
     float x, value, width, work;
@@ -10030,9 +10034,9 @@ bool Item_Slider_HandleKey(itemDef_t* item, fakeAscii_t key, bool down)
                 testRect.x = x;
                 value = (float)SLIDER_THUMB_WIDTH / 2;
                 testRect.x -= value;
-                // Com_Printf("slider x: %f\n", testRect.x);
+                // Q_Println("slider x: {:f}", testRect.x);
                 testRect.w = (SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2);
-                // Com_Printf("slider w: %f\n", testRect.w);
+                // Q_Println("slider w: {:f}", testRect.w);
                 if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory)) {
                     work = DC->cursorx - x;
                     value = work / width;
@@ -10040,14 +10044,14 @@ bool Item_Slider_HandleKey(itemDef_t* item, fakeAscii_t key, bool down)
                     // vm fuckage
                     // value = (((float)(DC->cursorx - x)/ SLIDER_WIDTH) * (editDef->maxVal - editDef->minVal));
                     value += editDef->minVal;
-                    DC->setCVar(item->cvar, va("%f", value));
+                    DC->setCVar(item->cvar, Q_Format("{:f}", value).c_str());
                     return true;
                 }
             }
         }
     }
 
-    // Com_Printf("slider handle key exit\n");
+    // Q_Println("slider handle key exit");
     return false;
 }
 
@@ -10310,7 +10314,7 @@ void Menu_HandleKey(menuDef_t* menu, int event, bool down)
                 DC->executeText(cbufExec_t::EXEC_APPEND, "screenshot_png\n");
                 break;
             default:
-                Com_Printf(S_COLOR_YELLOW "Menu_HandleKey[F12]: Unknown screenshot format assigned! This should not happen.\n");
+                Q_Println(S_COLOR_YELLOW "Menu_HandleKey[F12]: Unknown screenshot format assigned! This should not happen.");
                 break;
             }
         }
@@ -10468,7 +10472,7 @@ void Menus_HideItems(const char* menuName)
     menu = Menus_FindByName(menuName); // Get menu
 
     if (!menu) {
-        Com_Warning("No menu was found. Could not hide items.\n");
+        Q_PrintlnWarning("No menu was found. Could not hide items.");
         return;
     }
 
@@ -10492,7 +10496,7 @@ void Menus_ShowItems(const char* menuName)
     menu = Menus_FindByName(menuName); // Get menu
 
     if (!menu) {
-        Com_Warning("No menu was found. Could not show items.\n");
+        Q_PrintlnWarning("No menu was found. Could not show items.");
         return;
     }
 

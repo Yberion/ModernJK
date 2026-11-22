@@ -59,12 +59,12 @@ int UI_ParseInfos(char* buf, int max, char* infos[])
             break;
         }
         if (strcmp(token, "{")) {
-            Com_Printf("Missing { in info file\n");
+            Q_Println("Missing {{ in info file");
             break;
         }
 
         if (count == max) {
-            Com_Printf("Max infos exceeded\n");
+            Q_Println("Max infos exceeded");
             break;
         }
 
@@ -72,7 +72,7 @@ int UI_ParseInfos(char* buf, int max, char* infos[])
         while (1) {
             token = COM_ParseExt((const char**)&buf, true);
             if (!token[0]) {
-                Com_Printf("Unexpected end of info file\n");
+                Q_Println("Unexpected end of info file");
                 break;
             }
             if (!strcmp(token, "}")) {
@@ -87,7 +87,7 @@ int UI_ParseInfos(char* buf, int max, char* infos[])
             Info_SetValueForKey(info, key, token);
         }
         // NOTE: extra space for arena number
-        infos[count] = (char*)UI_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1);
+        infos[count] = (char*)UI_Alloc(strlen(info) + strlen("\\num\\") + strlen(Q_Format("{}", MAX_ARENAS).c_str()) + 1);
         if (infos[count]) {
             strcpy(infos[count], info);
 #ifndef FINAL_BUILD
@@ -121,11 +121,11 @@ static void UI_LoadArenasFromFile(char* filename)
 
     len = trap->FS_Open(filename, &f, fsMode_t::FS_READ);
     if (!f) {
-        Com_Printf(S_COLOR_RED "file not found: %s\n", filename);
+        Q_Println(S_COLOR_RED "file not found: {}", filename);
         return;
     }
     if (len >= MAX_ARENAS_TEXT) {
-        Com_Printf(S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_ARENAS_TEXT);
+        Q_Print(S_COLOR_RED "file too large: {} is {}, max allowed is {}", filename, len, MAX_ARENAS_TEXT);
         trap->FS_Close(f);
         return;
     }
@@ -166,9 +166,9 @@ void UI_LoadArenas(void)
         strcat(filename, dirptr);
         UI_LoadArenasFromFile(filename);
     }
-    //	Com_Printf( "%i arenas parsed\n", ui_numArenas );
+    //	Q_Println("{} arenas parsed", ui_numArenas);
     if (UI_OutOfMemory()) {
-        Com_Warning("not anough memory in pool to load all arenas\n");
+        Q_PrintlnWarning("not anough memory in pool to load all arenas");
     }
 
     for (n = 0; n < ui_numArenas; n++) {
@@ -178,7 +178,7 @@ void UI_LoadArenas(void)
         uiInfo.mapList[uiInfo.mapCount].mapLoadName = String_Alloc(Info_ValueForKey(ui_arenaInfos[n], "map"));
         uiInfo.mapList[uiInfo.mapCount].mapName = String_Alloc(Info_ValueForKey(ui_arenaInfos[n], "longname"));
         uiInfo.mapList[uiInfo.mapCount].levelShot = -1;
-        uiInfo.mapList[uiInfo.mapCount].imageName = String_Alloc(va("levelshots/%s", uiInfo.mapList[uiInfo.mapCount].mapLoadName));
+        uiInfo.mapList[uiInfo.mapCount].imageName = String_Alloc(Q_Format("levelshots/{}", uiInfo.mapList[uiInfo.mapCount].mapLoadName).c_str());
         uiInfo.mapList[uiInfo.mapCount].typeBits = 0;
 
         type = Info_ValueForKey(ui_arenaInfos[n], "type");
@@ -240,11 +240,11 @@ static void UI_LoadBotsFromFile(const char* filename)
 
     len = trap->FS_Open(filename, &f, fsMode_t::FS_READ);
     if (!f) {
-        Com_Printf(S_COLOR_RED "file not found: %s\n", filename);
+        Q_Println(S_COLOR_RED "file not found: {}", filename);
         return;
     }
     if (len >= MAX_BOTS_TEXT) {
-        Com_Printf(S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_BOTS_TEXT);
+        Q_Print(S_COLOR_RED "file too large: {} is {}, max allowed is {}", filename, len, MAX_BOTS_TEXT);
         trap->FS_Close(f);
         return;
     }
@@ -309,7 +309,7 @@ void UI_LoadBots(void)
         strcat(filename, dirptr);
         UI_LoadBotsFromFile(filename);
     }
-    //	Com_Printf( "%i bots parsed\n", ui_numBots );
+    //	Q_Println("{} bots parsed", ui_numBots);
 }
 
 /*
@@ -320,7 +320,7 @@ UI_GetBotInfoByNumber
 char* UI_GetBotInfoByNumber(int num)
 {
     if (num < 0 || num >= ui_numBots) {
-        Com_Printf(S_COLOR_RED "Invalid bot number: %i\n", num);
+        Q_Println(S_COLOR_RED "Invalid bot number: {}", num);
         return nullptr;
     }
     return ui_botInfos[num];

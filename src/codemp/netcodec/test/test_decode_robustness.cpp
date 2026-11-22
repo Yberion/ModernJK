@@ -29,7 +29,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "mutate.h"
 #include "synthetic.h"
 
-#include <cinttypes>
+#include <fmt/base.h>
+
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
@@ -65,7 +67,7 @@ void RunStream(uint64_t seed, size_t nmsg, size_t nmut, Stats& st)
                 st.accepted++;
                 if (!s.EncodeFromClient(dm1, d1, again)) {
                     if (st.reencodeRefused++ < 5)
-                        std::fprintf(stderr, "re-encoding refused: seed %" PRIu64 " seq %u\n", seed, s.Seq());
+                        fmt::println(stderr, "re-encoding refused: seed {} seq {}", seed, s.Seq());
                     continue;
                 }
                 uint32_t d2 = 0;
@@ -73,7 +75,7 @@ void RunStream(uint64_t seed, size_t nmsg, size_t nmut, Stats& st)
                 const bool same = s.DecodeAsClient(again, dm2, d2, r2, 1) && d2 == d1 && trace::SameMessage(dm2, dm1) && r2.ack == r1.ack &&
                                   r2.time == r1.time && r2.cmdSeq == r1.cmdSeq;
                 if (!same && st.mismatches++ < 5)
-                    std::fprintf(stderr, "decode(encode(decode(x))) differs: seed %" PRIu64 " seq %u\n", seed, s.Seq());
+                    fmt::println(stderr, "decode(encode(decode(x))) differs: seed {} seq {}", seed, s.Seq());
             }
         }
         const bool ok = s.Commit(c, coded ? std::span<const uint8_t>(out) : std::span<const uint8_t>(), rec, dm) && coded;
@@ -93,8 +95,8 @@ int main(int argc, char** argv)
     Stats st;
     for (size_t i = 0; i < streams; i++)
         RunStream((seed * 7'000'003) + i, nmsg, nmut, st);
-    std::printf("decoder robustness: %zu messages, %zu malformed inputs decoded without fault, %zu accepted; re-encoding "
-                "refused %zu, decode(encode(decode(x))) different %zu; stream failures %zu\n",
-                st.messages, st.decodes, st.accepted, st.reencodeRefused, st.mismatches, st.streamFailures);
+    fmt::println("decoder robustness: {} messages, {} malformed inputs decoded without fault, {} accepted; re-encoding refused {}, decode(encode(decode(x))) "
+                 "different {}; stream failures {}",
+                 st.messages, st.decodes, st.accepted, st.reencodeRefused, st.mismatches, st.streamFailures);
     return st.decodes != 0 && st.reencodeRefused == 0 && st.mismatches == 0 && st.streamFailures == 0 ? 0 : 1;
 }

@@ -35,8 +35,15 @@ class CTaskManager;
 typedef struct interface_export_s {
     // General
     int (*I_LoadFile)(const char* name, void** buf);
-    void (*I_CenterPrint)(const char* format, ...) __attribute__((format(printf, 1, 2)));
-    void (*I_DPrintf)(WL_e, const char*, ...) __attribute__((format(printf, 2, 3)));
+    void (*I_VCenterPrint)(fmt::string_view format, fmt::format_args args);
+    void (*I_VDPrintln)(WL_e level, fmt::string_view format, fmt::format_args args);
+    // a text centred on the screen
+    template <typename... T> void I_CenterPrint(fmt::format_string<T...> format, T&&... args) { I_VCenterPrint(format.get(), Q_FormatArgs(args...)); }
+    // a debug message of the scripts, the line ended
+    template <typename... T> void I_DPrintln(WL_e level, fmt::format_string<T...> format, T&&... args)
+    {
+        I_VDPrintln(level, format.get(), Q_FormatArgs(args...));
+    }
     sharedEntity_t* (*I_GetEntityByName)(const char* name); // Polls the engine for the sequencer of the entity matching the name passed
     unsigned int (*I_GetTime)(void);                        // Gets the current time
     unsigned int (*I_GetTimeScale)(void);

@@ -1348,7 +1348,7 @@ bool CPrimitiveTemplate::ParseShaders(const CGPProperty& grp)
     }
     if (!any) {
         // empty "list"
-        Com_DPrintf("CPrimitiveTemplate::ParseShaders called with an empty list!\n");
+        Q_DPrintln("CPrimitiveTemplate::ParseShaders called with an empty list!");
         return false;
     }
     return true;
@@ -1376,7 +1376,7 @@ bool CPrimitiveTemplate::ParseSounds(const CGPProperty& grp)
     }
     if (!any) {
         // empty "list"
-        Com_DPrintf("CPrimitiveTemplate::ParseSounds called with an empty list!\n");
+        Q_DPrintln("CPrimitiveTemplate::ParseSounds called with an empty list!");
         return false;
     }
     return true;
@@ -1404,7 +1404,7 @@ bool CPrimitiveTemplate::ParseModels(const CGPProperty& grp)
     }
     if (!any) {
         // empty "list"
-        Com_DPrintf("CPrimitiveTemplate::ParseModels called with an empty list!\n");
+        Q_DPrintln("CPrimitiveTemplate::ParseModels called with an empty list!");
         return false;
     }
     mFlags |= fxPrimitiveFlags_t::FX_ATTACHED_MODEL;
@@ -1425,12 +1425,12 @@ static bool ParseFX(const CGPProperty& grp, CFxScheduler& scheduler, CMediaHandl
                 flags |= successFlags;
             }
             else {
-                Com_DPrintf("%s", loadError);
+                Q_DPrintln("{}", loadError);
             }
         }
     }
     if (!any) {
-        Com_DPrintf("%s", emptyError);
+        Q_DPrintln("{}", emptyError);
     }
     return any;
 }
@@ -1448,7 +1448,7 @@ static bool ParseFX(const CGPProperty& grp, CFxScheduler& scheduler, CMediaHandl
 bool CPrimitiveTemplate::ParseImpactFxStrings(const CGPProperty& grp)
 {
     return ParseFX(grp, theFxScheduler, mImpactFxHandles, theFxHelper, mFlags, fxPrimitiveFlags_t::FX_IMPACT_RUNS_FX | fxPrimitiveFlags_t::FX_APPLY_PHYSICS,
-                   "FxTemplate: Impact effect file not found.\n", "CPrimitiveTemplate::ParseImpactFxStrings called with an empty list!\n");
+                   "FxTemplate: Impact effect file not found.", "CPrimitiveTemplate::ParseImpactFxStrings called with an empty list!");
 }
 
 //------------------------------------------------------
@@ -1463,8 +1463,8 @@ bool CPrimitiveTemplate::ParseImpactFxStrings(const CGPProperty& grp)
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParseDeathFxStrings(const CGPProperty& grp)
 {
-    return ParseFX(grp, theFxScheduler, mDeathFxHandles, theFxHelper, mFlags, fxPrimitiveFlags_t::FX_DEATH_RUNS_FX,
-                   "FxTemplate: Death effect file not found.\n", "CPrimitiveTemplate::ParseDeathFxStrings called with an empty list!\n");
+    return ParseFX(grp, theFxScheduler, mDeathFxHandles, theFxHelper, mFlags, fxPrimitiveFlags_t::FX_DEATH_RUNS_FX, "FxTemplate: Death effect file not found.",
+                   "CPrimitiveTemplate::ParseDeathFxStrings called with an empty list!");
 }
 
 //------------------------------------------------------
@@ -1479,8 +1479,8 @@ bool CPrimitiveTemplate::ParseDeathFxStrings(const CGPProperty& grp)
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParseEmitterFxStrings(const CGPProperty& grp)
 {
-    return ParseFX(grp, theFxScheduler, mEmitterFxHandles, theFxHelper, mFlags, fxPrimitiveFlags_t::FX_EMIT_FX, "FxTemplate: Emitter effect file not found.\n",
-                   "CPrimitiveTemplate::ParseEmitterFxStrings called with an empty list!\n");
+    return ParseFX(grp, theFxScheduler, mEmitterFxHandles, theFxHelper, mFlags, fxPrimitiveFlags_t::FX_EMIT_FX, "FxTemplate: Emitter effect file not found.",
+                   "CPrimitiveTemplate::ParseEmitterFxStrings called with an empty list!");
 }
 
 //------------------------------------------------------
@@ -1495,8 +1495,8 @@ bool CPrimitiveTemplate::ParseEmitterFxStrings(const CGPProperty& grp)
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParsePlayFxStrings(const CGPProperty& grp)
 {
-    return ParseFX(grp, theFxScheduler, mPlayFxHandles, theFxHelper, mFlags, fxPrimitiveFlags_t::FX_NONE, "FxTemplate: Effect file not found.\n",
-                   "CPrimitiveTemplate::ParsePlayFxStrings called with an empty list!\n");
+    return ParseFX(grp, theFxScheduler, mPlayFxHandles, theFxHelper, mFlags, fxPrimitiveFlags_t::FX_NONE, "FxTemplate: Effect file not found.",
+                   "CPrimitiveTemplate::ParsePlayFxStrings called with an empty list!");
 }
 
 bool CPrimitiveTemplate::ParseGroup(const CGPGroup& grp, const StringViewIMap<ParseMethod>& parseMethods, gsl::czstring name)
@@ -1504,7 +1504,7 @@ bool CPrimitiveTemplate::ParseGroup(const CGPGroup& grp, const StringViewIMap<Pa
     for (auto& cur : grp.GetProperties()) {
         auto pos = parseMethods.find(cur.GetName());
         if (pos == parseMethods.end()) {
-            Com_DPrintf("Unknown key parsing %s group!", name);
+            Q_DPrintln("Unknown key parsing {} group!", name);
         }
         else {
             ParseMethod method = pos->second;
@@ -1723,7 +1723,7 @@ bool CPrimitiveTemplate::ParsePrimitive(const CGPGroup& grp)
         }
         // Error
         else {
-            Com_DPrintf("Unknown key parsing an effect primitive!\n");
+            Q_DPrintln("Unknown key parsing an effect primitive!");
         }
     }
 
@@ -1742,7 +1742,7 @@ bool CPrimitiveTemplate::ParsePrimitive(const CGPGroup& grp)
         };
         auto pos = parseMethods.find(subGrp.GetName());
         if (pos == parseMethods.end()) {
-            Com_DPrintf("Unknown group key parsing a particle!\n");
+            Q_DPrintln("Unknown group key parsing a particle!");
         }
         else {
             GroupParseMethod method = pos->second;

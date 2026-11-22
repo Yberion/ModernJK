@@ -146,7 +146,7 @@ static void SV_WriteSnapshotToClient(client_t* client, msg_t* msg)
     }
     else if (client->netchan.outgoingSequence - client->deltaMessage >= (PACKET_BACKUP - 3)) {
         // client hasn't gotten a good message through in a long time
-        Com_DPrintf("%s: Delta request from out of date packet.\n", client->name);
+        Q_DPrintln("{}: Delta request from out of date packet.", client->name);
         oldframe = nullptr;
         lastframe = 0;
     }
@@ -157,7 +157,7 @@ static void SV_WriteSnapshotToClient(client_t* client, msg_t* msg)
 
         // the snapshot's entities may still have rolled off the buffer, though
         if (oldframe->first_entity <= svs.nextSnapshotEntities - svs.numSnapshotEntities) {
-            Com_DPrintf("%s: Delta request from out of date entities.\n", client->name);
+            Q_DPrintln("{}: Delta request from out of date entities.", client->name);
             oldframe = nullptr;
             lastframe = 0;
         }
@@ -245,7 +245,7 @@ static int SV_QsortEntityNumbers(const void* a, const void* b)
     eb = (int*)b;
 
     if (*ea == *eb) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_QsortEntityStates: duplicated entity");
+        Q_Error(errorParm_t::ERR_DROP, "SV_QsortEntityStates: duplicated entity");
     }
 
     if (*ea < *eb) {
@@ -385,7 +385,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t* fram
         }
 
         if (ent->s.number != e) {
-            Com_DPrintf("FIXING ENT->S.NUMBER!!!\n");
+            Q_DPrintln("FIXING ENT->S.NUMBER!!!");
             ent->s.number = e;
         }
 
@@ -529,7 +529,7 @@ static clientSnapshot_t* SV_BuildClientSnapshot(client_t* client)
             svEntity_t					*svEnt;
             clientNum = frame->ps.clientNum;
             if ( clientNum < 0 || clientNum >= MAX_GENTITIES ) {
-                Com_Error( errorParm_t::ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
+                Q_Error(errorParm_t::ERR_DROP, "SV_SvEntityForGentity: bad gEnt");
             }
             svEnt = &sv.svEntities[ clientNum ];
             // never send client's own entity, because it can
@@ -572,17 +572,17 @@ static clientSnapshot_t* SV_BuildClientSnapshot(client_t* client)
     {
         for ( int xxx = 0; xxx < entityNumbers.numSnapshotEntities; xxx++ )
         {
-            Com_Printf("%d - ", xxx );
+            Q_Print("{} - ", xxx);
             ge->PrintEntClassname( entityNumbers.snapshotEntities[xxx] );
         }
     }
     else if ( entityNumbers.numSnapshotEntities >= 200 )
     {
-        Com_Printf(S_COLOR_RED"%d snapshot entities!", entityNumbers.numSnapshotEntities );
+        Q_Print(S_COLOR_RED"{} snapshot entities!", entityNumbers.numSnapshotEntities);
     }
     else if ( entityNumbers.numSnapshotEntities >= 128 )
     {
-        Com_Printf(S_COLOR_YELLOW"%d snapshot entities", entityNumbers.numSnapshotEntities );
+        Q_Print(S_COLOR_YELLOW"{} snapshot entities", entityNumbers.numSnapshotEntities);
     }
     */
 
@@ -677,7 +677,7 @@ void SV_SendClientSnapshot(client_t* client)
 
     // check for overflow
     if (msg.overflowed) {
-        Com_Warning("msg overflowed for %s\n", client->name);
+        Q_PrintlnWarning("msg overflowed for {}", client->name);
         MSG_Clear(&msg);
     }
 

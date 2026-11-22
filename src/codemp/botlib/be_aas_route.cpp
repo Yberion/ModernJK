@@ -97,9 +97,9 @@ int max_routingcachesize;
 #ifdef ROUTING_DEBUG
 void AAS_RoutingInfo(void)
 {
-    Com_Printf("%d area cache updates\n", numareacacheupdates);
-    Com_Printf("%d portal cache updates\n", numportalcacheupdates);
-    Com_Printf("%d bytes routing cache\n", routingcachesize);
+    Q_Println("{} area cache updates", numareacacheupdates);
+    Q_Println("{} portal cache updates", numportalcacheupdates);
+    Q_Println("{} bytes routing cache", routingcachesize);
 } // end of the function AAS_RoutingInfo
 #endif // ROUTING_DEBUG
 //===========================================================================
@@ -122,8 +122,7 @@ static QINLINE int AAS_ClusterAreaNum(int cluster, int areanum)
                 if (aasworld.portals[-areacluster].frontcluster != cluster &&
                         aasworld.portals[-areacluster].backcluster != cluster)
                 {
-                    Com_PrintError("portal %d: does not belong to cluster %d\n"
-                                                    , -areacluster, cluster);
+                    Q_PrintlnError("portal {}: does not belong to cluster {}", -areacluster, cluster);
                 } //end if
         #endif //ROUTING_DEBUG*/
         side = aasworld.portals[-areacluster].frontcluster != cluster;
@@ -308,7 +307,7 @@ int AAS_EnableRoutingArea(int areanum, int enable)
 
     if (areanum <= 0 || areanum >= aasworld.numareas) {
         if (botDeveloper) {
-            Com_PrintError("AAS_EnableRoutingArea: areanum %d out of range\n", areanum);
+            Q_PrintlnError("AAS_EnableRoutingArea: areanum {} out of range", areanum);
         } // end if
         return 0;
     } // end if
@@ -439,7 +438,7 @@ void AAS_CreateReversedReachability(void)
         settings = &aasworld.areasettings[i];
         //
         if (settings->numreachableareas >= 128)
-            Com_Warning("area %d has more than 128 reachabilities\n", i);
+            Q_PrintlnWarning("area {} has more than 128 reachabilities", i);
         // create reversed links for the reachabilities
         for (n = 0; n < settings->numreachableareas && n < 128; n++) {
             // reachability link
@@ -456,7 +455,7 @@ void AAS_CreateReversedReachability(void)
         } // end for
     } // end for
 #ifdef DEBUG
-    Com_Printf("reversed reachability %d msec\n", Sys_MilliSeconds() - starttime);
+    Q_Println("reversed reachability {} msec", Sys_MilliSeconds() - starttime);
 #endif
 } // end of the function AAS_CreateReversedReachability
 //===========================================================================
@@ -551,7 +550,7 @@ void AAS_CalculateAreaTravelTimes(void)
         } // end for
     } // end for
 #ifdef DEBUG
-    Com_Printf("area travel times %d msec\n", Sys_MilliSeconds() - starttime);
+    Q_Println("area travel times {} msec", Sys_MilliSeconds() - starttime);
 #endif
 } // end of the function AAS_CalculateAreaTravelTimes
 //===========================================================================
@@ -602,7 +601,7 @@ void AAS_InitPortalMaxTravelTimes(void)
 
     for (i = 0; i < aasworld.numportals; i++) {
         aasworld.portalmaxtraveltimes[i] = AAS_PortalMaxTravelTime(i);
-        // Com_Printf("portal %d max tt = %d\n", i, aasworld.portalmaxtraveltimes[i]);
+        // Q_Println("portal {} max tt = {}", i, aasworld.portalmaxtraveltimes[i]);
     } // end for
 } // end of the function AAS_InitPortalMaxTravelTimes
 //===========================================================================
@@ -877,7 +876,7 @@ void AAS_CreateAllRoutingCache(void)
     // int t;
 
     aasworld.initialized = true;
-    Com_Printf("AAS_CreateAllRoutingCache\n");
+    Q_Println("AAS_CreateAllRoutingCache");
     for (i = 1; i < aasworld.numareas; i++) {
         if (!AAS_AreaReachability(i))
             continue;
@@ -888,7 +887,7 @@ void AAS_CreateAllRoutingCache(void)
                 continue;
             AAS_AreaTravelTimeToGoalArea(i, aasworld.areas[i].center, j, travelFlags_t::TFL_DEFAULT);
             // t = AAS_AreaTravelTimeToGoalArea(i, aasworld.areas[i].center, j, travelFlags_t::TFL_DEFAULT);
-            // Log_Write("traveltime from %d to %d is %d", i, j, t);
+            // Log_Write("traveltime from {} to {} is {}", i, j, t);
         } // end for
     } // end for
     aasworld.initialized = false;
@@ -942,10 +941,10 @@ void AAS_WriteRouteCache(void)
         } // end for
     } // end for
     // open the file for writing
-    Com_sprintf(filename, MAX_QPATH, "maps/%s.rcd", aasworld.mapname);
+    Q_FormatTo(std::span(filename, MAX_QPATH), "maps/{}.rcd", aasworld.mapname);
     botimport.FS_FOpenFile(filename, &fp, fsMode_t::FS_WRITE);
     if (!fp) {
-        Com_PrintError("Unable to open file: %s\n", filename);
+        Q_PrintlnError("Unable to open file: {}", filename);
         return;
     } // end if
     // create the header
@@ -994,8 +993,8 @@ void AAS_WriteRouteCache(void)
     */
     //
     botimport.FS_FCloseFile(fp);
-    Com_Printf("\nroute cache written to %s\n", filename);
-    Com_Printf("written %d bytes of routing cache\n", totalsize);
+    Q_Println("\nroute cache written to {}", filename);
+    Q_Println("written {} bytes of routing cache", totalsize);
 } // end of the function AAS_WriteRouteCache
 //===========================================================================
 //
@@ -1030,34 +1029,34 @@ int AAS_ReadRouteCache(void)
     routecacheheader_t routecacheheader;
     aas_routingcache_t* cache;
 
-    Com_sprintf(filename, MAX_QPATH, "maps/%s.rcd", aasworld.mapname);
+    Q_FormatTo(std::span(filename, MAX_QPATH), "maps/{}.rcd", aasworld.mapname);
     botimport.FS_FOpenFile(filename, &fp, fsMode_t::FS_READ);
     if (!fp) {
         return false;
     } // end if
     botimport.FS_Read(&routecacheheader, sizeof(routecacheheader_t), fp);
     if (routecacheheader.ident != RCID) {
-        Com_PrintError("%s is not a route cache dump\n", filename);
+        Q_PrintlnError("{} is not a route cache dump", filename);
         return false;
     } // end if
     if (routecacheheader.version != RCVERSION) {
-        Com_PrintError("route cache dump has wrong version %d, should be %d", routecacheheader.version, RCVERSION);
+        Q_PrintlnError("route cache dump has wrong version {}, should be {}", routecacheheader.version, RCVERSION);
         return false;
     } // end if
     if (routecacheheader.numareas != aasworld.numareas) {
-        // Com_PrintError("route cache dump has wrong number of areas\n");
+        // Q_PrintlnError("route cache dump has wrong number of areas");
         return false;
     } // end if
     if (routecacheheader.numclusters != aasworld.numclusters) {
-        // Com_PrintError("route cache dump has wrong number of clusters\n");
+        // Q_PrintlnError("route cache dump has wrong number of clusters");
         return false;
     } // end if
     if (routecacheheader.areacrc != CRC_ProcessString((unsigned char*)aasworld.areas, sizeof(aas_area_t) * aasworld.numareas)) {
-        // Com_PrintError("route cache dump area CRC incorrect\n");
+        // Q_PrintlnError("route cache dump area CRC incorrect");
         return false;
     } // end if
     if (routecacheheader.clustercrc != CRC_ProcessString((unsigned char*)aasworld.clusters, sizeof(aas_cluster_t) * aasworld.numclusters)) {
-        // Com_PrintError("route cache dump cluster CRC incorrect\n");
+        // Q_PrintlnError("route cache dump cluster CRC incorrect");
         return false;
     } // end if
     // read all the portal cache
@@ -1581,13 +1580,13 @@ int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, travelF
     //
     if (areanum <= 0 || areanum >= aasworld.numareas) {
         if (botDeveloper) {
-            Com_PrintError("AAS_AreaTravelTimeToGoalArea: areanum %d out of range\n", areanum);
+            Q_PrintlnError("AAS_AreaTravelTimeToGoalArea: areanum {} out of range", areanum);
         } // end if
         return false;
     } // end if
     if (goalareanum <= 0 || goalareanum >= aasworld.numareas) {
         if (botDeveloper) {
-            Com_PrintError("AAS_AreaTravelTimeToGoalArea: goalareanum %d out of range\n", goalareanum);
+            Q_PrintlnError("AAS_AreaTravelTimeToGoalArea: goalareanum {} out of range", goalareanum);
         } // end if
         return false;
     } // end if
@@ -1892,7 +1891,7 @@ int AAS_NextAreaReachability(int areanum, int reachnum)
         return 0;
 
     if (areanum <= 0 || areanum >= aasworld.numareas) {
-        Com_PrintError("AAS_NextAreaReachability: areanum %d out of range\n", areanum);
+        Q_PrintlnError("AAS_NextAreaReachability: areanum {} out of range", areanum);
         return 0;
     } // end if
 
@@ -1901,7 +1900,7 @@ int AAS_NextAreaReachability(int areanum, int reachnum)
         return settings->firstreachablearea;
     } // end if
     if (reachnum < settings->firstreachablearea) {
-        Com_PrintError("AAS_NextAreaReachability: reachnum < settings->firstreachableara");
+        Q_PrintlnError("AAS_NextAreaReachability: reachnum < settings->firstreachableara");
         return 0;
     } // end if
     reachnum++;
@@ -1968,12 +1967,12 @@ int AAS_RandomGoalArea(int areanum, travelFlags_t travelflags, int* goalareanum,
                 if (AAS_AreaSwim(n)) {
                     *goalareanum = n;
                     VectorCopy(aasworld.areas[n].center, goalorigin);
-                    // Com_Printf("found random goal area %d\n", *goalareanum);
+                    // Q_Println("found random goal area {}", *goalareanum);
                     return true;
                 } // end if
                 VectorCopy(aasworld.areas[n].center, start);
                 if (!AAS_PointAreaNum(start))
-                    Log_Write("area %d center %f %f %f in solid?", n, start[0], start[1], start[2]);
+                    Log_Write("area {} center {:f} {:f} {:f} in solid?", n, start[0], start[1], start[2]);
                 VectorCopy(start, end);
                 end[2] -= 300;
                 trace = AAS_TraceClientBBox(start, end, presenceFlags_t::PRESENCE_CROUCH, -1);
@@ -1981,7 +1980,7 @@ int AAS_RandomGoalArea(int areanum, travelFlags_t travelflags, int* goalareanum,
                     if (AAS_AreaGroundFaceArea(n) > 300) {
                         *goalareanum = n;
                         VectorCopy(trace.endpos, goalorigin);
-                        // Com_Printf("found random goal area %d\n", *goalareanum);
+                        // Q_Println("found random goal area {}", *goalareanum);
                         return true;
                     } // end if
                 } // end if

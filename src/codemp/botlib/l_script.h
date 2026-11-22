@@ -256,6 +256,14 @@ void FreeScript(script_t* script);
 // set the base folder to load files from
 void PS_SetBaseFolder(const char* path);
 // print a script error with filename and line number
-void QDECL ScriptError(script_t* script, const char* str, ...) __attribute__((format(printf, 2, 3)));
+void VScriptError(script_t* script, fmt::string_view str, fmt::format_args args);
+template <typename... T> void ScriptError(script_t* script, fmt::format_string<T...> str, T&&... args)
+{
+    VScriptError(script, str.get(), Q_FormatArgs(args...));
+}
 // print a script warning with filename and line number
-void QDECL ScriptWarning(script_t* script, const char* str, ...) __attribute__((format(printf, 2, 3)));
+void VScriptWarning(script_t* script, fmt::string_view str, fmt::format_args args);
+template <typename... T> void ScriptWarning(script_t* script, fmt::format_string<T...> str, T&&... args)
+{
+    VScriptWarning(script, str.get(), Q_FormatArgs(args...));
+}

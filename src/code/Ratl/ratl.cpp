@@ -33,7 +33,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #if !defined(STDARG_H_INC)
-#include <stdarg.h>
 #define STDARG_H_INC
 #endif
 
@@ -63,26 +62,12 @@ void ratl_base::load(hfile& file) {}
 // A Profile Print Function
 ////////////////////////////////////////////////////////////////////////////////////////
 #if !defined(FINAL_BUILD)
-void ratl_base::ProfilePrint(const char* format, ...)
+void ratl_base::VProfilePrintln(fmt::string_view format, fmt::format_args args)
 {
-    static char string[2][1024]; // in case this is called by nested functions
-    static int index = 0;
-    static char nFormat[300];
-    char* buf;
-
-    // Tack On The Standard Format Around The Given Format
-    //-----------------------------------------------------
-    sprintf(nFormat, "[PROFILE] %s\n", format);
-
-    // Resolve Remaining Elipsis Parameters Into Newly Formated String
-    //-----------------------------------------------------------------
-    buf = string[index & 1];
-    index++;
-
-    va_list argptr;
-    va_start(argptr, format);
-    vsprintf(buf, nFormat, argptr);
-    va_end(argptr);
+    char text[1024];
+    Q_VFormatToCut(text, format, args);
+    const formatText_t line = Q_Format("[PROFILE] {}\n", text);
+    const char* buf = line.c_str();
 
     // Print It To Debug Output Console
     //----------------------------------
@@ -92,6 +77,6 @@ void ratl_base::ProfilePrint(const char* format, ...)
     }
 }
 #else
-void ratl_base::ProfilePrint(const char* format, ...) {}
+void ratl_base::VProfilePrintln(fmt::string_view, fmt::format_args) {}
 #endif
 } // namespace ratl

@@ -23,9 +23,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
-
 #include "qcommon.h"
 
 vm_t* currentVM = nullptr;
@@ -85,17 +82,17 @@ vm_t* VM_Create(vmSlots_t vmSlot)
     FS_FindPureDLL(vm->name);
     vm->dllHandle = Sys_LoadGameDll(vm->name, &vm->GetModuleAPI);
 
-    Com_Printf("VM_Create: %s" ARCH_STRING DLL_EXT, vm->name);
+    Q_Print("VM_Create: {}" ARCH_STRING DLL_EXT, vm->name);
     if (vm->dllHandle) {
         if (com_developer->integer)
-            Com_Printf(" succeeded [0x%" PRIxPTR "+0x%" PRIxPTR "]\n", (uintptr_t)vm->dllHandle, (intptr_t)vm->GetModuleAPI - (intptr_t)vm->dllHandle);
+            Q_Println(" succeeded [0x{:x}+0x{:x}]", (uintptr_t)vm->dllHandle, (intptr_t)vm->GetModuleAPI - (intptr_t)vm->dllHandle);
         else
-            Com_Printf(" succeeded\n");
+            Q_Println(" succeeded");
         return vm;
     }
 
     VM_Free(vm);
-    Com_Printf(" failed!\n");
+    Q_Println(" failed!");
     return nullptr;
 }
 

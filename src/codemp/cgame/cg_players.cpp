@@ -191,9 +191,9 @@ sfxHandle_t CG_CustomSound(int clientNum, const char* soundName)
         }
     }
 
-    // Com_Error( errorParm_t::ERR_DROP, "Unknown custom sound: %s", lSoundName );
+    // Q_Error(errorParm_t::ERR_DROP, "Unknown custom sound: {}", lSoundName);
 #ifndef FINAL_BUILD
-    Com_Printf("Unknown custom sound: %s\n", lSoundName);
+    Q_Println("Unknown custom sound: {}", lSoundName);
 #endif
     return 0;
 }
@@ -226,7 +226,7 @@ bool CG_ParseSurfsFile(const char* modelName, const char* skinName, char* surfOf
     }
 
     // Load and parse .surf file
-    Com_sprintf(sfilename, sizeof(sfilename), "models/players/%s/model_%s.surf", modelName, skinName);
+    Q_FormatTo(sfilename, "models/players/{}/model_{}.surf", modelName, skinName);
 
     // load the file
     len = trap->FS_Open(sfilename, &f, fsMode_t::FS_READ);
@@ -234,7 +234,7 @@ bool CG_ParseSurfsFile(const char* modelName, const char* skinName, char* surfOf
         return false;
     }
     if (len >= std::ssize(text) - 1) {
-        Com_Printf("File %s too long\n", sfilename);
+        Q_Println("File {} too long", sfilename);
         trap->FS_Close(f);
         return false;
     }
@@ -310,12 +310,13 @@ static bool CG_RegisterClientModelname(clientInfo_t* ci, const char* modelName, 
     char surfOff[MAX_SURF_LIST_SIZE];
     char surfOn[MAX_SURF_LIST_SIZE];
     int checkSkin;
-    char* useSkinName;
+    const char* useSkinName;
+    formatText_t useSkinNameText; // holds the text useSkinName points into
 
 retryModel:
     if (badModel) {
         if (modelName && modelName[0]) {
-            Com_Warning("Attempted to load an unsupported multiplayer model %s! (bad or missing bone, or missing animation sequence)\n", modelName);
+            Q_PrintlnWarning("Attempted to load an unsupported multiplayer model {}! (bad or missing bone, or missing animation sequence)", modelName);
         }
 
         modelName = DEFAULT_MODEL;
@@ -344,10 +345,10 @@ retryModel:
 
     // fix for transparent custom skin parts
     if (strchr(skinName, '|') && strstr(skinName, "head") && strstr(skinName, "torso") && strstr(skinName, "lower")) { // three part skin
-        useSkinName = va("models/players/%s/|%s", modelName, skinName);
+        useSkinName = (useSkinNameText = Q_Format("models/players/{}/|{}", modelName, skinName)).c_str();
     }
     else {
-        useSkinName = va("models/players/%s/model_%s.skin", modelName, skinName);
+        useSkinName = (useSkinNameText = Q_Format("models/players/{}/model_{}.skin", modelName, skinName)).c_str();
     }
 
     checkSkin = trap->R_RegisterSkin(useSkinName);
@@ -356,9 +357,9 @@ retryModel:
         ci->torsoSkin = checkSkin;
     }
     else { // fallback to the default skin
-        ci->torsoSkin = trap->R_RegisterSkin(va("models/players/%s/model_default.skin", modelName));
+        ci->torsoSkin = trap->R_RegisterSkin(Q_Format("models/players/{}/model_default.skin", modelName).c_str());
     }
-    Com_sprintf(afilename, sizeof(afilename), "models/players/%s/model.glm", modelName);
+    Q_FormatTo(afilename, "models/players/{}/model.glm", modelName);
     handle = trap->G2API_InitGhoul2Model(&ci->ghoul2Model, afilename, 0, ci->torsoSkin, 0, 0, 0);
 
     if (handle < 0) {
@@ -399,11 +400,11 @@ retryModel:
         if (Q_stricmp(afilename, "models/players/_humanoid/animation.cfg") /*&&
 			Q_stricmp(afilename, "models/players/rockettrooper/animation.cfg")*/)
 		{
-            Com_Printf("Model does not use supported animation config.\n");
+            Q_Println("Model does not use supported animation config.");
             return false;
         }
         else if (BG_ParseAnimationFile("models/players/_humanoid/animation.cfg", &bgHumanoidAnimations, true) == -1) {
-            Com_Printf("Failed to load animation file models/players/_humanoid/animation.cfg\n");
+            Q_Println("Failed to load animation file models/players/_humanoid/animation.cfg");
             return false;
         }
 
@@ -415,7 +416,7 @@ retryModel:
         // For the time being, we're going to have all real players use the generic humanoid soundset and that's it.
         // Only npc's will use model-specific soundsets.
 
-        //	BG_ParseAnimationSndFile(va("models/players/%s/", modelName), 0, -1);
+        //	BG_ParseAnimationSndFile(Q_Format("models/players/{}/", modelName).c_str(), 0, -1);
     }
     else if (!bgAllEvents[0].eventsParsed) { // make sure the player anim sounds are loaded even if the anims already are
         BG_ParseAnimationEvtFile("models/players/_humanoid/", 0, -1);
@@ -523,7 +524,7 @@ retryModel:
     Q_strncpyz(ci->teamName, teamName, sizeof(ci->teamName));
 
     // Model icon for drawing the portrait on screen
-    ci->modelIcon = trap->R_RegisterShaderNoMip(va("models/players/%s/icon_%s", modelName, skinName));
+    ci->modelIcon = trap->R_RegisterShaderNoMip(Q_Format("models/players/{}/icon_{}", modelName, skinName).c_str());
     if (!ci->modelIcon) {
         int i = 0;
         int j;
@@ -537,7 +538,7 @@ retryModel:
         }
         iconName[j] = 0;
         if (skinName[i] == '|') { // looks like it actually may be a custom model skin, let's try getting the icon...
-            ci->modelIcon = trap->R_RegisterShaderNoMip(va("models/players/%s/%s", modelName, iconName));
+            ci->modelIcon = trap->R_RegisterShaderNoMip(Q_Format("models/players/{}/{}", modelName, iconName).c_str());
         }
     }
     return true;
@@ -659,15 +660,15 @@ void CG_LoadCISounds(clientInfo_t* ci, bool modelloaded)
     dir = ci->modelName;
 
     if (!ci->skinName[0] || !Q_stricmp("default", ci->skinName)) { // try default sounds.cfg first
-        fLen = trap->FS_Open(va("models/players/%s/sounds.cfg", dir), &f, fsMode_t::FS_READ);
+        fLen = trap->FS_Open(Q_Format("models/players/{}/sounds.cfg", dir).c_str(), &f, fsMode_t::FS_READ);
         if (!f) { // no?  Look for _default sounds.cfg
-            fLen = trap->FS_Open(va("models/players/%s/sounds_default.cfg", dir), &f, fsMode_t::FS_READ);
+            fLen = trap->FS_Open(Q_Format("models/players/{}/sounds_default.cfg", dir).c_str(), &f, fsMode_t::FS_READ);
         }
     }
     else { // use the .skin associated with this skin
-        fLen = trap->FS_Open(va("models/players/%s/sounds_%s.cfg", dir, ci->skinName), &f, fsMode_t::FS_READ);
+        fLen = trap->FS_Open(Q_Format("models/players/{}/sounds_{}.cfg", dir, ci->skinName).c_str(), &f, fsMode_t::FS_READ);
         if (!f) { // fall back to default sounds
-            fLen = trap->FS_Open(va("models/players/%s/sounds.cfg", dir), &f, fsMode_t::FS_READ);
+            fLen = trap->FS_Open(Q_Format("models/players/{}/sounds.cfg", dir).c_str(), &f, fsMode_t::FS_READ);
         }
     }
 
@@ -718,27 +719,27 @@ void CG_LoadCISounds(clientInfo_t* ci, bool modelloaded)
             break;
         }
 
-        Com_sprintf(soundName, sizeof(soundName), "%s", s + 1);
+        Q_FormatTo(soundName, "{}", s + 1);
         COM_StripExtension(soundName, soundName, sizeof(soundName));
         // strip the extension because we might want .mp3's
 
         ci->sounds[i] = 0;
         // if the model didn't load use the sounds of the default model
         if (soundpath[0]) {
-            ci->sounds[i] = trap->S_RegisterSound(va("sound/chars/%s/misc/%s", soundpath, soundName));
+            ci->sounds[i] = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", soundpath, soundName).c_str());
         }
         else {
             if (modelloaded) {
-                ci->sounds[i] = trap->S_RegisterSound(va("sound/chars/%s/misc/%s", dir, soundName));
+                ci->sounds[i] = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", dir, soundName).c_str());
             }
         }
 
         if (!ci->sounds[i]) { // failed the load, try one out of the generic path
             if (isFemale) {
-                ci->sounds[i] = trap->S_RegisterSound(va("sound/%s/%s", DEFAULT_FEMALE_SOUNDPATH, soundName));
+                ci->sounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", DEFAULT_FEMALE_SOUNDPATH, soundName).c_str());
             }
             else {
-                ci->sounds[i] = trap->S_RegisterSound(va("sound/%s/%s", DEFAULT_MALE_SOUNDPATH, soundName));
+                ci->sounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", DEFAULT_MALE_SOUNDPATH, soundName).c_str());
             }
         }
     }
@@ -750,29 +751,29 @@ void CG_LoadCISounds(clientInfo_t* ci, bool modelloaded)
                 break;
             }
 
-            Com_sprintf(soundName, sizeof(soundName), "%s", s + 1);
+            Q_FormatTo(soundName, "{}", s + 1);
             COM_StripExtension(soundName, soundName, sizeof(soundName));
             // strip the extension because we might want .mp3's
 
             ci->siegeSounds[i] = 0;
             // if the model didn't load use the sounds of the default model
             if (soundpath[0]) {
-                ci->siegeSounds[i] = trap->S_RegisterSound(va("sound/chars/%s/misc/%s", soundpath, soundName));
+                ci->siegeSounds[i] = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", soundpath, soundName).c_str());
                 if (!ci->siegeSounds[i])
-                    ci->siegeSounds[i] = trap->S_RegisterSound(va("sound/%s/%s", soundpath, soundName));
+                    ci->siegeSounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", soundpath, soundName).c_str());
             }
             else {
                 if (modelloaded) {
-                    ci->siegeSounds[i] = trap->S_RegisterSound(va("sound/chars/%s/misc/%s", dir, soundName));
+                    ci->siegeSounds[i] = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", dir, soundName).c_str());
                 }
             }
 
             if (!ci->siegeSounds[i]) { // failed the load, try one out of the generic path
                 if (isFemale) {
-                    ci->siegeSounds[i] = trap->S_RegisterSound(va("sound/%s/%s", DEFAULT_FEMALE_SOUNDPATH, soundName));
+                    ci->siegeSounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", DEFAULT_FEMALE_SOUNDPATH, soundName).c_str());
                 }
                 else {
-                    ci->siegeSounds[i] = trap->S_RegisterSound(va("sound/%s/%s", DEFAULT_MALE_SOUNDPATH, soundName));
+                    ci->siegeSounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", DEFAULT_MALE_SOUNDPATH, soundName).c_str());
                 }
             }
         }
@@ -785,27 +786,27 @@ void CG_LoadCISounds(clientInfo_t* ci, bool modelloaded)
                 break;
             }
 
-            Com_sprintf(soundName, sizeof(soundName), "%s", s + 1);
+            Q_FormatTo(soundName, "{}", s + 1);
             COM_StripExtension(soundName, soundName, sizeof(soundName));
             // strip the extension because we might want .mp3's
 
             ci->duelSounds[i] = 0;
             // if the model didn't load use the sounds of the default model
             if (soundpath[0]) {
-                ci->duelSounds[i] = trap->S_RegisterSound(va("sound/chars/%s/misc/%s", soundpath, soundName));
+                ci->duelSounds[i] = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", soundpath, soundName).c_str());
             }
             else {
                 if (modelloaded) {
-                    ci->duelSounds[i] = trap->S_RegisterSound(va("sound/chars/%s/misc/%s", dir, soundName));
+                    ci->duelSounds[i] = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", dir, soundName).c_str());
                 }
             }
 
             if (!ci->duelSounds[i]) { // failed the load, try one out of the generic path
                 if (isFemale) {
-                    ci->duelSounds[i] = trap->S_RegisterSound(va("sound/%s/%s", DEFAULT_FEMALE_SOUNDPATH, soundName));
+                    ci->duelSounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", DEFAULT_FEMALE_SOUNDPATH, soundName).c_str());
                 }
                 else {
-                    ci->duelSounds[i] = trap->S_RegisterSound(va("sound/%s/%s", DEFAULT_MALE_SOUNDPATH, soundName));
+                    ci->duelSounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", DEFAULT_MALE_SOUNDPATH, soundName).c_str());
                 }
             }
         }
@@ -880,13 +881,13 @@ void CG_LoadClientInfo(clientInfo_t* ci)
         (ci->team == team_t::TEAM_SPECTATOR ||
          ci->siegeIndex == -1)) { // yeah.. kind of a hack I guess. Don't care until they are actually ingame with a valid class.
         if (!CG_RegisterClientModelname(ci, fallbackModel, "default", teamname, -1)) {
-            Com_Error(errorParm_t::ERR_DROP, "DEFAULT_MODEL (%s) failed to register", fallbackModel);
+            Q_Error(errorParm_t::ERR_DROP, "DEFAULT_MODEL ({}) failed to register", fallbackModel);
         }
     }
     else {
         if (!CG_RegisterClientModelname(ci, ci->modelName, ci->skinName, teamname, clientNum)) {
-            // Com_Error( errorParm_t::ERR_DROP, "CG_RegisterClientModelname( %s, %s, %s, %s %s ) failed", ci->modelName, ci->skinName, ci->headModelName,
-            // ci->headSkinName, teamname ); rww - DO NOT error out here! Someone could just type in a nonsense model name and crash everyone's client. Give it
+            // Q_Error(errorParm_t::ERR_DROP, "CG_RegisterClientModelname( {}, {}, {}, {} {} ) failed", ci->modelName, ci->skinName, ci->headModelName,
+            // ci->headSkinName, teamname); rww - DO NOT error out here! Someone could just type in a nonsense model name and crash everyone's client. Give it
             // a chance to load default model for this client instead.
 
             // fall back to default team name
@@ -899,12 +900,12 @@ void CG_LoadClientInfo(clientInfo_t* ci)
                     Q_strncpyz(teamname, DEFAULT_REDTEAM_NAME, sizeof(teamname));
                 }
                 if (!CG_RegisterClientModelname(ci, fallbackModel, ci->skinName, teamname, -1)) {
-                    Com_Error(errorParm_t::ERR_DROP, "DEFAULT_MODEL / skin (%s/%s) failed to register", fallbackModel, ci->skinName);
+                    Q_Error(errorParm_t::ERR_DROP, "DEFAULT_MODEL / skin ({}/{}) failed to register", fallbackModel, ci->skinName);
                 }
             }
             else {
                 if (!CG_RegisterClientModelname(ci, fallbackModel, "default", teamname, -1)) {
-                    Com_Error(errorParm_t::ERR_DROP, "DEFAULT_MODEL (%s) failed to register", fallbackModel);
+                    Q_Error(errorParm_t::ERR_DROP, "DEFAULT_MODEL ({}) failed to register", fallbackModel);
                 }
             }
             modelloaded = false;
@@ -969,7 +970,8 @@ static void CG_InitG2SaberData(int saberNum, clientInfo_t* ci)
     if (ci->ghoul2Weapons[saberNum]) {
         int k = 0;
         int tagBolt;
-        char* tagName;
+        const char* tagName;
+        formatText_t tagNameText; // holds the text tagName points into
 
         if (ci->saber[saberNum].skin) {
             trap->G2API_SetSkin(ci->ghoul2Weapons[saberNum], 0, ci->saber[saberNum].skin, ci->saber[saberNum].skin);
@@ -983,7 +985,7 @@ static void CG_InitG2SaberData(int saberNum, clientInfo_t* ci)
         }
 
         while (k < ci->saber[saberNum].numBlades) {
-            tagName = va("*blade%i", k + 1);
+            tagName = (tagNameText = Q_Format("*blade{}", k + 1)).c_str();
             tagBolt = trap->G2API_AddBolt(ci->ghoul2Weapons[saberNum], 0, tagName);
 
             if (tagBolt == -1) {
@@ -1281,7 +1283,7 @@ static void CG_SetDeferredClientInfo(clientInfo_t* ci)
     }
 
     // we should never get here...
-    // Com_Printf( "CG_SetDeferredClientInfo: no valid clients!\n" );
+    // Q_Println("CG_SetDeferredClientInfo: no valid clients!");
     // Actually it is possible now because of the unique sabers.
 
     CG_LoadClientInfo(ci);
@@ -2032,7 +2034,7 @@ void CG_PlayerAnimEventDo(centity_t* cent, animevent_t* animEvent)
                 randomSwing = Q_irand(7, 9);
                 break;
             }
-            swingSound = trap->S_RegisterSound(va("sound/weapons/saber/saberhup%i.wav", randomSwing));
+            swingSound = trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberhup{}.wav", randomSwing).c_str());
         }
         trap->S_StartSound(cent->currentState.pos.trBase, cent->currentState.number, soundChannel_t::CHAN_AUTO, swingSound);
         break;
@@ -2065,7 +2067,7 @@ void CG_PlayerAnimEventDo(centity_t* cent, animevent_t* animEvent)
                 spinSound = trap->S_RegisterSound("sound/weapons/saber/saberspin3.wav");
                 break;
             default: // random saberspin1-3
-                spinSound = trap->S_RegisterSound(va("sound/weapons/saber/saberspin%d.wav", Q_irand(1, 3)));
+                spinSound = trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberspin{}.wav", Q_irand(1, 3)).c_str());
                 break;
             }
         }
@@ -2470,7 +2472,7 @@ static void CG_SetLerpFrameAnimation(centity_t* cent, clientInfo_t* ci, lerpFram
     LF_SetAnim(*lf, newAnimation);
 
     if (newAnimation < animNumber_t::FACE_TALK0 || newAnimation >= animNumber_t::MAX_TOTALANIMATIONS) {
-        Com_Error(errorParm_t::ERR_DROP, "Bad animation number: %i", to_underlying(newAnimation));
+        Q_Error(errorParm_t::ERR_DROP, "Bad animation number: {}", to_underlying(newAnimation));
     }
 
     anim = &(*bgAllAnims[cent->localAnimIndex].anims)[newAnimation];
@@ -2484,12 +2486,12 @@ static void CG_SetLerpFrameAnimation(centity_t* cent, clientInfo_t* ci, lerpFram
 
     if (cg_debugAnim.integer && (cg_debugAnim.integer < 0 || cg_debugAnim.integer == cent->currentState.clientNum)) {
         if (lf == &cent->pe.legs) {
-            Com_Printf("%d: %d TORSO Anim: %i, '%s'\n", cg.time, cent->currentState.clientNum, to_underlying(newAnimation),
-                       GetStringForID(animTable, to_underlying(newAnimation)));
+            Q_Println("{}: {} TORSO Anim: {}, '{}'", cg.time, cent->currentState.clientNum, to_underlying(newAnimation),
+                      GetStringForID(animTable, to_underlying(newAnimation)));
         }
         else {
-            Com_Printf("%d: %d LEGS Anim: %i, '%s'\n", cg.time, cent->currentState.clientNum, to_underlying(newAnimation),
-                       GetStringForID(animTable, to_underlying(newAnimation)));
+            Q_Println("{}: {} LEGS Anim: {}, '{}'", cg.time, cent->currentState.clientNum, to_underlying(newAnimation),
+                      GetStringForID(animTable, to_underlying(newAnimation)));
         }
     }
 
@@ -2763,7 +2765,7 @@ static void CG_SetLerpFrameAnimation(centity_t* cent, clientInfo_t* ci, lerpFram
 				if (!trap->G2API_RemoveBone(cent->ghoul2, "lhumerus", 0))
 				{
 					assert(0);
-					Com_Warning("Failed to remove lhumerus\n");
+					Q_PrintlnWarning("Failed to remove lhumerus");
 				}
 			}
 
@@ -2784,7 +2786,7 @@ static void CG_SetLerpFrameAnimation(centity_t* cent, clientInfo_t* ci, lerpFram
 				if (!trap->G2API_RemoveBone(cent->ghoul2, brokenBone, 0))
 				{
 					assert(0);
-					Com_Warning("Failed to remove %s\n", brokenBone);
+					Q_PrintlnWarning("Failed to remove {}", brokenBone);
 				}
 				ci->brokenLimbs &= ~broken;
 			}
@@ -5123,7 +5125,7 @@ void CG_G2SaberEffects(vec3_t start, vec3_t end, centity_t* owner)
             if (trace.entityNum != ENTITYNUM_NONE) { // it succeeded with the ghoul2 trace
                 trap->FX_PlayEffectID(cgs.effects.mSaberBloodSparks, trace.endpos, trace.plane.normal, -1, -1, false);
                 trap->S_StartSound(trace.endpos, trace.entityNum, soundChannel_t::CHAN_AUTO,
-                                   trap->S_RegisterSound(va("sound/weapons/saber/saberhit%i.wav", Q_irand(1, 3))));
+                                   trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberhit{}.wav", Q_irand(1, 3)).c_str()));
             }
         }
 
@@ -5326,7 +5328,7 @@ void CG_SaberCompWork(vec3_t start, vec3_t end, centity_t* owner, int saberNum, 
                 if (owner->serverSaberFleshImpact) { // do standard player/live ent hit sparks
                     trap->FX_PlayEffectID(hitPersonFxID, trace.endpos, trace.plane.normal, -1, -1, false);
                     // trap->S_StartSound(trace.endpos, trace.entityNum, soundChannel_t::CHAN_AUTO,
-                    // trap->S_RegisterSound(va("sound/weapons/saber/saberhit%i.wav", Q_irand(1, 3))));
+                    // trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberhit{}.wav", Q_irand(1, 3)).c_str()));
                 }
                 else { // do the cut effect
                     trap->FX_PlayEffectID(hitOtherFxID, trace.endpos, trace.plane.normal, -1, -1, false);
@@ -5534,7 +5536,7 @@ void CG_AddSaberBlade(centity_t* cent, centity_t* scent, refEntity_t* saber, ren
                                 100) { // ugh, need to have a real sound debouncer... or do this game-side
                                 client->saber[saberNum].blade[bladeNum].hitWallDebounceTime = cg.time;
                                 trap->S_StartSound(trace.endpos, -1, soundChannel_t::CHAN_WEAPON,
-                                                   trap->S_RegisterSound(va("sound/weapons/saber/saberhitwall%i", Q_irand(1, 3))));
+                                                   trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberhitwall{}", Q_irand(1, 3)).c_str()));
                             }
                         }
                     }
@@ -6135,15 +6137,16 @@ int CG_HandleAppendedSkin(char* modelName)
             p = Q_strrchr(baseFolder, '/'); // go back to the first /, should be the path point
 
             if (p) { // got it.. terminate at the slash and register.
-                char* useSkinName;
+                const char* useSkinName;
+                formatText_t useSkinNameText; // holds the text useSkinName points into
 
                 *p = 0;
 
                 if (strchr(skinName, '|')) { // three part skin
-                    useSkinName = va("%s/|%s", baseFolder, skinName);
+                    useSkinName = (useSkinNameText = Q_Format("{}/|{}", baseFolder, skinName)).c_str();
                 }
                 else {
-                    useSkinName = va("%s/model_%s.skin", baseFolder, skinName);
+                    useSkinName = (useSkinNameText = Q_Format("{}/model_{}.skin", baseFolder, skinName)).c_str();
                 }
 
                 skinID = trap->R_RegisterSkin(useSkinName);
@@ -6173,12 +6176,12 @@ void CG_CacheG2AnimInfo(char* modelName)
         BG_GetVehicleModelName(useModel, useModel, sizeof(useModel));
         BG_GetVehicleSkinName(useSkin, sizeof(useSkin));
         if (useSkin[0]) { // use a custom skin
-            trap->R_RegisterSkin(va("models/players/%s/model_%s.skin", useModel, useSkin));
+            trap->R_RegisterSkin(Q_Format("models/players/{}/model_{}.skin", useModel, useSkin).c_str());
         }
         else {
-            trap->R_RegisterSkin(va("models/players/%s/model_default.skin", useModel));
+            trap->R_RegisterSkin(Q_Format("models/players/{}/model_default.skin", useModel).c_str());
         }
-        Q_strncpyz(useModel, va("models/players/%s/model.glm", useModel), sizeof(useModel));
+        Q_strncpyz(useModel, Q_Format("models/players/{}/model.glm", useModel).c_str(), sizeof(useModel));
     }
 
     trap->G2API_InitGhoul2Model(&g2, useModel, 0, 0, 0, 0, 0);
@@ -6325,12 +6328,12 @@ void CG_G2AnimEntModelLoad(centity_t* cent)
 
             BG_GetVehicleModelName(modelName, modelName, sizeof(modelName));
             if (cent->m_pVehicle->m_pVehicleInfo->skin && cent->m_pVehicle->m_pVehicleInfo->skin[0]) { // use a custom skin
-                skinID = trap->R_RegisterSkin(va("models/players/%s/model_%s.skin", modelName, cent->m_pVehicle->m_pVehicleInfo->skin));
+                skinID = trap->R_RegisterSkin(Q_Format("models/players/{}/model_{}.skin", modelName, cent->m_pVehicle->m_pVehicleInfo->skin).c_str());
             }
             else {
-                skinID = trap->R_RegisterSkin(va("models/players/%s/model_default.skin", modelName));
+                skinID = trap->R_RegisterSkin(Q_Format("models/players/{}/model_default.skin", modelName).c_str());
             }
-            strcpy(modelName, va("models/players/%s/model.glm", modelName));
+            strcpy(modelName, Q_Format("models/players/{}/model.glm", modelName).c_str());
 
             // this sound is *only* used for vehicles now
             cgs.media.noAmmoSound = trap->S_RegisterSound("sound/weapons/noammo.wav");
@@ -6363,16 +6366,16 @@ void CG_G2AnimEntModelLoad(centity_t* cent)
 
                 // Setup the Exhausts.
                 for (i = 0; i < MAX_VEHICLE_EXHAUSTS; i++) {
-                    Com_sprintf(strTemp, 128, "*exhaust%i", i + 1);
+                    Q_FormatTo(std::span(strTemp, 128), "*exhaust{}", i + 1);
                     cent->m_pVehicle->m_iExhaustTag[i] = trap->G2API_AddBolt(cent->ghoul2, 0, strTemp);
                 }
 
                 // Setup the Muzzles.
                 for (i = 0; i < MAX_VEHICLE_MUZZLES; i++) {
-                    Com_sprintf(strTemp, 128, "*muzzle%i", i + 1);
+                    Q_FormatTo(std::span(strTemp, 128), "*muzzle{}", i + 1);
                     cent->m_pVehicle->m_iMuzzleTag[i] = trap->G2API_AddBolt(cent->ghoul2, 0, strTemp);
                     if (cent->m_pVehicle->m_iMuzzleTag[i] == -1) { // ergh, try *flash?
-                        Com_sprintf(strTemp, 128, "*flash%i", i + 1);
+                        Q_FormatTo(std::span(strTemp, 128), "*flash{}", i + 1);
                         cent->m_pVehicle->m_iMuzzleTag[i] = trap->G2API_AddBolt(cent->ghoul2, 0, strTemp);
                     }
                 }
@@ -7315,7 +7318,7 @@ static QINLINE void CG_VehicleEffects(centity_t* cent)
                     }
 
                     for (i = 1; i < 5; i++) {
-                        int trailBolt = trap->G2API_AddBolt(cent->ghoul2, 0, va("*trail%d", i));
+                        int trailBolt = trap->G2API_AddBolt(cent->ghoul2, 0, Q_Format("*trail{}", i).c_str());
                         // We hit an invalid tag, we quit (they should be created in order so tough luck if not).
                         if (trailBolt == -1) {
                             break;
@@ -7626,7 +7629,7 @@ void CG_Player(centity_t* cent)
     if (cent->currentState.eType != entityType_t::ET_NPC) {
         clientNum = cent->currentState.clientNum;
         if (clientNum < 0 || clientNum >= MAX_CLIENTS) {
-            Com_Error(errorParm_t::ERR_DROP, "Bad clientNum on player entity");
+            Q_Error(errorParm_t::ERR_DROP, "Bad clientNum on player entity");
         }
         ci = &cgs.clientinfo[clientNum];
     }
@@ -7703,13 +7706,13 @@ void CG_Player(centity_t* cent)
 
     if (!cent->ghoul2) { // not ready yet?
 #ifdef _DEBUG
-        Com_Warning("Client %i has a null ghoul2 instance\n", cent->currentState.number);
+        Q_PrintlnWarning("Client {} has a null ghoul2 instance", cent->currentState.number);
 #endif
         trap->G2API_ClearAttachedInstance(cent->currentState.number);
 
         if (ci->ghoul2Model && trap->G2_HaveWeGhoul2Models(ci->ghoul2Model)) {
 #ifdef _DEBUG
-            Com_Printf("Clientinfo instance was valid, duplicating for cent\n");
+            Q_Println("Clientinfo instance was valid, duplicating for cent");
 #endif
             trap->G2API_DuplicateGhoul2Instance(ci->ghoul2Model, &cent->ghoul2);
 
@@ -8958,10 +8961,11 @@ stillDoSaber:
                 if (addBolts) {
                     int m = 0;
                     int tagBolt;
-                    char* tagName;
+                    const char* tagName;
+                    formatText_t tagNameText; // holds the text tagName points into
 
                     while (m < ci->saber[0].numBlades) {
-                        tagName = va("*blade%i", m + 1);
+                        tagName = (tagNameText = Q_Format("*blade{}", m + 1)).c_str();
                         tagBolt = trap->G2API_AddBolt(saberEnt->ghoul2, 0, tagName);
 
                         if (tagBolt == -1) {
@@ -9986,6 +9990,6 @@ void CG_ResetPlayerEntity(centity_t* cent)
     }
 
     if (cg_debugPosition.integer) {
-        Com_Printf("%i ResetPlayerEntity yaw=%f\n", cent->currentState.number, cent->pe.torso.yawAngle);
+        Q_Println("{} ResetPlayerEntity yaw={:f}", cent->currentState.number, cent->pe.torso.yawAngle);
     }
 }

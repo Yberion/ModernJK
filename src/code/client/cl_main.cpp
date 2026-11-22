@@ -122,7 +122,7 @@ void CL_AddReliableCommand(const char* cmd)
     // if we would be losing an old command that hasn't been acknowledged,
     // we must drop the connection
     if (clc.reliableSequence - clc.reliableAcknowledge > MAX_RELIABLE_COMMANDS) {
-        Com_Error(errorParm_t::ERR_DROP, "Client command overflow");
+        Q_Error(errorParm_t::ERR_DROP, "Client command overflow");
     }
     clc.reliableSequence++;
     index = clc.reliableSequence & (MAX_RELIABLE_COMMANDS - 1);
@@ -140,7 +140,7 @@ CL_FlushMemory
 
 Called by CL_MapLoading, CL_Connect_f, and CL_ParseGamestate the only
 ways a client gets into a game
-Also called by Com_Error
+Also called by Q_Error
 =================
 */
 void CL_FlushMemory(void)
@@ -253,7 +253,7 @@ CL_Disconnect
 Called when a connection, or cinematic is being terminated.
 Goes from a connected state to either a menu state or a console state
 Sends a disconnect message to the server
-This is also called on Com_Error and Com_Quit, so it shouldn't cause any errors
+This is also called on Q_Error and Com_Quit, so it shouldn't cause any errors
 =====================
 */
 void CL_Disconnect(void)
@@ -315,12 +315,12 @@ void CL_ForwardCommandToServer(void)
     }
 
     if (cls.state != connstate_t::CA_ACTIVE || cmd[0] == '+') {
-        Com_Printf("Unknown command \"%s\"\n", cmd);
+        Q_Println("Unknown command \"{}\"", cmd);
         return;
     }
 
     if (Cmd_Argc() > 1) {
-        Com_sprintf(string, sizeof(string), "%s %s", cmd, Cmd_Args());
+        Q_FormatTo(string, "{} {}", cmd, Cmd_Args());
     }
     else {
         Q_strncpyz(string, cmd, sizeof(string));
@@ -345,7 +345,7 @@ CL_ForwardToServer_f
 void CL_ForwardToServer_f(void)
 {
     if (cls.state != connstate_t::CA_ACTIVE) {
-        Com_Printf("Not connected to a server.\n");
+        Q_Println("Not connected to a server.");
         return;
     }
 
@@ -370,7 +370,7 @@ void CL_Disconnect_f(void)
     //  Either there's a bug, or the new version of that function conditionally-doesn't stop cinematics...
     //
     if (cls.state != connstate_t::CA_DISCONNECTED && cls.state != connstate_t::CA_CINEMATIC) {
-        Com_Error(errorParm_t::ERR_DISCONNECT, "Disconnected from server");
+        Q_Error(errorParm_t::ERR_DISCONNECT, "Disconnected from server");
     }
 }
 
@@ -444,7 +444,7 @@ void CL_Configstrings_f(void)
     int ofs;
 
     if (cls.state != connstate_t::CA_ACTIVE) {
-        Com_Printf("Not connected to a server.\n");
+        Q_Println("Not connected to a server.");
         return;
     }
 
@@ -453,7 +453,7 @@ void CL_Configstrings_f(void)
         if (!ofs) {
             continue;
         }
-        Com_Printf("%4i: %s\n", i, cl.gameState.stringData + ofs);
+        Q_Println("{:4}: {}", i, cl.gameState.stringData + ofs);
     }
 }
 
@@ -464,12 +464,12 @@ CL_Clientinfo_f
 */
 void CL_Clientinfo_f(void)
 {
-    Com_Printf("--------- Client Information ---------\n");
-    Com_Printf("state: %i\n", to_underlying(cls.state));
-    Com_Printf("Server: %s\n", cls.servername);
-    Com_Printf("User info settings:\n");
+    Q_Println("--------- Client Information ---------");
+    Q_Println("state: {}", to_underlying(cls.state));
+    Q_Println("Server: {}", cls.servername);
+    Q_Println("User info settings:");
     Info_Print(Cvar_InfoString(cvarFlags_t::CVAR_USERINFO));
-    Com_Printf("--------------------------------------\n");
+    Q_Println("--------------------------------------");
 }
 
 //====================================================================
@@ -508,7 +508,7 @@ void CL_CheckForResend(void)
     // requesting a challenge
     switch (cls.state) {
     case connstate_t::CA_CONNECTING:
-        UI_UpdateConnectionString(va("(%i)", clc.connectPacketCount));
+        UI_UpdateConnectionString(Q_Format("({})", clc.connectPacketCount).c_str());
 
         NET_OutOfBandPrint(netsrc_t::NS_CLIENT, clc.serverAddress, "getchallenge");
         break;
@@ -517,20 +517,20 @@ void CL_CheckForResend(void)
         // sending back the challenge
         port = Cvar_VariableIntegerValue("net_qport");
 
-        UI_UpdateConnectionString(va("(%i)", clc.connectPacketCount));
+        UI_UpdateConnectionString(Q_Format("({})", clc.connectPacketCount).c_str());
 
         Q_strncpyz(info, Cvar_InfoString(cvarFlags_t::CVAR_USERINFO), sizeof(info));
-        Info_SetValueForKey(info, "protocol", va("%i", PROTOCOL_VERSION));
-        Info_SetValueForKey(info, "qport", va("%i", port));
-        Info_SetValueForKey(info, "challenge", va("%i", clc.challenge));
-        NET_OutOfBandPrint(netsrc_t::NS_CLIENT, clc.serverAddress, "connect \"%s\"", info);
+        Info_SetValueForKey(info, "protocol", Q_Format("{}", PROTOCOL_VERSION).c_str());
+        Info_SetValueForKey(info, "qport", Q_Format("{}", port).c_str());
+        Info_SetValueForKey(info, "challenge", Q_Format("{}", clc.challenge).c_str());
+        NET_OutOfBandPrint(netsrc_t::NS_CLIENT, clc.serverAddress, "connect \"{}\"", info);
         // the most current userinfo has been sent, so watch for any
         // newer changes to userinfo variables
         cvar_modifiedFlags &= ~cvarFlags_t::CVAR_USERINFO;
         break;
 
     default:
-        Com_Error(errorParm_t::ERR_FATAL, "CL_CheckForResend: bad cls.state");
+        Q_Error(errorParm_t::ERR_FATAL, "CL_CheckForResend: bad cls.state");
     }
 }
 
@@ -562,7 +562,7 @@ void CL_DisconnectPacket(netadr_t from)
     }
 
     // drop the connection (FIXME: connection dropped dialog)
-    Com_Printf("Server disconnected for unknown reason\n");
+    Q_Println("Server disconnected for unknown reason");
     CL_Disconnect();
 }
 
@@ -587,12 +587,12 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t* msg)
 
     c = Cmd_Argv(0);
 
-    Com_DPrintf("CL packet %s: %s\n", NET_AdrToString(from), c);
+    Q_DPrintln("CL packet {}: {}", NET_AdrToString(from), c);
 
     // challenge from the server we are connecting to
     if (!strcmp(c, "challengeResponse")) {
         if (cls.state != connstate_t::CA_CONNECTING) {
-            Com_Printf("Unwanted challenge response received.  Ignored.\n");
+            Q_Println("Unwanted challenge response received.  Ignored.");
         }
         else {
             // start sending challenge repsonse instead of challenge request packets
@@ -611,16 +611,16 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t* msg)
     // server connection
     if (!strcmp(c, "connectResponse")) {
         if (cls.state >= connstate_t::CA_CONNECTED) {
-            Com_Printf("Dup connect received.  Ignored.\n");
+            Q_Println("Dup connect received.  Ignored.");
             return;
         }
         if (cls.state != connstate_t::CA_CHALLENGING) {
-            Com_Printf("connectResponse packet while not connecting.  Ignored.\n");
+            Q_Println("connectResponse packet while not connecting.  Ignored.");
             return;
         }
         if (!NET_CompareBaseAdr(from, clc.serverAddress)) {
-            Com_Printf("connectResponse from a different address.  Ignored.\n");
-            Com_Printf("%s should have been %s\n", NET_AdrToString(from), NET_AdrToString(clc.serverAddress));
+            Q_Println("connectResponse from a different address.  Ignored.");
+            Q_Println("{} should have been {}", NET_AdrToString(from), NET_AdrToString(clc.serverAddress));
             return;
         }
         Netchan_Setup(netsrc_t::NS_CLIENT, &clc.netchan, from, Cvar_VariableIntegerValue("net_qport"));
@@ -638,7 +638,7 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t* msg)
 
     // echo request from server
     if (!strcmp(c, "echo")) {
-        NET_OutOfBandPrint(netsrc_t::NS_CLIENT, from, "%s", Cmd_Argv(1));
+        NET_OutOfBandPrint(netsrc_t::NS_CLIENT, from, "{}", Cmd_Argv(1));
         return;
     }
 
@@ -646,11 +646,11 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t* msg)
     if (!strcmp(c, "print")) {
         s = MSG_ReadString(msg);
         UI_UpdateConnectionMessageString(s);
-        Com_Printf("%s", s);
+        Q_Print("{}", s);
         return;
     }
 
-    Com_DPrintf("Unknown connectionless packet command.\n");
+    Q_DPrintln("Unknown connectionless packet command.");
 }
 
 /*
@@ -674,7 +674,7 @@ void CL_PacketEvent(netadr_t from, msg_t* msg)
     }
 
     if (msg->cursize < 8) {
-        Com_Printf("%s: Runt packet\n", NET_AdrToString(from));
+        Q_Println("{}: Runt packet", NET_AdrToString(from));
         return;
     }
 
@@ -682,7 +682,7 @@ void CL_PacketEvent(netadr_t from, msg_t* msg)
     // packet from server
     //
     if (!NET_CompareAdr(from, clc.netchan.remoteAddress)) {
-        Com_DPrintf("%s:sequenced packet without connection\n", NET_AdrToString(from));
+        Q_DPrintln("{}:sequenced packet without connection", NET_AdrToString(from));
         // FIXME: send a client disconnect?
         return;
     }
@@ -711,7 +711,7 @@ void CL_CheckTimeout(void)
         && cls.state >= connstate_t::CA_CONNECTED && (cls.state != connstate_t::CA_CINEMATIC && !CL_IsRunningInGameCinematic()) &&
         cls.realtime - clc.lastPacketTime > cl_timeout->value * 1000) {
         if (++cl.timeoutcount > 5) { // timeoutcount saves debugger
-            Com_Printf("\nServer connection timed out.\n");
+            Q_Println("\nServer connection timed out.");
             CL_Disconnect();
             return;
         }
@@ -758,7 +758,7 @@ void CL_CheckUserinfo(void)
     // send a reliable userinfo update if needed
     if (Any(cvar_modifiedFlags & cvarFlags_t::CVAR_USERINFO)) {
         cvar_modifiedFlags &= ~cvarFlags_t::CVAR_USERINFO;
-        CL_AddReliableCommand(va("userinfo \"%s\"", Cvar_InfoString(cvarFlags_t::CVAR_USERINFO)));
+        CL_AddReliableCommand(Q_Format("userinfo \"{}\"", Cvar_InfoString(cvarFlags_t::CVAR_USERINFO)).c_str());
     }
 }
 
@@ -818,9 +818,9 @@ void CL_Frame(int msec, float fractionMsec)
         avgFrametime += msec;
         char mess[256];
         if (!(frameCount & 0x1f)) {
-            sprintf(mess, "Frame rate=%f\n\n", 1000.0f * (1.0 / (avgFrametime / 32.0f)));
+            Q_FormatTo(mess, "Frame rate={:f}\n\n", 1000.0f * (1.0 / (avgFrametime / 32.0f)));
             //		OutputDebugString(mess);
-            Com_Printf("%s", mess);
+            Q_Print("{}", mess);
             avgFrametime = 0.0f;
         }
         frameCount++;
@@ -862,8 +862,8 @@ void CL_Frame(int msec, float fractionMsec)
         cl_noprint->integer = 1; // hide the screen shot msgs
         for (; i <= cl_panoNumShots->integer; i++) {
             Cvar_SetValue("pano", i);
-            SCR_UpdateScreen();                                                             // update the screen
-            Cbuf_ExecuteText(cbufExec_t::EXEC_NOW, va("screenshot %dpano%02d\n", pref, i)); // grab this screen
+            SCR_UpdateScreen();                                                                            // update the screen
+            Cbuf_ExecuteText(cbufExec_t::EXEC_NOW, Q_Format("screenshot {}pano{:02}\n", pref, i).c_str()); // grab this screen
         }
         Cvar_SetValue("pano", 0); // done
         cl_noprint->integer = oldnoprint;
@@ -873,7 +873,7 @@ void CL_Frame(int msec, float fractionMsec)
         if (cl_skippingcin->modified) {
             S_StopSounds(); // kill em all but music
             cl_skippingcin->modified = false;
-            Com_Printf(S_COLOR_YELLOW "%s", SE_GetString("CON_TEXT_SKIPPING"));
+            Q_Print(S_COLOR_YELLOW "{}", SE_GetString("CON_TEXT_SKIPPING"));
             SCR_UpdateScreen();
         }
     }
@@ -1082,28 +1082,28 @@ void CL_InitRef(void)
     char dllName[MAX_OSPATH];
     GetRefAPI_t GetRefAPI;
 
-    Com_Printf("----- Initializing Renderer ----\n");
+    Q_Println("----- Initializing Renderer ----");
     cl_renderer = Cvar_Get("cl_renderer", DEFAULT_RENDER_LIBRARY, cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH);
 
-    Com_sprintf(dllName, sizeof(dllName), "%s_" ARCH_STRING DLL_EXT, cl_renderer->string);
+    Q_FormatTo(dllName, "{}_" ARCH_STRING DLL_EXT, cl_renderer->string);
 
     if (!(rendererLib = Sys_LoadDll(dllName, false)) && strcmp(cl_renderer->string, cl_renderer->resetString)) {
-        Com_Printf("failed: trying to load fallback renderer\n");
+        Q_Println("failed: trying to load fallback renderer");
         Cvar_ForceReset("cl_renderer");
 
-        Com_sprintf(dllName, sizeof(dllName), DEFAULT_RENDER_LIBRARY "_" ARCH_STRING DLL_EXT);
+        Q_FormatTo(dllName, DEFAULT_RENDER_LIBRARY "_" ARCH_STRING DLL_EXT);
         rendererLib = Sys_LoadDll(dllName, false);
     }
 
     if (!rendererLib) {
-        Com_Error(errorParm_t::ERR_FATAL, "Failed to load renderer\n");
+        Q_Error(errorParm_t::ERR_FATAL, "Failed to load renderer");
     }
 
     memset(&rit, 0, sizeof(rit));
 
     GetRefAPI = (GetRefAPI_t)Sys_LoadFunction(rendererLib, "GetRefAPI");
     if (!GetRefAPI)
-        Com_Error(errorParm_t::ERR_FATAL, "Can't load symbol GetRefAPI: '%s'", Sys_LibraryError());
+        Q_Error(errorParm_t::ERR_FATAL, "Can't load symbol GetRefAPI: '{}'", Sys_LibraryError());
 
 #define RIT(y) rit.y = y
     RIT(CIN_PlayCinematic);
@@ -1163,12 +1163,12 @@ void CL_InitRef(void)
     rit.PD_Load = PD_Load;
     rit.PD_Store = PD_Store;
 
-    rit.Error = Com_VError;
+    rit.Error = Q_VError;
     rit.FS_FileExists = S_FileExists;
     rit.GetG2VertSpaceServer = GetG2VertSpaceServer;
     rit.LowPhysicalMemory = Sys_LowPhysicalMemory;
     rit.Milliseconds = Sys_Milliseconds2;
-    rit.Print = Com_VPrintf;
+    rit.Print = Q_VPrint;
     rit.SE_GetString = String_GetStringValue;
 
     rit.SV_Trace = SV_Trace;
@@ -1186,12 +1186,12 @@ void CL_InitRef(void)
     ret = GetRefAPI(REF_API_VERSION, &rit);
 
     if (!ret) {
-        Com_Error(errorParm_t::ERR_FATAL, "Couldn't initialize refresh");
+        Q_Error(errorParm_t::ERR_FATAL, "Couldn't initialize refresh");
     }
 
     re = *ret;
 
-    Com_Printf("-------------------------------\n");
+    Q_Println("-------------------------------");
 
     // unpause so the cgame definately gets a snapshot and renders a frame
     Cvar_Set("cl_paused", "0");
@@ -1208,7 +1208,7 @@ CL_Init
 */
 void CL_Init(void)
 {
-    Com_Printf("----- Client Initialization -----\n");
+    Q_Println("----- Client Initialization -----");
 
 #ifdef JK2_MODE
     JK2SP_Register("con_text", spRegistrationFlags_t::SP_REGISTER_REQUIRED); // reference is CON_TEXT
@@ -1323,7 +1323,7 @@ void CL_Init(void)
 
     Cvar_Set("cl_running", "1");
 
-    Com_Printf("----- Client Initialization Complete -----\n");
+    Q_Println("----- Client Initialization Complete -----");
 }
 
 /*
@@ -1340,10 +1340,10 @@ void CL_Shutdown(void)
         return;
     }
 
-    Com_Printf("----- CL_Shutdown -----\n");
+    Q_Println("----- CL_Shutdown -----");
 
     if (recursive) {
-        Com_Warning("Recursive CL_Shutdown called!\n");
+        Q_PrintlnWarning("Recursive CL_Shutdown called!");
         return;
     }
     recursive = true;
@@ -1372,5 +1372,5 @@ void CL_Shutdown(void)
 
     memset(&cls, 0, sizeof(cls));
 
-    Com_Printf("-----------------------\n");
+    Q_Println("-----------------------");
 }

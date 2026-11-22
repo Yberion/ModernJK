@@ -143,7 +143,7 @@ void GEntity_ThinkFunc(gentity_t* self)
         THINKCASE(beacon_think)
 
     default:
-        Com_Error(errorParm_t::ERR_DROP, "GEntity_ThinkFunc: case %d not handled!\n", to_underlying(self->e_ThinkFunc));
+        Q_Error(errorParm_t::ERR_DROP, "GEntity_ThinkFunc: case {} not handled!", to_underlying(self->e_ThinkFunc));
         break;
     }
 }
@@ -166,7 +166,7 @@ void CEntity_ThinkFunc(centity_s* cent)
         CLTHINKCASE(CG_Limb)
 
     default:
-        Com_Error(errorParm_t::ERR_DROP, "CEntity_ThinkFunc: case %d not handled!\n", to_underlying(cent->gent->e_clThinkFunc));
+        Q_Error(errorParm_t::ERR_DROP, "CEntity_ThinkFunc: case {} not handled!", to_underlying(cent->gent->e_clThinkFunc));
         break;
     }
 }
@@ -188,7 +188,7 @@ void GEntity_ReachedFunc(gentity_t* self)
         REACHEDCASE(moveAndRotateCallback)
 
     default:
-        Com_Error(errorParm_t::ERR_DROP, "GEntity_ReachedFunc: case %d not handled!\n", to_underlying(self->e_ReachedFunc));
+        Q_Error(errorParm_t::ERR_DROP, "GEntity_ReachedFunc: case {} not handled!", to_underlying(self->e_ReachedFunc));
         break;
     }
 }
@@ -208,7 +208,7 @@ void GEntity_BlockedFunc(gentity_t* self, gentity_t* other)
         BLOCKEDCASE(Blocked_Mover)
 
     default:
-        Com_Error(errorParm_t::ERR_DROP, "GEntity_BlockedFunc: case %d not handled!\n", to_underlying(self->e_BlockedFunc));
+        Q_Error(errorParm_t::ERR_DROP, "GEntity_BlockedFunc: case {} not handled!", to_underlying(self->e_BlockedFunc));
         break;
     }
 }
@@ -244,7 +244,7 @@ void GEntity_TouchFunc(gentity_t* self, gentity_t* other, trace_t* trace)
         TOUCHCASE(TouchTieBomb)
 
     default:
-        Com_Error(errorParm_t::ERR_DROP, "GEntity_TouchFunc: case %d not handled!\n", to_underlying(self->e_TouchFunc));
+        Q_Error(errorParm_t::ERR_DROP, "GEntity_TouchFunc: case {} not handled!", to_underlying(self->e_TouchFunc));
     }
 }
 
@@ -341,7 +341,7 @@ void GEntity_UseFunc(gentity_t* self, gentity_t* other, gentity_t* activator)
         USECASE(TieFighterUse);
 
     default:
-        Com_Error(errorParm_t::ERR_DROP, "GEntity_UseFunc: case %d not handled!\n", to_underlying(self->e_UseFunc));
+        Q_Error(errorParm_t::ERR_DROP, "GEntity_UseFunc: case {} not handled!", to_underlying(self->e_UseFunc));
     }
 }
 
@@ -384,7 +384,7 @@ void GEntity_PainFunc(gentity_t* self, gentity_t* inflictor, gentity_t* attacker
         PAINCASE(eweb_pain)
 
     default:
-        Com_Error(errorParm_t::ERR_DROP, "GEntity_PainFunc: case %d not handled!\n", to_underlying(self->e_PainFunc));
+        Q_Error(errorParm_t::ERR_DROP, "GEntity_PainFunc: case {} not handled!", to_underlying(self->e_PainFunc));
     }
 }
 
@@ -423,7 +423,7 @@ void GEntity_DieFunc(gentity_t* self, gentity_t* inflictor, gentity_t* attacker,
         DIECASE(eweb_die)
 
     default:
-        Com_Error(errorParm_t::ERR_DROP, "GEntity_DieFunc: case %d not handled!\n", to_underlying(self->e_DieFunc));
+        Q_Error(errorParm_t::ERR_DROP, "GEntity_DieFunc: case {} not handled!", to_underlying(self->e_DieFunc));
     }
 }
 

@@ -168,9 +168,17 @@ source_t* LoadSourceMemory(char* ptr, int length, char* name);
 // free the given source
 void FreeSource(source_t* source);
 // print a source error
-void QDECL SourceError(source_t* source, const char* str, ...) __attribute__((format(printf, 2, 3)));
+void VSourceError(source_t* source, fmt::string_view str, fmt::format_args args);
+template <typename... T> void SourceError(source_t* source, fmt::format_string<T...> str, T&&... args)
+{
+    VSourceError(source, str.get(), Q_FormatArgs(args...));
+}
 // print a source warning
-void QDECL SourceWarning(source_t* source, const char* str, ...) __attribute__((format(printf, 2, 3)));
+void VSourceWarning(source_t* source, fmt::string_view str, fmt::format_args args);
+template <typename... T> void SourceWarning(source_t* source, fmt::format_string<T...> str, T&&... args)
+{
+    VSourceWarning(source, str.get(), Q_FormatArgs(args...));
+}
 
 #ifdef BSPC
 // some of BSPC source does include qcommon/q_shared.h and some does not

@@ -123,18 +123,15 @@ the client game module: "cp", "print", "chat", etc
 A nullptr client will broadcast to all clients
 =================
 */
-void SV_SendServerCommand(client_t* cl, const char* fmt, ...)
+void SV_VSendServerCommand(client_t* cl, fmt::string_view fmt, fmt::format_args args)
 {
-    va_list argptr;
     byte message[MAX_MSGLEN];
     client_t* client;
     int j;
 
     message[0] = to_underlying(svc_ops_e::svc_serverCommand);
 
-    va_start(argptr, fmt);
-    Q_vsnprintf((char*)message + 1, sizeof(message) - 1, fmt, argptr);
-    va_end(argptr);
+    Q_VFormatToCut(std::span((char*)message + 1, sizeof(message) - 1), fmt, args);
 
     // Fix to http://aluigi.altervista.org/adv/q3msgboom-adv.txt
     // The actual cause of the bug is probably further downstream
@@ -204,7 +201,7 @@ void SVC_Status(netadr_t from)
             else {
                 score = 0;
             }
-            Com_sprintf(player, sizeof(player), "%i %i \"%s\"\n", score, 0, cl->name);
+            Q_FormatTo(player, "{} {} \"{}\"\n", score, 0, cl->name);
             playerLength = strlen(player);
             if (statusLength + playerLength >= (int)sizeof(status)) {
                 break; // can't hold any more
@@ -214,7 +211,7 @@ void SVC_Status(netadr_t from)
         }
     }
 
-    NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status);
+    NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "statusResponse\n{}\n{}", infostring, status);
 }
 
 /*
@@ -243,13 +240,13 @@ static void SVC_Info(netadr_t from)
     // to prevent timed spoofed reply packets that add ghost servers
     Info_SetValueForKey(infostring, "challenge", Cmd_Argv(1));
 
-    Info_SetValueForKey(infostring, "protocol", va("%i", PROTOCOL_VERSION));
+    Info_SetValueForKey(infostring, "protocol", Q_Format("{}", PROTOCOL_VERSION).c_str());
     // Info_SetValueForKey( infostring, "hostname", sv_hostname->string );
     Info_SetValueForKey(infostring, "mapname", sv_mapname->string);
-    Info_SetValueForKey(infostring, "clients", va("%i", count));
-    Info_SetValueForKey(infostring, "sv_maxclients", va("%i", 1));
+    Info_SetValueForKey(infostring, "clients", Q_Format("{}", count).c_str());
+    Info_SetValueForKey(infostring, "sv_maxclients", Q_Format("{}", 1).c_str());
 
-    NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "infoResponse\n%s", infostring);
+    NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "infoResponse\n{}", infostring);
 }
 
 /*
@@ -275,7 +272,7 @@ static void SV_ConnectionlessPacket(netadr_t from, msg_t* msg)
     Cmd_TokenizeString(s);
 
     c = Cmd_Argv(0);
-    Com_DPrintf("SV packet %s : %s\n", NET_AdrToString(from), c);
+    Q_DPrintln("SV packet {} : {}", NET_AdrToString(from), c);
 
     if (!strcmp(c, "getstatus")) {
         SVC_Status(from);
@@ -292,7 +289,7 @@ static void SV_ConnectionlessPacket(netadr_t from, msg_t* msg)
         // sequenced messages to the old client
     }
     else {
-        Com_DPrintf("bad connectionless packet from %s:\n%s\n", NET_AdrToString(from), s);
+        Q_DPrintln("bad connectionless packet from {}:\n{}", NET_AdrToString(from), s);
     }
 }
 
@@ -340,7 +337,7 @@ void SV_PacketEvent(netadr_t from, msg_t* msg)
         // some address translating routers periodically change UDP
         // port assignments
         if (cl->netchan.remoteAddress.port != from.port) {
-            Com_Printf("SV_ReadPackets: fixing up a translated port\n");
+            Q_Println("SV_ReadPackets: fixing up a translated port");
             cl->netchan.remoteAddress.port = from.port;
         }
 
@@ -462,7 +459,7 @@ void SV_Frame(int msec, float fractionMsec)
 
     // go ahead and let time slip if the server really hitched badly
     if (msec > 1000) {
-        Com_DPrintf("SV_Frame: Truncating msec of %i to 1000\n", msec);
+        Q_DPrintln("SV_Frame: Truncating msec of {} to 1000", msec);
         msec = 1000;
     }
 
@@ -490,7 +487,7 @@ void SV_Frame(int msec, float fractionMsec)
     // 2giga-milliseconds = 23 days, so it won't be too often
     if (sv.time > 0x70000000) {
         SV_Shutdown("Restarting server due to time wrapping");
-        Com_Printf("You win.  if you can play this long and not die, you deserve to win.\n");
+        Q_Println("You win.  if you can play this long and not die, you deserve to win.");
         return;
     }
 

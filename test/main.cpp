@@ -22,6 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Usage: modernjk_test_safe; prints each failed check, exits with their count.
 #include "check.h"
 
+#include <fmt/base.h>
+
 #include <cstdio>
 
 void RunStringTests();
@@ -31,6 +33,6 @@ int main()
 {
     RunStringTests();
     RunLimitedVectorTests();
-    std::printf("%d failed check(s)\n", ::test::failures);
+    fmt::println("{} failed check(s)", ::test::failures);
     return ::test::failures;
 }

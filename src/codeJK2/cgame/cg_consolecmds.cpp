@@ -53,7 +53,7 @@ void CG_TargetCommand_f(void)
     }
 
     cgi_Argv(1, test, 4);
-    cgi_SendClientCommand(va("gc %i %i", targetNum, atoi(test)));
+    cgi_SendClientCommand(Q_Format("gc {} {}", targetNum, atoi(test)).c_str());
 }
 
 /*
@@ -65,8 +65,8 @@ Debugging command to print the current position
 */
 static void CG_Viewpos_f(void)
 {
-    Com_Printf("%s (%i %i %i) : %i\n", cgs.mapname, (int)cg.refdef.vieworg[0], (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2],
-               (int)cg.refdefViewAngles[YAW]);
+    Q_Println("{} ({} {} {}) : {}", cgs.mapname, (int)cg.refdef.vieworg[0], (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2],
+              (int)cg.refdefViewAngles[YAW]);
 }
 
 void CG_WriteCam_f(void)
@@ -83,11 +83,11 @@ void CG_WriteCam_f(void)
         targetname = "nameme!";
     }
 
-    Com_Printf("Camera #%d ('%s') written to: ", numCams, targetname);
-    Com_sprintf(text, sizeof(text),
-                "//entity %d\n{\n\"classname\"	\"ref_tag\"\n\"targetname\"	\"%s\"\n\"origin\" \"%i %i %i\"\n\"angles\" \"%i %i %i\"\n\"fov\" \"%i\"\n}\n",
-                numCams, targetname, (int)cg.refdef.vieworg[0], (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2], (int)cg.refdefViewAngles[0],
-                (int)cg.refdefViewAngles[1], (int)cg.refdefViewAngles[2], cg_fov.integer);
+    Q_Print("Camera #{} ('{}') written to: ", numCams, targetname);
+    Q_FormatTo(text,
+               "//entity {}\n{{\n\"classname\"\t\"ref_tag\"\n\"targetname\"\t\"{}\"\n\"origin\" \"{} {} {}\"\n\"angles\" \"{} {} {}\"\n\"fov\" \"{}\"\n}}\n",
+               numCams, targetname, (int)cg.refdef.vieworg[0], (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2], (int)cg.refdefViewAngles[0],
+               (int)cg.refdefViewAngles[1], (int)cg.refdefViewAngles[2], cg_fov.integer);
     gi.WriteCam(text);
 }
 

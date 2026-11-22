@@ -66,7 +66,7 @@ void NPC_Sentry_Precache(void)
     G_SoundIndex("sound/chars/sentry/misc/sentry_hover_2_lp");
 
     for (int i = 1; i < 4; i++) {
-        G_SoundIndex(va("sound/chars/sentry/misc/talk%d", i));
+        G_SoundIndex(Q_Format("sound/chars/sentry/misc/talk{}", i).c_str());
     }
 
     G_EffectIndex("bryar/muzzle_flash");
@@ -441,7 +441,7 @@ void Sentry_AttackDecision(void)
     // randomly talk
     if (TIMER_Done(NPC, "patrolNoise")) {
         if (TIMER_Done(NPC, "angerNoise")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/sentry/misc/talk%d", Q_irand(1, 3)));
+            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/sentry/misc/talk{}", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPC, "patrolNoise", Q_irand(4000, 10000));
         }
@@ -505,7 +505,7 @@ void NPC_Sentry_Patrol(void)
 
         // randomly talk
         if (TIMER_Done(NPC, "patrolNoise")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/sentry/misc/talk%d", Q_irand(1, 3)));
+            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/sentry/misc/talk{}", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPC, "patrolNoise", Q_irand(2000, 4000));
         }

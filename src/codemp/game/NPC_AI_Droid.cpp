@@ -129,28 +129,28 @@ void Droid_Patrol(void)
             NPCS.NPCInfo->desiredYaw += Q_sin(level.time * .5) * 25; // Weaves side to side a little
 
             if (TIMER_Done(NPCS.NPC, "patrolNoise")) {
-                G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/mouse/misc/mousego%d.wav", Q_irand(1, 3)));
+                G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/mouse/misc/mousego{}.wav", Q_irand(1, 3)).c_str());
 
                 TIMER_Set(NPCS.NPC, "patrolNoise", Q_irand(2000, 4000));
             }
         }
         else if (NPCS.NPC->client && NPCS.NPC->client->NPC_class == class_t::CLASS_R2D2) {
             if (TIMER_Done(NPCS.NPC, "patrolNoise")) {
-                G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/r2d2/misc/r2d2talk0%d.wav", Q_irand(1, 3)));
+                G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/r2d2/misc/r2d2talk0{}.wav", Q_irand(1, 3)).c_str());
 
                 TIMER_Set(NPCS.NPC, "patrolNoise", Q_irand(2000, 4000));
             }
         }
         else if (NPCS.NPC->client && NPCS.NPC->client->NPC_class == class_t::CLASS_R5D2) {
             if (TIMER_Done(NPCS.NPC, "patrolNoise")) {
-                G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/r5d2/misc/r5talk%d.wav", Q_irand(1, 4)));
+                G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/r5d2/misc/r5talk{}.wav", Q_irand(1, 4)).c_str());
 
                 TIMER_Set(NPCS.NPC, "patrolNoise", Q_irand(2000, 4000));
             }
         }
         if (NPCS.NPC->client && NPCS.NPC->client->NPC_class == class_t::CLASS_GONK) {
             if (TIMER_Done(NPCS.NPC, "patrolNoise")) {
-                G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/gonk/misc/gonktalk%d.wav", Q_irand(1, 2)));
+                G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/gonk/misc/gonktalk{}.wav", Q_irand(1, 2)).c_str());
 
                 TIMER_Set(NPCS.NPC, "patrolNoise", Q_irand(2000, 4000));
             }
@@ -420,7 +420,7 @@ void NPC_Mouse_Precache(void)
     int i;
 
     for (i = 1; i < 4; i++) {
-        G_SoundIndex(va("sound/chars/mouse/misc/mousego%d.wav", i));
+        G_SoundIndex(Q_Format("sound/chars/mouse/misc/mousego{}.wav", i).c_str());
     }
 
     G_EffectIndex("env/small_explode");
@@ -438,7 +438,7 @@ void NPC_R5D2_Precache(void)
     int i;
 
     for (i = 1; i < 5; i++) {
-        G_SoundIndex(va("sound/chars/r5d2/misc/r5talk%d.wav", i));
+        G_SoundIndex(Q_Format("sound/chars/r5d2/misc/r5talk{}.wav", i).c_str());
     }
     // G_SoundIndex( "sound/chars/r5d2/misc/falling1.wav" );
     G_SoundIndex("sound/chars/mark2/misc/mark2_explo"); // ??
@@ -460,7 +460,7 @@ void NPC_R2D2_Precache(void)
     int i;
 
     for (i = 1; i < 4; i++) {
-        G_SoundIndex(va("sound/chars/r2d2/misc/r2d2talk0%d.wav", i));
+        G_SoundIndex(Q_Format("sound/chars/r2d2/misc/r2d2talk0{}.wav", i).c_str());
     }
     // G_SoundIndex( "sound/chars/r2d2/misc/falling1.wav" );
     G_SoundIndex("sound/chars/mark2/misc/mark2_explo"); // ??

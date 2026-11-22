@@ -175,8 +175,8 @@ static void SV_NetcodecCompareAdd(netcodecCompare_t& c, const char* what, const 
     c.codec += (double)codecBytes;
     c.legacy += (double)legacyBytes;
     if (sv_netcodecCompare->integer > 1 || svs.time - c.time >= 10000 || svs.time < c.time) {
-        Com_Printf("netcodec: %d %s, %.1f bytes per %s against %.1f in the legacy format (ratio %.3f)\n", c.count, what, c.codec / c.count, unit,
-                   c.legacy / c.count, c.legacy > 0 ? c.codec / c.legacy : 0.0);
+        Q_Println("netcodec: {} {}, {:.1f} bytes per {} against {:.1f} in the legacy format (ratio {:.3f})", c.count, what, c.codec / c.count, unit,
+                  c.legacy / c.count, c.legacy > 0 ? c.codec / c.legacy : 0.0);
         c.count = 0;
         c.codec = c.legacy = 0;
         c.time = svs.time;
@@ -382,7 +382,7 @@ static bool SV_NetcodecSend(client_t* client, eng::ServerMessage& sm, clientSnap
     packetBase.seq = -1;
     if (!size) {
         // the legacy code cleared an overflowed message too, and sent it empty
-        Com_Warning("message for %s not coded (larger than %d bytes, or malformed)\n", client->name, (int)outSize);
+        Q_PrintlnWarning("message for {} not coded (larger than {} bytes, or malformed)", client->name, (int)outSize);
     }
     else {
         netcodecStats_t& st = client->netcodecStats;
@@ -392,8 +392,8 @@ static bool SV_NetcodecSend(client_t* client, eng::ServerMessage& sm, clientSnap
         if (left) {
             st.cut++;
             if (outSize == sizeof(buf)) {
-                Com_Warning("snapshot for %s larger than %d bytes: sent with the %d entities nearest to the player, %d left out\n", client->name, (int)outSize,
-                            (int)sm.frame.numEntities, left);
+                Q_PrintlnWarning("snapshot for {} larger than {} bytes: sent with the {} entities nearest to the player, {} left out", client->name,
+                                 (int)outSize, (int)sm.frame.numEntities, left);
             }
         }
         if (sm.snapshot) {
@@ -447,7 +447,7 @@ void SV_NetcodecSendGameState(client_t* client)
     sm.checksum = sv.checksumFeed;
     if (!SV_NetcodecSend(client, sm, nullptr, 0)) {
         // the client cannot play without it: dropped, with the reason (CL_ParseCommandString shows it before cgame runs)
-        Com_Warning("the gamestate does not fit in a message: %s dropped\n", client->name);
+        Q_PrintlnWarning("the gamestate does not fit in a message: {} dropped", client->name);
         SV_DropClient(client, "gamestate too large for a message");
     }
 }
@@ -603,7 +603,7 @@ void SV_NetcodecSendSnapshot(client_t* client, const char* setGame)
 void SV_NetcodecStats_f(void)
 {
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
     SV_CostStats();
@@ -614,21 +614,19 @@ void SV_NetcodecStats_f(void)
             continue;
         }
         const int decoded = st.packets - st.packetsNotDecoded - st.packetsLimited;
-        Com_Printf("%2d %s^7: %d messages, %.1f bytes per message, %d escaped; %d snapshots: %d without a base asked, "
-                   "%d with the asked base refused, %d cut to fit, base 1: %d, 2: %d, 3: %d, 4: %d, 5-8: %d, 9+: %d messages back; "
-                   "ping %d ms; %d commands sent, %d of them repeats (not in the game %d, carrier lost %d, new command %d, "
-                   "twice the ping passed %d, both %d); %d client packets, %.1f bytes per packet, %d not decoded, "
-                   "%d above the packet rate, %.2f user commands per packet, %d lost (runs of 1: %d, 2: %d, 3: %d, 4+: %d); "
-                   "ticks run with their command %d, without one %d, %d commands after their tick; input margin: mean %.1f ms, "
-                   "lowest %d ms; "
-                   "send time against the game clock: mean change %.3f ms, max %.3f ms, %d of %d changes of 1 ms or more\n",
-                   i, cl->name, st.messages, st.messages ? st.bytes / st.messages : 0.0, st.escaped, st.snapshots, st.noBase, st.baseRefused, st.cut,
-                   st.baseAge[0], st.baseAge[1], st.baseAge[2], st.baseAge[3], st.baseAge[4], st.baseAge[5], cl->ping, st.commands, st.repeats,
-                   st.repeatsBy[CommandsDue::kNotInGame], st.repeatsBy[CommandsDue::kLost], st.repeatsBy[CommandsDue::kNew],
-                   st.repeatsBy[CommandsDue::kTimeout], st.repeatsBy[CommandsDue::kNewAndTimeout], st.packets, st.packets ? st.packetBytes / st.packets : 0.0,
-                   st.packetsNotDecoded, st.packetsLimited, decoded ? (double)st.userCmds / decoded : 0.0, st.packetsLost, st.lossRuns[0], st.lossRuns[1],
-                   st.lossRuns[2], st.lossRuns[3], st.cmdsOnTime, st.cmdsMissing, st.cmdsLate, st.margins ? st.marginSum / st.margins : 0.0, st.marginMin,
-                   st.sendChanges ? st.sendChangeSum / st.sendChanges / 1000.0 : 0.0, st.sendChangeMax / 1000.0, st.sendChangesOver1ms, st.sendChanges);
+        Q_Println("{:2} {}^7: {} messages, {:.1f} bytes per message, {} escaped; {} snapshots: {} without a base asked, {} with the asked base refused, {} cut "
+                  "to fit, base 1: {}, 2: {}, 3: {}, 4: {}, 5-8: {}, 9+: {} messages back; ping {} ms; {} commands sent, {} of them repeats (not in the game "
+                  "{}, carrier lost {}, new command {}, twice the ping passed {}, both {}); {} client packets, {:.1f} bytes per packet, {} not decoded, {} "
+                  "above the packet rate, {:.2f} user commands per packet, {} lost (runs of 1: {}, 2: {}, 3: {}, 4+: {}); ticks run with their command {}, "
+                  "without one {}, {} commands after their tick; input margin: mean {:.1f} ms, lowest {} ms; send time against the game clock: mean change "
+                  "{:.3f} ms, max {:.3f} ms, {} of {} changes of 1 ms or more",
+                  i, cl->name, st.messages, st.messages ? st.bytes / st.messages : 0.0, st.escaped, st.snapshots, st.noBase, st.baseRefused, st.cut,
+                  st.baseAge[0], st.baseAge[1], st.baseAge[2], st.baseAge[3], st.baseAge[4], st.baseAge[5], cl->ping, st.commands, st.repeats,
+                  st.repeatsBy[CommandsDue::kNotInGame], st.repeatsBy[CommandsDue::kLost], st.repeatsBy[CommandsDue::kNew], st.repeatsBy[CommandsDue::kTimeout],
+                  st.repeatsBy[CommandsDue::kNewAndTimeout], st.packets, st.packets ? st.packetBytes / st.packets : 0.0, st.packetsNotDecoded,
+                  st.packetsLimited, decoded ? (double)st.userCmds / decoded : 0.0, st.packetsLost, st.lossRuns[0], st.lossRuns[1], st.lossRuns[2],
+                  st.lossRuns[3], st.cmdsOnTime, st.cmdsMissing, st.cmdsLate, st.margins ? st.marginSum / st.margins : 0.0, st.marginMin,
+                  st.sendChanges ? st.sendChangeSum / st.sendChanges / 1000.0 : 0.0, st.sendChangeMax / 1000.0, st.sendChangesOver1ms, st.sendChanges);
         Com_Memset(&st, 0, sizeof(st));
     }
 }
@@ -692,7 +690,7 @@ const eng::ClientPacket* SV_NetcodecDecodeClientPacket(client_t* client, const m
     st.packetBytes += size;
     if (!Codec().DecodePacket(msg->data + msg->readcount, (size_t)size, client->netchan.outgoingSequence - 1, s_packetBases[ClientIndex(client)], packet)) {
         st.packetsNotDecoded++;
-        Com_DPrintf("netcodec: packet of %s not decoded\n", client->name);
+        Q_DPrintln("netcodec: packet of {} not decoded", client->name);
         return nullptr;
     }
     if (packet.move != eng::Move::kNone) {

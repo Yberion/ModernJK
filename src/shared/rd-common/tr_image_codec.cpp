@@ -111,7 +111,7 @@ byte* R_DecodeImage(const char* name, const byte* file, int length, int* width, 
         if (callbacks.pixels) {
             R_ImageFree(callbacks.pixels);
         }
-        Com_Warning("R_DecodeImage: %s: %s\n", name, result.error_message.c_str());
+        Q_PrintlnWarning("R_DecodeImage: {}: {}", name, result.error_message);
         return nullptr;
     }
     *width = static_cast<int>(result.pixbuf.pixcfg.width());
@@ -146,7 +146,7 @@ static void EncodeToBuffer(void* context, void* data, int size)
     encodeBuffer_t* buffer = static_cast<encodeBuffer_t*>(context);
 
     if (buffer->used + size > buffer->size) {
-        Com_Error(errorParm_t::ERR_FATAL, "Output buffer for encoded JPEG image has insufficient size of %d bytes", static_cast<int>(buffer->size));
+        Q_Error(errorParm_t::ERR_FATAL, "Output buffer for encoded JPEG image has insufficient size of {} bytes", static_cast<int>(buffer->size));
     }
     memcpy(buffer->out + buffer->used, data, size);
     buffer->used += size;

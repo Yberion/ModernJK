@@ -296,7 +296,7 @@ void AAS_ShowFace(int facenum)
     color = lineColor_t::LINECOLOR_YELLOW;
     // check if face number is in range
     if (facenum >= aasworld.numfaces) {
-        Com_PrintError("facenum %d out of range\n", facenum);
+        Q_PrintlnError("facenum {} out of range", facenum);
     } // end if
     face = &aasworld.faces[facenum];
     // walk through the edges of the face
@@ -305,7 +305,7 @@ void AAS_ShowFace(int facenum)
         edgenum = abs(aasworld.edgeindex[face->firstedge + i]);
         // check if edge number is in range
         if (edgenum >= aasworld.numedges) {
-            Com_PrintError("edgenum %d out of range\n", edgenum);
+            Q_PrintlnError("edgenum {} out of range", edgenum);
         } // end if
         edge = &aasworld.edges[edgenum];
         if (color == lineColor_t::LINECOLOR_RED)
@@ -340,7 +340,7 @@ void AAS_ShowFacePolygon(int facenum, lineColor_t color, int flip)
 
     // check if face number is in range
     if (facenum >= aasworld.numfaces) {
-        Com_PrintError("facenum %d out of range\n", facenum);
+        Q_PrintlnError("facenum {} out of range", facenum);
     } // end if
     face = &aasworld.faces[facenum];
     // walk through the edges of the face
@@ -385,7 +385,7 @@ void AAS_ShowArea(int areanum, int groundfacesonly)
     numareaedges = 0;
     //
     if (areanum < 0 || areanum >= aasworld.numareas) {
-        Com_PrintError("area %d out of range [0, %d]\n", areanum, aasworld.numareas);
+        Q_PrintlnError("area {} out of range [0, {}]", areanum, aasworld.numareas);
         return;
     } // end if
     // pointer to the convex area
@@ -395,7 +395,7 @@ void AAS_ShowArea(int areanum, int groundfacesonly)
         facenum = abs(aasworld.faceindex[area->firstface + i]);
         // check if face number is in range
         if (facenum >= aasworld.numfaces) {
-            Com_PrintError("facenum %d out of range\n", facenum);
+            Q_PrintlnError("facenum {} out of range", facenum);
         } // end if
         face = &aasworld.faces[facenum];
         // ground faces only
@@ -409,7 +409,7 @@ void AAS_ShowArea(int areanum, int groundfacesonly)
             edgenum = abs(aasworld.edgeindex[face->firstedge + j]);
             // check if edge number is in range
             if (edgenum >= aasworld.numedges) {
-                Com_PrintError("edgenum %d out of range\n", edgenum);
+                Q_PrintlnError("edgenum {} out of range", edgenum);
             } // end if
             // check if the edge is stored already
             for (n = 0; n < numareaedges; n++) {
@@ -463,7 +463,7 @@ void AAS_ShowAreaPolygons(int areanum, lineColor_t color, int groundfacesonly)
 
     //
     if (areanum < 0 || areanum >= aasworld.numareas) {
-        Com_PrintError("area %d out of range [0, %d]\n", areanum, aasworld.numareas);
+        Q_PrintlnError("area {} out of range [0, {}]", areanum, aasworld.numareas);
         return;
     } // end if
     // pointer to the convex area
@@ -473,7 +473,7 @@ void AAS_ShowAreaPolygons(int areanum, lineColor_t color, int groundfacesonly)
         facenum = abs(aasworld.faceindex[area->firstface + i]);
         // check if face number is in range
         if (facenum >= aasworld.numfaces) {
-            Com_PrintError("facenum %d out of range\n", facenum);
+            Q_PrintlnError("facenum {} out of range", facenum);
         } // end if
         face = &aasworld.faces[facenum];
         // ground faces only
@@ -567,7 +567,7 @@ void AAS_PrintTravelType(travelTypeFlags_t traveltype)
         str = "UNKNOWN TRAVEL TYPE";
         break;
     } // end switch
-    Com_Printf("%s", str);
+    Q_Print("{}", str);
 #endif
 } // end of the function AAS_PrintTravelType
 //===========================================================================
@@ -701,7 +701,7 @@ void AAS_ShowReachableAreas(int areanum)
         index++;
         lasttime = AAS_Time();
         AAS_PrintTravelType(reach.traveltype & travelTypeFlags_t::TRAVELTYPE_MASK);
-        Com_Printf("\n");
+        Q_Println("");
     } // end if
     AAS_ShowReachability(&reach);
 } // end of the function ShowReachableAreas

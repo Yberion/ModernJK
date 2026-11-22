@@ -618,7 +618,7 @@ void DeathFX(gentity_t* ent)
         VectorCopy(ent->currentOrigin, effectPos);
         effectPos[2] -= 5;
         //		statusTextIndex = Q_irand( IGT_RESISTANCEISFUTILE, IGT_NAMEIS8OF12 );
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_AUTO, va("sound/chars/gonk/misc/death%d.wav", Q_irand(1, 3)));
+        G_SoundOnEnt(ent, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/gonk/misc/death{}.wav", Q_irand(1, 3)).c_str());
         G_PlayEffect("env/med_explode", effectPos);
         break;
 
@@ -1057,7 +1057,7 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, hitLocation_t
     }
 #ifdef _DEBUG
     else {
-        Com_PrintError("surface %s does not belong to any hitLocation!!!\n", surfName);
+        Q_PrintlnError("surface {} does not belong to any hitLocation!!!", surfName);
     }
 #endif //_DEBUG
 
@@ -2024,7 +2024,7 @@ bool G_GetRootSurfNameWithVariant(gentity_t* ent, const char* rootSurfName, char
     else { // check variants
         int i;
         for (i = 0; i < MAX_VARIANTS; i++) {
-            Com_sprintf(returnSurfName, returnSize, "%s%c", rootSurfName, 'a' + i);
+            Q_FormatTo(std::span(returnSurfName, returnSize), "{}{:c}", rootSurfName, 'a' + i);
             if (gi.G2API_GetSurfaceRenderStatus(&ent->ghoul2[ent->playerModel], returnSurfName) == g2SurfaceFlags_t::G2SURFACEFLAG_NONE) {
                 return true;
             }
@@ -2068,8 +2068,8 @@ bool G_DoDismemberment(gentity_t* self, vec3_t point, meansOfDeath_t mod, int da
                     rotateBone = "rtalus";
                     G_GetRootSurfNameWithVariant(self, "r_leg", limbName, sizeof(limbName));
                     G_GetRootSurfNameWithVariant(self, "hips", stubName, sizeof(stubName));
-                    Com_sprintf(limbCapName, sizeof(limbCapName), "%s_cap_hips", limbName);
-                    Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_r_leg", stubName);
+                    Q_FormatTo(limbCapName, "{}_cap_hips", limbName);
+                    Q_FormatTo(stubCapName, "{}_cap_r_leg", stubName);
                     limbTagName = "*r_leg_cap_hips";
                     stubTagName = "*hips_cap_r_leg";
                     anim = animNumber_t::BOTH_DISMEMBER_RLEG;
@@ -2084,8 +2084,8 @@ bool G_DoDismemberment(gentity_t* self, vec3_t point, meansOfDeath_t mod, int da
                     rotateBone = "ltalus";
                     G_GetRootSurfNameWithVariant(self, "l_leg", limbName, sizeof(limbName));
                     G_GetRootSurfNameWithVariant(self, "hips", stubName, sizeof(stubName));
-                    Com_sprintf(limbCapName, sizeof(limbCapName), "%s_cap_hips", limbName);
-                    Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_l_leg", stubName);
+                    Q_FormatTo(limbCapName, "{}_cap_hips", limbName);
+                    Q_FormatTo(stubCapName, "{}_cap_l_leg", stubName);
                     limbTagName = "*l_leg_cap_hips";
                     stubTagName = "*hips_cap_l_leg";
                     anim = animNumber_t::BOTH_DISMEMBER_LLEG;
@@ -2117,8 +2117,8 @@ bool G_DoDismemberment(gentity_t* self, vec3_t point, meansOfDeath_t mod, int da
                     rotateBone = "rradius";
                     G_GetRootSurfNameWithVariant(self, "r_arm", limbName, sizeof(limbName));
                     G_GetRootSurfNameWithVariant(self, "torso", stubName, sizeof(stubName));
-                    Com_sprintf(limbCapName, sizeof(limbCapName), "%s_cap_torso", limbName);
-                    Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_r_arm", stubName);
+                    Q_FormatTo(limbCapName, "{}_cap_torso", limbName);
+                    Q_FormatTo(stubCapName, "{}_cap_r_arm", stubName);
                     limbTagName = "*r_arm_cap_torso";
                     stubTagName = "*torso_cap_r_arm";
                     anim = animNumber_t::BOTH_DISMEMBER_RARM;
@@ -2135,8 +2135,8 @@ bool G_DoDismemberment(gentity_t* self, vec3_t point, meansOfDeath_t mod, int da
                     rotateBone = "lradius";
                     G_GetRootSurfNameWithVariant(self, "l_arm", limbName, sizeof(limbName));
                     G_GetRootSurfNameWithVariant(self, "torso", stubName, sizeof(stubName));
-                    Com_sprintf(limbCapName, sizeof(limbCapName), "%s_cap_torso", limbName);
-                    Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_l_arm", stubName);
+                    Q_FormatTo(limbCapName, "{}_cap_torso", limbName);
+                    Q_FormatTo(stubCapName, "{}_cap_l_arm", stubName);
                     limbTagName = "*l_arm_cap_torso";
                     stubTagName = "*torso_cap_l_arm";
                     anim = animNumber_t::BOTH_DISMEMBER_LARM;
@@ -2151,8 +2151,8 @@ bool G_DoDismemberment(gentity_t* self, vec3_t point, meansOfDeath_t mod, int da
                     rotateBone = "rhand";
                     G_GetRootSurfNameWithVariant(self, "r_hand", limbName, sizeof(limbName));
                     G_GetRootSurfNameWithVariant(self, "r_arm", stubName, sizeof(stubName));
-                    Com_sprintf(limbCapName, sizeof(limbCapName), "%s_cap_r_arm", limbName);
-                    Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_r_hand", stubName);
+                    Q_FormatTo(limbCapName, "{}_cap_r_arm", limbName);
+                    Q_FormatTo(stubCapName, "{}_cap_r_hand", stubName);
                     limbTagName = "*r_hand_cap_r_arm";
                     stubTagName = "*r_arm_cap_r_hand";
                     anim = animNumber_t::BOTH_DISMEMBER_RARM;
@@ -2167,8 +2167,8 @@ bool G_DoDismemberment(gentity_t* self, vec3_t point, meansOfDeath_t mod, int da
                     rotateBone = "lhand";
                     G_GetRootSurfNameWithVariant(self, "l_hand", limbName, sizeof(limbName));
                     G_GetRootSurfNameWithVariant(self, "l_arm", stubName, sizeof(stubName));
-                    Com_sprintf(limbCapName, sizeof(limbCapName), "%s_cap_l_arm", limbName);
-                    Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_l_hand", stubName);
+                    Q_FormatTo(limbCapName, "{}_cap_l_arm", limbName);
+                    Q_FormatTo(stubCapName, "{}_cap_l_hand", stubName);
                     limbTagName = "*l_hand_cap_l_arm";
                     stubTagName = "*l_arm_cap_l_hand";
                     anim = animNumber_t::BOTH_DISMEMBER_LARM;
@@ -3207,7 +3207,7 @@ void player_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int 
 
 #ifndef FINAL_BUILD
     if (d_saberCombat->integer && attacker && attacker->client) {
-        Com_Printf(S_COLOR_YELLOW "combatant %s died, killer anim = %s\n", self->targetname, BG_AnimName(attacker->client->ps.torsoAnim));
+        Q_Println(S_COLOR_YELLOW "combatant {} died, killer anim = {}", self->targetname, BG_AnimName(attacker->client->ps.torsoAnim));
     }
 #endif // FINAL_BUILD
     if (self->NPC) {
@@ -4473,7 +4473,7 @@ static void G_FriendlyFireReaction(gentity_t* self, gentity_t* other, damageFlag
                     if (self->NPC->ffireDebounce < level.time) {
                         // FIXME: way something?  NEED DIALOGUE
                         self->NPC->ffireCount++;
-                        // Com_Printf( "incr: %d < %d\n", self->NPC->ffireCount, 3+((2-g_spskill->integer)*2) );
+                        // Q_Println("incr: {} < {}", self->NPC->ffireCount, 3+((2-g_spskill->integer)*2));
                         self->NPC->ffireDebounce = level.time + 500;
                     }
                 }
@@ -5444,7 +5444,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, const 
     }
 
     if (g_debugDamage->integer) {
-        Com_Printf("[%d]client:%i health:%i damage:%i armor:%i hitloc:%s\n", level.time, targ->s.number, targ->health, take, asave, hitLocName[hitLoc]);
+        Q_Println("[{}]client:{} health:{} damage:{} armor:{} hitloc:{}", level.time, targ->s.number, targ->health, take, asave, hitLocName[hitLoc]);
     }
 
     // add to the damage inflicted on a player this frame

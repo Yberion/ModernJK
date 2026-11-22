@@ -339,7 +339,7 @@ void SpewDebugStuffToFile(animation_t* anims)
     BGPAFtext[0] = 0;
 
     while (i < animNumber_t::MAX_ANIMATIONS) {
-        strcat(BGPAFtext, va("%i %i\n", i, anims[i].frameLerp));
+        strcat(BGPAFtext, Q_Format("{} {}\n", i, anims[i].frameLerp).c_str());
         i++;
     }
 
@@ -410,7 +410,7 @@ void NPC_PrecacheAnimationCFG(const char* NPC_type)
 		token = COM_ParseExt( &p, true );
 		if ( !token[0] )
 		{
-			Com_PrintError( "unexpected EOF while parsing '%s'\n", NPC_type );
+			Q_PrintlnError("unexpected EOF while parsing '{}'", NPC_type);
 			return;
 		}
 
@@ -445,7 +445,7 @@ void NPC_PrecacheAnimationCFG(const char* NPC_type)
 			char	*slash = nullptr;
 			char	*strippedName;
 
-			int handle = trap->G2API_PrecacheGhoul2Model( va( "models/players/%s/model.glm", value ) );
+			int handle = trap->G2API_PrecacheGhoul2Model( Q_Format("models/players/{}/model.glm", value).c_str() );
 			if ( handle > 0 )//FIXME: isn't 0 a valid handle?
 			{
 				GLAName = trap->G2API_GetAnimFileNameIndex( handle );
@@ -539,7 +539,7 @@ void NPC_Precache(gentity_t* spawner)
     strcpy(customSkin, "default");
 
     p = NPCParms;
-    Com_sprintf(sessionName, sizeof(sessionName), "NPC_Precache(%s)", spawner->NPC_type);
+    Q_FormatTo(sessionName, "NPC_Precache({})", spawner->NPC_type);
     COM_BeginParseSession(sessionName);
 
     // look for the right NPC
@@ -567,7 +567,7 @@ void NPC_Precache(gentity_t* spawner)
     while (1) {
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            Com_PrintError("unexpected EOF while parsing '%s'\n", spawner->NPC_type);
+            Q_PrintlnError("unexpected EOF while parsing '{}'", spawner->NPC_type);
             return;
         }
 
@@ -642,7 +642,7 @@ void NPC_Precache(gentity_t* spawner)
                 continue;
             }
             // playerTeam = TranslateTeamName(value);
-            Com_sprintf(tk, sizeof(tk), "NPC%s", token);
+            Q_FormatTo(tk, "NPC{}", token);
             playerTeam = static_cast<npcteam_t>(GetIDForString(TeamTable, tk));
             continue;
         }
@@ -659,7 +659,7 @@ void NPC_Precache(gentity_t* spawner)
                 if (patch) {
                     *patch = 0;
                 }
-                spawner->s.csSounds_Std = G_SoundIndex(va("*$%s", sound));
+                spawner->s.csSounds_Std = G_SoundIndex(Q_Format("*${}", sound).c_str());
             }
             continue;
         }
@@ -676,7 +676,7 @@ void NPC_Precache(gentity_t* spawner)
                 if (patch) {
                     *patch = 0;
                 }
-                spawner->s.csSounds_Combat = G_SoundIndex(va("*$%s", sound));
+                spawner->s.csSounds_Combat = G_SoundIndex(Q_Format("*${}", sound).c_str());
             }
             continue;
         }
@@ -693,7 +693,7 @@ void NPC_Precache(gentity_t* spawner)
                 if (patch) {
                     *patch = 0;
                 }
-                spawner->s.csSounds_Extra = G_SoundIndex(va("*$%s", sound));
+                spawner->s.csSounds_Extra = G_SoundIndex(Q_Format("*${}", sound).c_str());
             }
             continue;
         }
@@ -710,7 +710,7 @@ void NPC_Precache(gentity_t* spawner)
                 if (patch) {
                     *patch = 0;
                 }
-                spawner->s.csSounds_Jedi = G_SoundIndex(va("*$%s", sound));
+                spawner->s.csSounds_Jedi = G_SoundIndex(Q_Format("*${}", sound).c_str());
             }
             continue;
         }
@@ -734,15 +734,15 @@ void NPC_Precache(gentity_t* spawner)
     // If we're not a vehicle, then an error here would be valid...
     if (!spawner->client || spawner->client->NPC_class != class_t::CLASS_VEHICLE) {
         if (md3Model) {
-            Com_Printf("MD3 model using NPCs are not supported in MP\n");
+            Q_Println("MD3 model using NPCs are not supported in MP");
         }
         else { // if we have a model/skin then index them so they'll be registered immediately
             // when the client gets a configstring update.
             char modelName[MAX_QPATH];
 
-            Com_sprintf(modelName, sizeof(modelName), "models/players/%s/model.glm", playerModel);
+            Q_FormatTo(modelName, "models/players/{}/model.glm", playerModel);
             if (customSkin[0]) { // append it after a *
-                strcat(modelName, va("*%s", customSkin));
+                strcat(modelName, Q_Format("*{}", customSkin).c_str());
             }
 
             G_ModelIndex(modelName);
@@ -983,14 +983,14 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
 
     if (!Q_stricmp("random", NPCName)) { // Randomly assemble a starfleet guy
         // NPC_BuildRandom( NPC );
-        Com_Printf("RANDOM NPC NOT SUPPORTED IN MP\n");
+        Q_Println("RANDOM NPC NOT SUPPORTED IN MP");
         return false;
     }
     else {
         int fp;
 
         p = NPCParms;
-        Com_sprintf(sessionName, sizeof(sessionName), "NPC_ParseParms(%s)", NPCName);
+        Q_FormatTo(sessionName, "NPC_ParseParms({})", NPCName);
         COM_BeginParseSession(sessionName);
 
         // look for the right NPC
@@ -1018,7 +1018,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
         while (1) {
             token = COM_ParseExt(&p, true);
             if (!token[0]) {
-                Com_PrintError("unexpected EOF while parsing '%s'\n", NPCName);
+                Q_PrintlnError("unexpected EOF while parsing '{}'", NPCName);
                 return false;
             }
 
@@ -1465,7 +1465,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->headYawRangeLeft = n;
@@ -1479,7 +1479,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->headYawRangeRight = n;
@@ -1493,7 +1493,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->headPitchRangeUp = n;
@@ -1507,7 +1507,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->headPitchRangeDown = n;
@@ -1521,7 +1521,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->torsoYawRangeLeft = n;
@@ -1535,7 +1535,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->torsoYawRangeRight = n;
@@ -1549,7 +1549,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->torsoPitchRangeUp = n;
@@ -1563,7 +1563,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->torsoPitchRangeDown = n;
@@ -1577,13 +1577,13 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (n != 100) {
                     NPC->client->ps.iModelScale = n; // so the client knows
                     if (n >= 1024) {
-                        Com_Warning("MP does not support scaling up to or over 1024%%\n");
+                        Q_PrintlnWarning("MP does not support scaling up to or over 1024%");
                         n = 1023;
                     }
 
@@ -1599,11 +1599,11 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (n != 100) {
-                    Com_Printf("MP doesn't support xyz scaling, use 'scale'.\n");
+                    Q_Println("MP doesn't support xyz scaling, use 'scale'.");
                     // NPC->s.modelScale[0] = n/100.0f;
                 }
                 continue;
@@ -1616,11 +1616,11 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (n != 100) {
-                    Com_Printf("MP doesn't support xyz scaling, use 'scale'.\n");
+                    Q_Println("MP doesn't support xyz scaling, use 'scale'.");
                     // NPC->s.modelScale[1] = n/100.0f;
                 }
                 continue;
@@ -1633,11 +1633,11 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (n != 100) {
-                    Com_Printf("MP doesn't support xyz scaling, use 'scale'.\n");
+                    Q_Println("MP doesn't support xyz scaling, use 'scale'.");
                     //	NPC->s.modelScale[2] = n/100.0f;
                 }
                 continue;
@@ -1652,7 +1652,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_Println("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1668,7 +1668,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_Println("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1684,7 +1684,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (f < 0.0f) {
-                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_Println("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1700,7 +1700,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1716,7 +1716,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 30 || n > 180) {
-                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_Println("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1732,7 +1732,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_Println("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1748,7 +1748,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_Println("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1764,7 +1764,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_Println("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1780,7 +1780,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (f < 0.0f) {
-                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_Println("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1796,7 +1796,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 30 || n > 180) {
-                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_Println("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1812,7 +1812,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (f < 0.0f) {
-                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_Println("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1828,7 +1828,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (f < 0.0f) {
-                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_Println("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1867,7 +1867,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1895,7 +1895,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 if (COM_ParseString(&p, &value)) {
                     continue;
                 }
-                Com_sprintf(tk, sizeof(tk), "NPC%s", token);
+                Q_FormatTo(tk, "NPC{}", token);
                 ES_SetNPCTeam(NPC->s, NPC->client->playerTeam = static_cast<npcteam_t>(GetIDForString(TeamTable, tk))); // TranslateTeamName(value);
                 continue;
             }
@@ -1907,7 +1907,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 if (COM_ParseString(&p, &value)) {
                     continue;
                 }
-                Com_sprintf(tk, sizeof(tk), "NPC%s", token);
+                Q_FormatTo(tk, "NPC{}", token);
                 NPC->client->enemyTeam = static_cast<npcteam_t>(GetIDForString(TeamTable, tk)); // TranslateTeamName(value);
                 continue;
             }
@@ -1924,8 +1924,8 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 // No md3's for vehicles.
                 if (NPC->client->NPC_class == class_t::CLASS_VEHICLE) {
                     if (!NPC->m_pVehicle) { // you didn't spawn this guy right!
-                        Com_PrintError("Tried to spawn a vehicle NPC (%s) without using NPC_Vehicle or 'NPC spawn vehicle <vehiclename>'!!!  "
-                                       "Bad, bad, bad!  Shame on you!\n",
+                        Q_PrintlnError("Tried to spawn a vehicle NPC ({}) without using NPC_Vehicle or 'NPC spawn vehicle <vehiclename>'!!!  Bad, bad, bad!  "
+                                       "Shame on you!",
                                        NPCName);
                         return false;
                     }
@@ -1942,7 +1942,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1959,7 +1959,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1975,7 +1975,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1991,7 +1991,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -2007,7 +2007,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -2094,7 +2094,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n <= 0) {
-                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_Println("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2110,7 +2110,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 0) {
-                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2126,7 +2126,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 0) {
-                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2142,7 +2142,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 0) {
-                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2163,7 +2163,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < to_underlying(bState_t::BS_DEFAULT) || n >= to_underlying(bState_t::NUM_BSTATES)) {
-                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                        Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2352,7 +2352,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 strcpy(saberName, value);
 
                 WP_SaberParseParms(saberName, &NPC->client->saber[0]);
-                npcSaber1 = G_ModelIndex(va("@%s", saberName));
+                npcSaber1 = G_ModelIndex(Q_Format("@{}", saberName).c_str());
 
                 BG_TempFree(4096);
                 continue;
@@ -2374,7 +2374,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     }
                     else {
                         // NPC->client->ps.dualSabers = true;
-                        npcSaber2 = G_ModelIndex(va("@%s", saberName));
+                        npcSaber2 = G_ModelIndex(Q_Format("@{}", saberName).c_str());
                     }
                     BG_TempFree(4096);
                 }
@@ -3007,7 +3007,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
             }
 
             if (!parsingPlayer) {
-                Com_Warning("unknown keyword '%s' while parsing '%s'\n", token, NPCName);
+                Q_PrintlnWarning("unknown keyword '{}' while parsing '{}'", token, NPCName);
             }
             SkipRestOfLine(&p);
         }
@@ -3033,7 +3033,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
 
         if (NPC->client && NPC->client->NPC_class == class_t::CLASS_VEHICLE) { // vehicles want their names fed in as models
             // we put the $ in front to indicate a name and not a model
-            strcpy(playerModel, va("$%s", NPCName));
+            strcpy(playerModel, Q_Format("${}", NPCName).c_str());
         }
         SetupGameGhoul2Model(NPC, playerModel, customSkin);
 
@@ -3049,7 +3049,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
         }
     }
     else {
-        Com_Printf("MD3 MODEL NPC'S ARE NOT SUPPORTED IN MP!\n");
+        Q_Println("MD3 MODEL NPC'S ARE NOT SUPPORTED IN MP!");
         return false;
     }
     /*
@@ -3091,17 +3091,17 @@ void NPC_LoadParms(void)
     for (i = 0; i < fileCnt; i++, holdChar += npcExtFNLen + 1) {
         npcExtFNLen = strlen(holdChar);
 
-        //		Com_Printf( "Parsing %s\n", holdChar );
+        //		Q_Println("Parsing {}", holdChar);
 
-        len = trap->FS_Open(va("ext_data/NPCs/%s", holdChar), &f, fsMode_t::FS_READ);
+        len = trap->FS_Open(Q_Format("ext_data/NPCs/{}", holdChar).c_str(), &f, fsMode_t::FS_READ);
 
         if (len == -1) {
-            Com_Printf("error reading file\n");
+            Q_Println("error reading file");
         }
         else {
             if (totallen + len >= MAX_NPC_DATA_SIZE) {
                 trap->FS_Close(f);
-                Com_Error(errorParm_t::ERR_DROP, "NPC extensions (*.npc) are too large");
+                Q_Error(errorParm_t::ERR_DROP, "NPC extensions (*.npc) are too large");
             }
             trap->FS_Read(npcParseBuffer, len, f);
             npcParseBuffer[len] = 0;

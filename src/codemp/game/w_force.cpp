@@ -75,7 +75,7 @@ void WP_InitForcePowers(gentity_t* ent)
     // if server has no max rank, default to max (50)
     if (g_maxForceRank.integer <= 0 || g_maxForceRank.integer >= to_underlying(forceMasteries_t::NUM_FORCE_MASTERY_LEVELS)) {
         // ack, prevent user from being dumb
-        trap->Cvar_Set("g_maxForceRank", va("%i", to_underlying(forceMasteries_t::FORCE_MASTERY_JEDI_MASTER)));
+        trap->Cvar_Set("g_maxForceRank", Q_Format("{}", to_underlying(forceMasteries_t::FORCE_MASTERY_JEDI_MASTER)).c_str());
         trap->Cvar_Update(&g_maxForceRank);
     }
 
@@ -296,19 +296,22 @@ void WP_InitForcePowers(gentity_t* ent)
 
                 // event isn't very reliable, I made it a string. This way I can send it to just one client also,
                 //	as opposed to making a broadcast event.
-                trap->SendServerCommand(ent->s.number, va("nfr %i %i %i", g_maxForceRank.integer, 1, to_underlying(ent->client->sess.sessionTeam)));
+                trap->SendServerCommand(ent->s.number,
+                                        Q_Format("nfr {} {} {}", g_maxForceRank.integer, 1, to_underlying(ent->client->sess.sessionTeam)).c_str());
                 // arg1 is new max rank, arg2 is non-0 if force menu should be shown, arg3 is the current team
             }
             ent->client->sess.setForce = true;
         }
 
         if (!didEvent)
-            trap->SendServerCommand(ent->s.number, va("nfr %i %i %i", g_maxForceRank.integer, 0, to_underlying(ent->client->sess.sessionTeam)));
+            trap->SendServerCommand(ent->s.number, Q_Format("nfr {} {} {}", g_maxForceRank.integer, 0, to_underlying(ent->client->sess.sessionTeam)).c_str());
 
         // the server has one or more force powers disabled and the client is using them in his config
         if (warnClientLimit)
-            trap->SendServerCommand(ent - g_entities, va("print \"The server has one or more force powers that you have chosen disabled.\nYou will not be able "
-                                                         "to use the disable force power(s) while playing on this server.\n\""));
+            trap->SendServerCommand(ent - g_entities,
+                                    Q_Format("print \"The server has one or more force powers that you have chosen disabled.\nYou will not be able "
+                                             "to use the disable force power(s) while playing on this server.\n\"")
+                                        .c_str());
     }
 
     for (fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
@@ -1447,7 +1450,7 @@ void ForceLightningDamage(gentity_t* self, gentity_t* traceEnt, vec3_t dir, vec3
                 }
                 if (traceEnt->client) {
                     if (!Q_irand(0, 2)) {
-                        G_Sound(traceEnt, soundChannel_t::CHAN_BODY, G_SoundIndex(va("sound/weapons/force/lightninghit%i", Q_irand(1, 3))));
+                        G_Sound(traceEnt, soundChannel_t::CHAN_BODY, G_SoundIndex(Q_Format("sound/weapons/force/lightninghit{}", Q_irand(1, 3)).c_str()));
                     }
 
                     if (traceEnt->client->ps.electrifyTime <
@@ -1887,7 +1890,7 @@ void ForceJumpCharge(gentity_t* self, usercmd_t* ucmd)
         self->client->ps.fd.forceJumpCharge = self->client->ps.fd.forcePower * forceJumpChargeInterval / (FORCE_JUMP_CHARGE_TIME / FRAMETIME);
     }
 
-    // Com_Printf("%f\n", self->client->ps.fd.forceJumpCharge);
+    // Q_Println("{:f}", self->client->ps.fd.forceJumpCharge);
 }
 
 forceJump_t WP_GetVelocityForForceJump(gentity_t* self, vec3_t jumpVel, usercmd_t* ucmd)
@@ -3307,7 +3310,7 @@ void DoGripAction(gentity_t* self, forcePowers_t forcePower)
             G_Damage(gripEnt, self, self, nullptr, nullptr, 20, damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_FORCE_DARK);
 
             // Must play custom sounds on the actual entity. Don't use G_Sound (it creates a temp entity for the sound)
-            G_EntitySound(gripEnt, soundChannel_t::CHAN_VOICE, G_SoundIndex(va("*choke%d.wav", Q_irand(1, 3))));
+            G_EntitySound(gripEnt, soundChannel_t::CHAN_VOICE, G_SoundIndex(Q_Format("*choke{}.wav", Q_irand(1, 3)).c_str()));
 
             gripEnt->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_CHOKE;
             gripEnt->client->ps.forceHandExtendTime = level.time + 2000;
@@ -3384,7 +3387,7 @@ void DoGripAction(gentity_t* self, forcePowers_t forcePower)
             G_Damage(gripEnt, self, self, nullptr, nullptr, 40, damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_FORCE_DARK);
 
             // Must play custom sounds on the actual entity. Don't use G_Sound (it creates a temp entity for the sound)
-            G_EntitySound(gripEnt, soundChannel_t::CHAN_VOICE, G_SoundIndex(va("*choke%d.wav", Q_irand(1, 3))));
+            G_EntitySound(gripEnt, soundChannel_t::CHAN_VOICE, G_SoundIndex(Q_Format("*choke{}.wav", Q_irand(1, 3)).c_str()));
 
             gripEnt->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_CHOKE;
             gripEnt->client->ps.forceHandExtendTime = level.time + 2000;

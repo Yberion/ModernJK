@@ -160,7 +160,7 @@ If "private", only the activator gets the message.  If no checks, all clients ge
 void Use_Target_Print(gentity_t* ent, gentity_t* other, gentity_t* activator)
 {
     if (!ent || !ent->inuse) {
-        Com_PrintError("Bad ent in Use_Target_Print");
+        Q_PrintlnError("Bad ent in Use_Target_Print");
         return;
     }
 
@@ -173,29 +173,29 @@ void Use_Target_Print(gentity_t* ent, gentity_t* other, gentity_t* activator)
 
 #ifndef FINAL_BUILD
     if (!ent || !ent->inuse) {
-        //	Com_Error(errorParm_t::ERR_DROP, "Bad ent in Use_Target_Print");
+        //	Q_Error(errorParm_t::ERR_DROP, "Bad ent in Use_Target_Print");
         return;
     }
     else if (!activator || !activator->inuse) {
-        //	Com_Error(errorParm_t::ERR_DROP, "Bad activator in Use_Target_Print");
+        //	Q_Error(errorParm_t::ERR_DROP, "Bad activator in Use_Target_Print");
         return;
     }
 
     if (ent->genericValue15 > level.time) {
-        Com_Printf("TARGET PRINT ERRORS:\n");
+        Q_Println("TARGET PRINT ERRORS:");
         if (activator && activator->classname && activator->classname[0]) {
-            Com_Printf("activator classname: %s\n", activator->classname);
+            Q_Println("activator classname: {}", activator->classname);
         }
         if (activator && activator->target && activator->target[0]) {
-            Com_Printf("activator target: %s\n", activator->target);
+            Q_Println("activator target: {}", activator->target);
         }
         if (activator && activator->targetname && activator->targetname[0]) {
-            Com_Printf("activator targetname: %s\n", activator->targetname);
+            Q_Println("activator targetname: {}", activator->targetname);
         }
         if (ent->targetname && ent->targetname[0]) {
-            Com_Printf("print targetname: %s\n", ent->targetname);
+            Q_Println("print targetname: {}", ent->targetname);
         }
-        Com_Error(errorParm_t::ERR_DROP, "target_print used in quick succession, fix it! See the console for details.");
+        Q_Error(errorParm_t::ERR_DROP, "target_print used in quick succession, fix it! See the console for details.");
     }
     ent->genericValue15 = level.time + 5000;
 #endif
@@ -203,14 +203,14 @@ void Use_Target_Print(gentity_t* ent, gentity_t* other, gentity_t* activator)
     G_ActivateBehavior(ent, bSet_t::BSET_USE);
     if ((ent->spawnflags & 4)) { // private, to one client only
         if (!activator || !activator->inuse) {
-            Com_PrintError("Bad activator in Use_Target_Print");
+            Q_PrintlnError("Bad activator in Use_Target_Print");
         }
         if (activator && activator->client) { // make sure there's a valid client ent to send it to
             if (ent->message[0] == '@' && ent->message[1] != '@') {
-                trap->SendServerCommand(activator - g_entities, va("cps \"%s\"", ent->message));
+                trap->SendServerCommand(activator - g_entities, Q_Format("cps \"{}\"", ent->message).c_str());
             }
             else {
-                trap->SendServerCommand(activator - g_entities, va("cp \"%s\"", ent->message));
+                trap->SendServerCommand(activator - g_entities, Q_Format("cp \"{}\"", ent->message).c_str());
             }
         }
         // NOTE: change in functionality - if there *is* no valid client ent, it won't send it to anyone at all
@@ -220,28 +220,28 @@ void Use_Target_Print(gentity_t* ent, gentity_t* other, gentity_t* activator)
     if (ent->spawnflags & 3) {
         if (ent->spawnflags & 1) {
             if (ent->message[0] == '@' && ent->message[1] != '@') {
-                G_TeamCommand(team_t::TEAM_RED, va("cps \"%s\"", ent->message));
+                G_TeamCommand(team_t::TEAM_RED, Q_Format("cps \"{}\"", ent->message).c_str());
             }
             else {
-                G_TeamCommand(team_t::TEAM_RED, va("cp \"%s\"", ent->message));
+                G_TeamCommand(team_t::TEAM_RED, Q_Format("cp \"{}\"", ent->message).c_str());
             }
         }
         if (ent->spawnflags & 2) {
             if (ent->message[0] == '@' && ent->message[1] != '@') {
-                G_TeamCommand(team_t::TEAM_BLUE, va("cps \"%s\"", ent->message));
+                G_TeamCommand(team_t::TEAM_BLUE, Q_Format("cps \"{}\"", ent->message).c_str());
             }
             else {
-                G_TeamCommand(team_t::TEAM_BLUE, va("cp \"%s\"", ent->message));
+                G_TeamCommand(team_t::TEAM_BLUE, Q_Format("cp \"{}\"", ent->message).c_str());
             }
         }
         return;
     }
 
     if (ent->message[0] == '@' && ent->message[1] != '@') {
-        trap->SendServerCommand(-1, va("cps \"%s\"", ent->message));
+        trap->SendServerCommand(-1, Q_Format("cps \"{}\"", ent->message).c_str());
     }
     else {
-        trap->SendServerCommand(-1, va("cp \"%s\"", ent->message));
+        trap->SendServerCommand(-1, Q_Format("cp \"{}\"", ent->message).c_str());
     }
 }
 
@@ -310,7 +310,7 @@ void SP_target_speaker(gentity_t* ent)
     }
 
     if (!G_SpawnString("noise", "NOSOUND", &s)) {
-        Com_Error(errorParm_t::ERR_DROP, "target_speaker without a noise key at %s", vtos(ent->s.origin));
+        Q_Error(errorParm_t::ERR_DROP, "target_speaker without a noise key at {}", vtos(ent->s.origin));
     }
 
     // force all client reletive sounds to be "activator" speakers that
@@ -416,7 +416,7 @@ void target_laser_start(gentity_t* self)
     if (self->target) {
         ent = G_Find(nullptr, FOFS(targetname), self->target);
         if (!ent) {
-            Com_Printf("%s at %s: %s is a bad target\n", self->classname, vtos(self->s.origin), self->target);
+            Q_Println("{} at {}: {} is a bad target", self->classname, vtos(self->s.origin), self->target);
         }
         self->enemy = ent;
     }
@@ -457,7 +457,7 @@ void target_teleporter_use(gentity_t* self, gentity_t* other, gentity_t* activat
 
     dest = G_PickTarget(self->target);
     if (!dest) {
-        Com_Printf("Couldn't find teleporter destination\n");
+        Q_Println("Couldn't find teleporter destination");
         return;
     }
 
@@ -470,7 +470,7 @@ The activator will be teleported away.
 void SP_target_teleporter(gentity_t* self)
 {
     if (!self->targetname)
-        Com_Printf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
+        Q_Println("untargeted {} at {}", self->classname, vtos(self->s.origin));
 
     self->use = target_teleporter_use;
 }
@@ -575,14 +575,14 @@ void SP_target_location(gentity_t* self)
     else {
         static bool didwarn = false;
         if (!self->message) {
-            Com_Printf("target_location with no message at %s\n", vtos(self->s.origin));
+            Q_Println("target_location with no message at {}", vtos(self->s.origin));
             G_FreeEntity(self);
             return;
         }
 
         if (level.locations.num >= MAX_LOCATIONS) {
             if (!didwarn) {
-                Com_Printf("Maximum target_locations hit (%d)! Remaining locations will be removed.\n", MAX_LOCATIONS);
+                Q_Println("Maximum target_locations hit ({})! Remaining locations will be removed.", MAX_LOCATIONS);
                 didwarn = true;
             }
             G_FreeEntity(self);
@@ -610,7 +610,6 @@ After the counter has been triggered "count" times (default 2), it will fire all
 
 bounceCount - number of times the counter should reset to it's full count when it's done
 */
-extern void G_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 void target_counter_use(gentity_t* self, gentity_t* other, gentity_t* activator)
 {
     if (self->count == 0) {
@@ -621,8 +620,8 @@ void target_counter_use(gentity_t* self, gentity_t* other, gentity_t* activator)
     self->count--;
 
     if (activator) {
-        G_DebugPrint(WL_e::WL_VERBOSE, "target_counter %s used by %s (%d/%d)\n", self->targetname, activator->targetname, (self->genericValue1 - self->count),
-                     self->genericValue1);
+        G_DebugPrintln(WL_e::WL_VERBOSE, "target_counter {} used by {} ({}/{})", self->targetname, activator->targetname, (self->genericValue1 - self->count),
+                       self->genericValue1);
     }
 
     if (self->count) {
@@ -723,7 +722,7 @@ void target_random_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         }
 
         if (!self->inuse) {
-            Com_Printf("entity was removed while using targets\n");
+            Q_Println("entity was removed while using targets");
             return;
         }
     }
@@ -742,7 +741,7 @@ void scriptrunner_run(gentity_t* self)
     {
         char	newname[MAX_FILENAME_LENGTH];
 
-        sprintf((char *) &newname, "%s/%s", Q3_SCRIPT_DIR, self->behaviorSet[bSet_t::BSET_USE] );
+        Q_FormatTo((char *) &newname, "{}/{}", Q3_SCRIPT_DIR, self->behaviorSet[bSet_t::BSET_USE]);
 
         ICARUS_RunScript( self, newname );
     }
@@ -762,7 +761,7 @@ void scriptrunner_run(gentity_t* self)
     if (self->behaviorSet[bSet_t::BSET_USE]) {
         if (self->spawnflags & 1) {
             if (!self->activator) {
-                Com_DPrintf("target_scriptrunner tried to run on invalid entity!\n");
+                Q_DPrintln("target_scriptrunner tried to run on invalid entity!");
                 return;
             }
 
@@ -770,24 +769,24 @@ void scriptrunner_run(gentity_t* self)
             if (!trap->ICARUS_IsInitialized(self->s.number)) { // Need to be initialized through ICARUS
                 if (!self->activator->script_targetname || !self->activator->script_targetname[0]) {
                     // We don't have a script_targetname, so create a new one
-                    self->activator->script_targetname = va("newICARUSEnt%d", numNewICARUSEnts++);
+                    self->activator->script_targetname = G_NewString(Q_Format("newICARUSEnt{}", numNewICARUSEnts++).c_str());
                 }
 
                 if (trap->ICARUS_ValidEnt((sharedEntity_t*)self->activator)) {
                     trap->ICARUS_InitEnt((sharedEntity_t*)self->activator);
                 }
                 else {
-                    Com_DPrintf("target_scriptrunner tried to run on invalid ICARUS activator!\n");
+                    Q_DPrintln("target_scriptrunner tried to run on invalid ICARUS activator!");
                     return;
                 }
             }
 
-            Com_DPrintf("target_scriptrunner running %s on activator %s\n", self->behaviorSet[bSet_t::BSET_USE], self->activator->targetname);
-            trap->ICARUS_RunScript((sharedEntity_t*)self->activator, va("%s/%s", Q3_SCRIPT_DIR, self->behaviorSet[bSet_t::BSET_USE]));
+            Q_DPrintln("target_scriptrunner running {} on activator {}", self->behaviorSet[bSet_t::BSET_USE], self->activator->targetname);
+            trap->ICARUS_RunScript((sharedEntity_t*)self->activator, Q_Format("{}/{}", Q3_SCRIPT_DIR, self->behaviorSet[bSet_t::BSET_USE]).c_str());
         }
         else {
             if (self->activator) {
-                Com_DPrintf("target_scriptrunner %s used by %s\n", self->targetname, self->activator->targetname);
+                Q_DPrintln("target_scriptrunner {} used by {}", self->targetname, self->activator->targetname);
             }
             G_ActivateBehavior(self, bSet_t::BSET_USE);
         }
@@ -903,7 +902,7 @@ void target_level_change_use(gentity_t* self, gentity_t* other, gentity_t* activ
 {
     G_ActivateBehavior(self, bSet_t::BSET_USE);
 
-    trap->SendConsoleCommand(cbufExec_t::EXEC_NOW, va("map %s", self->message));
+    trap->SendConsoleCommand(cbufExec_t::EXEC_NOW, Q_Format("map {}", self->message).c_str());
 }
 
 /*QUAKED target_level_change (1 0 0) (-4 -4 -4) (4 4 4)
@@ -917,7 +916,7 @@ void SP_target_level_change(gentity_t* self)
     self->message = G_NewString(s);
 
     if (!self->message || !self->message[0]) {
-        Com_Error(errorParm_t::ERR_DROP, "target_level_change with no mapname!\n");
+        Q_Error(errorParm_t::ERR_DROP, "target_level_change with no mapname!");
         return;
     }
 
@@ -948,7 +947,7 @@ void SP_target_play_music(gentity_t* self)
 
     G_SetOrigin(self, self->s.origin);
     if (!G_SpawnString("music", "", &s)) {
-        Com_Error(errorParm_t::ERR_DROP, "target_play_music without a music key at %s", vtos(self->s.origin));
+        Q_Error(errorParm_t::ERR_DROP, "target_play_music without a music key at {}", vtos(self->s.origin));
     }
 
     self->message = G_NewString(s);

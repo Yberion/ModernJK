@@ -824,7 +824,7 @@ bool CPrimitiveTemplate::ParseMaterialImpact(const char* val)
     }
     else {
         mMatImpactFX = EMatImpactEffect::MATIMPACTFX_NONE;
-        Com_DPrintf("CPrimitiveTemplate::ParseMaterialImpact -- unknown materialImpact type!\n");
+        Q_DPrintln("CPrimitiveTemplate::ParseMaterialImpact -- unknown materialImpact type!");
         return false;
     }
     return true;
@@ -1413,7 +1413,7 @@ bool CPrimitiveTemplate::ParseShaders(CGPValue* grp)
         }
         else {
             // empty "list"
-            Com_DPrintf("CPrimitiveTemplate::ParseShaders called with an empty list!\n");
+            Q_DPrintln("CPrimitiveTemplate::ParseShaders called with an empty list!");
             return false;
         }
     }
@@ -1460,7 +1460,7 @@ bool CPrimitiveTemplate::ParseSounds(CGPValue* grp)
         }
         else {
             // empty "list"
-            Com_DPrintf("CPrimitiveTemplate::ParseSounds called with an empty list!\n");
+            Q_DPrintln("CPrimitiveTemplate::ParseSounds called with an empty list!");
             return false;
         }
     }
@@ -1507,7 +1507,7 @@ bool CPrimitiveTemplate::ParseModels(CGPValue* grp)
         }
         else {
             // empty "list"
-            Com_DPrintf("CPrimitiveTemplate::ParseModels called with an empty list!\n");
+            Q_DPrintln("CPrimitiveTemplate::ParseModels called with an empty list!");
             return false;
         }
     }
@@ -1545,7 +1545,7 @@ bool CPrimitiveTemplate::ParseImpactFxStrings(CGPValue* grp)
                 mImpactFxHandles.AddHandle(handle);
             }
             else {
-                Com_DPrintf("FxTemplate: Impact effect file not found.\n");
+                Q_DPrintln("FxTemplate: Impact effect file not found.");
                 return false;
             }
 
@@ -1563,13 +1563,13 @@ bool CPrimitiveTemplate::ParseImpactFxStrings(CGPValue* grp)
                 mImpactFxHandles.AddHandle(handle);
             }
             else {
-                Com_DPrintf("FxTemplate: Impact effect file not found.\n");
+                Q_DPrintln("FxTemplate: Impact effect file not found.");
                 return false;
             }
         }
         else {
             // empty "list"
-            Com_DPrintf("CPrimitiveTemplate::ParseImpactFxStrings called with an empty list!\n");
+            Q_DPrintln("CPrimitiveTemplate::ParseImpactFxStrings called with an empty list!");
             return false;
         }
     }
@@ -1607,7 +1607,7 @@ bool CPrimitiveTemplate::ParseDeathFxStrings(CGPValue* grp)
                 mDeathFxHandles.AddHandle(handle);
             }
             else {
-                Com_DPrintf("FxTemplate: Death effect file not found.\n");
+                Q_DPrintln("FxTemplate: Death effect file not found.");
                 return false;
             }
 
@@ -1625,13 +1625,13 @@ bool CPrimitiveTemplate::ParseDeathFxStrings(CGPValue* grp)
                 mDeathFxHandles.AddHandle(handle);
             }
             else {
-                Com_DPrintf("FxTemplate: Death effect file not found.\n");
+                Q_DPrintln("FxTemplate: Death effect file not found.");
                 return false;
             }
         }
         else {
             // empty "list"
-            Com_DPrintf("CPrimitiveTemplate::ParseDeathFxStrings called with an empty list!\n");
+            Q_DPrintln("CPrimitiveTemplate::ParseDeathFxStrings called with an empty list!");
             return false;
         }
     }
@@ -1669,7 +1669,7 @@ bool CPrimitiveTemplate::ParseEmitterFxStrings(CGPValue* grp)
                 mEmitterFxHandles.AddHandle(handle);
             }
             else {
-                Com_DPrintf("FxTemplate: Emitter effect file not found.\n");
+                Q_DPrintln("FxTemplate: Emitter effect file not found.");
                 return false;
             }
 
@@ -1687,13 +1687,13 @@ bool CPrimitiveTemplate::ParseEmitterFxStrings(CGPValue* grp)
                 mEmitterFxHandles.AddHandle(handle);
             }
             else {
-                Com_DPrintf("FxTemplate: Emitter effect file not found.\n");
+                Q_DPrintln("FxTemplate: Emitter effect file not found.");
                 return false;
             }
         }
         else {
             // empty "list"
-            Com_DPrintf("CPrimitiveTemplate::ParseEmitterFxStrings called with an empty list!\n");
+            Q_DPrintln("CPrimitiveTemplate::ParseEmitterFxStrings called with an empty list!");
             return false;
         }
     }
@@ -1731,7 +1731,7 @@ bool CPrimitiveTemplate::ParsePlayFxStrings(CGPValue* grp)
                 mPlayFxHandles.AddHandle(handle);
             }
             else {
-                Com_DPrintf("FxTemplate: Effect file not found.\n");
+                Q_DPrintln("FxTemplate: Effect file not found.");
                 return false;
             }
 
@@ -1749,13 +1749,13 @@ bool CPrimitiveTemplate::ParsePlayFxStrings(CGPValue* grp)
                 mPlayFxHandles.AddHandle(handle);
             }
             else {
-                Com_DPrintf("FxTemplate: Effect file not found.\n");
+                Q_DPrintln("FxTemplate: Effect file not found.");
                 return false;
             }
         }
         else {
             // empty "list"
-            Com_DPrintf("CPrimitiveTemplate::ParsePlayFxStrings called with an empty list!\n");
+            Q_DPrintln("CPrimitiveTemplate::ParsePlayFxStrings called with an empty list!");
             return false;
         }
     }
@@ -1798,7 +1798,7 @@ bool CPrimitiveTemplate::ParseRGB(CGPGroup* grp)
         else if (!Q_stricmp(key, "flags") || !Q_stricmp(key, "flag"))
             ParseRGBFlags(val);
         else
-            Com_DPrintf("Unknown key parsing an RGB group: %s\n", key);
+            Q_DPrintln("Unknown key parsing an RGB group: {}", key);
 
         pairs = (CGPValue*)pairs->GetNext();
     }
@@ -1841,7 +1841,7 @@ bool CPrimitiveTemplate::ParseAlpha(CGPGroup* grp)
         else if (!Q_stricmp(key, "flags") || !Q_stricmp(key, "flag"))
             ParseAlphaFlags(val);
         else
-            Com_DPrintf("Unknown key parsing an Alpha group: %s\n", key);
+            Q_DPrintln("Unknown key parsing an Alpha group: {}", key);
 
         pairs = (CGPValue*)pairs->GetNext();
     }
@@ -1884,7 +1884,7 @@ bool CPrimitiveTemplate::ParseSize(CGPGroup* grp)
         else if (!Q_stricmp(key, "flags") || !Q_stricmp(key, "flag"))
             ParseSizeFlags(val);
         else
-            Com_DPrintf("Unknown key parsing a Size group: %s\n", key);
+            Q_DPrintln("Unknown key parsing a Size group: {}", key);
 
         pairs = (CGPValue*)pairs->GetNext();
     }
@@ -1927,7 +1927,7 @@ bool CPrimitiveTemplate::ParseSize2(CGPGroup* grp)
         else if (!Q_stricmp(key, "flags") || !Q_stricmp(key, "flag"))
             ParseSize2Flags(val);
         else
-            Com_DPrintf("Unknown key parsing a Size2 group: %s\n", key);
+            Q_DPrintln("Unknown key parsing a Size2 group: {}", key);
 
         pairs = (CGPValue*)pairs->GetNext();
     }
@@ -1970,7 +1970,7 @@ bool CPrimitiveTemplate::ParseLength(CGPGroup* grp)
         else if (!Q_stricmp(key, "flags") || !Q_stricmp(key, "flag"))
             ParseLengthFlags(val);
         else
-            Com_DPrintf("Unknown key parsing a Length group: %s\n", key);
+            Q_DPrintln("Unknown key parsing a Length group: {}", key);
 
         pairs = (CGPValue*)pairs->GetNext();
     }
@@ -2068,7 +2068,7 @@ bool CPrimitiveTemplate::ParsePrimitive(CGPGroup* grp)
         else if (!Q_stricmp(key, "materialImpact"))
             ParseMaterialImpact(val);
         else
-            Com_DPrintf("Unknown key parsing an effect primitive: %s\n", key);
+            Q_DPrintln("Unknown key parsing an effect primitive: {}", key);
 
         pairs = (CGPValue*)pairs->GetNext();
     }
@@ -2090,7 +2090,7 @@ bool CPrimitiveTemplate::ParsePrimitive(CGPGroup* grp)
         else if (!Q_stricmp(key, "length") || !Q_stricmp(key, "height"))
             ParseLength(subGrp);
         else
-            Com_DPrintf("Unknown group key parsing a particle: %s\n", key);
+            Q_DPrintln("Unknown group key parsing a particle: {}", key);
 
         subGrp = (CGPGroup*)subGrp->GetNext();
     }

@@ -49,7 +49,7 @@ static float* TableForFunc(genFunc_t func)
         break;
     }
 
-    Com_Error(errorParm_t::ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'\n", to_underlying(func), tess.shader->name);
+    Q_Error(errorParm_t::ERR_DROP, "TableForFunc called with invalid function '{}' in shader '{}'", to_underlying(func), tess.shader->name);
     return nullptr;
 }
 
@@ -371,10 +371,10 @@ static void AutospriteDeform(void)
     vec3_t leftDir, upDir;
 
     if (tess.numVertexes & 3) {
-        Com_Error(errorParm_t::ERR_DROP, "Autosprite shader %s had odd vertex count", tess.shader->name);
+        Q_Error(errorParm_t::ERR_DROP, "Autosprite shader {} had odd vertex count", tess.shader->name);
     }
     if (tess.numIndexes != (tess.numVertexes >> 2) * 6) {
-        Com_Error(errorParm_t::ERR_DROP, "Autosprite shader %s had odd index count", tess.shader->name);
+        Q_Error(errorParm_t::ERR_DROP, "Autosprite shader {} had odd index count", tess.shader->name);
     }
 
     oldVerts = tess.numVertexes;
@@ -429,10 +429,10 @@ static void Autosprite2Deform(void)
     vec3_t forward;
 
     if (tess.numVertexes & 3) {
-        Com_Warning("Autosprite shader %s had odd vertex count", tess.shader->name);
+        Q_PrintlnWarning("Autosprite shader {} had odd vertex count", tess.shader->name);
     }
     if (tess.numIndexes != (tess.numVertexes >> 2) * 6) {
-        Com_Warning("Autosprite shader %s had odd index count", tess.shader->name);
+        Q_PrintlnWarning("Autosprite shader {} had odd index count", tess.shader->name);
     }
 
     if (backEnd.currentEntity != &tr.worldEntity) {

@@ -51,7 +51,7 @@ void NPC_Tusken_Precache(void)
 {
     int i;
     for (i = 1; i < 5; i++) {
-        G_SoundIndex(va("sound/weapons/tusken_staff/stickhit%d.wav", i));
+        G_SoundIndex(Q_Format("sound/weapons/tusken_staff/stickhit{}.wav", i).c_str());
     }
 }
 
@@ -380,7 +380,7 @@ void Tusken_StaffTrace(void)
                     int dmg = Q_irand(5, 10) * (g_spskill->integer + 1);
 
                     // FIXME: debounce?
-                    G_Sound(traceEnt, G_SoundIndex(va("sound/weapons/tusken_staff/stickhit%d.wav", Q_irand(1, 4))));
+                    G_Sound(traceEnt, G_SoundIndex(Q_Format("sound/weapons/tusken_staff/stickhit{}.wav", Q_irand(1, 4)).c_str()));
                     G_Damage(traceEnt, NPC, NPC, vec3_origin, trace.endpos, dmg, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE);
                     if (traceEnt->health > 0 &&
                         ((traceEnt->client && traceEnt->client->NPC_class == class_t::CLASS_JAWA && !Q_irand(0, 1)) || dmg > 19)) // FIXME: base on skill!
@@ -405,7 +405,7 @@ bool G_TuskenAttackAnimDamage(gentity_t* self)
         if (!!gi.G2API_GetBoneAnimIndex(&self->ghoul2[self->playerModel], self->lowerLumbarBone, level.time, &current, &start, &end, nullptr, nullptr,
                                         nullptr)) {
             float percentComplete = (current - start) / (end - start);
-            // Com_Printf("%f\n", percentComplete);
+            // Q_Println("{:f}", percentComplete);
             switch (self->client->ps.torsoAnim) {
             case animNumber_t::BOTH_TUSKENATTACK1:
                 return (percentComplete > 0.3 && percentComplete < 0.7);

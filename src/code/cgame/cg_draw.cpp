@@ -520,7 +520,7 @@ static void CG_DrawVehicleSheild(const centity_t* cent, const Vehicle_t* pVeh)
     // Use alpha to fade out partial section of health
     inc = (float)maxHealth / MAX_VHUD_SHIELD_TICS;
     for (i = 1; i <= MAX_VHUD_SHIELD_TICS; i++) {
-        Com_sprintf(itemName, sizeof(itemName), "shield_tic%d", i);
+        Q_FormatTo(itemName, "shield_tic{}", i);
 
         if (!cgi_UI_GetMenuItemInfo("swoopvehiclehud", itemName, &xPos, &yPos, &width, &height, color, &background)) {
             continue;
@@ -602,7 +602,7 @@ static void CG_DrawVehicleSpeed(const centity_t* cent, const Vehicle_t* pVeh, co
     // Use alpha to fade out partial section of health
     inc = (float)maxSpeed / MAX_VHUD_SPEED_TICS;
     for (i = 1; i <= MAX_VHUD_SPEED_TICS; i++) {
-        Com_sprintf(itemName, sizeof(itemName), "speed_tic%d", i);
+        Q_FormatTo(itemName, "speed_tic{}", i);
 
         if (!cgi_UI_GetMenuItemInfo(entHud, itemName, &xPos, &yPos, &width, &height, color, &background)) {
             continue;
@@ -670,7 +670,7 @@ static void CG_DrawVehicleArmor(const centity_t* cent, const Vehicle_t* pVeh)
     // Use alpha to fade out partial section of health
     inc = (float)maxArmor / MAX_VHUD_ARMOR_TICS;
     for (i = 1; i <= MAX_VHUD_ARMOR_TICS; i++) {
-        Com_sprintf(itemName, sizeof(itemName), "armor_tic%d", i);
+        Q_FormatTo(itemName, "armor_tic{}", i);
 
         if (!cgi_UI_GetMenuItemInfo("swoopvehiclehud", itemName, &xPos, &yPos, &width, &height, color, &background)) {
             continue;
@@ -713,7 +713,7 @@ static void CG_DrawVehicleAmmo(const centity_t* cent, const Vehicle_t* pVeh)
     currValue = pVeh->weaponStatus[0].ammo;
     inc = (float)maxAmmo / MAX_VHUD_AMMO_TICS;
     for (i = 1; i <= MAX_VHUD_AMMO_TICS; i++) {
-        Com_sprintf(itemName, sizeof(itemName), "ammo_tic%d", i);
+        Q_FormatTo(itemName, "ammo_tic{}", i);
 
         if (!cgi_UI_GetMenuItemInfo("swoopvehiclehud", itemName, &xPos, &yPos, &width, &height, color, &background)) {
             continue;
@@ -755,7 +755,7 @@ static void CG_DrawVehicleAmmoUpper(const centity_t* cent, const Vehicle_t* pVeh
     currValue = pVeh->weaponStatus[0].ammo;
     inc = (float)maxAmmo / MAX_VHUD_AMMO_TICS;
     for (i = 1; i < MAX_VHUD_AMMO_TICS; i++) {
-        Com_sprintf(itemName, sizeof(itemName), "ammoupper_tic%d", i);
+        Q_FormatTo(itemName, "ammoupper_tic{}", i);
 
         if (!cgi_UI_GetMenuItemInfo("swoopvehiclehud", itemName, &xPos, &yPos, &width, &height, color, &background)) {
             continue;
@@ -797,7 +797,7 @@ static void CG_DrawVehicleAmmoLower(const centity_t* cent, const Vehicle_t* pVeh
     currValue = pVeh->weaponStatus[1].ammo;
     inc = (float)maxAmmo / MAX_VHUD_AMMO_TICS;
     for (i = 1; i < MAX_VHUD_AMMO_TICS; i++) {
-        Com_sprintf(itemName, sizeof(itemName), "ammolower_tic%d", i);
+        Q_FormatTo(itemName, "ammolower_tic{}", i);
 
         if (!cgi_UI_GetMenuItemInfo("swoopvehiclehud", itemName, &xPos, &yPos, &width, &height, color, &background)) {
             continue;
@@ -925,7 +925,7 @@ static void CG_DrawEmplacedGunHealth(const centity_t* cent)
     // Use alpha to fade out partial section of health
     inc = (float)maxHealth / MAX_VHUD_SHIELD_TICS;
     for (i = 1; i <= MAX_VHUD_SHIELD_TICS; i++) {
-        Com_sprintf(itemName, sizeof(itemName), "shield_tic%d", i);
+        Q_FormatTo(itemName, "shield_tic{}", i);
 
         if (!cgi_UI_GetMenuItemInfo("swoopvehiclehud", itemName, &xPos, &yPos, &width, &height, color, &background)) {
             continue;
@@ -989,7 +989,7 @@ static void CG_DrawItemHealth(float currValue, float maxHealth)
     // Use alpha to fade out partial section of health
     inc = (float)maxHealth / MAX_VHUD_SHIELD_TICS;
     for (i = 1; i <= MAX_VHUD_SHIELD_TICS; i++) {
-        Com_sprintf(itemName, sizeof(itemName), "shield_tic%d", i);
+        Q_FormatTo(itemName, "shield_tic{}", i);
 
         if (!cgi_UI_GetMenuItemInfo("swoopvehiclehud", itemName, &xPos, &yPos, &width, &height, color, &background)) {
             continue;
@@ -1235,32 +1235,32 @@ static void CG_DrawSimpleSaberStyle(const centity_t* cent)
     switch (cg.saberAnimLevelPending) {
     default:
     case saber_styles_t::SS_FAST:
-        Com_sprintf(num, sizeof(num), "FAST");
+        Q_FormatTo(num, "FAST");
         calcColor = ct_table_t::CT_ICON_BLUE;
         weapX = 0;
         break;
     case saber_styles_t::SS_MEDIUM:
-        Com_sprintf(num, sizeof(num), "MEDIUM");
+        Q_FormatTo(num, "MEDIUM");
         calcColor = ct_table_t::CT_YELLOW;
         break;
     case saber_styles_t::SS_STRONG:
-        Com_sprintf(num, sizeof(num), "STRONG");
+        Q_FormatTo(num, "STRONG");
         calcColor = ct_table_t::CT_HUD_RED;
         break;
     case saber_styles_t::SS_DESANN:
-        Com_sprintf(num, sizeof(num), "DESANN");
+        Q_FormatTo(num, "DESANN");
         calcColor = ct_table_t::CT_HUD_RED;
         break;
     case saber_styles_t::SS_TAVION:
-        Com_sprintf(num, sizeof(num), "TAVION");
+        Q_FormatTo(num, "TAVION");
         calcColor = ct_table_t::CT_ICON_BLUE;
         break;
     case saber_styles_t::SS_DUAL:
-        Com_sprintf(num, sizeof(num), "AKIMBO");
+        Q_FormatTo(num, "AKIMBO");
         calcColor = ct_table_t::CT_HUD_ORANGE;
         break;
     case saber_styles_t::SS_STAFF:
-        Com_sprintf(num, sizeof(num), "STAFF");
+        Q_FormatTo(num, "STAFF");
         calcColor = ct_table_t::CT_HUD_ORANGE;
         break;
     }
@@ -1319,7 +1319,7 @@ static void CG_DrawSimpleAmmo(const centity_t* cent)
         }
     }
 
-    Com_sprintf(num, sizeof(num), "%i", currValue);
+    Q_FormatTo(num, "{}", currValue);
 
     SimpleHud_DrawString(SCREEN_WIDTH - (16 + 32), (SCREEN_HEIGHT - 80) + 40, num, colorTable[calcColor]);
 }
@@ -1357,7 +1357,7 @@ static void CG_DrawSimpleForcePower(const centity_t* cent)
     // Determine the color of the numeric field
     calcColor = flash ? ct_table_t::CT_RED : ct_table_t::CT_ICON_BLUE;
 
-    Com_sprintf(num, sizeof(num), "%i", cent->gent->client->ps.forcePower);
+    Q_FormatTo(num, "{}", cent->gent->client->ps.forcePower);
 
     SimpleHud_DrawString(SCREEN_WIDTH - (16 + 32), (SCREEN_HEIGHT - 80) + 40 + 14, num, colorTable[calcColor]);
 }
@@ -1376,9 +1376,10 @@ static void CG_DrawHUD(centity_t* cent)
         int x = 0;
         int y = SCREEN_HEIGHT - 80;
 
-        SimpleHud_DrawString(x + 16, y + 40, va("%i", cg.snap->ps.stats[statIndex_t::STAT_HEALTH]), colorTable[ct_table_t::CT_HUD_RED]);
+        SimpleHud_DrawString(x + 16, y + 40, Q_Format("{}", cg.snap->ps.stats[statIndex_t::STAT_HEALTH]).c_str(), colorTable[ct_table_t::CT_HUD_RED]);
 
-        SimpleHud_DrawString(x + 18 + 14, y + 40 + 14, va("%i", cg.snap->ps.stats[statIndex_t::STAT_ARMOR]), colorTable[ct_table_t::CT_HUD_GREEN]);
+        SimpleHud_DrawString(x + 18 + 14, y + 40 + 14, Q_Format("{}", cg.snap->ps.stats[statIndex_t::STAT_ARMOR]).c_str(),
+                             colorTable[ct_table_t::CT_HUD_GREEN]);
 
         CG_DrawSimpleForcePower(cent);
 
@@ -1397,9 +1398,9 @@ static void CG_DrawHUD(centity_t* cent)
 
         // Draw armor & health values
         if (cg_drawStatus.integer == 2) {
-            CG_DrawSmallStringColor(sectionXPos + 5, sectionYPos - 60, va("Armor:%d", cg.snap->ps.stats[statIndex_t::STAT_ARMOR]),
+            CG_DrawSmallStringColor(sectionXPos + 5, sectionYPos - 60, Q_Format("Armor:{}", cg.snap->ps.stats[statIndex_t::STAT_ARMOR]).c_str(),
                                     colorTable[ct_table_t::CT_HUD_GREEN]);
-            CG_DrawSmallStringColor(sectionXPos + 5, sectionYPos - 40, va("Health:%d", cg.snap->ps.stats[statIndex_t::STAT_HEALTH]),
+            CG_DrawSmallStringColor(sectionXPos + 5, sectionYPos - 40, Q_Format("Health:{}", cg.snap->ps.stats[statIndex_t::STAT_HEALTH]).c_str(),
                                     colorTable[ct_table_t::CT_HUD_GREEN]);
         }
 
@@ -1430,9 +1431,10 @@ static void CG_DrawHUD(centity_t* cent)
         if (cg_drawStatus.integer == 2) {
             if (cent->currentState.weapon != weapon_t::WP_SABER && cent->currentState.weapon != weapon_t::WP_STUN_BATON && cent->gent) {
                 value = cg.snap->ps.ammo[weaponData[cent->currentState.weapon].ammoIndex];
-                CG_DrawSmallStringColor(sectionXPos, sectionYPos - 60, va("Ammo:%d", value), colorTable[ct_table_t::CT_HUD_GREEN]);
+                CG_DrawSmallStringColor(sectionXPos, sectionYPos - 60, Q_Format("Ammo:{}", value).c_str(), colorTable[ct_table_t::CT_HUD_GREEN]);
             }
-            CG_DrawSmallStringColor(sectionXPos, sectionYPos - 40, va("Force:%d", cent->gent->client->ps.forcePower), colorTable[ct_table_t::CT_HUD_GREEN]);
+            CG_DrawSmallStringColor(sectionXPos, sectionYPos - 40, Q_Format("Force:{}", cent->gent->client->ps.forcePower).c_str(),
+                                    colorTable[ct_table_t::CT_HUD_GREEN]);
         }
 
         // Print scanline
@@ -2755,10 +2757,11 @@ CG_DrawSnapshot
 */
 static float CG_DrawSnapshot(float y)
 {
-    char* s;
+    const char* s;
+    formatText_t sText; // holds the text s points into
     int w;
 
-    s = va("time:%i snap:%i cmd:%i", cg.snap->serverTime, cg.latestSnapshotNum, cgs.serverCommandSequence);
+    s = (sText = Q_Format("time:{} snap:{} cmd:{}", cg.snap->serverTime, cg.latestSnapshotNum, cgs.serverCommandSequence)).c_str();
 
     w = cgi_R_Font_StrLenPixels(s, cgs.media.qhFontMedium, 1.0f);
     cgi_R_Font_DrawString(635 - w, y + 2, s, colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
@@ -2774,7 +2777,8 @@ CG_DrawFPS
 constexpr int FPS_FRAMES = 16;
 static float CG_DrawFPS(float y)
 {
-    char* s;
+    const char* s;
+    formatText_t sText; // holds the text s points into
     static unsigned short previousTimes[FPS_FRAMES];
     static unsigned short index;
     static int previous, lastupdate;
@@ -2803,7 +2807,7 @@ static float CG_DrawFPS(float y)
     }
     fps = 1000 * FPS_FRAMES / total;
 
-    s = va("%ifps", fps);
+    s = (sText = Q_Format("{}fps", fps)).c_str();
     const int w = cgi_R_Font_StrLenPixels(s, cgs.media.qhFontMedium, 1.0f);
     cgi_R_Font_DrawString(635 - xOffset - w, y + 2, s, colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
 
@@ -2817,7 +2821,8 @@ CG_DrawTimer
 */
 static float CG_DrawTimer(float y)
 {
-    char* s;
+    const char* s;
+    formatText_t sText; // holds the text s points into
     int w;
     int mins, seconds, tens;
 
@@ -2827,7 +2832,7 @@ static float CG_DrawTimer(float y)
     tens = seconds / 10;
     seconds -= tens * 10;
 
-    s = va("%i:%i%i", mins, tens, seconds);
+    s = (sText = Q_Format("{}:{}{}", mins, tens, seconds)).c_str();
 
     w = cgi_R_Font_StrLenPixels(s, cgs.media.qhFontMedium, 1.0f);
     cgi_R_Font_DrawString(635 - w, y + 2, s, colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
@@ -3529,7 +3534,7 @@ void CG_DrawActive(stereoFrame_t stereoView)
         break;
     default:
         separation = 0;
-        Com_Error(errorParm_t::ERR_DROP, "CG_DrawActive: Undefined stereoView");
+        Q_Error(errorParm_t::ERR_DROP, "CG_DrawActive: Undefined stereoView");
     }
 
     // clear around the rendered view if sized down

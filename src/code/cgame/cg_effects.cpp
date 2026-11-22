@@ -48,7 +48,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
     vec3_t			tmpVec, newOrigin;
 
     if ( msec <= 0 ) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_MakeExplosion: msec = %i", msec );
+        Q_Error(errorParm_t::ERR_DROP, "CG_MakeExplosion: msec = {}", msec);
     }
 
     // skew the time a bit so they aren't all in sync
@@ -124,7 +124,7 @@ localEntity_t* CG_AddTempLight(vec3_t origin, float scale, vec3_t color, int mse
     localEntity_t* ex;
 
     if (msec <= 0) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_AddTempLight: msec = %i", msec);
+        Q_Error(errorParm_t::ERR_DROP, "CG_AddTempLight: msec = {}", msec);
     }
 
     ex = CG_AllocLocalEntity();
@@ -430,7 +430,7 @@ void CG_Chunks(int owner, vec3_t origin, const vec3_t normal, const vec3_t mins,
         break;
     case material_t::MAT_ELECTRICAL: // (sparks)
         if (!customSound) {
-            cgi_S_StartSound(nullptr, owner, soundChannel_t::CHAN_BODY, cgi_S_RegisterSound(va("sound/ambience/spark%d.wav", Q_irand(1, 6))));
+            cgi_S_StartSound(nullptr, owner, soundChannel_t::CHAN_BODY, cgi_S_RegisterSound(Q_Format("sound/ambience/spark{}.wav", Q_irand(1, 6)).c_str()));
         }
         return;
         break;

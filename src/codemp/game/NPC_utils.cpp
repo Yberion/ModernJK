@@ -32,7 +32,6 @@ EnumArray<int, npcteam_t, npcteam_t::NPCTEAM_NUM_TEAMS> teamStrength;
 EnumArray<int, npcteam_t, npcteam_t::NPCTEAM_NUM_TEAMS> teamCounter;
 
 constexpr float VALID_ATTACK_CONE = 2.0f; // Degrees
-extern void G_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 
 /*
 void CalcEntitySpot ( gentity_t *ent, spot_t spot, vec3_t point )
@@ -477,7 +476,7 @@ bool NPC_UpdateAngles(bool doPitch, bool doYaw)
     /*
     if(doSound)
     {
-        G_Sound(NPC, G_SoundIndex(va("sound/enemies/borg/borgservo%d.wav", Q_irand(1, 8))));
+        G_Sound(NPC, G_SoundIndex(Q_Format("sound/enemies/borg/borgservo{}.wav", Q_irand(1, 8)).c_str()));
     }
     */
 
@@ -806,15 +805,15 @@ bool G_ActivateBehavior(gentity_t* self, bSet_t bset)
     else {
         /*
         char			newname[MAX_FILENAME_LENGTH];
-        sprintf((char *) &newname, "%s/%s", Q3_SCRIPT_DIR, bs_name );
+        Q_FormatTo((char *) &newname, "{}/{}", Q3_SCRIPT_DIR, bs_name);
         */
 
         // FIXME: between here and actually getting into the ICARUS_RunScript function, the stack gets blown!
         // if ( ( ICARUS_entFilter == -1 ) || ( ICARUS_entFilter == self->s.number ) )
         if (0) {
-            G_DebugPrint(WL_e::WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID(BSETTable, to_underlying(bset)), bs_name);
+            G_DebugPrintln(WL_e::WL_VERBOSE, "{} attempting to run bSet {} ({})", self->targetname, GetStringForID(BSETTable, to_underlying(bset)), bs_name);
         }
-        trap->ICARUS_RunScript((sharedEntity_t*)self, va("%s/%s", Q3_SCRIPT_DIR, bs_name));
+        trap->ICARUS_RunScript((sharedEntity_t*)self, Q_Format("{}/{}", Q3_SCRIPT_DIR, bs_name).c_str());
     }
     return true;
 }
@@ -874,7 +873,7 @@ void NPC_SetBoneAngles(gentity_t* ent, const char* bone, vec3_t angles)
 
     if (!thebone) {       // didn't find it, create it
         if (!firstFree) { // no free bones.. can't do a thing then.
-            Com_Warning("NPC has no free bone indexes\n");
+            Q_PrintlnWarning("NPC has no free bone indexes");
             return;
         }
 
@@ -924,7 +923,7 @@ void NPC_SetSurfaceOnOff(gentity_t* ent, const char* surfaceName, g2SurfaceFlags
     }
 
     if (!foundIt) {
-        Com_Warning("Tried to toggle NPC surface that isn't in toggleable surface list (%s)\n", surfaceName);
+        Q_PrintlnWarning("Tried to toggle NPC surface that isn't in toggleable surface list ({})", surfaceName);
         return;
     }
 

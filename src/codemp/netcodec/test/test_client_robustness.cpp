@@ -30,7 +30,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client_synthetic.h"
 #include "mutate.h"
 
-#include <cinttypes>
+#include <fmt/base.h>
+
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -81,7 +83,7 @@ bool CheckLength(ClientPacketEncoder& enc)
         const bool decoded = enc.Encode(p, nullptr, 1 << 16, out) && DecodeClientPacket(out, 100, none, back);
         const bool expected = len <= kMaxClientCommandLength;
         if (decoded != expected) {
-            std::fprintf(stderr, "a client command of %zu characters %s\n", len, decoded ? "decodes" : "does not decode");
+            fmt::println(stderr, "a client command of {} characters {}", len, decoded ? "decodes" : "does not decode");
             ok = false;
         }
     }
@@ -128,19 +130,18 @@ int main(int argc, char** argv)
             const ClientBase base = lookup.found;
             if (!enc.Encode(d1, used ? &base : nullptr, 1 << 16, again)) {
                 if (st.reencodeRefused++ < 5)
-                    std::fprintf(stderr, "re-encoding refused: packet %" PRIu64 " mutation %" PRIu64 "\n", i, m);
+                    fmt::println(stderr, "re-encoding refused: packet {} mutation {}", i, m);
                 continue;
             }
             lookup.used = false;
             const bool same = DecodeClientPacket(again, latest, lookup, d2) && lookup.used == used && SamePacket(d2, d1);
             if (!same && st.mismatches++ < 5)
-                std::fprintf(stderr, "decode(encode(decode(x))) differs: packet %" PRIu64 " mutation %" PRIu64 "\n", i, m);
+                fmt::println(stderr, "decode(encode(decode(x))) differs: packet {} mutation {}", i, m);
         }
     }
     const bool lengthOk = CheckLength(enc);
-    std::printf("client packet decoder robustness: %zu packets, %zu malformed inputs decoded without fault, %zu accepted; "
-                "re-encoding refused %zu, decode(encode(decode(x))) different %zu, packets the encoder refused %zu; "
-                "command length limit %s\n",
-                st.packets, st.decodes, st.accepted, st.reencodeRefused, st.mismatches, st.encodeRefused, lengthOk ? "ok" : "FAILED");
+    fmt::println("client packet decoder robustness: {} packets, {} malformed inputs decoded without fault, {} accepted; re-encoding refused {}, "
+                 "decode(encode(decode(x))) different {}, packets the encoder refused {}; command length limit {}",
+                 st.packets, st.decodes, st.accepted, st.reencodeRefused, st.mismatches, st.encodeRefused, lengthOk ? "ok" : "FAILED");
     return st.decodes != 0 && st.reencodeRefused == 0 && st.mismatches == 0 && st.encodeRefused == 0 && lengthOk ? 0 : 1;
 }

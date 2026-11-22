@@ -175,7 +175,7 @@ void IN_KeyDown(kbutton_t* b)
         b->down[1] = k;
     }
     else {
-        Com_Printf("Three keys down for a button!\n");
+        Q_Println("Three keys down for a button!");
         return;
     }
 
@@ -264,7 +264,7 @@ float CL_KeyState(kbutton_t* key)
 
 #if 0
 	if (msec) {
-		Com_Printf ("%i ", msec);
+		Q_Print("{} ", msec);
 	}
 #endif
 
@@ -639,7 +639,7 @@ Joystick values stay set until changed
 void CL_JoystickEvent(int axis, int value, int time)
 {
     if (axis < 0 || axis >= to_underlying(joystickAxis_t::MAX_JOYSTICK_AXIS)) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_JoystickEvent: bad axis %i", axis);
+        Q_Error(errorParm_t::ERR_DROP, "CL_JoystickEvent: bad axis {}", axis);
     }
     cl.joystickAxis[static_cast<joystickAxis_t>(axis)] = value;
 }
@@ -729,7 +729,7 @@ void CL_MouseMove(usercmd_t* cmd)
     accelSensitivity *= cl.cgameSensitivity;
 
     if (rate && cl_showMouseRate->integer) {
-        Com_Printf("%f : %f\n", rate, accelSensitivity);
+        Q_Println("{:f} : {:f}", rate, accelSensitivity);
     }
 
     mx *= accelSensitivity;
@@ -1017,7 +1017,7 @@ void CL_WritePacket(void)
     count = cl.cmdNumber - cl.packetCmdNumber[oldPacketNum];
     if (count > MAX_PACKET_USERCMDS) {
         count = MAX_PACKET_USERCMDS;
-        Com_Printf("MAX_PACKET_USERCMDS\n");
+        Q_Println("MAX_PACKET_USERCMDS");
     }
     if (count >= 1) {
         // begin a client move command

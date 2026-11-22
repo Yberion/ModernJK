@@ -102,11 +102,11 @@ int G2_Add_Bone(const model_t* mod, boneInfo_v& blist, const char* boneName)
         // didn't find it? Error
         // assert(0);
 #ifdef _DEBUG
-        Com_Warning("Failed to add bone %s\n", boneName);
+        Q_PrintlnWarning("Failed to add bone {}", boneName);
 #endif
 
 #ifdef _RAG_PRINT_TEST
-        Com_Warning("Failed to add bone %s\n", boneName);
+        Q_PrintlnWarning("Failed to add bone {}", boneName);
 #endif
         return -1;
     }
@@ -130,7 +130,7 @@ int G2_Add_Bone(const model_t* mod, boneInfo_v& blist, const char* boneName)
     }
 
 #ifdef _RAG_PRINT_TEST
-    Com_Printf("New bone added for %s\n", boneName);
+    Q_Println("New bone added for {}", boneName);
 #endif
     // ok, we didn't find an existing bone of that name, or an empty slot. Lets add an entry
     tempBone.boneNumber = x;
@@ -443,7 +443,9 @@ bool G2_Set_Bone_Angles_Index(boneInfo_v& blist, const int index, const float* a
     blist[index].boneBlendStart = currentTime;
     blist[index].boneBlendTime = blendTime;
 #if DEBUG_PCJ
-    OutputDebugString(va("PCJ %2d %6d   (%6.2f,%6.2f,%6.2f) %d %d %d %d\n", index, currentTime, angles[0], angles[1], angles[2], yaw, pitch, roll, flags));
+    OutputDebugString(
+        Q_Format("PCJ {:2} {:6}   ({:6.2f},{:6.2f},{:6.2f}) {} {} {} {}\n", index, currentTime, angles[0], angles[1], angles[2], yaw, pitch, roll, flags)
+            .c_str());
 #endif
 
     G2_Generate_Matrix(nullptr, blist, index, angles, flags, yaw, pitch, roll);
@@ -473,7 +475,9 @@ bool G2_Set_Bone_Angles(CGhoul2Info* ghlInfo, boneInfo_v& blist, const char* bon
         blist[index].boneBlendStart = currentTime;
         blist[index].boneBlendTime = blendTime;
 #if DEBUG_PCJ
-        OutputDebugString(va("%2d %6d   (%6.2f,%6.2f,%6.2f) %d %d %d %d\n", index, currentTime, angles[0], angles[1], angles[2], up, left, forward, flags));
+        OutputDebugString(
+            Q_Format("{:2} {:6}   ({:6.2f},{:6.2f},{:6.2f}) {} {} {} {}\n", index, currentTime, angles[0], angles[1], angles[2], up, left, forward, flags)
+                .c_str());
 #endif
 
         G2_Generate_Matrix(mod_a, blist, index, angles, flags, up, left, forward);
@@ -491,7 +495,9 @@ bool G2_Set_Bone_Angles(CGhoul2Info* ghlInfo, boneInfo_v& blist, const char* bon
         blist[index].boneBlendStart = currentTime;
         blist[index].boneBlendTime = blendTime;
 #if DEBUG_PCJ
-        OutputDebugString(va("%2d %6d   (%6.2f,%6.2f,%6.2f) %d %d %d %d\n", index, currentTime, angles[0], angles[1], angles[2], up, left, forward, flags));
+        OutputDebugString(
+            Q_Format("{:2} {:6}   ({:6.2f},{:6.2f},{:6.2f}) {} {} {} {}\n", index, currentTime, angles[0], angles[1], angles[2], up, left, forward, flags)
+                .c_str());
 #endif
 
         G2_Generate_Matrix(mod_a, blist, index, angles, flags, up, left, forward);
@@ -701,12 +707,13 @@ bool G2_Set_Bone_Anim_Index(boneInfo_v& blist, const int index, const int startF
         const boneInfo_t& bone = blist[index];
         char mess[1000];
         if (bone.flags & boneFlags_t::BONE_ANIM_BLEND) {
-            sprintf(mess, "sab[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x   bt(%5d-%5d) %7.2f %5d\n", index, currentTime, bone.startTime, bone.startFrame,
-                    bone.endFrame, bone.animSpeed, bone.flags, bone.blendStart, bone.blendStart + bone.blendTime, bone.blendFrame, bone.blendLerpFrame);
+            Q_FormatTo(mess, "sab[{:2}] {:5}  {:5}  ({:5}-{:5}) {:4.2f} {:4x}   bt({:5}-{:5}) {:7.2f} {:5}\n", index, currentTime, bone.startTime,
+                       bone.startFrame, bone.endFrame, bone.animSpeed, bone.flags, bone.blendStart, bone.blendStart + bone.blendTime, bone.blendFrame,
+                       bone.blendLerpFrame);
         }
         else {
-            sprintf(mess, "saa[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x\n", index, currentTime, bone.startTime, bone.startFrame, bone.endFrame, bone.animSpeed,
-                    bone.flags);
+            Q_FormatTo(mess, "saa[{:2}] {:5}  {:5}  ({:5}-{:5}) {:4.2f} {:4x}\n", index, currentTime, bone.startTime, bone.startFrame, bone.endFrame,
+                       bone.animSpeed, bone.flags);
         }
         OutputDebugString(mess);
     }
@@ -1434,7 +1441,7 @@ void G2_SetRagDoll(CGhoul2Info_v& ghoul2V, CRagDollParams* parms)
 #if 0
 if (index>=0)
 {
-	OutputDebugString(va("death %d %d\n",blist[index].startFrame,blist[index].endFrame));
+	OutputDebugString(Q_Format("death {} {}\n", blist[index].startFrame, blist[index].endFrame).c_str());
 }
 #endif
 
@@ -1934,7 +1941,7 @@ static bool G2_RagDollSetup(CGhoul2Info& ghoul2, int frameNum, bool resetOrigin,
                     // this thing was rendered in the past, but wasn't now, although other bones were, lets get rid of it
                     //					bone.flags &= ~boneFlags_t::BONE_ANGLES_RAGDOLL;
                     //					bone.RagFlags = ragBoneFlags_t::RAG_NONE;
-                    // OutputDebugString(va("Deleted Effector %d\n",i));
+                    // OutputDebugString(Q_Format("Deleted Effector {}\n", i).c_str());
                     //					continue;
                 }
                 if ((int)rag.size() < bone.boneNumber + 1) {
@@ -1953,7 +1960,7 @@ static bool G2_RagDollSetup(CGhoul2Info& ghoul2, int frameNum, bool resetOrigin,
 #if 0
 	if (numRendered<5)  // I think this is a limb
 	{
-//OutputDebugString(va("limb %3d/%3d  (r,N).\n",numRendered,numNotRendered));
+//OutputDebugString(Q_Format("limb {:3}/{:3}  (r,N).\n", numRendered, numNotRendered).c_str());
 		if (minSurvivingBoneAt<0)
 		{
 			// pelvis is gone, but we have no remaining pcj's
@@ -2154,7 +2161,7 @@ static void G2_RagDoll(CGhoul2Info_v& ghoul2V, int g2Index, CRagDollUpdateParams
 		worldMaxs[0]=params->position[0]+17;
 		worldMaxs[1]=params->position[1]+17;
 		worldMaxs[2]=params->position[2];
-//OutputDebugString(va("%f \n",worldMins[2]));
+//OutputDebugString(Q_Format("{:f} \n", worldMins[2]).c_str());
 //		params->DebugLine(worldMins,worldMaxs,true);
 #endif
         G2_RagDollCurrentPosition(ghoul2V, g2Index, frameNum, params->angles, params->position, params->scale);
@@ -2201,7 +2208,7 @@ static void G2_RagDollCurrentPosition(CGhoul2Info_v& ghoul2V, int g2Index, int f
 {
     CGhoul2Info& ghoul2 = ghoul2V[g2Index];
     assert(ghoul2.mFileName[0]);
-    // OutputDebugString(va("angles %f %f %f\n",angles[0],angles[1],angles[2]));
+    // OutputDebugString(Q_Format("angles {:f} {:f} {:f}\n", angles[0], angles[1], angles[2]).c_str());
     G2_GenerateWorldMatrix(angles, position);
     G2_ConstructGhoulSkeleton(ghoul2V, frameNum, false, scale);
 
@@ -2785,13 +2792,13 @@ void G2_RagPrintMatrix(mdxaBone_t* mat)
     while (n < 3) {
         int o = 0;
         while (o < 4) {
-            strcat(x, va("%f ", mat->matrix[n][o]));
+            strcat(x, Q_Format("{:f} ", mat->matrix[n][o]).c_str());
             o++;
         }
         n++;
     }
     strcat(x, "\n");
-    Com_Printf(x);
+    Q_Print("{}", x);
 }
 #endif
 
@@ -3123,7 +3130,7 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v& ghoul2V, const ve
                 VectorCopy(basePos, goalSpot);
                 goalSpot[2] = (params->position[2] - 23) - testMins[2];
 #endif
-                // Com_Printf("%i: %f %f %f\n", bone.boneNumber, basePos[0], basePos[1], basePos[2]);
+                // Q_Println("{}: {:f} {:f} {:f}", bone.boneNumber, basePos[0], basePos[1], basePos[2]);
             }
             else { // if deep in solid want to try to rise up out of solid before hinting back to base
                 VectorSubtract(e.currentOrigin, params->position, vSub);
@@ -3211,7 +3218,7 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v& ghoul2V, const ve
 
                 assert(debugBoneName);
 
-                Com_Printf("High bone (%s, %i) solid count: %i\n", debugBoneName, bone.boneNumber, bone.solidCount);
+                Q_Println("High bone ({}, {}) solid count: {}", debugBoneName, bone.boneNumber, bone.solidCount);
 
                 VectorAdd(e.currentOrigin, testMins, absmin);
                 VectorAdd(e.currentOrigin, testMaxs, absmax);

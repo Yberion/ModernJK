@@ -183,11 +183,11 @@ libvar_t* droppedweight = nullptr; // bk001206 - init
 bot_goalstate_t* BotGoalStateFromHandle(int handle)
 {
     if (handle <= 0 || handle > MAX_CLIENTS) {
-        Com_PrintError("goal state handle %d out of range\n", handle);
+        Q_PrintlnError("goal state handle {} out of range", handle);
         return nullptr;
     } // end if
     if (!botgoalstates[handle]) {
-        Com_PrintError("invalid goal state %d\n", handle);
+        Q_PrintlnError("invalid goal state {}", handle);
         return nullptr;
     } // end if
     return botgoalstates[handle];
@@ -253,7 +253,7 @@ itemconfig_t* LoadItemConfig(char* filename)
 
     max_iteminfo = (int)LibVarValue("max_iteminfo", "256");
     if (max_iteminfo < 0) {
-        Com_PrintError("max_iteminfo = %d\n", max_iteminfo);
+        Q_PrintlnError("max_iteminfo = {}", max_iteminfo);
         max_iteminfo = 256;
         LibVarSet("max_iteminfo", "256");
     }
@@ -262,7 +262,7 @@ itemconfig_t* LoadItemConfig(char* filename)
     PC_SetBaseFolder(BOTFILESBASEFOLDER);
     source = LoadSourceFile(path);
     if (!source) {
-        Com_PrintError("counldn't load %s\n", path);
+        Q_PrintlnError("counldn't load {}", path);
         return nullptr;
     } // end if
     // initialize item config
@@ -273,7 +273,7 @@ itemconfig_t* LoadItemConfig(char* filename)
     while (PC_ReadToken(source, &token)) {
         if (!strcmp(token.string, "iteminfo")) {
             if (ic->numiteminfo >= max_iteminfo) {
-                SourceError(source, "more than %d item info defined", max_iteminfo);
+                SourceError(source, "more than {} item info defined", max_iteminfo);
                 FreeMemory(ic);
                 FreeSource(source);
                 return nullptr;
@@ -296,7 +296,7 @@ itemconfig_t* LoadItemConfig(char* filename)
             ic->numiteminfo++;
         } // end if
         else {
-            SourceError(source, "unknown definition %s", token.string);
+            SourceError(source, "unknown definition {}", token.string);
             FreeMemory(ic);
             FreeSource(source);
             return nullptr;
@@ -305,8 +305,8 @@ itemconfig_t* LoadItemConfig(char* filename)
     FreeSource(source);
     //
     if (!ic->numiteminfo)
-        Com_Warning("no item info loaded\n");
-    Com_Printf("loaded %s\n", path);
+        Q_PrintlnWarning("no item info loaded");
+    Q_Println("loaded {}", path);
     return ic;
 } // end of the function LoadItemConfig
 //===========================================================================
@@ -326,7 +326,7 @@ int* ItemWeightIndex(weightconfig_t* iwc, itemconfig_t* ic)
     for (i = 0; i < ic->numiteminfo; i++) {
         index[i] = FindFuzzyWeight(iwc, ic->iteminfo[i].classname);
         if (index[i] < 0) {
-            Log_Write("item info %d \"%s\" has no fuzzy weight\r\n", i, ic->iteminfo[i].classname);
+            Log_Write("item info {} \"{}\" has no fuzzy weight\r\n", i, ic->iteminfo[i].classname);
         } // end if
     } // end for
     return index;
@@ -366,7 +366,7 @@ levelitem_t* AllocLevelItem(void)
 
     li = freelevelitems;
     if (!li) {
-        Com_PrintError("out of level items\n");
+        Q_PrintlnError("out of level items");
         return nullptr;
     } // end if
     //
@@ -479,7 +479,7 @@ void BotInitInfoEntities(void)
             AAS_FloatForBSPEpairKey(ent, "random", &cs->random);
             cs->areanum = AAS_PointAreaNum(cs->origin);
             if (!cs->areanum) {
-                Com_Printf("camp spot at %1.1f %1.1f %1.1f in solid\n", cs->origin[0], cs->origin[1], cs->origin[2]);
+                Q_Println("camp spot at {:1.1f} {:1.1f} {:1.1f} in solid", cs->origin[0], cs->origin[1], cs->origin[2]);
                 FreeMemory(cs);
                 continue;
             } // end if
@@ -490,8 +490,8 @@ void BotInitInfoEntities(void)
         } // end else if
     } // end for
     if (botDeveloper) {
-        Com_Printf("%d map locations\n", numlocations);
-        Com_Printf("%d camp spots\n", numcampspots);
+        Q_Println("{} map locations", numlocations);
+        Q_Println("{} camp spots", numcampspots);
     } // end if
 } // end of the function BotInitInfoEntities
 //===========================================================================
@@ -529,7 +529,7 @@ void BotInitLevelItems(void)
     // validate the modelindexes of the item info
     for (i = 0; i < ic->numiteminfo; i++) {
         if (!ic->iteminfo[i].modelindex) {
-            Log_Write("item %s has modelindex 0", ic->iteminfo[i].classname);
+            Log_Write("item {} has modelindex 0", ic->iteminfo[i].classname);
         } // end if
     } // end for
 
@@ -545,12 +545,12 @@ void BotInitLevelItems(void)
                 break;
         } // end for
         if (i >= ic->numiteminfo) {
-            Log_Write("entity %s unknown item\r\n", classname);
+            Log_Write("entity {} unknown item\r\n", classname);
             continue;
         } // end if
         // get the origin of the item
         if (!AAS_VectorForBSPEpairKey(ent, "origin", origin)) {
-            Com_PrintError("item %s without origin\n", classname);
+            Q_PrintlnError("item {} without origin", classname);
             continue;
         } // end else
         //
@@ -567,8 +567,8 @@ void BotInitLevelItems(void)
                 if (trace.fraction >= 1) {
                     // if the item is not reachable from a jumppad
                     goalareanum = AAS_BestReachableFromJumpPadArea(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs);
-                    Log_Write("item %s reachable from jumppad area %d\r\n", ic->iteminfo[i].classname, goalareanum);
-                    // Com_Printf("item %s reachable from jumppad area %d\r\n", ic->iteminfo[i].classname, goalareanum);
+                    Log_Write("item {} reachable from jumppad area {}\r\n", ic->iteminfo[i].classname, goalareanum);
+                    // Q_Println("item {} reachable from jumppad area {}\r", ic->iteminfo[i].classname, goalareanum);
                     if (!goalareanum)
                         continue;
                 } // end if
@@ -603,7 +603,7 @@ void BotInitLevelItems(void)
         // if not a stationary item
         if (!(spawnflags & 1)) {
             if (!AAS_DropToFloor(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs)) {
-                Com_Printf("%s in solid at (%1.1f %1.1f %1.1f)\n", classname, origin[0], origin[1], origin[2]);
+                Q_Println("{} in solid at ({:1.1f} {:1.1f} {:1.1f})", classname, origin[0], origin[1], origin[2]);
             } // end if
         } // end if
         // item info of the level item
@@ -619,13 +619,13 @@ void BotInitLevelItems(void)
             // get the item goal area and goal origin
             li->goalareanum = AAS_BestReachableArea(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs, li->goalorigin);
             if (!li->goalareanum) {
-                Com_Printf("%s not reachable for bots at (%1.1f %1.1f %1.1f)\n", classname, origin[0], origin[1], origin[2]);
+                Q_Println("{} not reachable for bots at ({:1.1f} {:1.1f} {:1.1f})", classname, origin[0], origin[1], origin[2]);
             } // end if
         } // end else
         //
         AddLevelItemToList(li);
     } // end for
-    Com_Printf("found %d level items\n", numlevelitems);
+    Q_Println("found {} level items", numlevelitems);
 } // end of the function BotInitLevelItems
 //===========================================================================
 //
@@ -683,7 +683,7 @@ void BotDumpAvoidGoals(int goalstate)
     for (i = 0; i < MAX_AVOIDGOALS; i++) {
         if (gs->avoidgoaltimes[i] >= AAS_Time()) {
             BotGoalName(gs->avoidgoals[i], name, 32);
-            Log_Write("avoid goal %s, number %d for %f seconds", name, gs->avoidgoals[i], gs->avoidgoaltimes[i] - AAS_Time());
+            Log_Write("avoid goal {}, number {} for {:f} seconds", name, gs->avoidgoals[i], gs->avoidgoaltimes[i] - AAS_Time());
         } // end if
     } // end for
 } // end of the function BotDumpAvoidGoals
@@ -842,7 +842,7 @@ int BotGetLevelItemGoal(int index, char* name, bot_goal_t* goal)
             goal->flags = goalFlags_t::GFL_ITEM;
             if (li->timeout)
                 goal->flags |= goalFlags_t::GFL_DROPPED;
-            // Com_Printf("found li %s\n", itemconfig->iteminfo[li->iteminfo].name);
+            // Q_Println("found li {}", itemconfig->iteminfo[li->iteminfo].name);
             return li->number;
         } // end if
     } // end for
@@ -1041,7 +1041,7 @@ void BotUpdateEntityItems(void)
                         li->goalareanum = AAS_BestReachableArea(li->origin, ic->iteminfo[li->iteminfo].mins, ic->iteminfo[li->iteminfo].maxs, li->goalorigin);
                     } // end if
 #ifdef DEBUG
-                    Log_Write("linked item %s to an entity", ic->iteminfo[li->iteminfo].classname);
+                    Log_Write("linked item {} to an entity", ic->iteminfo[li->iteminfo].classname);
 #endif // DEBUG
                     break;
                 } // end if
@@ -1083,7 +1083,7 @@ void BotUpdateEntityItems(void)
         li->timeout = AAS_Time() + 30;
         // add the level item to the list
         AddLevelItemToList(li);
-        // Com_Printf("found new level item %s\n", ic->iteminfo[i].classname);
+        // Q_Println("found new level item {}", ic->iteminfo[i].classname);
     } // end for
     /*
     for (li = levelitems; li; li = li->next)
@@ -1111,7 +1111,7 @@ void BotDumpGoalStack(int goalstate)
         return;
     for (i = 1; i <= gs->goalstacktop; i++) {
         BotGoalName(gs->goalstack[i].number, name, 32);
-        Log_Write("%d: %s", i, name);
+        Log_Write("{}: {}", i, name);
     } // end for
 } // end of the function BotDumpGoalStack
 //===========================================================================
@@ -1128,7 +1128,7 @@ void BotPushGoal(int goalstate, bot_goal_t* goal)
     if (!gs)
         return;
     if (gs->goalstacktop >= MAX_GOALSTACK - 1) {
-        Com_PrintError("goal heap overflow\n");
+        Q_PrintlnError("goal heap overflow");
         BotDumpGoalStack(goalstate);
         return;
     } // end if
@@ -1323,7 +1323,7 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int* inventory, travelFlags_t
                 BotPushGoal(goalstate, &goal);
                 //
 #ifdef DEBUG
-                Com_Printf("chosen roam goal area %d\n", goal.areanum);
+                Q_Println("chosen roam goal area {}", goal.areanum);
 #endif //DEBUG
                 return true;
             } //end if
@@ -1612,7 +1612,7 @@ botlibError_t BotLoadItemWeights(int goalstate, char* filename)
     // load the weight configuration
     gs->itemweightconfig = ReadWeightConfig(filename);
     if (!gs->itemweightconfig) {
-        Com_PrintError("couldn't load weights\n");
+        Q_PrintlnError("couldn't load weights");
         return botlibError_t::BLERR_CANNOTLOADITEMWEIGHTS;
     } // end if
     // if there's no item configuration
@@ -1669,11 +1669,11 @@ int BotAllocGoalState(int client)
 void BotFreeGoalState(int handle)
 {
     if (handle <= 0 || handle > MAX_CLIENTS) {
-        Com_PrintError("goal state handle %d out of range\n", handle);
+        Q_PrintlnError("goal state handle {} out of range", handle);
         return;
     } // end if
     if (!botgoalstates[handle]) {
-        Com_PrintError("invalid goal state handle %d\n", handle);
+        Q_PrintlnError("invalid goal state handle {}", handle);
         return;
     } // end if
     BotFreeItemWeights(handle);
@@ -1697,7 +1697,7 @@ botlibError_t BotSetupGoalAI(void)
     // load the item configuration
     itemconfig = LoadItemConfig(filename);
     if (!itemconfig) {
-        Com_PrintError("couldn't load item config\n");
+        Q_PrintlnError("couldn't load item config");
         return botlibError_t::BLERR_CANNOTLOADITEMCONFIG;
     } // end if
     //

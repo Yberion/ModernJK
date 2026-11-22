@@ -120,14 +120,14 @@ void CIcarus::Delete(void)
 
 #ifdef _DEBUG
 
-    Com_Printf("ICARUS Instance Debug Info:\n");
-    Com_Printf("---------------------------\n");
-    Com_Printf("Sequencers Allocated:\t%d\n", m_DEBUG_NumSequencerAlloc);
-    Com_Printf("Sequencers Freed:\t\t%d\n", m_DEBUG_NumSequencerFreed);
-    Com_Printf("Sequencers Residual:\t%d\n\n", m_DEBUG_NumSequencerResidual);
-    Com_Printf("Sequences Allocated:\t%d\n", m_DEBUG_NumSequenceAlloc);
-    Com_Printf("Sequences Freed:\t\t%d\n", m_DEBUG_NumSequenceFreed);
-    Com_Printf("Sequences Residual:\t\t%d\n\n", m_DEBUG_NumSequenceResidual);
+    Q_Println("ICARUS Instance Debug Info:");
+    Q_Println("---------------------------");
+    Q_Println("Sequencers Allocated:\t{}", m_DEBUG_NumSequencerAlloc);
+    Q_Println("Sequencers Freed:\t\t{}", m_DEBUG_NumSequencerFreed);
+    Q_Println("Sequencers Residual:\t{}\n", m_DEBUG_NumSequencerResidual);
+    Q_Println("Sequences Allocated:\t{}", m_DEBUG_NumSequenceAlloc);
+    Q_Println("Sequences Freed:\t\t{}", m_DEBUG_NumSequenceFreed);
+    Q_Println("Sequences Residual:\t\t{}\n", m_DEBUG_NumSequenceResidual);
 
 #endif
 }
@@ -225,7 +225,7 @@ void CIcarus::DeleteIcarusID(int& icarusID)
 
     CTaskManager* taskManager = sequencer->GetTaskManager();
     if (taskManager->IsResident()) {
-        IGameInterface::GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Refusing DeleteIcarusID(%d) because it is running!\n", icarusID);
+        IGameInterface::GetGame()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Refusing DeleteIcarusID({}) because it is running!", icarusID);
         assert(0);
         return;
     }
@@ -664,7 +664,7 @@ int CIcarus::Load()
     // Versions must match!
     if (version != ICARUS_VERSION) {
         DestroyBuffer();
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "save game data contains outdated ICARUS version information!\n");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "save game data contains outdated ICARUS version information!");
         return false;
     }
 
@@ -677,7 +677,7 @@ int CIcarus::Load()
 
     if (sg_buffer_size < 0 || static_cast<size_t>(sg_buffer_size) > MAX_BUFFER_SIZE) {
         DestroyBuffer();
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid ISEQ length: %d bytes\n", sg_buffer_size);
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid ISEQ length: {} bytes", sg_buffer_size);
         return false;
     }
 
@@ -686,21 +686,21 @@ int CIcarus::Load()
     // Load all signals
     if (LoadSignals() == false) {
         DestroyBuffer();
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "failed to load signals from save game!\n");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "failed to load signals from save game!");
         return false;
     }
 
     // Load in all sequences
     if (LoadSequences() == false) {
         DestroyBuffer();
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "failed to load sequences from save game!\n");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "failed to load sequences from save game!");
         return false;
     }
 
     // Load in all sequencers
     if (LoadSequencers() == false) {
         DestroyBuffer();
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "failed to load sequencers from save game!\n");
+        game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "failed to load sequencers from save game!");
         return false;
     }
 
@@ -760,7 +760,7 @@ void CIcarus::BufferWrite(void* pSrcData, unsigned long ulNumBytesToWrite)
 
     // Make sure we have enough space in the buffer to write to.
     if (MAX_BUFFER_SIZE - m_ulBufferCurPos < ulNumBytesToWrite) { // Write out the buffer with all our collected data so far...
-        IGameInterface::GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "BufferWrite: Out of buffer space, Flushing.");
+        IGameInterface::GetGame()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "BufferWrite: Out of buffer space, Flushing.");
 
         ojk::SavedGameHelper saved_game(IGameInterface::GetGame()->get_saved_game_file());
 
@@ -784,7 +784,7 @@ void CIcarus::BufferRead(void* pDstBuff, unsigned long ulNumBytesToRead)
 
     // If we can read this data...
     if (m_ulBytesRead + ulNumBytesToRead > MAX_BUFFER_SIZE) { // We've tried to read past the buffer...
-        IGameInterface::GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "BufferRead: Buffer underflow, Looking for new block.");
+        IGameInterface::GetGame()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "BufferRead: Buffer underflow, Looking for new block.");
         // Read in the next block.
 
         ojk::SavedGameHelper saved_game(IGameInterface::GetGame()->get_saved_game_file());
@@ -796,7 +796,7 @@ void CIcarus::BufferRead(void* pDstBuff, unsigned long ulNumBytesToRead)
         int sg_buffer_size = saved_game.get_buffer_size();
 
         if (sg_buffer_size < 0 || static_cast<size_t>(sg_buffer_size) > MAX_BUFFER_SIZE) {
-            IGameInterface::GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid ISEQ length: %d bytes\n", sg_buffer_size);
+            IGameInterface::GetGame()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid ISEQ length: {} bytes", sg_buffer_size);
             return;
         }
 

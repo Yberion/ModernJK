@@ -27,9 +27,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // compared with std::floor directly.
 // Usage: netcodec_test_determinism
 #include "fnv.h"
+#include <fmt/base.h>
 #include <numeric.h>
 
-#include <cinttypes>
+#include <cstdint>
 #include <cmath>
 #include <cstdio>
 
@@ -118,8 +119,8 @@ int main()
     for (int64_t k = -400000; k <= 400000; k++)
         f.Feed(Pack(static_cast<double>(k) * kAngleStep), 4);
     const size_t floorBad = FloorMismatches(), modBad = ModMismatches();
-    std::printf("angle indices not recognised: %zu; FloorI against std::floor: %zu differences; ModPow2 against %%: %zu "
-                "differences; hash 0x%016" PRIX64 ", expected 0x%016" PRIX64 "\n",
-                notAngle, floorBad, modBad, f.h, kExpected);
+    fmt::println(
+        "angle indices not recognised: {}; FloorI against std::floor: {} differences; ModPow2 against %: {} differences; hash 0x{:016X}, expected 0x{:016X}",
+        notAngle, floorBad, modBad, f.h, kExpected);
     return notAngle == 0 && floorBad == 0 && modBad == 0 && f.h == kExpected ? 0 : 1;
 }

@@ -87,7 +87,7 @@ void AAS_PresenceTypeBoundingBox(presenceFlags_t presencetype, vec3_t mins, vec3
     else if (presencetype == presenceFlags_t::PRESENCE_CROUCH)
         index = 2;
     else {
-        Com_PrintError("AAS_PresenceTypeBoundingBox: unknown presence type\n");
+        Q_PrintlnError("AAS_PresenceTypeBoundingBox: unknown presence type");
         index = 2;
     } // end if
     VectorCopy(boxmins[index], mins);
@@ -159,7 +159,7 @@ aas_link_t* AAS_AllocAASLink(void)
         if (botDeveloper)
 #endif
         {
-            Com_PrintError("empty aas link heap\n");
+            Q_PrintlnError("empty aas link heap");
         } // end if
         return nullptr;
     } // end if
@@ -228,24 +228,24 @@ int AAS_PointAreaNum(vec3_t point)
     aas_plane_t* plane;
 
     if (!aasworld.loaded) {
-        Com_PrintError("AAS_PointAreaNum: aas not loaded\n");
+        Q_PrintlnError("AAS_PointAreaNum: aas not loaded");
         return 0;
     } // end if
 
     // start with node 1 because node zero is a dummy used for solid leafs
     nodenum = 1;
     while (nodenum > 0) {
-//		Com_Printf("[%d]", nodenum);
+//		Q_Print("[{}]", nodenum);
 #ifdef AAS_SAMPLE_DEBUG
         if (nodenum >= aasworld.numnodes) {
-            Com_PrintError("nodenum = %d >= aasworld.numnodes = %d\n", nodenum, aasworld.numnodes);
+            Q_PrintlnError("nodenum = {} >= aasworld.numnodes = {}", nodenum, aasworld.numnodes);
             return 0;
         } // end if
 #endif // AAS_SAMPLE_DEBUG
         node = &aasworld.nodes[nodenum];
 #ifdef AAS_SAMPLE_DEBUG
         if (node->planenum < 0 || node->planenum >= aasworld.numplanes) {
-            Com_PrintError("node->planenum = %d >= aasworld.numplanes = %d\n", node->planenum, aasworld.numplanes);
+            Q_PrintlnError("node->planenum = {} >= aasworld.numplanes = {}", node->planenum, aasworld.numplanes);
             return 0;
         } // end if
 #endif // AAS_SAMPLE_DEBUG
@@ -258,7 +258,7 @@ int AAS_PointAreaNum(vec3_t point)
     } // end while
     if (!nodenum) {
 #ifdef AAS_SAMPLE_DEBUG
-        Com_Printf("in solid\n");
+        Q_Println("in solid");
 #endif // AAS_SAMPLE_DEBUG
         return 0;
     } // end if
@@ -311,7 +311,7 @@ int AAS_PointReachabilityAreaIndex(vec3_t origin)
 int AAS_AreaCluster(int areanum)
 {
     if (areanum <= 0 || areanum >= aasworld.numareas) {
-        Com_PrintError("AAS_AreaCluster: invalid area number\n");
+        Q_PrintlnError("AAS_AreaCluster: invalid area number");
         return 0;
     } // end if
     return aasworld.areasettings[areanum].cluster;
@@ -328,7 +328,7 @@ presenceFlags_t AAS_AreaPresenceType(int areanum)
     if (!aasworld.loaded)
         return presenceFlags_t::PRESENCE_EMPTY;
     if (areanum <= 0 || areanum >= aasworld.numareas) {
-        Com_PrintError("AAS_AreaPresenceType: invalid area number\n");
+        Q_PrintlnError("AAS_AreaPresenceType: invalid area number");
         return presenceFlags_t::PRESENCE_EMPTY;
     } // end if
     return aasworld.areasettings[areanum].presencetype;
@@ -499,11 +499,11 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
         if (nodenum < 0) {
 #ifdef AAS_SAMPLE_DEBUG
             if (-nodenum > aasworld.numareasettings) {
-                Com_PrintError("AAS_TraceBoundingBox: -nodenum out of range\n");
+                Q_PrintlnError("AAS_TraceBoundingBox: -nodenum out of range");
                 return trace;
             } // end if
 #endif // AAS_SAMPLE_DEBUG
-       // Com_Printf("areanum = %d, must be %d\n", -nodenum, AAS_PointAreaNum(start));
+       // Q_Println("areanum = {}, must be {}", -nodenum, AAS_PointAreaNum(start));
        // if can't enter the area because it hasn't got the right presence type
             if (!Any(aasworld.areasettings[-nodenum].presencetype & presencetype)) {
                 // if the start point is still the initial start point
@@ -577,7 +577,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
         } // end if
 #ifdef AAS_SAMPLE_DEBUG
         if (nodenum > aasworld.numnodes) {
-            Com_PrintError("AAS_TraceBoundingBox: nodenum out of range\n");
+            Q_PrintlnError("AAS_TraceBoundingBox: nodenum out of range");
             return trace;
         } // end if
 #endif // AAS_SAMPLE_DEBUG
@@ -627,7 +627,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
             tstack_p->nodenum = aasnode->children[0];
             tstack_p++;
             if (tstack_p >= &tracestack[127]) {
-                Com_PrintError("AAS_TraceBoundingBox: stack overflow\n");
+                Q_PrintlnError("AAS_TraceBoundingBox: stack overflow");
                 return trace;
             } // end if
         } // end if
@@ -639,7 +639,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
             tstack_p->nodenum = aasnode->children[1];
             tstack_p++;
             if (tstack_p >= &tracestack[127]) {
-                Com_PrintError("AAS_TraceBoundingBox: stack overflow\n");
+                Q_PrintlnError("AAS_TraceBoundingBox: stack overflow");
                 return trace;
             } // end if
         } // end if
@@ -677,7 +677,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
             tstack_p->nodenum = aasnode->children[!side];
             tstack_p++;
             if (tstack_p >= &tracestack[127]) {
-                Com_PrintError("AAS_TraceBoundingBox: stack overflow\n");
+                Q_PrintlnError("AAS_TraceBoundingBox: stack overflow");
                 return trace;
             } // end if
             // now put the part near the start of the line on the stack so we will
@@ -689,7 +689,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
             tstack_p->nodenum = aasnode->children[side];
             tstack_p++;
             if (tstack_p >= &tracestack[127]) {
-                Com_PrintError("AAS_TraceBoundingBox: stack overflow\n");
+                Q_PrintlnError("AAS_TraceBoundingBox: stack overflow");
                 return trace;
             } // end if
         } // end else
@@ -742,11 +742,11 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int* areas, vec3_t* points, int max
         if (nodenum < 0) {
 #ifdef AAS_SAMPLE_DEBUG
             if (-nodenum > aasworld.numareasettings) {
-                Com_PrintError("AAS_TraceAreas: -nodenum = %d out of range\n", -nodenum);
+                Q_PrintlnError("AAS_TraceAreas: -nodenum = {} out of range", -nodenum);
                 return numareas;
             } // end if
 #endif // AAS_SAMPLE_DEBUG
-       // Com_Printf("areanum = %d, must be %d\n", -nodenum, AAS_PointAreaNum(start));
+       // Q_Println("areanum = {}, must be {}", -nodenum, AAS_PointAreaNum(start));
             areas[numareas] = -nodenum;
             if (points)
                 VectorCopy(tstack_p->start, points[numareas]);
@@ -761,7 +761,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int* areas, vec3_t* points, int max
         } // end if
 #ifdef AAS_SAMPLE_DEBUG
         if (nodenum > aasworld.numnodes) {
-            Com_PrintError("AAS_TraceAreas: nodenum out of range\n");
+            Q_PrintlnError("AAS_TraceAreas: nodenum out of range");
             return numareas;
         } // end if
 #endif // AAS_SAMPLE_DEBUG
@@ -811,7 +811,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int* areas, vec3_t* points, int max
             tstack_p->nodenum = aasnode->children[0];
             tstack_p++;
             if (tstack_p >= &tracestack[127]) {
-                Com_PrintError("AAS_TraceAreas: stack overflow\n");
+                Q_PrintlnError("AAS_TraceAreas: stack overflow");
                 return numareas;
             } // end if
         } // end if
@@ -823,7 +823,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int* areas, vec3_t* points, int max
             tstack_p->nodenum = aasnode->children[1];
             tstack_p++;
             if (tstack_p >= &tracestack[127]) {
-                Com_PrintError("AAS_TraceAreas: stack overflow\n");
+                Q_PrintlnError("AAS_TraceAreas: stack overflow");
                 return numareas;
             } // end if
         } // end if
@@ -857,7 +857,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int* areas, vec3_t* points, int max
             tstack_p->nodenum = aasnode->children[!side];
             tstack_p++;
             if (tstack_p >= &tracestack[127]) {
-                Com_PrintError("AAS_TraceAreas: stack overflow\n");
+                Q_PrintlnError("AAS_TraceAreas: stack overflow");
                 return numareas;
             } // end if
             // now put the part near the start of the line on the stack so we will
@@ -869,7 +869,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int* areas, vec3_t* points, int max
             tstack_p->nodenum = aasnode->children[side];
             tstack_p++;
             if (tstack_p >= &tracestack[127]) {
-                Com_PrintError("AAS_TraceAreas: stack overflow\n");
+                Q_PrintlnError("AAS_TraceAreas: stack overflow");
                 return numareas;
             } // end if
         } // end else
@@ -921,7 +921,7 @@ bool AAS_InsideFace(aas_face_t* face, vec3_t pnormal, vec3_t point, float epsilo
         //
 #ifdef AAS_SAMPLE_DEBUG
         if (lastvertex && lastvertex != edge->v[firstvertex]) {
-            Com_Printf("winding not counter clockwise\n");
+            Q_Println("winding not counter clockwise");
         } // end if
         lastvertex = edge->v[!firstvertex];
 #endif // AAS_SAMPLE_DEBUG
@@ -1186,7 +1186,7 @@ aas_link_t* AAS_AASLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum)
     aas_link_t *link, *areas;
 
     if (!aasworld.loaded) {
-        Com_PrintError("AAS_LinkEntity: aas not loaded\n");
+        Q_PrintlnError("AAS_LinkEntity: aas not loaded");
         return nullptr;
     } // end if
 
@@ -1253,7 +1253,7 @@ aas_link_t* AAS_AASLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum)
             lstack_p++;
         } // end if
         if (lstack_p >= &linkstack[127]) {
-            Com_PrintError("AAS_LinkEntity: stack overflow\n");
+            Q_PrintlnError("AAS_LinkEntity: stack overflow");
             break;
         } // end if
         // if on the back side of the node
@@ -1262,7 +1262,7 @@ aas_link_t* AAS_AASLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum)
             lstack_p++;
         } // end if
         if (lstack_p >= &linkstack[127]) {
-            Com_PrintError("AAS_LinkEntity: stack overflow\n");
+            Q_PrintlnError("AAS_LinkEntity: stack overflow");
             break;
         } // end if
     } // end while
@@ -1319,7 +1319,7 @@ int AAS_AreaInfo(int areanum, aas_areainfo_t* info)
     if (!info)
         return 0;
     if (areanum <= 0 || areanum >= aasworld.numareas) {
-        Com_PrintError("AAS_AreaInfo: areanum %d out of range\n", areanum);
+        Q_PrintlnError("AAS_AreaInfo: areanum {} out of range", areanum);
         return 0;
     } // end if
     settings = &aasworld.areasettings[areanum];

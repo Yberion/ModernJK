@@ -81,7 +81,7 @@ SafeFS_Write
 static QINLINE void SafeFS_Write(const void* buffer, int len, fileHandle_t f)
 {
     if (FS_Write(buffer, len, f) < len)
-        Com_Error(errorParm_t::ERR_DROP, "Failed to write avi file");
+        Q_Error(errorParm_t::ERR_DROP, "Failed to write avi file");
 }
 
 /*
@@ -140,7 +140,7 @@ START_CHUNK
 static QINLINE void START_CHUNK(const char* s)
 {
     if (afd.chunkStackTop == MAX_RIFF_CHUNKS) {
-        Com_Error(errorParm_t::ERR_DROP, "ERROR: Top of chunkstack breached");
+        Q_Error(errorParm_t::ERR_DROP, "ERROR: Top of chunkstack breached");
     }
 
     afd.chunkStack[afd.chunkStackTop] = bufIndex;
@@ -159,7 +159,7 @@ static QINLINE void END_CHUNK(void)
     int endIndex = bufIndex;
 
     if (afd.chunkStackTop <= 0) {
-        Com_Error(errorParm_t::ERR_DROP, "ERROR: Bottom of chunkstack breached");
+        Q_Error(errorParm_t::ERR_DROP, "ERROR: Bottom of chunkstack breached");
     }
 
     afd.chunkStackTop--;
@@ -330,14 +330,14 @@ bool CL_OpenAVIForWriting(const char* fileName)
 
     // Don't start if a framerate has not been chosen
     if (cl_aviFrameRate->integer <= 0) {
-        Com_Printf(S_COLOR_RED "cl_aviFrameRate must be >= 1\n");
+        Q_Println(S_COLOR_RED "cl_aviFrameRate must be >= 1");
         return false;
     }
 
     if ((afd.f = FS_FOpenFileWrite(fileName)) <= 0)
         return false;
 
-    if ((afd.idxF = FS_FOpenFileWrite(va("%s" INDEX_FILE_EXTENSION, fileName))) <= 0) {
+    if ((afd.idxF = FS_FOpenFileWrite(Q_Format("{}" INDEX_FILE_EXTENSION, fileName).c_str())) <= 0) {
         FS_FCloseFile(afd.f);
         return false;
     }
@@ -374,16 +374,14 @@ bool CL_OpenAVIForWriting(const char* fileName)
         while ((afd.a.rate % suggestRate) && suggestRate >= 1)
             suggestRate--;
 
-        Com_Warning("cl_aviFrameRate is not a divisor "
-                    "of the audio rate, suggest %d\n",
-                    suggestRate);
+        Q_PrintlnWarning("cl_aviFrameRate is not a divisor of the audio rate, suggest {}", suggestRate);
     }
 
     if (!Cvar_VariableIntegerValue("s_initsound")) {
         afd.audio = false;
     }
     else if (afd.a.bits != 16 || afd.a.channels != 2) {
-        Com_Warning("Audio format of %d bit/%d channels not supported", afd.a.bits, afd.a.channels);
+        Q_PrintlnWarning("Audio format of {} bit/{} channels not supported", afd.a.bits, afd.a.channels);
         afd.audio = false;
     }
     else
@@ -428,7 +426,7 @@ static bool CL_CheckFileSize(int bytesToAdd)
             CL_CloseAVI();
 
             // ...And open a new one
-            CL_OpenAVIForWriting(va("%s_", afd.fileName));
+            CL_OpenAVIForWriting(Q_Format("{}_", afd.fileName).c_str());
 
             return true;
         }
@@ -505,7 +503,7 @@ void CL_WriteAVIAudioFrame(const byte* pcmBuffer, int size)
         return;
 
     if (bytesInBuffer + size > PCM_BUFFER_SIZE) {
-        Com_Warning("Audio capture buffer overflow -- truncating\n");
+        Q_PrintlnWarning("Audio capture buffer overflow -- truncating");
         size = PCM_BUFFER_SIZE - bytesInBuffer;
     }
 
@@ -571,7 +569,8 @@ bool CL_CloseAVI(void)
 {
     int indexRemainder;
     int indexSize = afd.numIndices * 16;
-    const char* idxFileName = va("%s" INDEX_FILE_EXTENSION, afd.fileName);
+    const formatText_t idxFileNameText = Q_Format("{}" INDEX_FILE_EXTENSION, afd.fileName);
+    const char* idxFileName = idxFileNameText.c_str();
 
     // AVI file isn't open
     if (!afd.fileOpen)
@@ -626,7 +625,7 @@ bool CL_CloseAVI(void)
     Z_Free(afd.eBuffer);
     FS_FCloseFile(afd.f);
 
-    Com_Printf("Wrote %d:%d frames to %s\n", afd.numVideoFrames, afd.numAudioFrames, afd.fileName);
+    Q_Println("Wrote {}:{} frames to {}", afd.numVideoFrames, afd.numAudioFrames, afd.fileName);
 
     return true;
 }

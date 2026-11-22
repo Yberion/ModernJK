@@ -1108,7 +1108,7 @@ int G_IconIndex(const char* name);
 
 bool G_PlayerHasCustomSkeleton(gentity_t* ent);
 
-void G_TeamCommand(team_t team, char* cmd);
+void G_TeamCommand(team_t team, const char* cmd);
 void G_ScaleNetHealth(gentity_t* self);
 void G_KillBox(gentity_t* ent);
 gentity_t* G_Find(gentity_t* from, int fieldofs, const char* match);
@@ -1325,8 +1325,16 @@ void SetLeader(team_t team, int client);
 void CheckTeamLeader(team_t team);
 void G_RunThink(gentity_t* ent);
 void AddTournamentQueue(gclient_t* client);
-void QDECL G_LogPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
-void QDECL G_SecurityLogPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
+void G_VLogPrintln(fmt::string_view fmt, fmt::format_args args);
+template <typename... T> void G_LogPrintln(fmt::format_string<T...> fmt, T&&... args)
+{
+    G_VLogPrintln(fmt.get(), Q_FormatArgs(args...));
+}
+void G_VSecurityLogPrintln(fmt::string_view fmt, fmt::format_args args);
+template <typename... T> void G_SecurityLogPrintln(fmt::format_string<T...> fmt, T&&... args)
+{
+    G_VSecurityLogPrintln(fmt.get(), Q_FormatArgs(args...));
+}
 void SendScoreboardMessageToAllClients(void);
 const char* G_GetStringEdString(const char* refSection, const char* refName);
 
@@ -1568,6 +1576,13 @@ void G_UpdateCvars(void);
 [[nodiscard]] inline dmFlags_t G_DmFlags(void)
 {
     return static_cast<dmFlags_t>(dmflags.integer);
+}
+
+// the ICARUS scripts' messages, with developer 2 (g_ICARUScb.cpp)
+void G_VDebugPrintln(WL_e level, fmt::string_view format, fmt::format_args args);
+template <typename... T> void G_DebugPrintln(WL_e level, fmt::format_string<T...> format, T&&... args)
+{
+    G_VDebugPrintln(level, format.get(), Q_FormatArgs(args...));
 }
 
 extern gameImport_t* trap;

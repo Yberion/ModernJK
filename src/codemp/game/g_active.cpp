@@ -1802,11 +1802,11 @@ void ClientThink_real(gentity_t* ent)
     // sanity check the command time to prevent speedup cheating
     if (ucmd->serverTime > level.tickTime + 200) {
         ucmd->serverTime = level.tickTime + 200;
-        //		Com_Printf("serverTime <<<<<\n" );
+        //		Q_Println("serverTime <<<<<");
     }
     if (ucmd->serverTime < level.tickTime - 1000) {
         ucmd->serverTime = level.tickTime - 1000;
-        //		Com_Printf("serverTime >>>>>\n" );
+        //		Q_Println("serverTime >>>>>");
     }
 
     if (isNPC && (ucmd->serverTime - client->ps.commandTime) < 1) {
@@ -2199,17 +2199,18 @@ void ClientThink_real(gentity_t* ent)
             }
 
             /*
-            trap->SendServerCommand( ent-g_entities, va("print \"%s %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER")) );
-            trap->SendServerCommand( duelAgainst-g_entities, va("print \"%s %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME",
-            "PLDUELWINNER")) );
+            trap->SendServerCommand( ent-g_entities, Q_Format("print \"{} {}\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME",
+            "PLDUELWINNER")).c_str() ); trap->SendServerCommand( duelAgainst-g_entities, Q_Format("print \"{} {}\n\"", ent->client->pers.netname,
+            G_GetStringEdString("MP_SVGAME", "PLDUELWINNER")).c_str() );
             */
             // Private duel announcements are now made globally because we only want one duel at a time.
             if (ent->health > 0 && ent->client->ps.stats[statIndex_t::STAT_HEALTH] > 0) {
-                trap->SendServerCommand(-1, va("cp \"%s %s %s!\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER"),
-                                               duelAgainst->client->pers.netname));
+                trap->SendServerCommand(-1, Q_Format("cp \"{} {} {}!\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER"),
+                                                     duelAgainst->client->pers.netname)
+                                                .c_str());
             }
             else { // it was a draw, because we both managed to die in the same frame
-                trap->SendServerCommand(-1, va("cp \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELTIE")));
+                trap->SendServerCommand(-1, Q_Format("cp \"{}\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELTIE")).c_str());
             }
         }
         else {
@@ -2226,7 +2227,7 @@ void ClientThink_real(gentity_t* ent)
                 G_AddEvent(ent, entity_event_t::EV_PRIVATE_DUEL, 0);
                 G_AddEvent(duelAgainst, entity_event_t::EV_PRIVATE_DUEL, 0);
 
-                trap->SendServerCommand(-1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELSTOP")));
+                trap->SendServerCommand(-1, Q_Format("print \"{}\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELSTOP")).c_str());
             }
         }
     }
@@ -3040,7 +3041,7 @@ void ClientThink_real(gentity_t* ent)
                     }
                 }
 
-                G_Sound(faceKicked, soundChannel_t::CHAN_AUTO, G_SoundIndex(va("sound/weapons/melee/punch%d", Q_irand(1, 4))));
+                G_Sound(faceKicked, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
             }
         }
 

@@ -109,7 +109,7 @@ qhandle_t RE_RegisterIndividualSkin(const char* name, qhandle_t hSkin)
     ri.FS_ReadFile(name, (void**)&text);
     if (!text) {
 #ifndef FINAL_BUILD
-        Com_Warning("RE_RegisterSkin( '%s' ) failed to load!\n", name);
+        Q_PrintlnWarning("RE_RegisterSkin( '{}' ) failed to load!", name);
 #endif
         return 0;
     }
@@ -149,7 +149,7 @@ qhandle_t RE_RegisterIndividualSkin(const char* name, qhandle_t hSkin)
         }
         if ((unsigned)skin->numSurfaces >= ARRAY_LEN(skin->surfaces)) {
             assert(ARRAY_LEN(skin->surfaces) > (unsigned)skin->numSurfaces);
-            Com_Warning("RE_RegisterSkin( '%s' ) more than %u surfaces!\n", name, (unsigned int)ARRAY_LEN(skin->surfaces));
+            Q_PrintlnWarning("RE_RegisterSkin( '{}' ) more than {} surfaces!", name, (unsigned int)ARRAY_LEN(skin->surfaces));
             break;
         }
         surf = (skinSurface_t*)Hunk_Alloc(sizeof(*skin->surfaces[0]), ha_pref::h_low);
@@ -180,12 +180,12 @@ qhandle_t RE_RegisterSkin(const char* name)
     skin_t* skin;
 
     if (!name || !name[0]) {
-        Com_Printf("Empty name passed to RE_RegisterSkin\n");
+        Q_Println("Empty name passed to RE_RegisterSkin");
         return 0;
     }
 
     if (strlen(name) >= MAX_QPATH) {
-        Com_Printf("Skin name exceeds MAX_QPATH\n");
+        Q_Println("Skin name exceeds MAX_QPATH");
         return 0;
     }
 
@@ -202,7 +202,7 @@ qhandle_t RE_RegisterSkin(const char* name)
 
     // allocate a new skin
     if (tr.numSkins == MAX_SKINS) {
-        Com_Warning("RE_RegisterSkin( '%s' ) MAX_SKINS hit\n", name);
+        Q_PrintlnWarning("RE_RegisterSkin( '{}' ) MAX_SKINS hit", name);
         return 0;
     }
     tr.numSkins++;
@@ -398,15 +398,15 @@ void R_SkinList_f(void)
     int i, j;
     skin_t* skin;
 
-    Com_Printf("------------------\n");
+    Q_Println("------------------");
 
     for (i = 0; i < tr.numSkins; i++) {
         skin = tr.skins[i];
 
-        Com_Printf("%3i:%s\n", i, skin->name);
+        Q_Println("{:3}:{}", i, skin->name);
         for (j = 0; j < skin->numSurfaces; j++) {
-            Com_Printf("       %s = %s\n", skin->surfaces[j]->name, ((shader_t*)skin->surfaces[j]->shader)->name);
+            Q_Println("       {} = {}", skin->surfaces[j]->name, ((shader_t*)skin->surfaces[j]->shader)->name);
         }
     }
-    Com_Printf("------------------\n");
+    Q_Println("------------------");
 }

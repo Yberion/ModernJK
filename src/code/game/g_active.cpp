@@ -594,7 +594,7 @@ void P_WorldEffects(gentity_t* ent)
 
                     if (ent->health > 0) { // did that last one kill them?
                         // play the choking sound
-                        G_SoundOnEnt(ent, soundChannel_t::CHAN_VOICE, va("*choke%d.wav", Q_irand(1, 3)));
+                        G_SoundOnEnt(ent, soundChannel_t::CHAN_VOICE, Q_Format("*choke{}.wav", Q_irand(1, 3)).c_str());
 
                         // make them grasp their throat
                         NPC_SetAnim(ent, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_CHOKE1,
@@ -924,7 +924,7 @@ void DoImpact(gentity_t* self, gentity_t* other, bool damageSelf, trace_t* trace
                  magnitude >= 120) { // FORCE-SMACKED into something
             if (TIMER_Done(self, "impactEffect")) {
                 G_PlayEffect(G_EffectIndex("env/impact_dustonly"), trace->endpos, trace->plane.normal);
-                G_Sound(self, G_SoundIndex(va("sound/weapons/melee/punch%d", Q_irand(1, 4))));
+                G_Sound(self, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
                 TIMER_Set(self, "impactEffect", 1000);
             }
         }
@@ -1590,7 +1590,7 @@ void ClientEvents(gentity_t* ent, int oldEventSequence)
         case entity_event_t::EV_FIRE_WEAPON:
 #ifndef FINAL_BUILD
             if (fired) {
-                Com_Printf("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n");
+                Q_Println("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!");
             }
             fired = true;
 #endif
@@ -1600,7 +1600,7 @@ void ClientEvents(gentity_t* ent, int oldEventSequence)
         case entity_event_t::EV_ALT_FIRE:
 #ifndef FINAL_BUILD
             if (fired) {
-                Com_Printf("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n");
+                Q_Println("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!");
             }
             fired = true;
 #endif
@@ -1781,7 +1781,7 @@ gentity_t* G_KickTrace(gentity_t* ent, vec3_t kickDir, float kickDist, vec3_t ki
                             VectorMA(trace.endpos, Q_flrand(5.0f, 10.0f), fxDir, fxOrg);
                             VectorScale(fxDir, -1, fxDir);
                             G_PlayEffect(G_EffectIndex("melee/kick_impact"), fxOrg, fxDir);
-                            // G_Sound( ent, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
+                            // G_Sound( ent, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str() ) );
                         }
                         TIMER_Set(ent, "kickSoundDebounce", 2000);
                     }
@@ -1867,7 +1867,7 @@ gentity_t* G_KickTrace(gentity_t* ent, vec3_t kickDir, float kickDist, vec3_t ki
                         }
                         else {
                             G_PlayEffect(G_EffectIndex("melee/kick_impact"), trace.endpos, trace.plane.normal);
-                            // G_Sound( ent, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
+                            // G_Sound( ent, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str() ) );
                         }
                         TIMER_Set(ent, "kickSoundDebounce", 2000);
                     }
@@ -4625,7 +4625,7 @@ void ClientThink_real(gentity_t* ent, usercmd_t* ucmd)
     VectorCopy(ent->client->ps.viewangles, ent->currentAngles);
     //	if (pVeh)
     //	{
-    //		Com_Printf("%d\n", ucmd->angles[2]);
+    //		Q_Println("{}", ucmd->angles[2]);
     //	}
 
     VectorCopy(pm.mins, ent->mins);

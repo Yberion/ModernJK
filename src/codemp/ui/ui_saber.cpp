@@ -148,7 +148,7 @@ float UI_SaberBladeLengthForSaber(const char* saberName, int bladeNum)
         }
     }
 
-    WP_SaberParseParm(saberName, va("saberLength%d", bladeNum + 1), lengthString);
+    WP_SaberParseParm(saberName, Q_Format("saberLength{}", bladeNum + 1).c_str(), lengthString);
     if (lengthString[0]) {
         length = Q_atof(lengthString);
         if (length < 0.0f) {
@@ -171,7 +171,7 @@ float UI_SaberBladeRadiusForSaber(const char* saberName, int bladeNum)
         }
     }
 
-    WP_SaberParseParm(saberName, va("saberRadius%d", bladeNum + 1), radiusString);
+    WP_SaberParseParm(saberName, Q_Format("saberRadius{}", bladeNum + 1).c_str(), radiusString);
     if (radiusString[0]) {
         radius = Q_atof(radiusString);
         if (radius < 0.0f) {
@@ -324,7 +324,8 @@ void UI_SaberDrawBlade(itemDef_t* item, char* saberName, int saberModel, saberTy
     //	vec3_t	angles={0};
     mdxaBone_t boltMatrix;
     bool tagHack = false;
-    char* tagName;
+    const char* tagName;
+    formatText_t tagNameText; // holds the text tagName points into
     int bolt;
     float scale;
 
@@ -347,7 +348,7 @@ void UI_SaberDrawBlade(itemDef_t* item, char* saberName, int saberModel, saberTy
     bladeLength = UI_SaberBladeLengthForSaber(saberName, bladeNum);
     bladeRadius = UI_SaberBladeRadiusForSaber(saberName, bladeNum);
 
-    tagName = va("*blade%d", bladeNum + 1);
+    tagName = (tagNameText = Q_Format("*blade{}", bladeNum + 1)).c_str();
     bolt = trap->G2API_AddBolt(item->ghoul2, saberModel, tagName);
 
     if (bolt == -1) {

@@ -91,7 +91,7 @@ void CG_TestModel_f(void)
         cg.testModelEntity.oldframe = 0;
     }
     if (!cg.testModelEntity.hModel) {
-        Com_Printf("Can't register model\n");
+        Q_Println("Can't register model");
         return;
     }
 
@@ -125,7 +125,7 @@ void CG_TestGun_f(void)
 void CG_TestModelNextFrame_f(void)
 {
     cg.testModelEntity.frame++;
-    Com_Printf("frame %i\n", cg.testModelEntity.frame);
+    Q_Println("frame {}", cg.testModelEntity.frame);
 }
 
 void CG_TestModelPrevFrame_f(void)
@@ -134,13 +134,13 @@ void CG_TestModelPrevFrame_f(void)
     if (cg.testModelEntity.frame < 0) {
         cg.testModelEntity.frame = 0;
     }
-    Com_Printf("frame %i\n", cg.testModelEntity.frame);
+    Q_Println("frame {}", cg.testModelEntity.frame);
 }
 
 void CG_TestModelNextSkin_f(void)
 {
     cg.testModelEntity.skinNum++;
-    Com_Printf("skin %i\n", cg.testModelEntity.skinNum);
+    Q_Println("skin {}", cg.testModelEntity.skinNum);
 }
 
 void CG_TestModelPrevSkin_f(void)
@@ -149,7 +149,7 @@ void CG_TestModelPrevSkin_f(void)
     if (cg.testModelEntity.skinNum < 0) {
         cg.testModelEntity.skinNum = 0;
     }
-    Com_Printf("skin %i\n", cg.testModelEntity.skinNum);
+    Q_Println("skin {}", cg.testModelEntity.skinNum);
 }
 
 static void CG_AddTestModel(void)
@@ -159,7 +159,7 @@ static void CG_AddTestModel(void)
     // re-register the model, because the level may have changed
     cg.testModelEntity.hModel = trap->R_RegisterModel(cg.testModelName);
     if (!cg.testModelEntity.hModel) {
-        Com_Printf("Can't register model\n");
+        Q_Println("Can't register model");
         return;
     }
 
@@ -1574,25 +1574,25 @@ void CG_DrawSkyBoxPortal(const char* cstr)
 
     token = COM_ParseExt(&cstr, false);
     if (!token || !token[0]) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
+        Q_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring");
     }
     cg.refdef.vieworg[0] = Q_atof(token);
 
     token = COM_ParseExt(&cstr, false);
     if (!token || !token[0]) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
+        Q_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring");
     }
     cg.refdef.vieworg[1] = Q_atof(token);
 
     token = COM_ParseExt(&cstr, false);
     if (!token || !token[0]) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
+        Q_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring");
     }
     cg.refdef.vieworg[2] = Q_atof(token);
 
     token = COM_ParseExt(&cstr, false);
     if (!token || !token[0]) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
+        Q_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring");
     }
     fov_x = atoi(token);
 
@@ -1603,7 +1603,7 @@ void CG_DrawSkyBoxPortal(const char* cstr)
     // setup fog the first time, ignore this part of the configstring after that
     token = COM_ParseExt(&cstr, false);
     if (!token || !token[0]) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state\n");
+        Q_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state");
     }
 
     if (cg.predictedPlayerState.pm_type == pmtype_t::PM_INTERMISSION) {
@@ -1817,7 +1817,7 @@ void CG_SE_UpdateMusic(void)
                 cgScreenEffects.music_volume_multiplier = 1.0f;
             }
 
-            Com_sprintf(musMultStr, sizeof(musMultStr), "%f", cgScreenEffects.music_volume_multiplier);
+            Q_FormatTo(musMultStr, "{:f}", cgScreenEffects.music_volume_multiplier);
             trap->Cvar_Set("s_musicMult", musMultStr);
 
             if (cgScreenEffects.music_volume_multiplier == 1.0f) {
@@ -1834,7 +1834,7 @@ void CG_SE_UpdateMusic(void)
     if (!cgScreenEffects.music_volume_set) { // if the volume_time is >= cg.time, we should have a volume multiplier set
         char musMultStr[512];
 
-        Com_sprintf(musMultStr, sizeof(musMultStr), "%f", cgScreenEffects.music_volume_multiplier);
+        Q_FormatTo(musMultStr, "{:f}", cgScreenEffects.music_volume_multiplier);
         trap->Cvar_Set("s_musicMult", musMultStr);
         cgScreenEffects.music_volume_set = true;
     }
@@ -2259,7 +2259,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayb
     cg.demoPlayback = demoPlayback;
 
     if (cg.snap && static_cast<team_t>(ui_myteam.integer) != PS_Team(cg.snap->ps)) {
-        trap->Cvar_Set("ui_myteam", va("%i", to_underlying(PS_Team(cg.snap->ps))));
+        trap->Cvar_Set("ui_myteam", Q_Format("{}", to_underlying(PS_Team(cg.snap->ps))).c_str());
     }
     if (cgs.gametype == gametype_t::GT_SIEGE && cg.snap && cg_siegeClassIndex != cgs.clientinfo[cg.snap->ps.clientNum].siegeIndex) {
         cg_siegeClassIndex = cgs.clientinfo[cg.snap->ps.clientNum].siegeIndex;
@@ -2319,7 +2319,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayb
 		// If we have been waiting too long then just error out
 		if ( cg.snapshotTimeoutTime > 0 && (trap->Milliseconds ( ) - cg.snapshotTimeoutTime > cg_snapshotTimeout.integer * 1000) )
 		{
-			Com_Error ( errorParm_t::ERR_DROP, CG_GetStringEdString("MP_SVGAME", "SNAPSHOT_TIMEOUT"));
+			Q_Error(errorParm_t::ERR_DROP, "{}", CG_GetStringEdString("MP_SVGAME", "SNAPSHOT_TIMEOUT"));
 			return;
 		}
 #endif
@@ -2515,7 +2515,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayb
                 timescale.value = cg_timescaleFadeEnd.value;
         }
         if (cg_timescaleFadeSpeed.value) {
-            trap->Cvar_Set("timescale", va("%f", timescale.value));
+            trap->Cvar_Set("timescale", Q_Format("{:f}", timescale.value).c_str());
         }
     }
 
@@ -2525,6 +2525,6 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayb
     CG_DrawAutoMap();
 
     if (cg_stats.integer) {
-        Com_Printf("cg.clientFrame:%i\n", cg.clientFrame);
+        Q_Println("cg.clientFrame:{}", cg.clientFrame);
     }
 }

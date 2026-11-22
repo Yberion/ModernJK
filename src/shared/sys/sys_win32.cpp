@@ -156,18 +156,18 @@ const char* Sys_GetCurrentUser(void)
 char* Sys_DefaultHomePath(void)
 {
 #if defined(BUILD_PORTABLE)
-    Com_Printf("Portable install requested, skipping homepath support\n");
+    Q_Println("Portable install requested, skipping homepath support");
     return nullptr;
 #else
     if (!homePath[0]) {
         TCHAR homeDirectory[MAX_PATH];
 
         if (!SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PERSONAL, nullptr, 0, homeDirectory))) {
-            Com_Printf("Unable to determine your home directory.\n");
+            Q_Println("Unable to determine your home directory.");
             return nullptr;
         }
 
-        Com_sprintf(homePath, sizeof(homePath), "%s%cMy Games%c", homeDirectory, PATH_SEP, PATH_SEP);
+        Q_FormatTo(homePath, "{}{:c}My Games{:c}", homeDirectory, PATH_SEP, PATH_SEP);
         if (com_homepath && com_homepath->string[0])
             Q_strcat(homePath, sizeof(homePath), com_homepath->string);
         else
@@ -214,7 +214,7 @@ void Sys_SetProcessorAffinity(void)
         return; // no change
 
     if (!SetProcessAffinityMask(handle, processMask))
-        Com_DPrintf("Setting affinity mask failed (%s)\n", GetErrorString(GetLastError()));
+        Q_DPrintln("Setting affinity mask failed ({})", GetErrorString(GetLastError()));
 }
 
 /*
@@ -314,10 +314,10 @@ void Sys_ListFilteredFiles(const char* basedir, const char* subdirs, const char*
     }
 
     if (strlen(subdirs)) {
-        Com_sprintf(search, sizeof(search), "%s\\%s\\*", basedir, subdirs);
+        Q_FormatTo(search, "{}\\{}\\*", basedir, subdirs);
     }
     else {
-        Com_sprintf(search, sizeof(search), "%s\\*", basedir);
+        Q_FormatTo(search, "{}\\*", basedir);
     }
 
     findhandle = _findfirst(search, &findinfo);
@@ -329,10 +329,10 @@ void Sys_ListFilteredFiles(const char* basedir, const char* subdirs, const char*
         if (findinfo.attrib & _A_SUBDIR) {
             if (Q_stricmp(findinfo.name, ".") && Q_stricmp(findinfo.name, "..")) {
                 if (strlen(subdirs)) {
-                    Com_sprintf(newsubdirs, sizeof(newsubdirs), "%s\\%s", subdirs, findinfo.name);
+                    Q_FormatTo(newsubdirs, "{}\\{}", subdirs, findinfo.name);
                 }
                 else {
-                    Com_sprintf(newsubdirs, sizeof(newsubdirs), "%s", findinfo.name);
+                    Q_FormatTo(newsubdirs, "{}", findinfo.name);
                 }
                 Sys_ListFilteredFiles(basedir, newsubdirs, filter, psList, numfiles);
             }
@@ -340,7 +340,7 @@ void Sys_ListFilteredFiles(const char* basedir, const char* subdirs, const char*
         if (*numfiles >= MAX_FOUND_FILES - 1) {
             break;
         }
-        Com_sprintf(filename, sizeof(filename), "%s\\%s", subdirs, findinfo.name);
+        Q_FormatTo(filename, "{}\\{}", subdirs, findinfo.name);
         if (!Com_FilterPath(filter, filename, false))
             continue;
         psList[*numfiles] = CopyString(filename);
@@ -419,7 +419,7 @@ char** Sys_ListFiles(const char* directory, const char* extension, const char* f
 
     extLen = strlen(extension);
 
-    Com_sprintf(search, sizeof(search), "%s\\*%s", directory, extension);
+    Q_FormatTo(search, "{}\\*{}", directory, extension);
 
     // search
     nfiles = 0;
@@ -552,9 +552,7 @@ void Sys_PlatformInit(int argc, char* argv[])
         timerResolution = ptc.wPeriodMin;
 
         if (timerResolution > 1) {
-            Com_Warning("Minimum supported timer resolution is %ums "
-                        "on this system, recommended resolution 1ms\n",
-                        timerResolution);
+            Q_PrintlnWarning("Minimum supported timer resolution is {}ms on this system, recommended resolution 1ms", timerResolution);
         }
 
         timeBeginPeriod(timerResolution);
@@ -574,7 +572,7 @@ void Sys_PlatformInit(int argc, char* argv[])
     maxfds = _setmaxstdio(maxfds);
 
     if (maxfds == -1) {
-        Com_Warning("Failed to increase open file limit. %s\n", strerror(errno));
+        Q_PrintlnWarning("Failed to increase open file limit. {}", strerror(errno));
     }
 }
 

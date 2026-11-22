@@ -30,7 +30,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_icarus.h"
 #include "wp_saber.h"
 
-extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 extern void WP_SaberInitBladeData(gentity_t* ent);
 extern void G_CreateG2AttachedWeaponModel(gentity_t* ent, const char* weaponModel);
 extern bool CheatsOk(gentity_t* ent);
@@ -262,7 +261,7 @@ gentity_t* SelectSpawnPoint(vec3_t avoidPoint, team_t team, vec3_t origin, vec3_
 
     if (level.spawntarget[0]) {                                                                       // we have a spawnpoint specified, try to find it
         if ((nearestSpot = spot = G_Find(nullptr, FOFS(targetname), level.spawntarget)) == nullptr) { // you HAVE to be able to find the desired spot
-            Com_Error(errorParm_t::ERR_DROP, "Couldn't find spawntarget %s", level.spawntarget);
+            Q_Error(errorParm_t::ERR_DROP, "Couldn't find spawntarget {}", level.spawntarget);
             return nullptr;
         }
     }
@@ -278,7 +277,7 @@ gentity_t* SelectSpawnPoint(vec3_t avoidPoint, team_t team, vec3_t origin, vec3_
 
     // find a single player start spot
     if (!spot) {
-        Com_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
+        Q_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
     }
 
     VectorCopy(spot->s.origin, origin);
@@ -474,13 +473,13 @@ void ClientUserinfoChanged(int clientNum)
     // send over a subset of the userinfo keys so other clients can
     // print scoreboards, display models, and play custom sounds
     buf[0] = '\0';
-    Q_strcat(buf, sizeof(buf), va("n\\%s\\", client->pers.netname));
-    Q_strcat(buf, sizeof(buf), va("t\\%i\\", to_underlying(client->sess.sessionTeam)));
+    Q_strcat(buf, sizeof(buf), Q_Format("n\\{}\\", client->pers.netname).c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("t\\{}\\", to_underlying(client->sess.sessionTeam)).c_str());
     Q_strcat(buf, sizeof(buf), "headModel\\\\");
     Q_strcat(buf, sizeof(buf), "torsoModel\\\\");
     Q_strcat(buf, sizeof(buf), "legsModel\\\\");
-    Q_strcat(buf, sizeof(buf), va("sex\\%s\\", sex));
-    Q_strcat(buf, sizeof(buf), va("hc\\%i\\", client->pers.maxHealth));
+    Q_strcat(buf, sizeof(buf), Q_Format("sex\\{}\\", sex).c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("hc\\{}\\", client->pers.maxHealth).c_str());
 
     gi.SetConfigstring(CS_PLAYERS + clientNum, buf);
 }
@@ -543,7 +542,7 @@ char* ClientConnect(int clientNum, bool firstTime, SavedGameJustLoaded_e eSavedG
 
         // don't do the "xxx connected" messages if they were caried over from previous level
         if (firstTime) {
-            gi.SendServerCommand(-1, "print \"%s connected\n\"", client->pers.netname);
+            gi.SendServerCommand(-1, "print \"{} connected\n\"", client->pers.netname);
         }
     }
 
@@ -746,10 +745,10 @@ void G_SetSkin(gentity_t* ent, const char* modelName, const char* customSkin)
     // ok, lets register the skin name, and then pass that name to the config strings so the client can get it too.
     // FIXME: is have an alternate skin (in modelName, after '/'), replace "default" with that skin name
     if (!customSkin) {
-        Com_sprintf(skinName, sizeof(skinName), "models/players/%s/model_default.skin", modelName);
+        Q_FormatTo(skinName, "models/players/{}/model_default.skin", modelName);
     }
     else {
-        Com_sprintf(skinName, sizeof(skinName), "models/players/%s/model_%s.skin", modelName, customSkin);
+        Q_FormatTo(skinName, "models/players/{}/model_{}.skin", modelName, customSkin);
     }
     // lets see if it's out there
     int skin = gi.RE_RegisterSkin(skinName);
@@ -1177,20 +1176,21 @@ void G_SetG2PlayerModel(gentity_t* const ent, const char* modelName, const char*
 
     // ok, lets register the skin name, and then pass that name to the config strings so the client can get it too.
     if (!customSkin) { // use the default
-        Com_sprintf(skinName, sizeof(skinName), "models/players/%s/model_default.skin", modelName);
+        Q_FormatTo(skinName, "models/players/{}/model_default.skin", modelName);
     }
     else {
-        Com_sprintf(skinName, sizeof(skinName), "models/players/%s/model_%s.skin", modelName, customSkin);
+        Q_FormatTo(skinName, "models/players/{}/model_{}.skin", modelName, customSkin);
     }
     gi.RE_RegisterSkin(skinName);
     // now generate the ghoul2 model this client should be.
     // NOTE: for some reason, it still loads the default skin's tga's?  Because they're referenced in the .glm?
-    ent->playerModel = gi.G2API_InitGhoul2Model(ent->ghoul2, va("models/players/%s/model.glm", modelName),
-                                                G_ModelIndex(va("models/players/%s/model.glm", modelName)), G_SkinIndex(skinName), NULL_HANDLE, 0, 0);
+    ent->playerModel =
+        gi.G2API_InitGhoul2Model(ent->ghoul2, Q_Format("models/players/{}/model.glm", modelName).c_str(),
+                                 G_ModelIndex(Q_Format("models/players/{}/model.glm", modelName).c_str()), G_SkinIndex(skinName), NULL_HANDLE, 0, 0);
     if (ent->playerModel == -1) { // try the stormtrooper as a default
         modelName = "stormtrooper";
-        ent->playerModel = gi.G2API_InitGhoul2Model(ent->ghoul2, va("models/players/%s/model.glm", modelName),
-                                                    G_ModelIndex(va("models/players/%s/model.glm", modelName)), NULL_HANDLE, NULL_HANDLE, 0, 0);
+        ent->playerModel = gi.G2API_InitGhoul2Model(ent->ghoul2, Q_Format("models/players/{}/model.glm", modelName).c_str(),
+                                                    G_ModelIndex(Q_Format("models/players/{}/model.glm", modelName).c_str()), NULL_HANDLE, NULL_HANDLE, 0, 0);
     }
 
     if (!Q_stricmp("kyle", modelName)) {
@@ -1206,8 +1206,8 @@ void G_SetG2PlayerModel(gentity_t* const ent, const char* modelName, const char*
     // did we find a ghoul2 model? if so, load the animation.cfg file
     if (!G_SetG2PlayerModelInfo(ent, modelName, customSkin, surfOff, surfOn)) { // couldn't set g2 info, fall back to a mouse md3
         NPC_ParseParms("mouse", ent);
-        // Com_Error( errorParm_t::ERR_DROP, "couldn't load playerModel %s!\n", va("models/players/%s/model.glm", modelName) );
-        Com_Printf(S_COLOR_RED "couldn't load playerModel %s!\n", va("models/players/%s/model.glm", modelName));
+        // Q_Error(errorParm_t::ERR_DROP, "couldn't load playerModel {}!", va("models/players/%s/model.glm", modelName));
+        Q_Println(S_COLOR_RED "couldn't load playerModel {}!", Q_Format("models/players/{}/model.glm", modelName));
     }
 }
 /*

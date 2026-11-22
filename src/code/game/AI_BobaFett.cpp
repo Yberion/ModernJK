@@ -106,7 +106,11 @@ extern cvar_t* g_bobaDebug;
 ////////////////////////////////////////////////////////////////////////////////////////
 // Boba Debug Output
 ////////////////////////////////////////////////////////////////////////////////////////
-void Boba_Printf(const char* format, ...) __attribute__((format(printf, 1, 2)));
+void Boba_VPrintln(fmt::string_view format, fmt::format_args args);
+template <typename... T> void Boba_Println(fmt::format_string<T...> format, T&&... args)
+{
+    Boba_VPrintln(format.get(), Q_FormatArgs(args...));
+}
 #ifndef FINAL_BUILD
 #if !defined(CTYPE_H_INC)
 #include <ctype.h>
@@ -114,7 +118,6 @@ void Boba_Printf(const char* format, ...) __attribute__((format(printf, 1, 2)));
 #endif
 
 #if !defined(STDARG_H_INC)
-#include <stdarg.h>
 #define STDARG_H_INC
 #endif
 
@@ -122,37 +125,18 @@ void Boba_Printf(const char* format, ...) __attribute__((format(printf, 1, 2)));
 #include <stdio.h>
 #define STDIO_H_INC
 #endif
-void Boba_Printf(const char* format, ...)
+void Boba_VPrintln(fmt::string_view format, fmt::format_args args)
 {
     if (g_bobaDebug->integer == 0) {
         return;
     }
 
-    static char string[2][1024]; // in case this is called by nested functions
-    static int index = 0;
-    static char nFormat[300];
-    char* buf;
-
-    // Tack On The Standard Format Around The Given Format
-    //-----------------------------------------------------
-    Com_sprintf(nFormat, sizeof(nFormat), "[BOBA %8d] %s\n", level.time, format);
-
-    // Resolve Remaining Elipsis Parameters Into Newly Formated String
-    //-----------------------------------------------------------------
-    buf = string[index & 1];
-    index++;
-
-    va_list argptr;
-    va_start(argptr, format);
-    Q_vsnprintf(buf, sizeof(*string), nFormat, argptr);
-    va_end(argptr);
-
-    // Print It To Debug Output Console
-    //----------------------------------
-    Com_Printf("%s", buf);
+    char text[1024];
+    Q_VFormatToCut(text, format, args);
+    Q_Println("[BOBA {:8}] {}", level.time, text);
 }
 #else
-void Boba_Printf(const char* format, ...) {}
+void Boba_VPrintln(fmt::string_view, fmt::format_args) {}
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -473,7 +457,7 @@ void Boba_StopFlameThrower(gentity_t* self)
         //	G_SoundOnEnt( self, soundChannel_t::CHAN_WEAPON, "sound/effects/flameoff.mp3" );
         G_StopEffect(G_EffectIndex("boba/fthrw"), self->playerModel, self->genericBolt3, self->s.number);
 
-        Boba_Printf("FlameThrower OFF");
+        Boba_Println("FlameThrower OFF");
     }
 }
 
@@ -497,7 +481,7 @@ void Boba_StartFlameThrower(gentity_t* self)
         G_SoundOnEnt(self, soundChannel_t::CHAN_WEAPON, "sound/weapons/boba/bf_flame.mp3");
         G_PlayEffect(G_EffectIndex("boba/fthrw"), self->playerModel, self->genericBolt3, self->s.number, self->s.origin, 1);
 
-        Boba_Printf("FlameThrower ON");
+        Boba_Println("FlameThrower ON");
     }
 }
 
@@ -561,10 +545,10 @@ void Boba_DoSniper(gentity_t* self)
     //--------------------------
     if (Any(NPCInfo->aiFlags & npcAiFlags_t::NPCAI_BLOCKED) && NPC->client->moveType != movetype_t::MT_FLYSWIM &&
         ((level.time - NPCInfo->blockedDebounceTime) > 3000)) {
-        Boba_Printf("BLOCKED: Attempting Jump");
+        Boba_Println("BLOCKED: Attempting Jump");
         if (IsOnAPath) {
             if (!NPC_TryJump(NPCInfo->blockedTargetPosition)) {
-                Boba_Printf("  Failed");
+                Boba_Println("  Failed");
             }
         }
     }
@@ -614,7 +598,7 @@ void Boba_Fire()
                 if (Q_irand(0, (NPC->count * 2) + 3) > 2) {
                     TIMER_Set(NPC, "nextBlasterAltFireDecide", Q_irand(3000, 8000));
                     if (!Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_ALT_FIRE)) {
-                        Boba_Printf("ALT FIRE On");
+                        Boba_Println("ALT FIRE On");
                         NPCInfo->scriptFlags |= scriptFlags_t::SCF_ALT_FIRE;
                         NPC_ChangeWeapon(weapon_t::WP_BLASTER); // Update Delay Timers
                     }
@@ -622,7 +606,7 @@ void Boba_Fire()
                 else {
                     TIMER_Set(NPC, "nextBlasterAltFireDecide", Q_irand(2000, 5000));
                     if (Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_ALT_FIRE)) {
-                        Boba_Printf("ALT FIRE Off");
+                        Boba_Println("ALT FIRE Off");
                         NPCInfo->scriptFlags &= ~scriptFlags_t::SCF_ALT_FIRE;
                         NPC_ChangeWeapon(weapon_t::WP_BLASTER); // Update Delay Timers
                     }
@@ -784,28 +768,28 @@ void Boba_TacticsSelect()
         NPC_SetLocalState(*NPCInfo, nextState);
         switch (nextState) {
         case EBobaTacticsState::BTS_FLAMETHROW:
-            Boba_Printf("NEW TACTIC: Flame Thrower");
+            Boba_Println("NEW TACTIC: Flame Thrower");
             Boba_ChangeWeapon(weapon_t::WP_NONE);
             Boba_DoFlameThrower(NPC);
             break;
 
         case EBobaTacticsState::BTS_RIFLE:
-            Boba_Printf("NEW TACTIC: Rifle");
+            Boba_Println("NEW TACTIC: Rifle");
             Boba_ChangeWeapon(weapon_t::WP_BLASTER);
             break;
 
         case EBobaTacticsState::BTS_MISSILE:
-            Boba_Printf("NEW TACTIC: Rocket Launcher");
+            Boba_Println("NEW TACTIC: Rocket Launcher");
             Boba_ChangeWeapon(weapon_t::WP_ROCKET_LAUNCHER);
             break;
 
         case EBobaTacticsState::BTS_SNIPER:
-            Boba_Printf("NEW TACTIC: Sniper");
+            Boba_Println("NEW TACTIC: Sniper");
             Boba_ChangeWeapon(weapon_t::WP_DISRUPTOR);
             break;
 
         case EBobaTacticsState::BTS_AMBUSHWAIT:
-            Boba_Printf("NEW TACTIC: Ambush");
+            Boba_Println("NEW TACTIC: Ambush");
             Boba_ChangeWeapon(weapon_t::WP_NONE);
             break;
 
@@ -880,7 +864,7 @@ bool Boba_Respawn()
         VectorMA(NPC->enemy->currentOrigin, 1000.0f / (float)AverageEnemyDirectionSamples, AverageEnemyDirection, endPos);
         cp = NPC_FindCombatPoint(endPos, nullptr, endPos,
                                  combatPointSearchFlags_t::CP_FLEE | combatPointSearchFlags_t::CP_TRYFAR | combatPointSearchFlags_t::CP_HORZ_DIST_COLL, 0, -1);
-        Boba_Printf("Attempting Predictive Spawn Point");
+        Boba_Println("Attempting Predictive Spawn Point");
     }
 
     // If That Failed, Try To Go Directly To The Enemy
@@ -888,7 +872,7 @@ bool Boba_Respawn()
     if (cp == -1) {
         cp = NPC_FindCombatPoint(NPC->enemy->currentOrigin, nullptr, NPC->enemy->currentOrigin,
                                  combatPointSearchFlags_t::CP_FLEE | combatPointSearchFlags_t::CP_TRYFAR | combatPointSearchFlags_t::CP_HORZ_DIST_COLL, 0, -1);
-        Boba_Printf("Attempting Closest Current Spawn Point");
+        Boba_Println("Attempting Closest Current Spawn Point");
     }
 
     // If We've Found One, Go There
@@ -904,12 +888,12 @@ bool Boba_Respawn()
         AverageEnemyDirectionSamples = 0;
         VectorClear(AverageEnemyDirection);
 
-        Boba_Printf("Found Spawn Point (%d)", cp);
+        Boba_Println("Found Spawn Point ({})", cp);
         return true;
     }
 
     assert(0); // Yea, that's bad...
-    Boba_Printf("FAILED TO FIND SPAWN POINT");
+    Boba_Println("FAILED TO FIND SPAWN POINT");
     return false;
 }
 
@@ -950,10 +934,10 @@ void Boba_Update()
             if (g_bobaDebug->integer) {
                 bool nowSeen = Boba_CanSeeEnemy(NPC);
                 if (!wasSeen && nowSeen) {
-                    Boba_Printf("Enemy Seen");
+                    Boba_Println("Enemy Seen");
                 }
                 if (wasSeen && !nowSeen) {
-                    Boba_Printf("Enemy Lost");
+                    Boba_Println("Enemy Lost");
                 }
                 CG_DrawEdge(NPC->currentOrigin, NPC->enemy->currentOrigin, (nowSeen) ? (edgeType_t::EDGE_IMPACT_SAFE) : (edgeType_t::EDGE_IMPACT_POSSIBLE));
             }
@@ -962,7 +946,7 @@ void Boba_Update()
         if (!NPCInfo->surrenderTime) {
             if ((level.time - NPCInfo->enemyLastSeenTime) > 20000 && TIMER_Done(NPC, "TooLongGoneRespawn")) {
                 TIMER_Set(NPC, "TooLongGoneRespawn", 30000); // Give him some time to get to you before trying again
-                Boba_Printf("Gone Too Long, Attempting Respawn Even Though Not Hiding");
+                Boba_Println("Gone Too Long, Attempting Respawn Even Though Not Hiding");
                 Boba_Respawn();
             }
         }
@@ -972,12 +956,12 @@ void Boba_Update()
     //--------------------------------------------------------------------------------------------------
     if (!BobaHadDeathScript && NPC->behaviorSet[bSet_t::BSET_DEATH] != nullptr) {
         if (!gi.inPVS(NPC->enemy->currentOrigin, NPC->currentOrigin)) {
-            Boba_Printf("Attempting Final Battle Spawn...");
+            Boba_Println("Attempting Final Battle Spawn...");
             if (Boba_Respawn()) {
                 BobaHadDeathScript = true;
             }
             else {
-                Boba_Printf("Failed");
+                Boba_Println("Failed");
             }
         }
     }
@@ -997,7 +981,7 @@ void Boba_Update()
     // If Hurting, Try To Run Away
     //-----------------------------
     if (!NPCInfo->surrenderTime && (NPC->health < NPC->max_health / 10)) {
-        Boba_Printf("Time To Surrender, Searching For Flee Point");
+        Boba_Println("Time To Surrender, Searching For Flee Point");
 
         // Find The Closest Flee Point That I Can Get To
         //-----------------------------------------------
@@ -1016,7 +1000,7 @@ void Boba_Update()
             }
         }
         else {
-            Boba_Printf("  Failure");
+            Boba_Println("  Failure");
         }
     }
 }
@@ -1036,7 +1020,7 @@ bool Boba_Flee()
         NPC->svFlags |= svFlags_t::SVF_NOCLIENT;
         if (HasBeenGoneEnough) {
             if ((level.time - NPCInfo->enemyLastSeenTime) > 400000) {
-                Boba_Printf("  Gone Too Long, Attempting Respawn");
+                Boba_Println("  Gone Too Long, Attempting Respawn");
             }
 
             if (Boba_Respawn()) {
@@ -1049,12 +1033,12 @@ bool Boba_Flee()
                 TIMER_Set(NPC, "SpookPlayerTimer", Q_irand(2000, 10000));
                 switch (Q_irand(0, 1)) {
                 case 0:
-                    Boba_Printf("SPOOK: Dust");
+                    Boba_Println("SPOOK: Dust");
                     Boba_DustFallNear(NPC->enemy->currentOrigin, Q_irand(1, 2));
                     break;
 
                 case 1:
-                    Boba_Printf("SPOOK: Footsteps");
+                    Boba_Println("SPOOK: Footsteps");
                     testDirection[0] = (Q_flrand(0.0f, 1.0f) * 0.5f) - 1.0f;
                     testDirection[0] += (testDirection[0] > 0.0f) ? (0.5f) : (-0.5f);
                     testDirection[1] = (Q_flrand(0.0f, 1.0f) * 0.5f) - 1.0f;
@@ -1070,7 +1054,7 @@ bool Boba_Flee()
             if (BobaFootStepCount && TIMER_Done(NPC, "BobaFootStepFakeTimer")) {
                 TIMER_Set(NPC, "BobaFootStepFakeTimer", Q_irand(300, 800));
                 BobaFootStepCount--;
-                G_SoundAtSpot(BobaFootStepLoc, G_SoundIndex(va("sound/player/footsteps/boot%d", Q_irand(1, 4))), true);
+                G_SoundAtSpot(BobaFootStepLoc, G_SoundIndex(Q_Format("sound/player/footsteps/boot{}", Q_irand(1, 4)).c_str()), true);
             }
 
             if (TIMER_Done(NPC, "ResampleEnemyDirection") && NPC->enemy->resultspeed > 10.0f) {
@@ -1108,24 +1092,24 @@ bool Boba_Flee()
     if (!ReachedEscapePoint && Any(NPCInfo->aiFlags & npcAiFlags_t::NPCAI_BLOCKED) && NPC->client->moveType != movetype_t::MT_FLYSWIM &&
         ((level.time - NPCInfo->blockedDebounceTime) > 1000)) {
         if (!Boba_CanSeeEnemy(NPC) && Distance(NPC->currentOrigin, level.combatPoints[NPCInfo->combatPoint].origin) < 200) {
-            Boba_Printf("BLOCKED: Just Teleporting There");
+            Boba_Println("BLOCKED: Just Teleporting There");
             G_SetOrigin(NPC, level.combatPoints[NPCInfo->combatPoint].origin);
         }
         else {
-            Boba_Printf("BLOCKED: Attempting Jump");
+            Boba_Println("BLOCKED: Attempting Jump");
 
             if (IsOnAPath) {
                 if (NPC_TryJump(NPCInfo->blockedTargetPosition)) {
                 }
                 else {
-                    Boba_Printf("  Failed");
+                    Boba_Println("  Failed");
                 }
             }
             else if (EnemyRecentlySeen) {
                 if (NPC_TryJump(NPCInfo->enemyLastSeenLocation)) {
                 }
                 else {
-                    Boba_Printf("  Failed");
+                    Boba_Println("  Failed");
                 }
             }
         }

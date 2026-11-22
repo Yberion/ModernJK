@@ -80,12 +80,12 @@ bool ReadNumber(source_t* source, fielddef_t* fd, void* p)
     // check for minus sign
     if (token.type == tokenType_t::TT_PUNCTUATION) {
         if (Any(fd->type & fieldTypeFlags_t::FT_UNSIGNED)) {
-            SourceError(source, "expected unsigned value, found %s", token.string);
+            SourceError(source, "expected unsigned value, found {}", token.string);
             return 0;
         } // end if
         // if not a minus sign
         if (strcmp(token.string, "-")) {
-            SourceError(source, "unexpected punctuation %s", token.string);
+            SourceError(source, "unexpected punctuation {}", token.string);
             return 0;
         } // end if
         negative = true;
@@ -95,7 +95,7 @@ bool ReadNumber(source_t* source, fielddef_t* fd, void* p)
     } // end if
     // check if it is a number
     if (token.type != tokenType_t::TT_NUMBER) {
-        SourceError(source, "expected number, found %s", token.string);
+        SourceError(source, "expected number, found {}", token.string);
         return 0;
     } // end if
     // check for a float value
@@ -109,7 +109,7 @@ bool ReadNumber(source_t* source, fielddef_t* fd, void* p)
             floatval = -floatval;
         if (Any(fd->type & fieldTypeFlags_t::FT_BOUNDED)) {
             if (floatval < fd->floatmin || floatval > fd->floatmax) {
-                SourceError(source, "float out of range [%f, %f]", fd->floatmin, fd->floatmax);
+                SourceError(source, "float out of range [{:f}, {:f}]", fd->floatmin, fd->floatmax);
                 return 0;
             } // end if
         } // end if
@@ -147,14 +147,14 @@ bool ReadNumber(source_t* source, fielddef_t* fd, void* p)
             intmax = Minimum(intmax, fd->floatmax);
         } // end if
         if (intval < intmin || intval > intmax) {
-            SourceError(source, "value %ld out of range [%ld, %ld]", intval, intmin, intmax);
+            SourceError(source, "value {} out of range [{}, {}]", intval, intmin, intmax);
             return 0;
         } // end if
     } // end if
     else if ((fd->type & fieldTypeFlags_t::FT_TYPE) == fieldTypeFlags_t::FT_FLOAT) {
         if (Any(fd->type & fieldTypeFlags_t::FT_BOUNDED)) {
             if (intval < fd->floatmin || intval > fd->floatmax) {
-                SourceError(source, "value %ld out of range [%f, %f]", intval, fd->floatmin, fd->floatmax);
+                SourceError(source, "value {} out of range [{:f}, {:f}]", intval, fd->floatmin, fd->floatmax);
                 return 0;
             } // end if
         } // end if
@@ -245,7 +245,7 @@ int ReadStructure(source_t* source, structdef_t* def, char* structure)
         // find the field with the name
         fd = FindField(def->fields, token.string);
         if (!fd) {
-            SourceError(source, "unknown structure field %s", token.string);
+            SourceError(source, "unknown structure field {}", token.string);
             return false;
         } // end if
         if (Any(fd->type & fieldTypeFlags_t::FT_ARRAY)) {
@@ -305,7 +305,7 @@ int ReadStructure(source_t* source, structdef_t* def, char* structure)
                 if (!strcmp(token.string, "}"))
                     break;
                 if (strcmp(token.string, ",")) {
-                    SourceError(source, "expected a comma, found %s", token.string);
+                    SourceError(source, "expected a comma, found {}", token.string);
                     return false;
                 } // end if
             } // end if
@@ -322,7 +322,7 @@ int ReadStructure(source_t* source, structdef_t* def, char* structure)
 int WriteIndent(FILE* fp, int indent)
 {
     while (indent-- > 0) {
-        if (fprintf(fp, "\t") < 0)
+        if (!Q_FilePrint(fp, "\t"))
             return false;
     } // end while
     return true;
@@ -338,7 +338,7 @@ int WriteFloat(FILE* fp, float value)
     char buf[128];
     int l;
 
-    Com_sprintf(buf, sizeof(buf), "%f", value);
+    Q_FormatTo(buf, "{:f}", value);
     l = strlen(buf);
     // strip any trailing zeros
     while (l-- > 1) {
@@ -351,7 +351,7 @@ int WriteFloat(FILE* fp, float value)
         buf[l] = 0;
     } // end while
     // write the float to file
-    if (fprintf(fp, "%s", buf) < 0)
+    if (!Q_FilePrint(fp, "{}", buf))
         return 0;
     return 1;
 } // end of the function WriteFloat
@@ -369,7 +369,7 @@ int WriteStructWithIndent(FILE* fp, structdef_t* def, char* structure, int inden
 
     if (!WriteIndent(fp, indent))
         return false;
-    if (fprintf(fp, "{\r\n") < 0)
+    if (!Q_FilePrintln(fp, "{{\r"))
         return false;
 
     indent++;
@@ -377,12 +377,12 @@ int WriteStructWithIndent(FILE* fp, structdef_t* def, char* structure, int inden
         fd = &def->fields[i];
         if (!WriteIndent(fp, indent))
             return false;
-        if (fprintf(fp, "%s\t", fd->name) < 0)
+        if (!Q_FilePrint(fp, "{}\t", fd->name))
             return false;
         p = (void*)(structure + fd->offset);
         if (Any(fd->type & fieldTypeFlags_t::FT_ARRAY)) {
             num = fd->maxarray;
-            if (fprintf(fp, "{") < 0)
+            if (!Q_FilePrint(fp, "{{"))
                 return false;
         } // end if
         else {
@@ -391,13 +391,13 @@ int WriteStructWithIndent(FILE* fp, structdef_t* def, char* structure, int inden
         while (num-- > 0) {
             switch (fd->type & fieldTypeFlags_t::FT_TYPE) {
             case fieldTypeFlags_t::FT_CHAR: {
-                if (fprintf(fp, "%d", *(char*)p) < 0)
+                if (!Q_FilePrint(fp, "{}", *(char*)p))
                     return false;
                 p = (char*)p + sizeof(char);
                 break;
             } // end case
             case fieldTypeFlags_t::FT_INT: {
-                if (fprintf(fp, "%d", *(int*)p) < 0)
+                if (!Q_FilePrint(fp, "{}", *(int*)p))
                     return false;
                 p = (char*)p + sizeof(int);
                 break;
@@ -409,7 +409,7 @@ int WriteStructWithIndent(FILE* fp, structdef_t* def, char* structure, int inden
                 break;
             } // end case
             case fieldTypeFlags_t::FT_STRING: {
-                if (fprintf(fp, "\"%s\"", (char*)p) < 0)
+                if (!Q_FilePrint(fp, "\"{}\"", (char*)p))
                     return false;
                 p = (char*)p + MAX_STRINGFIELD;
                 break;
@@ -425,23 +425,23 @@ int WriteStructWithIndent(FILE* fp, structdef_t* def, char* structure, int inden
             } // end switch
             if (Any(fd->type & fieldTypeFlags_t::FT_ARRAY)) {
                 if (num > 0) {
-                    if (fprintf(fp, ",") < 0)
+                    if (!Q_FilePrint(fp, ","))
                         return false;
                 } // end if
                 else {
-                    if (fprintf(fp, "}") < 0)
+                    if (!Q_FilePrint(fp, "}}"))
                         return false;
                 } // end else
             } // end if
         } // end while
-        if (fprintf(fp, "\r\n") < 0)
+        if (!Q_FilePrintln(fp, "\r"))
             return false;
     } // end for
     indent--;
 
     if (!WriteIndent(fp, indent))
         return false;
-    if (fprintf(fp, "}\r\n") < 0)
+    if (!Q_FilePrintln(fp, "}}\r"))
         return false;
     return true;
 } // end of the function WriteStructWithIndent

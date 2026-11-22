@@ -35,6 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Usage: netcodec_bench_codec <codec_trace.bin> [passes]
 #include <demo_trace.h>
 #include "legacy/legacy_codec.h"
+#include <fmt/base.h>
 #include <message_compare.h>
 
 #include <algorithm>
@@ -203,7 +204,7 @@ bool LegacyMatches(const legacy::SnapshotOut& o, const Snapshot& sn)
 int main(int argc, char** argv)
 {
     if (argc < 2) {
-        fprintf(stderr, "usage: %s codec_trace.bin [passes]\n", argv[0]);
+        fmt::println(stderr, "usage: {} codec_trace.bin [passes]", argv[0]);
         return 2;
     }
     const int passes = argc > 2 ? atoi(argv[2]) : 10;
@@ -224,7 +225,7 @@ int main(int argc, char** argv)
     // and with nothing shared, as OpenJK's server stores them (a control, not the server's path)
     const bool serverRuns = std::getenv("NETCODEC_BENCH_RUNS") != nullptr;
     if (serverRuns)
-        fprintf(stderr, "NETCODEC_BENCH_RUNS: the encoder's snapshots as runs, without the index\n");
+        fmt::println(stderr, "NETCODEC_BENCH_RUNS: the encoder's snapshots as runs, without the index");
     std::vector<std::unique_ptr<StreamRun>> runs;
     size_t nBench = 0, bytesNew = 0, bytesLegacy = 0, legacyBad = 0, newBad = 0;
     size_t entities = 0, stored = 0;
@@ -343,10 +344,10 @@ int main(int argc, char** argv)
         }
         runs.push_back(std::move(run));
     }
-    printf("messages benchmarked: %zu (commands and snapshots only); netcodec mismatches %zu, legacy round-trip failures %zu\n", nBench, newBad, legacyBad);
+    fmt::println("messages benchmarked: {} (commands and snapshots only); netcodec mismatches {}, legacy round-trip failures {}", nBench, newBad, legacyBad);
 
-    printf("the server's states: %zu stored for %zu entities in the snapshots (%.1f %%)\n", stored, entities,
-           100.0 * static_cast<double>(stored) / static_cast<double>(std::max<size_t>(entities, 1)));
+    fmt::println("the server's states: {} stored for {} entities in the snapshots ({:.1f} %)", stored, entities,
+                 100.0 * static_cast<double>(stored) / static_cast<double>(std::max<size_t>(entities, 1)));
     volatile size_t sink = 0;
     const double tEncNew = Best(passes, [&] {
         size_t acc = 0;
@@ -433,13 +434,13 @@ int main(int argc, char** argv)
     });
 
     const double n = static_cast<double>(nBench);
-    printf("bytes per message: netcodec %.1f, legacy %.1f (ratio %.3f)\n", static_cast<double>(bytesNew) / n, static_cast<double>(bytesLegacy) / n,
-           static_cast<double>(bytesNew) / static_cast<double>(bytesLegacy));
-    printf("  %-22s %9.1f ns/message  warm %9.1f\n", "encode netcodec", tEncNew / n, wEncNew / n);
-    printf("  %-22s %9.1f ns/message  warm %9.1f\n", "encode legacy", tEncLegacy / n, wEncLegacy / n);
-    printf("  %-22s %9.1f ns/message  warm %9.1f\n", "decode netcodec", tDecNew / n, wDecNew / n);
-    printf("  %-22s %9.1f ns/message  warm %9.1f\n", "decode legacy", tDecLegacy / n, wDecLegacy / n);
-    printf("  netcodec / legacy: encode cold %.3f warm %.3f, decode cold %.3f warm %.3f\n", tEncNew / tEncLegacy, wEncNew / wEncLegacy, tDecNew / tDecLegacy,
-           wDecNew / wDecLegacy);
+    fmt::println("bytes per message: netcodec {:.1f}, legacy {:.1f} (ratio {:.3f})", static_cast<double>(bytesNew) / n, static_cast<double>(bytesLegacy) / n,
+                 static_cast<double>(bytesNew) / static_cast<double>(bytesLegacy));
+    fmt::println("  {:22} {:9.1f} ns/message  warm {:9.1f}", "encode netcodec", tEncNew / n, wEncNew / n);
+    fmt::println("  {:22} {:9.1f} ns/message  warm {:9.1f}", "encode legacy", tEncLegacy / n, wEncLegacy / n);
+    fmt::println("  {:22} {:9.1f} ns/message  warm {:9.1f}", "decode netcodec", tDecNew / n, wDecNew / n);
+    fmt::println("  {:22} {:9.1f} ns/message  warm {:9.1f}", "decode legacy", tDecLegacy / n, wDecLegacy / n);
+    fmt::println("  netcodec / legacy: encode cold {:.3f} warm {:.3f}, decode cold {:.3f} warm {:.3f}", tEncNew / tEncLegacy, wEncNew / wEncLegacy,
+                 tDecNew / tDecLegacy, wDecNew / wDecLegacy);
     return newBad != 0 || legacyBad != 0 ? 1 : 0;
 }

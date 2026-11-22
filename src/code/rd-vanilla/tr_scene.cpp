@@ -133,7 +133,7 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts)
 
     if (!hShader) {
 #ifndef FINAL_BUILD
-        Com_DPrintf(S_COLOR_YELLOW "WARNING: RE_AddPolyToScene: NULL poly shader\n");
+        Q_DPrintln(S_COLOR_YELLOW "WARNING: RE_AddPolyToScene: NULL poly shader");
 #endif
         return;
     }
@@ -145,7 +145,7 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts)
         since we don't plan on changing the const and making for room for those effects
         simply cut this message to developer only
         */
-        Com_DPrintf(S_COLOR_YELLOW "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
+        Q_DPrintln(S_COLOR_YELLOW "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached");
         return;
     }
 
@@ -209,12 +209,12 @@ void RE_AddRefEntityToScene(const refEntity_t* ent)
     }
     if (r_numentities >= MAX_REFENTITIES) {
 #ifndef FINAL_BUILD
-        Com_Warning("RE_AddRefEntityToScene: too many entities\n");
+        Q_PrintlnWarning("RE_AddRefEntityToScene: too many entities");
 #endif
         return;
     }
     if (to_underlying(ent->reType) < 0 || ent->reType >= refEntityType_t::RT_MAX_REF_ENTITY_TYPE) {
-        Com_Error(errorParm_t::ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", to_underlying(ent->reType));
+        Q_Error(errorParm_t::ERR_DROP, "RE_AddRefEntityToScene: bad reType {}", to_underlying(ent->reType));
     }
 
     backEndData->entities[r_numentities].e = *ent;
@@ -280,7 +280,7 @@ void RE_RenderScene(const refdef_t* fd)
     startTime = ri.Milliseconds();
 
     if (!tr.world && !Any(fd->rdflags & refdefFlags_t::RDF_NOWORLDMODEL)) {
-        Com_Error(errorParm_t::ERR_DROP, "R_RenderScene: NULL worldmodel");
+        Q_Error(errorParm_t::ERR_DROP, "R_RenderScene: NULL worldmodel");
     }
 
     //	memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );

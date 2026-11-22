@@ -38,6 +38,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #error "build with _GAME or _CGAME"
 #endif
 
+#include <fmt/base.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -193,17 +194,18 @@ static contentsFlags_t World_Contents(const vec3_t point, int passEntityNum)
 static int harnessTime;
 
 // where the bg code's messages and errors go (q_fmt.h): the messages dropped, an error ends the test
-void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
+void Q_VPrint(printLevel_t level, lineEnd_t end, fmt::string_view fmt, fmt::format_args args)
 {
     (void)level;
+    (void)end;
     (void)fmt;
     (void)args;
 }
-void Com_VError(errorParm_t code, const char* fmt, va_list args)
+void Q_VError(errorParm_t code, fmt::string_view fmt, fmt::format_args args)
 {
     (void)code;
     (void)args;
-    fprintf(stderr, "Com_Error: %s\n", fmt);
+    fmt::println(stderr, "Com_Error: {}", fmt);
     exit(2);
 }
 
@@ -507,17 +509,17 @@ static void Run(int scenario, int mode, int commands, FILE* dump)
         moveHash = MoveHash(moveHash, &ps);
         fullHash = Fnv(fullHash, &ps, sizeof(ps));
         if (dump)
-            fprintf(dump, "%d %d %d %08X %08X %08X %08X %08X %08X %08X %08X %08X %d %d %d\n", scenario, mode, i, Bits(ps.origin[0]), Bits(ps.origin[1]),
-                    Bits(ps.origin[2]), Bits(ps.velocity[0]), Bits(ps.velocity[1]), Bits(ps.velocity[2]), Bits(ps.viewangles[0]), Bits(ps.viewangles[1]),
-                    Bits(ps.viewangles[2]), ps.groundEntityNum, to_underlying(ps.pm_flags), ps.pm_time);
+            fmt::println(dump, "{} {} {} {:08X} {:08X} {:08X} {:08X} {:08X} {:08X} {:08X} {:08X} {:08X} {} {} {}", scenario, mode, i, Bits(ps.origin[0]),
+                         Bits(ps.origin[1]), Bits(ps.origin[2]), Bits(ps.velocity[0]), Bits(ps.velocity[1]), Bits(ps.velocity[2]), Bits(ps.viewangles[0]),
+                         Bits(ps.viewangles[1]), Bits(ps.viewangles[2]), ps.groundEntityNum, to_underlying(ps.pm_flags), ps.pm_time);
     }
-    printf("scenario %d (%s) %s: move %016llX full %016llX origin %08X %08X %08X velocity %08X %08X %08X\n", scenario,
-           scenario == 0   ? "125 fps"
-           : scenario == 1 ? "333 fps"
-           : scenario == 2 ? "60 fps"
-                           : "random 3-20 ms",
-           kModeNames[mode], (unsigned long long)moveHash, (unsigned long long)fullHash, Bits(ps.origin[0]), Bits(ps.origin[1]), Bits(ps.origin[2]),
-           Bits(ps.velocity[0]), Bits(ps.velocity[1]), Bits(ps.velocity[2]));
+    fmt::println("scenario {} ({}) {}: move {:016X} full {:016X} origin {:08X} {:08X} {:08X} velocity {:08X} {:08X} {:08X}", scenario,
+                 scenario == 0   ? "125 fps"
+                 : scenario == 1 ? "333 fps"
+                 : scenario == 2 ? "60 fps"
+                                 : "random 3-20 ms",
+                 kModeNames[mode], (unsigned long long)moveHash, (unsigned long long)fullHash, Bits(ps.origin[0]), Bits(ps.origin[1]), Bits(ps.origin[2]),
+                 Bits(ps.velocity[0]), Bits(ps.velocity[1]), Bits(ps.velocity[2]));
 }
 
 int main(int argc, char** argv)
@@ -539,14 +541,14 @@ int main(int argc, char** argv)
     }
     bgAllAnims[0].anims = &anims;
     BuildWorld();
-    printf("pmove determinism (%s build), %d commands per run\n",
+    fmt::println("pmove determinism ({} build), {} commands per run",
 #if defined(_GAME)
-           "game"
+                 "game"
 #else
-           "cgame"
+                 "cgame"
 #endif
-           ,
-           commands);
+                 ,
+                 commands);
     for (s = 0; s < 4; s++) {
         Run(s, 1, commands, dump);
     }

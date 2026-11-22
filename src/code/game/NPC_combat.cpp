@@ -1446,9 +1446,9 @@ gentity_t* NPC_PickEnemy(gentity_t* closestTo, team_t enemyTeam, bool checkVis, 
                                                 failed = true;
                                             }
                                             else {
-                                                Debug_Printf(debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_INFO,
-                                                             "%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n", NPC->targetname,
-                                                             newenemy->targetname, vtos(newenemy->client->hiddenDir), vtos(diff), dot);
+                                                Debug_Println(debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_INFO,
+                                                              "{} saw {} trying to hide - hiddenDir {} targetDir {} dot {:f}", NPC->targetname,
+                                                              newenemy->targetname, vtos(newenemy->client->hiddenDir), vtos(diff), dot);
                                             }
                                         }
                                         else {
@@ -1456,8 +1456,8 @@ gentity_t* NPC_PickEnemy(gentity_t* closestTo, team_t enemyTeam, bool checkVis, 
                                         }
                                     }
                                     else {
-                                        Debug_Printf(debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDist %f\n",
-                                                     NPC->targetname, newenemy->targetname, newenemy->client->hiddenDist);
+                                        Debug_Println(debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_INFO, "{} saw {} trying to hide - hiddenDist {:f}",
+                                                      NPC->targetname, newenemy->targetname, newenemy->client->hiddenDist);
                                     }
                                 }
 
@@ -1563,9 +1563,9 @@ gentity_t* NPC_PickEnemy(gentity_t* closestTo, team_t enemyTeam, bool checkVis, 
                                         continue;
                                     }
                                     else {
-                                        Debug_Printf(debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_INFO,
-                                                     "%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n", NPC->targetname, newenemy->targetname,
-                                                     vtos(newenemy->client->hiddenDir), vtos(diff), dot);
+                                        Debug_Println(debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_INFO,
+                                                      "{} saw {} trying to hide - hiddenDir {} targetDir {} dot {:f}", NPC->targetname, newenemy->targetname,
+                                                      vtos(newenemy->client->hiddenDir), vtos(diff), dot);
                                     }
                                 }
                                 else {
@@ -1573,8 +1573,8 @@ gentity_t* NPC_PickEnemy(gentity_t* closestTo, team_t enemyTeam, bool checkVis, 
                                 }
                             }
                             else {
-                                Debug_Printf(debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDist %f\n", NPC->targetname,
-                                             newenemy->targetname, newenemy->client->hiddenDist);
+                                Debug_Println(debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_INFO, "{} saw {} trying to hide - hiddenDist {:f}", NPC->targetname,
+                                              newenemy->targetname, newenemy->client->hiddenDist);
                             }
                         }
 
@@ -2270,7 +2270,7 @@ void SP_point_combat(gentity_t* self)
 {
     if (level.numCombatPoints >= MAX_COMBAT_POINTS) {
 #ifndef FINAL_BUILD
-        Com_PrintError("Too many combat points, limit is %d\n", MAX_COMBAT_POINTS);
+        Q_PrintlnError("Too many combat points, limit is {}", MAX_COMBAT_POINTS);
 #endif
         G_FreeEntity(self);
         return;
@@ -2282,7 +2282,7 @@ void SP_point_combat(gentity_t* self)
 
     if (G_CheckInSolid(self, true)) {
 #ifndef FINAL_BUILD
-        Com_PrintError("combat point at %s in solid!\n", vtos(self->currentOrigin));
+        Q_PrintlnError("combat point at {} in solid!", vtos(self->currentOrigin));
 #endif
     }
 
@@ -2305,7 +2305,7 @@ void CP_FindCombatPointWaypoints(void)
         if (level.combatPoints[i].waypoint == WAYPOINT_NONE) {
             assert(0);
             level.combatPoints[i].waypoint = NAV::GetNearestNode(level.combatPoints[i].origin);
-            Com_PrintError("Combat Point at %s has no waypoint!\n", vtos(level.combatPoints[i].origin));
+            Q_PrintlnError("Combat Point at {} has no waypoint!", vtos(level.combatPoints[i].origin));
             delayedShutDown = level.time + 100;
         }
     }
@@ -2825,7 +2825,7 @@ void NPC_AimAdjust(int change)
             NPCInfo->currentAim = -30;
         }
 
-        // Com_Printf( "%s new aim = %d\n", NPC->NPC_type, NPCInfo->currentAim );
+        // Q_Println("{} new aim = {}", NPC->NPC_type, NPCInfo->currentAim);
 
         int debounce = 500 + (3 - g_spskill->integer) * 100;
         TIMER_Set(NPC, "aimDebounce", Q_irand(debounce, debounce + 1000));
@@ -2838,7 +2838,7 @@ void G_AimSet(gentity_t* self, int aim)
 {
     if (self->NPC) {
         self->NPC->currentAim = aim;
-        // Com_Printf( "%s new aim = %d\n", self->NPC_type, self->NPC->currentAim );
+        // Q_Println("{} new aim = {}", self->NPC_type, self->NPC->currentAim);
 
         int debounce = 500 + (3 - g_spskill->integer) * 100;
         TIMER_Set(self, "aimDebounce", Q_irand(debounce, debounce + 1000));

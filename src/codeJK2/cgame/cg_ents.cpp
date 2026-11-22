@@ -780,7 +780,7 @@ static void CG_Item(centity_t* cent)
 
     es = &cent->currentState;
     if (es->modelindex >= bg_numItems) {
-        Com_Error(errorParm_t::ERR_DROP, "Bad item index %i on entity", es->modelindex);
+        Q_Error(errorParm_t::ERR_DROP, "Bad item index {} on entity", es->modelindex);
     }
     /*
     Ghoul2 Insert Start
@@ -1389,7 +1389,7 @@ void CG_CalcEntityLerpPositions(centity_t* cent)
         // it would be an internal error to find an entity that interpolates without
         // a snapshot ahead of the current one
         if (cg.nextSnap == nullptr) {
-            Com_Error(errorParm_t::ERR_DROP, "CG_AddCEntity: cg.nextSnap == NULL");
+            Q_Error(errorParm_t::ERR_DROP, "CG_AddCEntity: cg.nextSnap == NULL");
         }
 
         f = cg.frameInterpolation;
@@ -1405,7 +1405,7 @@ void CG_CalcEntityLerpPositions(centity_t* cent)
             /*
             if(cent->gent && Any( cent->currentState.eFlags & entityFlags_t::EF_NPC ) && !VectorCompare(current, next))
             {
-                Com_Printf("%s last/next/lerp apos %s/%s/%s, f = %4.2f\n", cent->gent->script_targetname, vtos(current), vtos(next), vtos(cent->lerpAngles), f);
+                Q_Println("{} last/next/lerp apos {}/{}/{}, f = {:4.2f}", cent->gent->script_targetname, vtos(current), vtos(next), vtos(cent->lerpAngles), f);
             }
             */
             /*
@@ -1435,7 +1435,7 @@ void CG_CalcEntityLerpPositions(centity_t* cent)
             /*
             if ( cent->gent && Any( cent->currentState.eFlags & entityFlags_t::EF_NPC ) )
             {
-                Com_Printf("%s last/next/lerp pos %s/%s/%s, f = %4.2f\n", cent->gent->script_targetname, vtos(current), vtos(next), vtos(cent->lerpOrigin), f);
+                Q_Println("{} last/next/lerp pos {}/{}/{}, f = {:4.2f}", cent->gent->script_targetname, vtos(current), vtos(next), vtos(cent->lerpOrigin), f);
             }
             */
             return; // FIXME: should this be outside this if?
@@ -1450,7 +1450,7 @@ void CG_CalcEntityLerpPositions(centity_t* cent)
             /*
             if(cent->gent && Any( cent->currentState.eFlags & entityFlags_t::EF_NPC ) )
             {
-                Com_Printf("%s last/next/lerp pos %s, f = 1.0\n", cent->gent->script_targetname, vtos(cent->lerpOrigin) );
+                Q_Println("{} last/next/lerp pos {}, f = 1.0", cent->gent->script_targetname, vtos(cent->lerpOrigin));
             }
             */
             return;
@@ -1509,18 +1509,21 @@ void CG_CalcEntityLerpPositions(centity_t* cent)
         // if the player, take position from prediction
         VectorCopy(cg.predicted_player_state.origin, cent->lerpOrigin);
         VectorCopy(cg.predicted_player_state.viewangles, cent->lerpAngles);
-        OutputDebugString(va("b=(%6.2f,%6.2f,%6.2f)\n", cent->lerpOrigin[0], cent->lerpOrigin[1], cent->lerpOrigin[2]));
+        OutputDebugString(Q_Format("b=({:6.2f},{:6.2f},{:6.2f})\n", cent->lerpOrigin[0], cent->lerpOrigin[1], cent->lerpOrigin[2]).c_str());
         return;
     }
 
     if (cent->currentState.number != cg.snap->ps.clientNum && cent->interpolate && cent->currentState.pos.trType == trType_t::TR_INTERPOLATE) {
         if (cent->interpolate) {
-            OutputDebugString(va("[%3d] interp %4.2f t=%6d  st = %6d  nst = %6d     b=%6.2f   nb=%6.2f\n", cent->currentState.number, cg.frameInterpolation,
-                                 cg.time, cg.snap->serverTime, cg.nextSnap->serverTime, cent->currentState.pos.trBase[0], cent->nextState.pos.trBase[0]));
+            OutputDebugString(Q_Format("[{:3}] interp {:4.2f} t={:6}  st = {:6}  nst = {:6}     b={:6.2f}   nb={:6.2f}\n", cent->currentState.number,
+                                       cg.frameInterpolation, cg.time, cg.snap->serverTime, cg.nextSnap->serverTime, cent->currentState.pos.trBase[0],
+                                       cent->nextState.pos.trBase[0])
+                                  .c_str());
         }
         else {
-            OutputDebugString(va("[%3d] nonext %4.2f t=%6d  st = %6d  nst = %6d     b=%6.2f   nb=%6.2f\n", cent->currentState.number, cg.frameInterpolation,
-                                 cg.time, cg.snap->serverTime, 0, cent->currentState.pos.trBase[0], 0.0f));
+            OutputDebugString(Q_Format("[{:3}] nonext {:4.2f} t={:6}  st = {:6}  nst = {:6}     b={:6.2f}   nb={:6.2f}\n", cent->currentState.number,
+                                       cg.frameInterpolation, cg.time, cg.snap->serverTime, 0, cent->currentState.pos.trBase[0], 0.0f)
+                                  .c_str());
         }
     }
 
@@ -1533,7 +1536,7 @@ void CG_CalcEntityLerpPositions(centity_t* cent)
         // it would be an internal error to find an entity that interpolates without
         // a snapshot ahead of the current one
         if (cg.nextSnap == nullptr) {
-            Com_Error(errorParm_t::ERR_DROP, "CG_AddCEntity: cg.nextSnap == NULL");
+            Q_Error(errorParm_t::ERR_DROP, "CG_AddCEntity: cg.nextSnap == NULL");
         }
 
         f = cg.frameInterpolation;
@@ -1797,7 +1800,7 @@ void CG_MatrixEffect(centity_t* cent)
         if (timescale < 0.01f) {
             timescale = 0.01f;
         }
-        cgi_Cvar_Set("timescale", va("%4.2f", timescale));
+        cgi_Cvar_Set("timescale", Q_Format("{:4.2f}", timescale).c_str());
 
         // pitch
         // dip - FIXME: use pitchOffet?
@@ -1916,7 +1919,7 @@ static void CG_AddCEntity(centity_t* cent)
 
     switch (cent->currentState.eType) {
     default:
-        Com_Error(errorParm_t::ERR_DROP, "Bad entity type: %i\n", to_underlying(cent->currentState.eType));
+        Q_Error(errorParm_t::ERR_DROP, "Bad entity type: {}", to_underlying(cent->currentState.eType));
         break;
     case entityType_t::ET_INVISIBLE:
     case entityType_t::ET_PUSH_TRIGGER:
@@ -1982,12 +1985,14 @@ void CG_AddPacketEntities(void)
         else {
             cg.frameInterpolation = (float)(cg.time - cg.snap->serverTime) / delta;
         }
-        // OutputDebugString(va("interp %4.2f ct=%6d nt=%6d st=%6d\n",cg.frameInterpolation,cg.time,cg.nextSnap->serverTime,cg.snap->serverTime));
+        // OutputDebugString(Q_Format("interp {:4.2f} ct={:6} nt={:6} st={:6}\n", cg.frameInterpolation, cg.time, cg.nextSnap->serverTime,
+        // cg.snap->serverTime).c_str());
     }
     else {
-        cg.frameInterpolation = 0; // actually, it should never be used, because
-                                   // no entities should be marked as interpolating
-                                   // OutputDebugString(va("noterp %4.2f ct=%6d nt=%6d st=%6d\n",cg.frameInterpolation,cg.time,0,cg.snap->serverTime));
+        cg.frameInterpolation =
+            0; // actually, it should never be used, because
+               // no entities should be marked as interpolating
+               // OutputDebugString(Q_Format("noterp {:4.2f} ct={:6} nt={:6} st={:6}\n", cg.frameInterpolation, cg.time, 0, cg.snap->serverTime).c_str());
     }
 
     // the auto-rotating items will all have the same axis
@@ -2073,7 +2078,7 @@ void CG_ROFF_NotetrackCallback(centity_t* cent, const char* notetrack)
 
     if (strcmp(type, "effect") == 0) {
         if (!addlArgs) {
-            // sprintf(errMsg, "Offset position argument for 'effect' type is invalid.");
+            // Q_FormatTo(errMsg, "Offset position argument for 'effect' type is invalid.");
             // goto functionend;
             VectorClear(parsedOffset);
             goto defaultoffsetposition;
@@ -2091,7 +2096,7 @@ void CG_ROFF_NotetrackCallback(centity_t* cent, const char* notetrack)
             t[r] = '\0';
             i++;
             if (!r) { // failure..
-                // sprintf(errMsg, "Offset position argument for 'effect' type is invalid.");
+                // Q_FormatTo(errMsg, "Offset position argument for 'effect' type is invalid.");
                 // goto functionend;
                 VectorClear(parsedOffset);
                 i = 0;
@@ -2181,16 +2186,16 @@ void CG_ROFF_NotetrackCallback(centity_t* cent, const char* notetrack)
     // else if ...
     else {
         if (type[0]) {
-            Com_Warning("\"%s\" is an invalid ROFF notetrack function\n", type);
+            Q_PrintlnWarning("\"{}\" is an invalid ROFF notetrack function", type);
         }
         else {
-            Com_Warning("Notetrack is missing function and/or arguments\n");
+            Q_PrintlnWarning("Notetrack is missing function and/or arguments");
         }
     }
 
     return;
 
 functionend:
-    Com_Printf("^3Type-specific notetrack error: %s\n", errMsg);
+    Q_Println("^3Type-specific notetrack error: {}", errMsg);
     return;
 }

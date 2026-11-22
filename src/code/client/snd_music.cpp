@@ -131,7 +131,7 @@ template <typename... Tail> static std::string build_string(Tail... tail)
 static void Music_Parse_Error(gsl::czstring filename, const std::string& error)
 {
     std::string message = build_string(S_COLOR_RED "Error parsing music data (in \"", filename, "\"):\n", error, "\n");
-    Com_Printf("%s", message.c_str());
+    Q_Print("{}", message);
     MusicData->clear();
 }
 
@@ -141,7 +141,7 @@ static void Music_Parse_Warning(const std::string& error)
 {
     extern cvar_t* s_debugdynamic;
     if (s_debugdynamic && s_debugdynamic->integer) {
-        Com_Printf(S_COLOR_YELLOW "%s", error.c_str());
+        Q_Print(S_COLOR_YELLOW "{}", error);
     }
 }
 
@@ -160,7 +160,7 @@ static const char* Music_BuildFileName(const char* psFileNameBase, MusicState_e 
 
     const char* psDirName = (eMusicState == MusicState_e::eBGRNDTRACK_BOSS) ? gsLevelNameForBossLoad.c_str() : gsLevelNameForLoad.c_str();
 
-    sFileName = va("music/%s/%s.mp3", psDirName, psFileNameBase);
+    sFileName = Q_Format("music/{}/{}.mp3", psDirName, psFileNameBase).c_str();
     return sFileName.c_str();
 }
 
@@ -424,7 +424,7 @@ static bool Music_ParseLeveldata(gsl::czstring psLevelName)
                             //
                             searchName = pValue->GetTopValue();
                             steps++;
-                            //									Com_DPrintf("Using \"%s\"\n",sSearchName.c_str());
+                            //									Q_DPrintln("Using \"{}\"", sSearchName.c_str());
                         }
                         else {
                             // no new USE keyword found...
@@ -679,7 +679,7 @@ const char* Music_GetFileNameForState(MusicState_e eMusicState)
     default:
 #ifndef FINAL_BUILD
         assert(0); // duh....what state are they asking for?
-        Com_Printf(S_COLOR_RED "Music_GetFileNameForState( %d ) unhandled case!\n", to_underlying(eMusicState));
+        Q_Println(S_COLOR_RED "Music_GetFileNameForState( {} ) unhandled case!", to_underlying(eMusicState));
 #endif
         break;
     }
@@ -821,8 +821,8 @@ bool Music_AllowedToTransition(float fPlayingTimeElapsed, MusicState_e eMusicSta
                                 else {
 #ifndef FINAL_BUILD
                                     assert(0); // sanity, should have been caught elsewhere, but harmless to do this
-                                    Com_Printf(S_COLOR_RED "Music_AllowedToTransition() unable to find entry marker \"%s\" in \"%s\"",
-                                               ExitPoint.sNextMark.c_str(), MusicFile_Explore.sFileNameBase.c_str());
+                                    Q_Print(S_COLOR_RED "Music_AllowedToTransition() unable to find entry marker \"{}\" in \"{}\"", ExitPoint.sNextMark.c_str(),
+                                            MusicFile_Explore.sFileNameBase.c_str());
 #endif
                                     return false;
                                 }
@@ -830,8 +830,8 @@ bool Music_AllowedToTransition(float fPlayingTimeElapsed, MusicState_e eMusicSta
                             else {
 #ifndef FINAL_BUILD
                                 assert(0); // sanity, should have been caught elsewhere, but harmless to do this
-                                Com_Printf(S_COLOR_RED "Music_AllowedToTransition() unable to find %s version of \"%s\"\n",
-                                           Music_BaseStateToString(MusicState_e::eBGRNDTRACK_EXPLORE), pMusicFile->sFileNameBase.c_str());
+                                Q_Println(S_COLOR_RED "Music_AllowedToTransition() unable to find {} version of \"{}\"",
+                                          Music_BaseStateToString(MusicState_e::eBGRNDTRACK_EXPLORE), pMusicFile->sFileNameBase.c_str());
 #endif
                                 return false;
                             }
@@ -845,7 +845,7 @@ bool Music_AllowedToTransition(float fPlayingTimeElapsed, MusicState_e eMusicSta
                     default: {
 #ifndef FINAL_BUILD
                         assert(0);
-                        Com_Printf(S_COLOR_RED "Music_AllowedToTransition(): No code to transition from music type %d\n", to_underlying(eMusicState));
+                        Q_Println(S_COLOR_RED "Music_AllowedToTransition(): No code to transition from music type {}", to_underlying(eMusicState));
 #endif
                         return false;
                     } break;
@@ -854,8 +854,8 @@ bool Music_AllowedToTransition(float fPlayingTimeElapsed, MusicState_e eMusicSta
                 else {
 #ifndef FINAL_BUILD
                     assert(0);
-                    Com_Printf(S_COLOR_RED "Music_AllowedToTransition(): Illegal exit point %zu, max = %zu (music: \"%s\")\n", iExitPoint,
-                               pMusicFile->MusicExitPoints.size() - 1, pMusicFile->sFileNameBase.c_str());
+                    Q_Println(S_COLOR_RED "Music_AllowedToTransition(): Illegal exit point {}, max = {} (music: \"{}\")", iExitPoint,
+                              pMusicFile->MusicExitPoints.size() - 1, pMusicFile->sFileNameBase.c_str());
 #endif
                     return false;
                 }
@@ -905,7 +905,7 @@ float Music_GetRandomEntryTime(MusicState_e eMusicState)
             }
             iPrevRandomNumber = iRandomEntryNum;
 
-            //			OutputDebugString(va("Music_GetRandomEntryTime(): Entry %d\n",iRandomEntryNum));
+            //			OutputDebugString(Q_Format("Music_GetRandomEntryTime(): Entry {}\n", iRandomEntryNum).c_str());
 
             for (MusicEntryTimes_t::iterator itEntryTime = MusicFile.MusicEntryTimes.begin(); itEntryTime != MusicFile.MusicEntryTimes.end(); ++itEntryTime) {
                 if (!iRandomEntryNum--) {
@@ -922,10 +922,11 @@ float Music_GetRandomEntryTime(MusicState_e eMusicState)
 //
 const char* Music_GetLevelSetName(void)
 {
+    static formatText_t text; // the text returned, valid until the next call
     if (Q_stricmp(gsLevelNameForCompare.c_str(), gsLevelNameForLoad.c_str())) {
         // music remap via USES command...
         //
-        return va("%s -> %s", gsLevelNameForCompare.c_str(), gsLevelNameForLoad.c_str());
+        return (text = Q_Format("{} -> {}", gsLevelNameForCompare.c_str(), gsLevelNameForLoad.c_str())).c_str();
     }
 
     return gsLevelNameForLoad.c_str();

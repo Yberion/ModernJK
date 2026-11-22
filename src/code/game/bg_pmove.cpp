@@ -1768,7 +1768,7 @@ static bool PM_CheckJump(void)
                                     VectorCopy(fwd, fxDir);
                                     VectorScale(fxDir, -1, fxDir);
                                     G_PlayEffect(G_EffectIndex("melee/kick_impact"), trace.endpos, fxDir);
-                                    // G_Sound( traceEnt, G_SoundIndex( va("sound/weapons/melee/punch%d", Q_irand(1, 4)) ) );
+                                    // G_Sound( traceEnt, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str() ) );
                                     if (traceEnt->health > 0) { // didn't kill him
                                         if ((traceEnt->s.number == 0 && !Q_irand(0, g_spskill->integer)) ||
                                             (traceEnt->NPC != nullptr &&
@@ -2014,7 +2014,7 @@ static bool PM_CheckJump(void)
                                 //FIXME: need knockdown anim
                                 G_Damage( traceEnt, pm->gent, pm->gent, oppDir, traceEnt->currentOrigin, 10,
             damageFlags_t::DAMAGE_NO_ARMOR|damageFlags_t::DAMAGE_NO_HIT_LOC|damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE ); G_Sound( traceEnt,
-            G_SoundIndex( va("sound/weapons/melee/punch%d", Q_irand(1, 4)) ) ); if ( trace.fraction <= 0.5f )
+            G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str() ) ); if ( trace.fraction <= 0.5f )
                                 {//close to him
                                     if ( traceEnt->health > 0 )
                                     {//didn't kill him
@@ -2176,7 +2176,7 @@ static bool PM_CheckJump(void)
 
     if (d_JediAI->integer) {
         if (pm->ps->clientNum && pm->ps->weapon == weapon_t::WP_SABER) {
-            Com_Printf("jumping\n");
+            Q_Println("jumping");
         }
     }
     // Jumping
@@ -2440,7 +2440,7 @@ static void PM_FlyVehicleMove(void)
         // If The UCmds Were Set, But Never Converted Into A MoveDir, Then Make The WishDir From UCmds
         //--------------------------------------------------------------------------------------------
         if ((fmove != 0.0f || smove != 0.0f) && VectorCompare(pm->ps->moveDir, vec3_origin)) {
-            // Com_Printf("Generating MoveDir\n");
+            // Q_Println("Generating MoveDir");
             for (i = 0; i < 3; i++) {
                 wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove;
             }
@@ -2865,7 +2865,7 @@ static void PM_WalkMove(void)
         // If The UCmds Were Set, But Never Converted Into A MoveDir, Then Make The WishDir From UCmds
         //--------------------------------------------------------------------------------------------
         if ((fmove != 0.0f || smove != 0.0f) && VectorCompare(pm->ps->moveDir, vec3_origin)) {
-            // Com_Printf("Generating MoveDir\n");
+            // Q_Println("Generating MoveDir");
             for (i = 0; i < 3; i++) {
                 wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove;
             }
@@ -2949,8 +2949,8 @@ static void PM_WalkMove(void)
 
     PM_Accelerate(wishdir, wishspeed, accelerate);
 
-    // Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
-    // Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
+    // Q_Println("velocity = {:1.1f} {:1.1f} {:1.1f}", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
+    // Q_Println("velocity1 = {:1.1f}", VectorLength(pm->ps->velocity));
 
     if (Any(pml.groundTrace.surfaceFlags & surfaceFlags_t::SURF_SLICK) || Any(pm->ps->pm_flags & pmoveFlags_t::PMF_TIME_KNOCKBACK) ||
         Any(pm->ps->pm_flags & pmoveFlags_t::PMF_TIME_NOFRICTION)) {
@@ -2990,7 +2990,7 @@ static void PM_WalkMove(void)
         PM_StepSlideMove(0);
     }
 
-    // Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
+    // Q_Println("velocity2 = {:1.1f}", VectorLength(pm->ps->velocity));
 }
 
 /*
@@ -3572,7 +3572,7 @@ static void PM_CrashLand(void)
     if (pm->gent && pm->gent->client && pm->gent->client->NPC_class == class_t::CLASS_VEHICLE) {
         if (pm->gent->m_pVehicle->m_pVehicleInfo->type != vehicleType_t::VH_ANIMAL) {
             float dot = DotProduct(pm->ps->velocity, pml.groundTrace.plane.normal);
-            // Com_Printf("%i:crashland %4.2f\n", c_pmove, pm->ps->velocity[2]);
+            // Q_Println("{}:crashland {:4.2f}", c_pmove, pm->ps->velocity[2]);
             if (dot < -100.0f) {
                 // NOTE: never hits this anyway
                 if (pm->gent->m_pVehicle->m_pVehicleInfo->iImpactFX) { // make sparks
@@ -3756,12 +3756,12 @@ static void PM_CrashLand(void)
                             G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, "sound/player/fallsplat.wav");
                         }
                         else {
-                            G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, va("sound/player/bodyfall_human%d.wav", Q_irand(1, 3)));
+                            G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, Q_Format("sound/player/bodyfall_human{}.wav", Q_irand(1, 3)).c_str());
                         }
                     }
                 }
                 else {
-                    G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, va("sound/player/bodyfall_water%d.wav", Q_irand(1, 3)));
+                    G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, Q_Format("sound/player/bodyfall_water{}.wav", Q_irand(1, 3)).c_str());
                 }
                 if (gi.VoiceVolume[pm->ps->clientNum] && pm->gent->NPC &&
                     Any(pm->gent->NPC->aiFlags & npcAiFlags_t::NPCAI_DIE_ON_IMPACT)) { // I was talking, so cut it off... with a jump sound?
@@ -3895,7 +3895,7 @@ PM_CorrectAllSolid
 static void PM_CorrectAllSolid(void)
 {
     if (pm->debugLevel) {
-        Com_Printf("%i:allsolid\n", c_pmove); // NOTENOTE: If this ever happens, I'd really like to see this print!
+        Q_Println("{}:allsolid", c_pmove); // NOTENOTE: If this ever happens, I'd really like to see this print!
     }
 
     // FIXME: jitter around
@@ -4122,7 +4122,7 @@ static void PM_SetVehicleAngles(vec3_t normal)
                     vAngles[ROLL] -= side;
                 }
 
-                // Com_Printf("VAngles(%f)", vAngles[2]);
+                // Q_Print("VAngles({:f})", vAngles[2]);
             }
             if (Q_fabsf(vAngles[ROLL]) < 0.001f) {
                 vAngles[ROLL] = 0.0f;
@@ -4186,18 +4186,18 @@ static void PM_SetVehicleAngles(vec3_t normal)
             }
         }
     }
-    // Com_Printf("Orientation(%f)", pVeh->m_vOrientation[2]);
+    // Q_Print("Orientation({:f})", pVeh->m_vOrientation[2]);
 }
 
 void BG_ExternThisSoICanRecompileInDebug(Vehicle_t* pVeh, playerState_t* riderPS)
 { /*
      float pitchSubtract, pitchDelta, yawDelta;
-     //Com_Printf( S_COLOR_RED"PITCH: %4.2f, YAW: %4.2f, ROLL: %4.2f\n", riderPS->viewangles[0],riderPS->viewangles[1],riderPS->viewangles[2]);
+     //Q_Println(S_COLOR_RED"PITCH: {:4.2f}, YAW: {:4.2f}, ROLL: {:4.2f}", riderPS->viewangles[0], riderPS->viewangles[1], riderPS->viewangles[2]);
      yawDelta = AngleSubtract(riderPS->viewangles[YAW],pVeh->m_vPrevRiderViewAngles[YAW]);
  #ifndef QAGAME
      if ( !cg_paused.integer )
      {
-         //Com_Printf( "%d - yawDelta %4.2f\n", pm->cmd.serverTime, yawDelta );
+         //Q_Println("{} - yawDelta {:4.2f}", pm->cmd.serverTime, yawDelta);
      }
  #endif
      yawDelta *= (4.0f*pVeh->m_fTimeModifier);
@@ -4456,7 +4456,7 @@ static void PM_GroundTraceMissed(void)
                     if (pm->ps->groundEntityNum != ENTITYNUM_NONE) {
                         // we just transitioned into freefall
                         if (pm->debugLevel) {
-                            Com_Printf("%i:lift\n", c_pmove);
+                            Q_Println("{}:lift", c_pmove);
                         }
 
                         // if they aren't in a jumping animation and the ground is a ways away, force into it
@@ -4635,7 +4635,7 @@ static void PM_GroundTrace(void)
             DotProduct(pm->ps->velocity, trace.plane.normal) >
                 10) { // either thrown off ground (PMF_TIME_KNOCKBACK) or going off the ground at a large velocity
             if (pm->debugLevel) {
-                Com_Printf("%i:kickoff\n", c_pmove);
+                Q_Println("{}:kickoff", c_pmove);
             }
             // go into jump animation
             if (PM_FlippingAnim(pm->ps->legsAnim)) { // we're flipping
@@ -4672,7 +4672,7 @@ static void PM_GroundTrace(void)
     // slopes that are too steep will not be considered onground
     if (trace.plane.normal[2] < minNormal) {
         if (pm->debugLevel) {
-            Com_Printf("%i:steep\n", c_pmove);
+            Q_Println("{}:steep", c_pmove);
         }
         // FIXME: if they can't slide down the slope, let them
         // walk (sharp crevices)
@@ -4695,7 +4695,7 @@ static void PM_GroundTrace(void)
     if (pm->ps->groundEntityNum == ENTITYNUM_NONE) {
         // just hit the ground
         if (pm->debugLevel) {
-            Com_Printf("%i:Land\n", c_pmove);
+            Q_Println("{}:Land", c_pmove);
         }
 
         // if ( !PM_ClientImpact( trace.entityNum, true ) )
@@ -5135,7 +5135,7 @@ static void PM_CheckDuck(void)
         pm->ps->pm_flags |= pmoveFlags_t::PMF_DUCKED;
         if (d_JediAI->integer) {
             if (pm->ps->clientNum && pm->ps->weapon == weapon_t::WP_SABER) {
-                Com_Printf("ducking\n");
+                Q_Println("ducking");
             }
         }
     }
@@ -5756,7 +5756,7 @@ bool PM_GettingUpFromKnockDown(float standheight, float crouchheight)
                     default:
                         break;
                     }
-                    // Com_Printf( "getupanim = %s\n", BG_AnimName( anim ) );
+                    // Q_Println("getupanim = {}", BG_AnimName( anim ));
                     if (forceGetUp) {
                         if (pm->gent && pm->gent->client && pm->gent->client->playerTeam == team_t::TEAM_ENEMY && pm->gent->NPC &&
                             pm->gent->NPC->blockedSpeechDebounceTime < level.time && !Q_irand(0, 1)) {
@@ -8117,7 +8117,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
     }
 
     if (cg_debugSaber.integer & 0x01 && (newMove != saberMoveName_t::LS_READY)) {
-        Com_Printf("SetSaberMove:  From '%s' to '%s'\n", saberMoveData[pm->ps->saberMove].name, saberMoveData[newMove].name);
+        Q_Println("SetSaberMove:  From '{}' to '{}'", saberMoveData[pm->ps->saberMove].name, saberMoveData[newMove].name);
     }
 
     if (newMove == saberMoveName_t::LS_READY || newMove == saberMoveName_t::LS_A_FLIP_STAB ||
@@ -8689,8 +8689,8 @@ std::optional<animNumber_t> PM_SaberLockWinAnim(saberLockResult_t result, saberL
         /*
             default:
         #ifndef FINAL_BUILD
-                Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", pm->gent->NPC_type, to_underlying(
-        pm->ps->torsoAnim ), BG_AnimName( pm->ps->torsoAnim ) ); #endif
+                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", pm->gent->NPC_type, to_underlying(
+        pm->ps->torsoAnim ), BG_AnimName( pm->ps->torsoAnim )); #endif
         */
     case animNumber_t::BOTH_BF2LOCK:
         if (breakType == saberLockType_t::SABERLOCK_SUPERBREAK) {
@@ -8766,8 +8766,8 @@ std::optional<animNumber_t> PM_SaberLockLoseAnim(gentity_t* genemy, saberLockRes
         /*
             default:
         #ifndef FINAL_BUILD
-                Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", genemy->NPC_type, to_underlying(
-        genemy->client->ps.torsoAnim ), BG_AnimName( genemy->client->ps.torsoAnim ) ); #endif
+                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", genemy->NPC_type, to_underlying(
+        genemy->client->ps.torsoAnim ), BG_AnimName( genemy->client->ps.torsoAnim )); #endif
         */
     case animNumber_t::BOTH_BF2LOCK:
         if (breakType == saberLockType_t::SABERLOCK_SUPERBREAK) {
@@ -8971,8 +8971,8 @@ void PM_SaberLockBreak(gentity_t* gent, gentity_t* genemy, saberLockResult_t res
     }
 
     if (d_saberCombat->integer) {
-        Com_Printf("%s won saber lock, anim = %s!\n", gent->NPC_type, BG_AnimName(*winAnim));
-        Com_Printf("%s lost saber lock, anim = %s!\n", genemy->NPC_type, BG_AnimName(*loseAnim));
+        Q_Println("{} won saber lock, anim = {}!", gent->NPC_type, BG_AnimName(*winAnim));
+        Q_Println("{} lost saber lock, anim = {}!", genemy->NPC_type, BG_AnimName(*loseAnim));
     }
 
     pm->ps->saberLockTime = genemy->client->ps.saberLockTime = 0;
@@ -9263,7 +9263,7 @@ bool PM_SaberLocked(void)
                                 PM_SetAnimFrame(gent, curFrame, true, true);
                                 remaining = curFrame - anim->firstFrame;
                                 if (d_saberCombat->integer) {
-                                    Com_Printf("%s pushing in saber lock, %d frames to go!\n", gent->NPC_type, remaining);
+                                    Q_Println("{} pushing in saber lock, {} frames to go!", gent->NPC_type, remaining);
                                 }
                             }
                         }
@@ -9278,7 +9278,7 @@ bool PM_SaberLocked(void)
                                 PM_SetAnimFrame(gent, curFrame, true, true);
                                 remaining = anim->firstFrame + anim->numFrames - curFrame;
                                 if (d_saberCombat->integer) {
-                                    Com_Printf("%s pushing in saber lock, %d frames to go!\n", gent->NPC_type, remaining);
+                                    Q_Println("{} pushing in saber lock, {} frames to go!", gent->NPC_type, remaining);
                                 }
                             }
                         }
@@ -9295,7 +9295,7 @@ bool PM_SaberLocked(void)
                                 PM_SetAnimFrame(gent, curFrame, true, true);
                                 remaining = anim->firstFrame + anim->numFrames - curFrame;
                                 if (d_saberCombat->integer) {
-                                    Com_Printf("%s pushing in saber lock, %d frames to go!\n", gent->NPC_type, remaining);
+                                    Q_Println("{} pushing in saber lock, {} frames to go!", gent->NPC_type, remaining);
                                 }
                             }
                         }
@@ -9310,7 +9310,7 @@ bool PM_SaberLocked(void)
                                 PM_SetAnimFrame(gent, curFrame, true, true);
                                 remaining = curFrame - anim->firstFrame;
                                 if (d_saberCombat->integer) {
-                                    Com_Printf("%s pushing in saber lock, %d frames to go!\n", gent->NPC_type, remaining);
+                                    Q_Println("{} pushing in saber lock, {} frames to go!", gent->NPC_type, remaining);
                                 }
                             }
                         }
@@ -10244,7 +10244,7 @@ bool PM_SaberBlocking(void)
             // pm->ps->saberBounceMove = saberMoveName_t::LS_NONE;
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Bounce\n");
+                Q_Println("Saber Block: Bounce");
             }
             break;
         case saberBlockedType_t::BLOCKED_UPPER_RIGHT:
@@ -10258,14 +10258,14 @@ bool PM_SaberBlocking(void)
             }
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Parry UR\n");
+                Q_Println("Saber Block: Parry UR");
             }
             break;
         case saberBlockedType_t::BLOCKED_UPPER_RIGHT_PROJ:
             PM_SetSaberMove(saberMoveName_t::LS_REFLECT_UR);
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Deflect UR\n");
+                Q_Println("Saber Block: Deflect UR");
             }
             break;
         case saberBlockedType_t::BLOCKED_UPPER_LEFT:
@@ -10279,14 +10279,14 @@ bool PM_SaberBlocking(void)
             }
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Parry UL\n");
+                Q_Println("Saber Block: Parry UL");
             }
             break;
         case saberBlockedType_t::BLOCKED_UPPER_LEFT_PROJ:
             PM_SetSaberMove(saberMoveName_t::LS_REFLECT_UL);
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Deflect UL\n");
+                Q_Println("Saber Block: Deflect UL");
             }
             break;
         case saberBlockedType_t::BLOCKED_LOWER_RIGHT:
@@ -10300,14 +10300,14 @@ bool PM_SaberBlocking(void)
             }
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Parry LR\n");
+                Q_Println("Saber Block: Parry LR");
             }
             break;
         case saberBlockedType_t::BLOCKED_LOWER_RIGHT_PROJ:
             PM_SetSaberMove(saberMoveName_t::LS_REFLECT_LR);
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Deflect LR\n");
+                Q_Println("Saber Block: Deflect LR");
             }
             break;
         case saberBlockedType_t::BLOCKED_LOWER_LEFT:
@@ -10321,14 +10321,14 @@ bool PM_SaberBlocking(void)
             }
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Parry LL\n");
+                Q_Println("Saber Block: Parry LL");
             }
             break;
         case saberBlockedType_t::BLOCKED_LOWER_LEFT_PROJ:
             PM_SetSaberMove(saberMoveName_t::LS_REFLECT_LL);
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Deflect LL\n");
+                Q_Println("Saber Block: Deflect LL");
             }
             break;
         case saberBlockedType_t::BLOCKED_TOP:
@@ -10342,14 +10342,14 @@ bool PM_SaberBlocking(void)
             }
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Parry Top\n");
+                Q_Println("Saber Block: Parry Top");
             }
             break;
         case saberBlockedType_t::BLOCKED_TOP_PROJ:
             PM_SetSaberMove(saberMoveName_t::LS_REFLECT_UP);
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Deflect Top\n");
+                Q_Println("Saber Block: Deflect Top");
             }
             break;
         default:
@@ -12416,7 +12416,7 @@ void PM_CheckForceUseButton(gentity_t* ent, usercmd_t* ucmd)
             ucmd->buttons |= buttonFlags_t::BUTTON_FORCE_DRAIN;
             break;
         default:
-            //			Com_Printf( "Use Force: Unhandled force: %d\n", to_underlying( showPowers[cg.forcepowerSelect] ));
+            //			Q_Println("Use Force: Unhandled force: {}", to_underlying( showPowers[cg.forcepowerSelect] ));
             break;
         }
         ent->client->ps.pm_flags |= pmoveFlags_t::PMF_USEFORCE_HELD;

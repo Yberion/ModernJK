@@ -39,8 +39,9 @@ function(modernjk_enable_sanitizers target address undefined)
 	if(MSVC)
 		# the debugging information comes from the build type (RelWithDebInfo in the AddressSanitizer presets)
 		target_compile_options(${target} INTERFACE /fsanitize=${list})
-		# the standard library's container annotations need every object built with them: off, as some are not
-		target_compile_definitions(${target} INTERFACE _DISABLE_VECTOR_ANNOTATION _DISABLE_STRING_ANNOTATION)
+		# the standard library's container annotations need every object built with them: off, as some are not (the
+		# libraries of libs/, {fmt}'s among them); _DISABLE_STL_ANNOTATION turns off every one, std::optional's too
+		target_compile_definitions(${target} INTERFACE _DISABLE_STL_ANNOTATION)
 		# AddressSanitizer refuses incremental linking
 		target_link_options(${target} INTERFACE /INCREMENTAL:NO)
 	else()

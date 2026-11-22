@@ -45,7 +45,7 @@ const char* SV_GetStringEdString(const char* refSection, const char* refName)
     // to print it will get scanned for the stringed reference indication and dealt with
     // properly.
     static char text[1024] = {0};
-    Com_sprintf(text, sizeof(text), "@@@%s", refName);
+    Q_FormatTo(text, "@@@{}", refName);
     return text;
 }
 
@@ -69,7 +69,7 @@ static client_t* SV_GetPlayerByHandle(void)
     }
 
     if (Cmd_Argc() < 2) {
-        Com_Printf("No player specified.\n");
+        Q_Println("No player specified.");
         return nullptr;
     }
 
@@ -108,7 +108,7 @@ static client_t* SV_GetPlayerByHandle(void)
         }
     }
 
-    Com_Printf("Player %s is not on the server\n", s);
+    Q_Println("Player {} is not on the server", s);
 
     return nullptr;
 }
@@ -133,7 +133,7 @@ static client_t* SV_GetPlayerByNum(void)
     }
 
     if (Cmd_Argc() < 2) {
-        Com_Printf("No player specified.\n");
+        Q_Println("No player specified.");
         return nullptr;
     }
 
@@ -141,19 +141,19 @@ static client_t* SV_GetPlayerByNum(void)
 
     for (i = 0; s[i]; i++) {
         if (s[i] < '0' || s[i] > '9') {
-            Com_Printf("Bad slot number: %s\n", s);
+            Q_Println("Bad slot number: {}", s);
             return nullptr;
         }
     }
     idnum = atoi(s);
     if (idnum < 0 || idnum >= sv_maxclients->integer) {
-        Com_Printf("Bad client slot: %i\n", idnum);
+        Q_Println("Bad client slot: {}", idnum);
         return nullptr;
     }
 
     cl = &svs.clients[idnum];
     if (cl->state == clientState_t::CS_FREE) {
-        Com_Printf("Client %i is not active\n", idnum);
+        Q_Println("Client {} is not active", idnum);
         return nullptr;
     }
     return cl;
@@ -181,13 +181,13 @@ static void SV_Map_f(void)
     // make sure the level exists before trying to change, so that
     // a typo at the server console won't end the game
     if (strchr(map, '\\')) {
-        Com_Printf("Can't have mapnames with a \\\n");
+        Q_Print("Can't have mapnames with a \\\n");
         return;
     }
 
-    Com_sprintf(expanded, sizeof(expanded), "maps/%s.bsp", map);
+    Q_FormatTo(expanded, "maps/{}.bsp", map);
     if (FS_ReadFile(expanded, nullptr) == -1) {
-        Com_Printf("Can't find map %s\n", expanded);
+        Q_Println("Can't find map {}", expanded);
         return;
     }
 
@@ -254,7 +254,7 @@ static void SV_MapRestart_f(void)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
@@ -270,7 +270,7 @@ static void SV_MapRestart_f(void)
     }
     if (delay) {
         sv.restartTime = sv.time + delay * 1000;
-        SV_SetConfigstring(CS_WARMUP, va("%i", sv.restartTime));
+        SV_SetConfigstring(CS_WARMUP, Q_Format("{}", sv.restartTime).c_str());
         return;
     }
 
@@ -279,7 +279,7 @@ static void SV_MapRestart_f(void)
     if (sv_maxclients->modified || sv_gametype->modified) {
         char mapname[MAX_QPATH];
 
-        Com_Printf("variable change -- restarting.\n");
+        Q_Println("variable change -- restarting.");
         // restart the map the slow way
         Q_strncpyz(mapname, Cvar_VariableString("mapname"), sizeof(mapname));
 
@@ -296,7 +296,7 @@ static void SV_MapRestart_f(void)
     // generate a new serverid
     // TTimo - don't update restartedserverId there, otherwise we won't deal correctly with multiple map_restart
     sv.serverId = com_frameTime;
-    Cvar_Set("sv_serverid", va("%i", sv.serverId));
+    Cvar_Set("sv_serverid", Q_Format("{}", sv.serverId).c_str());
 
     time(&sv.realMapTimeStarted);
     sv.demosPruned = false;
@@ -353,7 +353,7 @@ static void SV_MapRestart_f(void)
             // this generally shouldn't happen, because the client
             // was connected before the level change
             SV_DropClient(client, denied);
-            Com_Printf("SV_MapRestart_f(%d): dropped client %i - denied!\n", delay, i);
+            Q_Println("SV_MapRestart_f({}): dropped client {} - denied!", delay, i);
             continue;
         }
 
@@ -431,12 +431,12 @@ static void SV_Kick_f(void)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
     if (Cmd_Argc() != 2) {
-        Com_Printf("Usage: kick <player name>\nkick all = kick everyone\nkick allbots = kick all bots\n");
+        Q_Println("Usage: kick <player name>\nkick all = kick everyone\nkick allbots = kick all bots");
         return;
     }
 
@@ -473,7 +473,7 @@ static void SV_Kick_f(void)
         return;
     }
     if (cl->netchan.remoteAddress.type == netadrtype_t::NA_LOOPBACK) {
-        Com_Printf("Cannot kick host player\n");
+        Q_Println("Cannot kick host player");
         return;
     }
 
@@ -495,7 +495,7 @@ static void SV_KickBots_f(void)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
@@ -526,7 +526,7 @@ static void SV_KickAll_f(void)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
@@ -557,12 +557,12 @@ static void SV_KickNum_f(void)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
     if (Cmd_Argc() != 2) {
-        Com_Printf("Usage: %s <client number>\n", Cmd_Argv(0));
+        Q_Println("Usage: {} <client number>", Cmd_Argv(0));
         return;
     }
 
@@ -571,7 +571,7 @@ static void SV_KickNum_f(void)
         return;
     }
     if (cl->netchan.remoteAddress.type == netadrtype_t::NA_LOOPBACK) {
-        Com_Printf("Cannot kick host player\n");
+        Q_Println("Cannot kick host player");
         return;
     }
 
@@ -603,7 +603,7 @@ static void SV_RehashBans_f(void)
     if (!sv_banFile->string || !*sv_banFile->string)
         return;
 
-    Com_sprintf(filepath, sizeof(filepath), "%s/%s", FS_GetCurrentGameDir(), sv_banFile->string);
+    Q_FormatTo(filepath, "{}/{}", FS_GetCurrentGameDir(), sv_banFile->string);
 
     if ((filelen = FS_SV_FOpenFileRead(filepath, &readfrom)) >= 0) {
         if (filelen < 2) {
@@ -673,7 +673,7 @@ static void SV_WriteBans(void)
     if (!sv_banFile->string || !*sv_banFile->string)
         return;
 
-    Com_sprintf(filepath, sizeof(filepath), "%s/%s", FS_GetCurrentGameDir(), sv_banFile->string);
+    Q_FormatTo(filepath, "{}/{}", FS_GetCurrentGameDir(), sv_banFile->string);
 
     if ((writeto = FS_SV_FOpenFileWrite(filepath))) {
         char writebuf[128];
@@ -682,7 +682,7 @@ static void SV_WriteBans(void)
         for (index = 0; index < serverBansCount; index++) {
             curban = &serverBans[index];
 
-            Com_sprintf(writebuf, sizeof(writebuf), "%d %s %d\n", curban->isexception, NET_AdrToString(&curban->ip), curban->subnet);
+            Q_FormatTo(writebuf, "{:d} {} {}\n", curban->isexception, NET_AdrToString(&curban->ip), curban->subnet);
             FS_Write(writebuf, strlen(writebuf), writeto);
         }
 
@@ -771,19 +771,19 @@ static void SV_AddBanToList(bool isexception)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
     argc = Cmd_Argc();
 
     if (argc < 2 || argc > 3) {
-        Com_Printf("Usage: %s (ip[/subnet] | clientnum [subnet])\n", Cmd_Argv(0));
+        Q_Println("Usage: {} (ip[/subnet] | clientnum [subnet])", Cmd_Argv(0));
         return;
     }
 
     if (serverBansCount >= (int)ARRAY_LEN(serverBans)) {
-        Com_PrintError("Maximum number of bans/exceptions exceeded.\n");
+        Q_PrintlnError("Maximum number of bans/exceptions exceeded.");
         return;
     }
 
@@ -793,7 +793,7 @@ static void SV_AddBanToList(bool isexception)
         // This is an ip address, not a client num.
 
         if (SV_ParseCIDRNotation(&ip, &mask, banstring)) {
-            Com_PrintError("Invalid address %s\n", banstring);
+            Q_PrintlnError("Invalid address {}", banstring);
             return;
         }
     }
@@ -805,7 +805,7 @@ static void SV_AddBanToList(bool isexception)
         cl = SV_GetPlayerByNum();
 
         if (!cl) {
-            Com_PrintError("Playernum %s does not exist.\n", Cmd_Argv(1));
+            Q_PrintlnError("Playernum {} does not exist.", Cmd_Argv(1));
             return;
         }
 
@@ -826,7 +826,7 @@ static void SV_AddBanToList(bool isexception)
     }
 
     if (ip.type != netadrtype_t::NA_IP) {
-        Com_PrintError("Can ban players connected via the internet only.\n");
+        Q_PrintlnError("Can ban players connected via the internet only.");
         return;
     }
 
@@ -838,7 +838,7 @@ static void SV_AddBanToList(bool isexception)
             if ((curban->isexception || !isexception) && NET_CompareBaseAdrMask(&curban->ip, &ip, curban->subnet)) {
                 Q_strncpyz(addy2, NET_AdrToString(&ip), sizeof(addy2));
 
-                Com_PrintError("%s %s/%d supersedes %s %s/%d\n", curban->isexception ? "Exception" : "Ban", NET_AdrToString(&curban->ip), curban->subnet,
+                Q_PrintlnError("{} {}/{} supersedes {} {}/{}", curban->isexception ? "Exception" : "Ban", NET_AdrToString(&curban->ip), curban->subnet,
                                isexception ? "exception" : "ban", addy2, mask);
                 return;
             }
@@ -847,7 +847,7 @@ static void SV_AddBanToList(bool isexception)
             if (!curban->isexception && isexception && NET_CompareBaseAdrMask(&curban->ip, &ip, mask)) {
                 Q_strncpyz(addy2, NET_AdrToString(&curban->ip), sizeof(addy2));
 
-                Com_PrintError("%s %s/%d supersedes already existing %s %s/%d\n", isexception ? "Exception" : "Ban", NET_AdrToString(&ip), mask,
+                Q_PrintlnError("{} {}/{} supersedes already existing {} {}/{}", isexception ? "Exception" : "Ban", NET_AdrToString(&ip), mask,
                                curban->isexception ? "exception" : "ban", addy2, curban->subnet);
                 return;
             }
@@ -873,7 +873,7 @@ static void SV_AddBanToList(bool isexception)
 
     SV_WriteBans();
 
-    Com_Printf("Added %s: %s/%d\n", isexception ? "ban exception" : "ban", NET_AdrToString(&ip), mask);
+    Q_Println("Added {}: {}/{}", isexception ? "ban exception" : "ban", NET_AdrToString(&ip), mask);
 }
 
 /*
@@ -892,12 +892,12 @@ static void SV_DelBanFromList(bool isexception)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
     if (Cmd_Argc() != 2) {
-        Com_Printf("Usage: %s (ip[/subnet] | num)\n", Cmd_Argv(0));
+        Q_Println("Usage: {} (ip[/subnet] | num)", Cmd_Argv(0));
         return;
     }
 
@@ -907,7 +907,7 @@ static void SV_DelBanFromList(bool isexception)
         serverBan_t* curban;
 
         if (SV_ParseCIDRNotation(&ip, &mask, banstring)) {
-            Com_PrintError("Invalid address %s\n", banstring);
+            Q_PrintlnError("Invalid address {}", banstring);
             return;
         }
 
@@ -917,7 +917,7 @@ static void SV_DelBanFromList(bool isexception)
             curban = &serverBans[index];
 
             if (curban->isexception == isexception && curban->subnet >= mask && NET_CompareBaseAdrMask(&curban->ip, &ip, mask)) {
-                Com_Printf("Deleting %s %s/%d\n", isexception ? "exception" : "ban", NET_AdrToString(&curban->ip), curban->subnet);
+                Q_Println("Deleting {} {}/{}", isexception ? "exception" : "ban", NET_AdrToString(&curban->ip), curban->subnet);
 
                 SV_DelBanEntryFromList(index);
             }
@@ -929,7 +929,7 @@ static void SV_DelBanFromList(bool isexception)
         todel = atoi(Cmd_Argv(1));
 
         if (todel < 1 || todel > serverBansCount) {
-            Com_PrintError("Invalid ban number given\n");
+            Q_PrintlnError("Invalid ban number given");
             return;
         }
 
@@ -938,7 +938,7 @@ static void SV_DelBanFromList(bool isexception)
                 count++;
 
                 if (count == todel) {
-                    Com_Printf("Deleting %s %s/%d\n", isexception ? "exception" : "ban", NET_AdrToString(&serverBans[index].ip), serverBans[index].subnet);
+                    Q_Println("Deleting {} {}/{}", isexception ? "exception" : "ban", NET_AdrToString(&serverBans[index].ip), serverBans[index].subnet);
 
                     SV_DelBanEntryFromList(index);
 
@@ -966,7 +966,7 @@ static void SV_ListBans_f(void)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
@@ -976,7 +976,7 @@ static void SV_ListBans_f(void)
         if (!ban->isexception) {
             count++;
 
-            Com_Printf("Ban #%d: %s/%d\n", count, NET_AdrToString(&ban->ip), ban->subnet);
+            Q_Println("Ban #{}: {}/{}", count, NET_AdrToString(&ban->ip), ban->subnet);
         }
     }
     // List all exceptions
@@ -985,7 +985,7 @@ static void SV_ListBans_f(void)
         if (ban->isexception) {
             count++;
 
-            Com_Printf("Except #%d: %s/%d\n", count, NET_AdrToString(&ban->ip), ban->subnet);
+            Q_Println("Except #{}: {}/{}", count, NET_AdrToString(&ban->ip), ban->subnet);
         }
     }
 }
@@ -1002,7 +1002,7 @@ static void SV_FlushBans_f(void)
 {
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
@@ -1011,7 +1011,7 @@ static void SV_FlushBans_f(void)
     // empty the ban file.
     SV_WriteBans();
 
-    Com_Printf("All bans and exceptions have been deleted.\n");
+    Q_Println("All bans and exceptions have been deleted.");
 }
 
 static void SV_BanAddr_f(void)
@@ -1054,11 +1054,11 @@ static const char* SV_CalcUptime(void)
 
     buf[0] = '\0';
     if (days > 0) {
-        Com_sprintf(tmp, sizeof(tmp), "%i days ", days);
+        Q_FormatTo(tmp, "{} days ", days);
         Q_strcat(buf, sizeof(buf), tmp);
     }
 
-    Com_sprintf(tmp, sizeof(tmp), "%ih%im%is", hours, mins, secs);
+    Q_FormatTo(tmp, "{}h{}m{}s", hours, mins, secs);
     Q_strcat(buf, sizeof(buf), tmp);
 
     return buf;
@@ -1081,7 +1081,7 @@ static void SV_Status_f(void)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
@@ -1124,17 +1124,17 @@ static void SV_Status_f(void)
     Q_strncpyz(hostname, sv_hostname->string, sizeof(hostname));
     Q_StripColor(hostname);
 
-    Com_Printf("hostname: %s^7\n", hostname);
-    Com_Printf("version : %s %i\n", VERSION_STRING_DOTTED, PROTOCOL_VERSION);
-    Com_Printf("game    : %s\n", FS_GetCurrentGameDir());
-    Com_Printf("udp/ip  : %s:%i os(%s) type(%s)\n", Cvar_VariableString("net_ip"), Cvar_VariableIntegerValue("net_port"), STATUS_OS,
-               ded_table[com_dedicated->integer]);
-    Com_Printf("map     : %s gametype(%i)\n", sv_mapname->string, sv_gametype->integer);
-    Com_Printf("players : %i humans, %i bots (%i max)\n", humans, bots, sv_maxclients->integer - sv_privateClients->integer);
-    Com_Printf("uptime  : %s\n", SV_CalcUptime());
+    Q_Println("hostname: {}^7", hostname);
+    Q_Println("version : {} {}", VERSION_STRING_DOTTED, PROTOCOL_VERSION);
+    Q_Println("game    : {}", FS_GetCurrentGameDir());
+    Q_Println("udp/ip  : {}:{} os({}) type({})", Cvar_VariableString("net_ip"), Cvar_VariableIntegerValue("net_port"), STATUS_OS,
+              ded_table[com_dedicated->integer]);
+    Q_Println("map     : {} gametype({})", sv_mapname->string, sv_gametype->integer);
+    Q_Println("players : {} humans, {} bots ({} max)", humans, bots, sv_maxclients->integer - sv_privateClients->integer);
+    Q_Println("uptime  : {}", SV_CalcUptime());
 
-    Com_Printf("cl score ping name            address                                \n");
-    Com_Printf("-- ----- ---- --------------- ---------------------------------------\n");
+    Q_Println("cl score ping name            address                                ");
+    Q_Println("-- ----- ---- --------------- ---------------------------------------");
     for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
         if (cl->state == clientState_t::CS_FREE)
             continue;
@@ -1145,20 +1145,20 @@ static void SV_Status_f(void)
             Q_strncpyz(state, "ZMB ", sizeof(state));
         else {
             ping = cl->ping < 9999 ? cl->ping : 9999;
-            Com_sprintf(state, sizeof(state), "%4i", ping);
+            Q_FormatTo(state, "{:4}", ping);
         }
 
         ps = SV_GameClientNum(i);
         s = NET_AdrToString(&cl->netchan.remoteAddress);
 
         if (!avoidTruncation) {
-            Com_Printf("%2i %5i %s %-15.15s ^7%39s\n", i, ps->persistant[persEnum_t::PERS_SCORE], state, cl->name, s);
+            Q_Println("{:2} {:5} {} {:15.15} ^7{:>39}", i, ps->persistant[persEnum_t::PERS_SCORE], state, cl->name, s);
         }
         else {
-            Com_Printf("%2i %5i %s %s ^7%39s\n", i, ps->persistant[persEnum_t::PERS_SCORE], state, cl->name, s);
+            Q_Println("{:2} {:5} {} {} ^7{:>39}", i, ps->persistant[persEnum_t::PERS_SCORE], state, cl->name, s);
         }
     }
-    Com_Printf("\n");
+    Q_Println("");
 }
 
 char* SV_ExpandNewlines(char* in);
@@ -1174,13 +1174,13 @@ static void SV_ConSay_f(void)
     char text[MAX_SAY_TEXT] = {0};
 
     if (!com_dedicated->integer) {
-        Com_Printf("Server is not dedicated.\n");
+        Q_Println("Server is not dedicated.");
         return;
     }
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
@@ -1190,8 +1190,8 @@ static void SV_ConSay_f(void)
 
     Cmd_ArgsBuffer(text, sizeof(text));
 
-    Com_Printf("broadcast: chat \"" SVSAY_PREFIX "%s\\n\"\n", SV_ExpandNewlines((char*)text));
-    SV_SendServerCommand(nullptr, "chat \"" SVSAY_PREFIX "%s\"\n", text);
+    Q_Println("broadcast: chat \"" SVSAY_PREFIX "{}\\n\"", SV_ExpandNewlines((char*)text));
+    SV_SendServerCommand(nullptr, "chat \"" SVSAY_PREFIX "{}\"\n", text);
 }
 
 #define SVTELL_PREFIX "\x19[Server^7\x19]\x19: "
@@ -1207,18 +1207,18 @@ static void SV_ConTell_f(void)
     client_t* cl;
 
     if (!com_dedicated->integer) {
-        Com_Printf("Server is not dedicated.\n");
+        Q_Println("Server is not dedicated.");
         return;
     }
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
     if (Cmd_Argc() < 3) {
-        Com_Printf("Usage: svtell <client number> <text>\n");
+        Q_Println("Usage: svtell <client number> <text>");
         return;
     }
 
@@ -1229,8 +1229,8 @@ static void SV_ConTell_f(void)
 
     Cmd_ArgsFromBuffer(2, text, sizeof(text));
 
-    Com_Printf("tell: svtell to %s" S_COLOR_WHITE ": %s\n", cl->name, SV_ExpandNewlines((char*)text));
-    SV_SendServerCommand(cl, "chat \"" SVTELL_PREFIX S_COLOR_MAGENTA "%s" S_COLOR_WHITE "\"\n", text);
+    Q_Println("tell: svtell to {}" S_COLOR_WHITE ": {}", cl->name, SV_ExpandNewlines((char*)text));
+    SV_SendServerCommand(cl, "chat \"" SVTELL_PREFIX S_COLOR_MAGENTA "{}" S_COLOR_WHITE "\"\n", text);
 }
 
 EnumArray<const char*, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> forceToggleNamePrints = {
@@ -1245,18 +1245,18 @@ static void SV_ForceToggle_f(void)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
     if (Cmd_Argc() != 2) {
         for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
             if ((bits & Bit(fp)))
-                Com_Printf("%2d [X] %s\n", to_underlying(fp), forceToggleNamePrints[fp]);
+                Q_Println("{:2} [X] {}", to_underlying(fp), forceToggleNamePrints[fp]);
             else
-                Com_Printf("%2d [ ] %s\n", to_underlying(fp), forceToggleNamePrints[fp]);
+                Q_Println("{:2} [ ] {}", to_underlying(fp), forceToggleNamePrints[fp]);
         }
-        Com_Printf("Example usage: forcetoggle 3(toggles PUSH)\n");
+        Q_Println("Example usage: forcetoggle 3(toggles PUSH)");
         return;
     }
 
@@ -1267,26 +1267,26 @@ static void SV_ForceToggle_f(void)
         if (val >= forcePowers_t::FP_FIRST && val < forcePowers_t::NUM_FORCE_POWERS) {
             bits ^= Bit(val);
             Cvar_SetValue("g_forcePowerDisable", bits);
-            Com_Printf("%s %s^7\n", forceToggleNamePrints[val], (bits & Bit(val)) ? "^2Enabled" : "^1Disabled");
+            Q_Println("{} {}^7", forceToggleNamePrints[val], (bits & Bit(val)) ? "^2Enabled" : "^1Disabled");
         }
         else {
             for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
                 if ((bits & Bit(fp)))
-                    Com_Printf("%2d [X] %s\n", to_underlying(fp), forceToggleNamePrints[fp]);
+                    Q_Println("{:2} [X] {}", to_underlying(fp), forceToggleNamePrints[fp]);
                 else
-                    Com_Printf("%2d [ ] %s\n", to_underlying(fp), forceToggleNamePrints[fp]);
+                    Q_Println("{:2} [ ] {}", to_underlying(fp), forceToggleNamePrints[fp]);
             }
-            Com_Printf("Specified a power that does not exist.\nExample usage: forcetoggle 3\n(toggles PUSH)\n");
+            Q_Println("Specified a power that does not exist.\nExample usage: forcetoggle 3\n(toggles PUSH)");
         }
     }
     else {
         for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
             if ((bits & Bit(fp)))
-                Com_Printf("%2d [X] %s\n", to_underlying(fp), forceToggleNamePrints[fp]);
+                Q_Println("{:2} [X] {}", to_underlying(fp), forceToggleNamePrints[fp]);
             else
-                Com_Printf("%2d [ ] %s\n", to_underlying(fp), forceToggleNamePrints[fp]);
+                Q_Println("{:2} [ ] {}", to_underlying(fp), forceToggleNamePrints[fp]);
         }
-        Com_Printf("Specified a power that does not exist.\nExample usage: forcetoggle 3\n(toggles PUSH)\n");
+        Q_Println("Specified a power that does not exist.\nExample usage: forcetoggle 3\n(toggles PUSH)");
     }
 }
 
@@ -1312,18 +1312,18 @@ static void SV_WeaponToggle_f(void)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
     if (Cmd_Argc() != 2) {
         for (i = weapon_t::WP_NONE; i < weapon_t::WP_NUM_WEAPONS; i++) {
             if ((bits & Bit(i)))
-                Com_Printf("%2d [X] %s\n", to_underlying(i), weaponToggleNamePrints[i]);
+                Q_Println("{:2} [X] {}", to_underlying(i), weaponToggleNamePrints[i]);
             else
-                Com_Printf("%2d [ ] %s\n", to_underlying(i), weaponToggleNamePrints[i]);
+                Q_Println("{:2} [ ] {}", to_underlying(i), weaponToggleNamePrints[i]);
         }
-        Com_Printf("Example usage: weapontoggle 3(toggles SABER)\n");
+        Q_Println("Example usage: weapontoggle 3(toggles SABER)");
         return;
     }
 
@@ -1334,26 +1334,26 @@ static void SV_WeaponToggle_f(void)
         if (val >= weapon_t::WP_NONE && val < weapon_t::WP_NUM_WEAPONS) {
             bits ^= Bit(val);
             Cvar_SetValue(cvarStr, bits);
-            Com_Printf("%s %s^7\n", weaponToggleNamePrints[val], (bits & Bit(val)) ? "^2Enabled" : "^1Disabled");
+            Q_Println("{} {}^7", weaponToggleNamePrints[val], (bits & Bit(val)) ? "^2Enabled" : "^1Disabled");
         }
         else {
             for (i = weapon_t::WP_NONE; i < weapon_t::WP_NUM_WEAPONS; i++) {
                 if ((bits & Bit(i)))
-                    Com_Printf("%2d [X] %s\n", to_underlying(i), weaponToggleNamePrints[i]);
+                    Q_Println("{:2} [X] {}", to_underlying(i), weaponToggleNamePrints[i]);
                 else
-                    Com_Printf("%2d [ ] %s\n", to_underlying(i), weaponToggleNamePrints[i]);
+                    Q_Println("{:2} [ ] {}", to_underlying(i), weaponToggleNamePrints[i]);
             }
-            Com_Printf("Specified a weapon that does not exist.\nExample usage: weapontoggle 3\n(toggles SABER)\n");
+            Q_Println("Specified a weapon that does not exist.\nExample usage: weapontoggle 3\n(toggles SABER)");
         }
     }
     else {
         for (i = weapon_t::WP_NONE; i < weapon_t::WP_NUM_WEAPONS; i++) {
             if ((bits & Bit(i)))
-                Com_Printf("%2d [X] %s\n", to_underlying(i), weaponToggleNamePrints[i]);
+                Q_Println("{:2} [X] {}", to_underlying(i), weaponToggleNamePrints[i]);
             else
-                Com_Printf("%2d [ ] %s\n", to_underlying(i), weaponToggleNamePrints[i]);
+                Q_Println("{:2} [ ] {}", to_underlying(i), weaponToggleNamePrints[i]);
         }
-        Com_Printf("Specified a weapon that does not exist.\nExample usage: weapontoggle 3\n(toggles SABER)\n");
+        Q_Println("Specified a weapon that does not exist.\nExample usage: weapontoggle 3\n(toggles SABER)");
     }
 }
 
@@ -1380,11 +1380,11 @@ static void SV_Serverinfo_f(void)
 {
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
-    Com_Printf("Server info settings:\n");
+    Q_Println("Server info settings:");
     Info_Print(Cvar_InfoString(cvarFlags_t::CVAR_SERVERINFO));
 }
 
@@ -1399,11 +1399,11 @@ static void SV_Systeminfo_f(void)
 {
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
-    Com_Printf("System info settings:\n");
+    Q_Println("System info settings:");
     Info_Print(Cvar_InfoString_Big(cvarFlags_t::CVAR_SYSTEMINFO));
 }
 
@@ -1420,12 +1420,12 @@ static void SV_DumpUser_f(void)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
     if (Cmd_Argc() != 2) {
-        Com_Printf("Usage: dumpuser <userid>\n");
+        Q_Println("Usage: dumpuser <userid>");
         return;
     }
 
@@ -1434,8 +1434,8 @@ static void SV_DumpUser_f(void)
         return;
     }
 
-    Com_Printf("userinfo\n");
-    Com_Printf("--------\n");
+    Q_Println("userinfo");
+    Q_Println("--------");
     Info_Print(cl->userinfo);
 }
 
@@ -1454,7 +1454,7 @@ void SV_StopRecordDemo(client_t* cl)
     int len;
 
     if (!cl->demo.demorecording) {
-        Com_Printf("Client %td is not recording a demo.\n", cl - svs.clients);
+        Q_Println("Client {} is not recording a demo.", cl - svs.clients);
         return;
     }
 
@@ -1466,7 +1466,7 @@ void SV_StopRecordDemo(client_t* cl)
     FS_FCloseFile(cl->demo.demofile);
     cl->demo.demofile = 0;
     cl->demo.demorecording = false;
-    Com_Printf("Stopped demo for client %td.\n", cl - svs.clients);
+    Q_Println("Stopped demo for client {}.", cl - svs.clients);
 }
 
 // stops all recording demos
@@ -1496,7 +1496,7 @@ void SV_StopRecord_f(void)
     if (Cmd_Argc() == 2) {
         int clIndex = atoi(Cmd_Argv(1));
         if (clIndex < 0 || clIndex >= sv_maxclients->integer) {
-            Com_Printf("Unknown client number %d.\n", clIndex);
+            Q_Println("Unknown client number {}.", clIndex);
             return;
         }
         cl = &svs.clients[clIndex];
@@ -1509,7 +1509,7 @@ void SV_StopRecord_f(void)
             }
         }
         if (cl == nullptr) {
-            Com_Printf("No demo being recorded.\n");
+            Q_Println("No demo being recorded.");
             return;
         }
     }
@@ -1529,7 +1529,7 @@ void SV_DemoFilename(char* buf, int bufSize)
     time(&rawtime);
     strftime(timeStr, sizeof(timeStr), "%Y-%m-%d_%H-%M-%S", localtime(&rawtime)); // or gmtime
 
-    Com_sprintf(buf, bufSize, "demo%s", timeStr);
+    Q_FormatTo(std::span(buf, bufSize), "demo{}", timeStr);
 }
 
 void SV_RecordDemo(client_t* cl, char* demoName)
@@ -1537,22 +1537,22 @@ void SV_RecordDemo(client_t* cl, char* demoName)
     char name[MAX_OSPATH];
 
     if (cl->demo.demorecording) {
-        Com_Printf("Already recording.\n");
+        Q_Println("Already recording.");
         return;
     }
 
     if (cl->state != clientState_t::CS_ACTIVE) {
-        Com_Printf("Client is not active.\n");
+        Q_Println("Client is not active.");
         return;
     }
 
     // open the demo file
     Q_strncpyz(cl->demo.demoName, demoName, sizeof(cl->demo.demoName));
-    Com_sprintf(name, sizeof(name), "demos/%s.dm_%d", cl->demo.demoName, PROTOCOL_VERSION);
-    Com_Printf("recording to %s.\n", name);
+    Q_FormatTo(name, "demos/{}.dm_{}", cl->demo.demoName, PROTOCOL_VERSION);
+    Q_Println("recording to {}.", name);
     cl->demo.demofile = FS_FOpenFileWrite(name);
     if (!cl->demo.demofile) {
-        Com_PrintError("couldn't open.\n");
+        Q_PrintlnError("couldn't open.");
         return;
     }
     cl->demo.demorecording = true;
@@ -1563,7 +1563,7 @@ void SV_RecordDemo(client_t* cl, char* demoName)
     // write out the gamestate message; the messages sent to the client from now on are coded again into the demo
     // against the demo's own last snapshot (sv_netcodec.cpp, qcommon/demo_record.cpp)
     if (!SV_NetcodecDemoStart(cl)) {
-        Com_PrintError("the gamestate could not be coded.\n");
+        Q_PrintlnError("the gamestate could not be coded.");
         FS_FCloseFile(cl->demo.demofile);
         cl->demo.demofile = 0;
         cl->demo.demorecording = false;
@@ -1590,13 +1590,13 @@ void SV_AutoRecordDemo(client_t* cl)
     strftime(folderTreeDate, sizeof(folderTreeDate), "%Y/%m/%d", timeinfo);
     Q_strncpyz(demoPlayerName, cl->name, sizeof(demoPlayerName));
     Q_CleanStr(demoPlayerName);
-    Com_sprintf(demoFileName, sizeof(demoFileName), "%td %s %s %s", cl - svs.clients, demoPlayerName, Cvar_VariableString("mapname"), date);
-    Com_sprintf(demoFolderName, sizeof(demoFolderName), "%s %s", Cvar_VariableString("mapname"), folderDate);
+    Q_FormatTo(demoFileName, "{} {} {} {}", cl - svs.clients, demoPlayerName, Cvar_VariableString("mapname"), date);
+    Q_FormatTo(demoFolderName, "{} {}", Cvar_VariableString("mapname"), folderDate);
     // sanitize filename
     for (char** start = demoNames; start - demoNames < (ptrdiff_t)ARRAY_LEN(demoNames); start++) {
         Q_strstrip(*start, "\n\r;:.?*<>|\\/\"", nullptr);
     }
-    Com_sprintf(demoName, sizeof(demoName), "autorecord/%s/%s/%s", folderTreeDate, demoFolderName, demoFileName);
+    Q_FormatTo(demoName, "autorecord/{}/{}/{}", folderTreeDate, demoFolderName, demoFileName);
     SV_RecordDemo(cl, demoName);
 }
 
@@ -1654,7 +1654,7 @@ static int SV_FindLeafFolders(const char* baseFolder, char* result, int maxResul
     for (i = 0; i < numFiles; i++) {
         if (Q_stricmp(fileName, ".") && Q_stricmp(fileName, "..")) {
             char* nextResult = nullptr;
-            Com_sprintf(fullFolder, sizeof(fullFolder), "%s/%s", baseFolder, fileName);
+            Q_FormatTo(fullFolder, "{}/{}", baseFolder, fileName);
             if (result != nullptr) {
                 nextResult = &result[maxFolderLength * resultCount];
             }
@@ -1739,19 +1739,19 @@ static void SV_Record_f(void)
     client_t* cl;
 
     if (svs.clients == nullptr) {
-        Com_Printf("cannot record server demo - null svs.clients\n");
+        Q_Println("cannot record server demo - null svs.clients");
         return;
     }
 
     if (Cmd_Argc() > 3) {
-        Com_Printf("record <demoname> <clientnum>\n");
+        Q_Println("record <demoname> <clientnum>");
         return;
     }
 
     if (Cmd_Argc() == 3) {
         int clIndex = atoi(Cmd_Argv(2));
         if (clIndex < 0 || clIndex >= sv_maxclients->integer) {
-            Com_Printf("Unknown client number %d.\n", clIndex);
+            Q_Println("Unknown client number {}.", clIndex);
             return;
         }
         cl = &svs.clients[clIndex];
@@ -1773,33 +1773,33 @@ static void SV_Record_f(void)
     }
 
     if (cl - svs.clients >= sv_maxclients->integer) {
-        Com_Printf("No active client could be found.\n");
+        Q_Println("No active client could be found.");
         return;
     }
 
     if (cl->demo.demorecording) {
-        Com_Printf("Already recording.\n");
+        Q_Println("Already recording.");
         return;
     }
 
     if (cl->state != clientState_t::CS_ACTIVE) {
-        Com_Printf("Client is not active.\n");
+        Q_Println("Client is not active.");
         return;
     }
 
     if (Cmd_Argc() >= 2) {
         s = Cmd_Argv(1);
         Q_strncpyz(demoName, s, sizeof(demoName));
-        Com_sprintf(name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION);
+        Q_FormatTo(name, "demos/{}.dm_{}", demoName, PROTOCOL_VERSION);
     }
     else {
         // timestamp the file
         SV_DemoFilename(demoName, sizeof(demoName));
 
-        Com_sprintf(name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION);
+        Q_FormatTo(name, "demos/{}.dm_{}", demoName, PROTOCOL_VERSION);
 
         if (FS_FileExists(name)) {
-            Com_Printf("Record: Couldn't create a file\n");
+            Q_Println("Record: Couldn't create a file");
             return;
         }
     }
@@ -1815,7 +1815,7 @@ SV_WhitelistIP_f
 static void SV_WhitelistIP_f(void)
 {
     if (Cmd_Argc() < 2) {
-        Com_Printf("Usage: whitelistip <ip>...\n");
+        Q_Println("Usage: whitelistip <ip>...");
         return;
     }
 
@@ -1824,10 +1824,10 @@ static void SV_WhitelistIP_f(void)
 
         if (NET_StringToAdr(Cmd_Argv(i), &adr)) {
             SVC_WhitelistAdr(&adr);
-            Com_Printf("Added %s to the IP whitelist\n", NET_AdrToString(&adr));
+            Q_Println("Added {} to the IP whitelist", NET_AdrToString(&adr));
         }
         else {
-            Com_Printf("Incorrect IP address: %s\n", Cmd_Argv(i));
+            Q_Println("Incorrect IP address: {}", Cmd_Argv(i));
         }
     }
 }

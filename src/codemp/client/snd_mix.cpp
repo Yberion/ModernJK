@@ -269,7 +269,7 @@ void S_PaintChannels(int endtime)
     snd_vol = normal_vol = s_volume->value * 256;
     voice_vol = (int)(s_volumeVoice->value * 256);
 
-    // Com_Printf ("%i to %i\n", s_paintedtime, endtime);
+    // Q_Println("{} to {}", s_paintedtime, endtime);
     while (s_paintedtime < endtime) {
         // if paintbuffer is smaller than DMA buffer
         // we may need to fill it multiple times
@@ -281,7 +281,7 @@ void S_PaintChannels(int endtime)
         // clear the paint buffer to either music or zeros
         if (s_rawend < s_paintedtime) {
             if (s_rawend) {
-                // Com_DPrintf ("background sound underrun\n");
+                // Q_DPrintln("background sound underrun");
             }
             memset(paintbuffer, 0, (end - s_paintedtime) * sizeof(portable_samplepair_t));
         }
@@ -297,9 +297,9 @@ void S_PaintChannels(int endtime)
                 paintbuffer[i - s_paintedtime] = s_rawsamples[s];
             }
             //		if (i != end)
-            //			Com_Printf ("partial stream\n");
+            //			Q_Println("partial stream");
             //		else
-            //			Com_Printf ("full stream\n");
+            //			Q_Println("full stream");
             for (; i < end; i++) {
                 paintbuffer[i - s_paintedtime].left = paintbuffer[i - s_paintedtime].right = 0;
             }

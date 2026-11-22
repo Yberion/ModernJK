@@ -98,7 +98,7 @@ void Cbuf_AddText(const char* text)
     l = strlen(text);
 
     if (cmd_text.cursize + l >= cmd_text.maxsize) {
-        Com_Printf("Cbuf_AddText: overflow\n");
+        Q_Println("Cbuf_AddText: overflow");
         return;
     }
     Com_Memcpy(&cmd_text.data[cmd_text.cursize], text, l);
@@ -120,7 +120,7 @@ void Cbuf_InsertText(const char* text)
 
     len = strlen(text) + 1;
     if (len + cmd_text.cursize > cmd_text.maxsize) {
-        Com_Printf("Cbuf_InsertText overflowed\n");
+        Q_Println("Cbuf_InsertText overflowed");
         return;
     }
 
@@ -148,12 +148,12 @@ void Cbuf_ExecuteText(cbufExec_t exec_when, const char* text)
     switch (exec_when) {
     case cbufExec_t::EXEC_NOW:
         if (text && strlen(text) > 0) {
-            Com_DPrintf(S_COLOR_YELLOW "EXEC_NOW %s\n", text);
+            Q_DPrintln(S_COLOR_YELLOW "EXEC_NOW {}", text);
             Cmd_ExecuteString(text);
         }
         else {
             Cbuf_Execute();
-            Com_DPrintf(S_COLOR_YELLOW "EXEC_NOW %s\n", cmd_text.data);
+            Q_DPrintln(S_COLOR_YELLOW "EXEC_NOW {}", reinterpret_cast<const char*>(cmd_text.data));
         }
         break;
     case cbufExec_t::EXEC_INSERT:
@@ -163,7 +163,7 @@ void Cbuf_ExecuteText(cbufExec_t exec_when, const char* text)
         Cbuf_AddText(text);
         break;
     default:
-        Com_Error(errorParm_t::ERR_FATAL, "Cbuf_ExecuteText: bad exec_when");
+        Q_Error(errorParm_t::ERR_FATAL, "Cbuf_ExecuteText: bad exec_when");
     }
 }
 
@@ -275,7 +275,7 @@ void Cmd_Exec_f(void)
     quiet = !Q_stricmp(Cmd_Argv(0), "execq");
 
     if (Cmd_Argc() != 2) {
-        Com_Printf("exec%s <filename> : execute a script file%s\n", quiet ? "q" : "", quiet ? " without notification" : "");
+        Q_Println("exec{} <filename> : execute a script file{}", quiet ? "q" : "", quiet ? " without notification" : "");
         return;
     }
 
@@ -283,11 +283,11 @@ void Cmd_Exec_f(void)
     COM_DefaultExtension(filename, sizeof(filename), ".cfg");
     FS_ReadFile(filename, &f.v);
     if (!f.c) {
-        Com_Printf("couldn't exec %s\n", filename);
+        Q_Println("couldn't exec {}", filename);
         return;
     }
     if (!quiet)
-        Com_Printf("execing %s\n", filename);
+        Q_Println("execing {}", filename);
 
     Cbuf_InsertText(f.c);
 
@@ -306,12 +306,12 @@ void Cmd_Vstr_f(void)
     const char* v;
 
     if (Cmd_Argc() != 2) {
-        Com_Printf("vstr <variablename> : execute a variable command\n");
+        Q_Println("vstr <variablename> : execute a variable command");
         return;
     }
 
     v = Cvar_VariableString(Cmd_Argv(1));
-    Cbuf_InsertText(va("%s\n", v));
+    Cbuf_InsertText(Q_Format("{}\n", v).c_str());
 }
 
 /*
@@ -323,7 +323,7 @@ Just prints the rest of the line to the console
 */
 void Cmd_Echo_f(void)
 {
-    Com_Printf("%s\n", Cmd_Args());
+    Q_Println("{}", Cmd_Args());
 }
 
 /*
@@ -616,7 +616,7 @@ void Cmd_AddCommand(const char* cmd_name, xcommand_t function)
     if (Cmd_FindCommand(cmd_name)) {
         // allow completion-only commands to be silently doubled
         if (function != nullptr) {
-            Com_Printf("Cmd_AddCommand: %s already defined\n", cmd_name);
+            Q_Println("Cmd_AddCommand: {} already defined", cmd_name);
         }
         return;
     }
@@ -781,13 +781,13 @@ void Cmd_List_f(void)
         if (!cmd->name || (match && !Com_Filter(match, cmd->name, false)))
             continue;
 
-        Com_Printf(" %s\n", cmd->name);
+        Q_Println(" {}", cmd->name);
         j++;
     }
 
-    Com_Printf("\n%i total commands\n", i);
+    Q_Println("\n{} total commands", i);
     if (i != j)
-        Com_Printf("%i matching commands\n", j);
+        Q_Println("{} matching commands", j);
 }
 
 /*

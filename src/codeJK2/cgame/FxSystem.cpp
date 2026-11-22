@@ -66,7 +66,7 @@ int SFxHelper::OpenFile(const char* file, fileHandle_t* fh, int mode)
 {
     //	char path[256];
 
-    //	sprintf( path, "%s/%s", FX_FILE_PATH, file );
+    //	Q_FormatTo(path, "{}/{}", FX_FILE_PATH, file);
     return cgi_FS_FOpenFile(file, fh, fsMode_t::FS_READ);
 }
 

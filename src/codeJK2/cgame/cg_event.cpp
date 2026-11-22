@@ -48,6 +48,7 @@ const char* CG_PlaceString(int rank)
 {
     static char str[64];
     const char *s, *t;
+    formatText_t sText; // holds the text s points into
 
     if (rank & RANK_TIED_FLAG) {
         rank &= ~RANK_TIED_FLAG;
@@ -76,19 +77,19 @@ const char* CG_PlaceString(int rank)
         s = "13th";
     }
     else if (rank % 10 == 1) {
-        s = va("%ist", rank);
+        s = (sText = Q_Format("{}st", rank)).c_str();
     }
     else if (rank % 10 == 2) {
-        s = va("%ind", rank);
+        s = (sText = Q_Format("{}nd", rank)).c_str();
     }
     else if (rank % 10 == 3) {
-        s = va("%ird", rank);
+        s = (sText = Q_Format("{}rd", rank)).c_str();
     }
     else {
-        s = va("%ith", rank);
+        s = (sText = Q_Format("{}th", rank)).c_str();
     }
 
-    Com_sprintf(str, sizeof(str), "%s%s", t, s);
+    Q_FormatTo(str, "{}{}", t, s);
     return str;
 }
 
@@ -108,8 +109,8 @@ void CG_ItemPickup(itemNum_t itemNum, bool bHadItem)
     if (bg_itemlist[itemNum].classname && bg_itemlist[itemNum].classname[0]) {
         char text[1024], data[1024];
         if (cgi_SP_GetStringTextString("INGAME_PICKUPLINE", text, sizeof(text))) {
-            if (cgi_SP_GetStringTextString(va("INGAME_%s", bg_itemlist[itemNum].classname), data, sizeof(data))) {
-                Com_Printf("%s %s\n", text, data);
+            if (cgi_SP_GetStringTextString(Q_Format("INGAME_{}", bg_itemlist[itemNum].classname).c_str(), data, sizeof(data))) {
+                Q_Println("{} {}", text, data);
             }
         }
     }
@@ -232,7 +233,7 @@ static void CG_UseItem(centity_t* cent)
         }
         else {
             //			item = BG_FindItemForHoldable( itemNum );
-            //			CG_CenterPrint( va("Use %s", item->pickup_name), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+            //			CG_CenterPrint( Q_Format("Use {}", item->pickup_name).c_str(), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
         }
     }
 
@@ -248,7 +249,7 @@ An entity has an event value
 */
 #define DEBUGNAME(x)                                                                                                                                           \
     if (cg_debugEvents.integer) {                                                                                                                              \
-        Com_Printf(x "\n");                                                                                                                                    \
+        Q_Println(x "");                                                                                                                                       \
     }
 void CG_EntityEvent(centity_t* cent, vec3_t position)
 {
@@ -263,7 +264,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     event = BG_UnpackEvent(es->event);
 
     if (cg_debugEvents.integer) {
-        Com_Printf("ent:%3i  event:%3i ", es->number, to_underlying(event));
+        Q_Print("ent:{:3}  event:{:3} ", es->number, to_underlying(event));
     }
 
     if (event == entity_event_t::EV_NONE) {
@@ -433,7 +434,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_WATER_GURP1:
     case entity_event_t::EV_WATER_GURP2:
         DEBUGNAME("EV_WATER_GURPx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, va("*gurp%d.wav", event - entity_event_t::EV_WATER_GURP1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, Q_Format("*gurp{}.wav", event - entity_event_t::EV_WATER_GURP1 + 1).c_str(),
                               customSoundSet_t::CS_BASIC);
         break;
 
@@ -738,7 +739,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             return;
         }
         */
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*death%i.wav", event - entity_event_t::EV_DEATH1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*death{}.wav", event - entity_event_t::EV_DEATH1 + 1).c_str(),
                               customSoundSet_t::CS_BASIC);
         break;
 
@@ -801,7 +802,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_ANGER2:
     case entity_event_t::EV_ANGER3:
         DEBUGNAME("EV_ANGERx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*anger%i.wav", event - entity_event_t::EV_ANGER1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*anger{}.wav", event - entity_event_t::EV_ANGER1 + 1).c_str(),
                               customSoundSet_t::CS_COMBAT);
         break;
 
@@ -809,7 +810,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_VICTORY2:
     case entity_event_t::EV_VICTORY3:
         DEBUGNAME("EV_VICTORYx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*victory%i.wav", event - entity_event_t::EV_VICTORY1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*victory{}.wav", event - entity_event_t::EV_VICTORY1 + 1).c_str(),
                               customSoundSet_t::CS_COMBAT);
         break;
 
@@ -817,7 +818,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_CONFUSE2:
     case entity_event_t::EV_CONFUSE3:
         DEBUGNAME("EV_CONFUSEDx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*confuse%i.wav", event - entity_event_t::EV_CONFUSE1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*confuse{}.wav", event - entity_event_t::EV_CONFUSE1 + 1).c_str(),
                               customSoundSet_t::CS_COMBAT);
         break;
 
@@ -825,7 +826,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_PUSHED2:
     case entity_event_t::EV_PUSHED3:
         DEBUGNAME("EV_PUSHEDx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*pushed%i.wav", event - entity_event_t::EV_PUSHED1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*pushed{}.wav", event - entity_event_t::EV_PUSHED1 + 1).c_str(),
                               customSoundSet_t::CS_COMBAT);
         break;
 
@@ -833,7 +834,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_CHOKE2:
     case entity_event_t::EV_CHOKE3:
         DEBUGNAME("EV_CHOKEx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*choke%i.wav", event - entity_event_t::EV_CHOKE1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*choke{}.wav", event - entity_event_t::EV_CHOKE1 + 1).c_str(),
                               customSoundSet_t::CS_COMBAT);
         break;
 
@@ -852,7 +853,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_CHASE2:
     case entity_event_t::EV_CHASE3:
         DEBUGNAME("EV_CHASEx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*chase%i.wav", event - entity_event_t::EV_CHASE1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*chase{}.wav", event - entity_event_t::EV_CHASE1 + 1).c_str(),
                               customSoundSet_t::CS_EXTRA);
         break;
     case entity_event_t::EV_COVER1:
@@ -861,7 +862,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_COVER4:
     case entity_event_t::EV_COVER5:
         DEBUGNAME("EV_COVERx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*cover%i.wav", event - entity_event_t::EV_COVER1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*cover{}.wav", event - entity_event_t::EV_COVER1 + 1).c_str(),
                               customSoundSet_t::CS_EXTRA);
         break;
     case entity_event_t::EV_DETECTED1:
@@ -870,7 +871,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_DETECTED4:
     case entity_event_t::EV_DETECTED5:
         DEBUGNAME("EV_DETECTEDx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*detected%i.wav", event - entity_event_t::EV_DETECTED1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*detected{}.wav", event - entity_event_t::EV_DETECTED1 + 1).c_str(),
                               customSoundSet_t::CS_EXTRA);
         break;
     case entity_event_t::EV_GIVEUP1:
@@ -878,13 +879,13 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_GIVEUP3:
     case entity_event_t::EV_GIVEUP4:
         DEBUGNAME("EV_GIVEUPx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*giveup%i.wav", event - entity_event_t::EV_GIVEUP1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*giveup{}.wav", event - entity_event_t::EV_GIVEUP1 + 1).c_str(),
                               customSoundSet_t::CS_EXTRA);
         break;
     case entity_event_t::EV_LOOK1:
     case entity_event_t::EV_LOOK2:
         DEBUGNAME("EV_LOOKx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*look%i.wav", event - entity_event_t::EV_LOOK1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*look{}.wav", event - entity_event_t::EV_LOOK1 + 1).c_str(),
                               customSoundSet_t::CS_EXTRA);
         break;
     case entity_event_t::EV_LOST1:
@@ -894,28 +895,28 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_OUTFLANK1:
     case entity_event_t::EV_OUTFLANK2:
         DEBUGNAME("EV_OUTFLANKx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*outflank%i.wav", event - entity_event_t::EV_OUTFLANK1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*outflank{}.wav", event - entity_event_t::EV_OUTFLANK1 + 1).c_str(),
                               customSoundSet_t::CS_EXTRA);
         break;
     case entity_event_t::EV_ESCAPING1:
     case entity_event_t::EV_ESCAPING2:
     case entity_event_t::EV_ESCAPING3:
         DEBUGNAME("EV_ESCAPINGx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*escaping%i.wav", event - entity_event_t::EV_ESCAPING1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*escaping{}.wav", event - entity_event_t::EV_ESCAPING1 + 1).c_str(),
                               customSoundSet_t::CS_EXTRA);
         break;
     case entity_event_t::EV_SIGHT1:
     case entity_event_t::EV_SIGHT2:
     case entity_event_t::EV_SIGHT3:
         DEBUGNAME("EV_SIGHTx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*sight%i.wav", event - entity_event_t::EV_SIGHT1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*sight{}.wav", event - entity_event_t::EV_SIGHT1 + 1).c_str(),
                               customSoundSet_t::CS_EXTRA);
         break;
     case entity_event_t::EV_SOUND1:
     case entity_event_t::EV_SOUND2:
     case entity_event_t::EV_SOUND3:
         DEBUGNAME("EV_SOUNDx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*sound%i.wav", event - entity_event_t::EV_SOUND1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*sound{}.wav", event - entity_event_t::EV_SOUND1 + 1).c_str(),
                               customSoundSet_t::CS_EXTRA);
         break;
     case entity_event_t::EV_SUSPICIOUS1:
@@ -924,57 +925,57 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_SUSPICIOUS4:
     case entity_event_t::EV_SUSPICIOUS5:
         DEBUGNAME("EV_SUSPICIOUSx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*suspicious%i.wav", event - entity_event_t::EV_SUSPICIOUS1 + 1),
-                              customSoundSet_t::CS_EXTRA);
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE,
+                              Q_Format("*suspicious{}.wav", event - entity_event_t::EV_SUSPICIOUS1 + 1).c_str(), customSoundSet_t::CS_EXTRA);
         break;
     // extra sounds for Jedi
     case entity_event_t::EV_COMBAT1:
     case entity_event_t::EV_COMBAT2:
     case entity_event_t::EV_COMBAT3:
         DEBUGNAME("EV_COMBATx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*combat%i.wav", event - entity_event_t::EV_COMBAT1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*combat{}.wav", event - entity_event_t::EV_COMBAT1 + 1).c_str(),
                               customSoundSet_t::CS_JEDI);
         break;
     case entity_event_t::EV_JDETECTED1:
     case entity_event_t::EV_JDETECTED2:
     case entity_event_t::EV_JDETECTED3:
         DEBUGNAME("EV_JDETECTEDx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*jdetected%i.wav", event - entity_event_t::EV_JDETECTED1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*jdetected{}.wav", event - entity_event_t::EV_JDETECTED1 + 1).c_str(),
                               customSoundSet_t::CS_JEDI);
         break;
     case entity_event_t::EV_TAUNT1:
     case entity_event_t::EV_TAUNT2:
     case entity_event_t::EV_TAUNT3:
         DEBUGNAME("EV_TAUNTx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*taunt%i.wav", event - entity_event_t::EV_TAUNT1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*taunt{}.wav", event - entity_event_t::EV_TAUNT1 + 1).c_str(),
                               customSoundSet_t::CS_JEDI);
         break;
     case entity_event_t::EV_JCHASE1:
     case entity_event_t::EV_JCHASE2:
     case entity_event_t::EV_JCHASE3:
         DEBUGNAME("EV_JCHASEx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*jchase%i.wav", event - entity_event_t::EV_JCHASE1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*jchase{}.wav", event - entity_event_t::EV_JCHASE1 + 1).c_str(),
                               customSoundSet_t::CS_JEDI);
         break;
     case entity_event_t::EV_JLOST1:
     case entity_event_t::EV_JLOST2:
     case entity_event_t::EV_JLOST3:
         DEBUGNAME("EV_JLOSTx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*jlost%i.wav", event - entity_event_t::EV_JLOST1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*jlost{}.wav", event - entity_event_t::EV_JLOST1 + 1).c_str(),
                               customSoundSet_t::CS_JEDI);
         break;
     case entity_event_t::EV_DEFLECT1:
     case entity_event_t::EV_DEFLECT2:
     case entity_event_t::EV_DEFLECT3:
         DEBUGNAME("EV_DEFLECTx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*deflect%i.wav", event - entity_event_t::EV_DEFLECT1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*deflect{}.wav", event - entity_event_t::EV_DEFLECT1 + 1).c_str(),
                               customSoundSet_t::CS_JEDI);
         break;
     case entity_event_t::EV_GLOAT1:
     case entity_event_t::EV_GLOAT2:
     case entity_event_t::EV_GLOAT3:
         DEBUGNAME("EV_GLOATx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, va("*gloat%i.wav", event - entity_event_t::EV_GLOAT1 + 1),
+        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*gloat{}.wav", event - entity_event_t::EV_GLOAT1 + 1).c_str(),
                               customSoundSet_t::CS_JEDI);
         break;
     case entity_event_t::EV_PUSHFAIL:
@@ -1024,7 +1025,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
     default:
         DEBUGNAME("UNKNOWN");
-        Com_Error(errorParm_t::ERR_DROP, "Unknown event: %i", to_underlying(event));
+        Q_Error(errorParm_t::ERR_DROP, "Unknown event: {}", to_underlying(event));
         break;
     }
 }

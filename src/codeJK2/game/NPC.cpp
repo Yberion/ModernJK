@@ -857,7 +857,6 @@ void NPC_ApplyScriptFlags(void)
     }
 }
 
-void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 void NPC_HandleAIFlags(void)
 {
     // FIXME: make these flags checks a function call like NPC_CheckAIFlagsAndTimers
@@ -868,8 +867,8 @@ void NPC_HandleAIFlags(void)
         /*
         if ( showWaypoints )
         {
-            Q3_DebugPrint(WL_e::WL_WARNING, "%s can't navigate to target %s (my wp: %d, goal wp: %d)\n", NPC->targetname, NPCInfo->goalEntity->targetname,
-        NPC->waypoint, NPCInfo->goalEntity->waypoint );
+            Q3_DebugPrintln(WL_e::WL_WARNING, "{} can't navigate to target {} (my wp: {}, goal wp: {})", NPC->targetname, NPCInfo->goalEntity->targetname,
+        NPC->waypoint, NPCInfo->goalEntity->waypoint);
         }
         */
 
@@ -939,7 +938,7 @@ void NPC_HandleAIFlags(void)
     if (NPCInfo->ffireCount > 0) {
         if (NPCInfo->ffireFadeDebounce < level.time) {
             NPCInfo->ffireCount--;
-            // Com_Printf( "drop: %d < %d\n", NPCInfo->ffireCount, 3+((2-g_spskill->integer)*2) );
+            // Q_Println("drop: {} < {}", NPCInfo->ffireCount, 3+((2-g_spskill->integer)*2));
             NPCInfo->ffireFadeDebounce = level.time + 3000;
         }
     }
@@ -1822,7 +1821,7 @@ void NPC_ExecuteBState(gentity_t* self) //, int msec )
 
         if(la && ta)
         {//FIXME: should never play same frame twice or restart an anim before finishing it
-            Com_Printf("LegsAnim: %s(%d) TorsoAnim: %s(%d)\n", BG_AnimName( *la ), NPC->renderInfo.legsFrame, BG_AnimName( *ta ),
+            Q_Println("LegsAnim: {}({}) TorsoAnim: {}({})", BG_AnimName( *la ), NPC->renderInfo.legsFrame, BG_AnimName( *ta ),
     NPC->client->renderInfo.torsoFrame);
         }
     }*/
@@ -1841,7 +1840,7 @@ void NPC_CheckInSolid(void)
     }
     else {
         if (VectorLengthSquared(NPCInfo->lastClearOrigin)) {
-            //			Com_Printf("%s stuck in solid at %s: fixing...\n", NPC->script_targetname, vtos(NPC->currentOrigin));
+            //			Q_Println("{} stuck in solid at {}: fixing...", NPC->script_targetname, vtos(NPC->currentOrigin));
             G_SetOrigin(NPC, NPCInfo->lastClearOrigin);
             gi.linkentity(NPC);
         }
@@ -1901,19 +1900,19 @@ void NPC_Think(gentity_t* self) //, int msec )
             if (TIMER_Done(self, "patrolNoise") && !Q_irand(0, 20)) {
                 switch (self->client->NPC_class) {
                 case class_t::CLASS_R2D2: // droid
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, va("sound/chars/r2d2/misc/r2d2talk0%d.wav", Q_irand(1, 3)));
+                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/r2d2/misc/r2d2talk0{}.wav", Q_irand(1, 3)).c_str());
                     break;
                 case class_t::CLASS_R5D2: // droid
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, va("sound/chars/r5d2/misc/r5talk%d.wav", Q_irand(1, 4)));
+                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/r5d2/misc/r5talk{}.wav", Q_irand(1, 4)).c_str());
                     break;
                 case class_t::CLASS_PROBE: // droid
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d.wav", Q_irand(1, 3)));
+                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/probe/misc/probetalk{}.wav", Q_irand(1, 3)).c_str());
                     break;
                 case class_t::CLASS_MOUSE: // droid
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, va("sound/chars/mouse/misc/mousego%d.wav", Q_irand(1, 3)));
+                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/mouse/misc/mousego{}.wav", Q_irand(1, 3)).c_str());
                     break;
                 case class_t::CLASS_GONK: // droid
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, va("sound/chars/gonk/misc/gonktalk%d.wav", Q_irand(1, 2)));
+                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/gonk/misc/gonktalk{}.wav", Q_irand(1, 2)).c_str());
                     break;
                 default:
                     break;
@@ -1952,7 +1951,7 @@ void NPC_Think(gentity_t* self) //, int msec )
 #if AI_TIMERS
         int addTime = GetTime(startTime);
         if (addTime > 50) {
-            Com_PrintError("NPC number %d, %s %s at %s, weaponnum: %d, using %d of AI time!!!\n", NPC->s.number, NPC->NPC_type, NPC->targetname,
+            Q_PrintlnError("NPC number {}, {} {} at {}, weaponnum: {}, using {} of AI time!!!", NPC->s.number, NPC->NPC_type, NPC->targetname,
                            vtos(NPC->currentOrigin), NPC->s.weapon, addTime);
         }
         AITime += addTime;

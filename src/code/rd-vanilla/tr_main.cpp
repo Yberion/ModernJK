@@ -788,7 +788,7 @@ bool R_GetPortalOrientations(drawSurf_t* drawSurf, int entityNum, orientation_t*
     // to see a surface before the server has communicated the matching
     // portal surface entity, so we don't want to print anything here...
 
-    // Com_Printf("Portal surface without a portal entity\n" );
+    // Q_Println("Portal surface without a portal entity");
 
     return false;
 }
@@ -951,7 +951,7 @@ bool R_MirrorViewBySurface(drawSurf_t* drawSurf, int entityNum)
 
     // don't recursively mirror
     if (tr.viewParms.isPortal) {
-        Com_DPrintf("WARNING: recursive mirror/portal found\n");
+        Q_DPrintln("WARNING: recursive mirror/portal found");
         return false;
     }
 
@@ -1183,7 +1183,7 @@ void R_SortDrawSurfs(drawSurf_t* drawSurfs, int numDrawSurfs)
 
         // no shader should ever have this sort type
         if (shader->sort == (float)shaderSort_t::SS_BAD) {
-            Com_Error(errorParm_t::ERR_DROP, "Shader '%s'with sort == SS_BAD", shader->name);
+            Q_Error(errorParm_t::ERR_DROP, "Shader '{}'with sort == SS_BAD", shader->name);
         }
 
         // if the mirror was completely clipped away, we may need to check another surface
@@ -1302,13 +1302,13 @@ void R_AddEntitySurfaces(void)
                     */
 
                 default:
-                    Com_Error(errorParm_t::ERR_DROP, "R_AddEntitySurfaces: Bad modeltype");
+                    Q_Error(errorParm_t::ERR_DROP, "R_AddEntitySurfaces: Bad modeltype");
                     break;
                 }
             }
             break;
         default:
-            Com_Error(errorParm_t::ERR_DROP, "R_AddEntitySurfaces: Bad reType");
+            Q_Error(errorParm_t::ERR_DROP, "R_AddEntitySurfaces: Bad reType");
         }
     }
 }

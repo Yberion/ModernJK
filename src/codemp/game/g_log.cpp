@@ -260,7 +260,7 @@ void G_LogWeaponOutput(void)
         return;
     }
 
-    G_LogPrintf("*****************************Weapon Log:\n");
+    G_LogPrintln("*****************************Weapon Log:");
 
     totalpickups = {};
     totaltime = {};
@@ -296,12 +296,13 @@ void G_LogWeaponOutput(void)
         }
     }
 
-    G_LogPrintf("\n****Data by Weapon:\n");
+    G_LogPrintln("\n****Data by Weapon:");
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        G_LogPrintf("%15s:  Pickups: %4d,  Time:  %5d,  Deaths: %5d\n", weaponNameFromIndex[j], totalpickups[j], (int)(totaltime[j] / 1000), totaldeaths[j]);
+        G_LogPrintln("{:>15}:  Pickups: {:4},  Time:  {:5},  Deaths: {:5}", weaponNameFromIndex[j], totalpickups[j], (int)(totaltime[j] / 1000),
+                     totaldeaths[j]);
     }
 
-    G_LogPrintf("\n****Combat Data by Weapon:\n");
+    G_LogPrintln("\n****Combat Data by Weapon:");
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
         if (totalshots[j] > 0) {
             pershot = (float)(totaldamage[j]) / (float)(totalshots[j]);
@@ -309,15 +310,15 @@ void G_LogWeaponOutput(void)
         else {
             pershot = 0;
         }
-        G_LogPrintf("%15s:  Damage: %6d,  Kills: %5d,  Dmg per Shot: %f\n", weaponNameFromIndex[j], totaldamage[j], totalkills[j], pershot);
+        G_LogPrintln("{:>15}:  Damage: {:6},  Kills: {:5},  Dmg per Shot: {:f}", weaponNameFromIndex[j], totaldamage[j], totalkills[j], pershot);
     }
 
-    G_LogPrintf("\n****Combat Data By Damage Type:\n");
+    G_LogPrintln("\n****Combat Data By Damage Type:");
     for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
-        G_LogPrintf("%25s:  Damage: %6d,  Kills: %5d\n", modNames[mod], totaldamageMOD[mod], totalkillsMOD[mod]);
+        G_LogPrintln("{:>25}:  Damage: {:6},  Kills: {:5}", modNames[mod], totaldamageMOD[mod], totalkillsMOD[mod]);
     }
 
-    G_LogPrintf("\n");
+    G_LogPrintln("");
 
     // Write the whole weapon statistic log out to a file.
     trap->FS_Open(g_statLogFile.string, &weaponfile, fsMode_t::FS_APPEND);
@@ -329,23 +330,23 @@ void G_LogWeaponOutput(void)
     trap->GetServerinfo(info, sizeof(info));
     Q_strncpyz(mapname, Info_ValueForKey(info, "mapname"), sizeof(mapname));
 
-    Com_sprintf(string, sizeof(string), "\n\n\nLevel:\t%s\n\n\n", mapname);
+    Q_FormatTo(string, "\n\n\nLevel:\t{}\n\n\n", mapname);
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Combat data per character
 
     // Start with Pickups per character
-    Com_sprintf(string, sizeof(string), "Weapon Pickups per Player:\n\n");
+    Q_FormatTo(string, "Weapon Pickups per Player:\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
-    Com_sprintf(string, sizeof(string), "Player");
+    Q_FormatTo(string, "Player");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
+        Q_FormatTo(string, "\t{}", weaponNameFromIndex[j]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
-    Com_sprintf(string, sizeof(string), "\n");
+    Q_FormatTo(string, "\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Cycle through each player, give their name and the number of times they picked up each weapon.
@@ -360,39 +361,39 @@ void G_LogWeaponOutput(void)
             trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
 
             for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-                Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogPickups[i][j]);
+                Q_FormatTo(string, "\t{}", G_WeaponLogPickups[i][j]);
                 trap->FS_Write(string, strlen(string), weaponfile);
             }
 
-            Com_sprintf(string, sizeof(string), "\n");
+            Q_FormatTo(string, "\n");
             trap->FS_Write(string, strlen(string), weaponfile);
         }
     }
 
     // Sum up the totals.
-    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    Q_FormatTo(string, "\n***TOTAL:");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        Com_sprintf(string, sizeof(string), "\t%d", totalpickups[j]);
+        Q_FormatTo(string, "\t{}", totalpickups[j]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
 
-    Com_sprintf(string, sizeof(string), "\n\n\n");
+    Q_FormatTo(string, "\n\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Weapon fires per character
-    Com_sprintf(string, sizeof(string), "Weapon Shots per Player:\n\n");
+    Q_FormatTo(string, "Weapon Shots per Player:\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
-    Com_sprintf(string, sizeof(string), "Player");
+    Q_FormatTo(string, "Player");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
+        Q_FormatTo(string, "\t{}", weaponNameFromIndex[j]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
-    Com_sprintf(string, sizeof(string), "\n");
+    Q_FormatTo(string, "\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Cycle through each player, give their name and the number of times they picked up each weapon.
@@ -407,39 +408,39 @@ void G_LogWeaponOutput(void)
             trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
 
             for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-                Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogFired[i][j]);
+                Q_FormatTo(string, "\t{}", G_WeaponLogFired[i][j]);
                 trap->FS_Write(string, strlen(string), weaponfile);
             }
 
-            Com_sprintf(string, sizeof(string), "\n");
+            Q_FormatTo(string, "\n");
             trap->FS_Write(string, strlen(string), weaponfile);
         }
     }
 
     // Sum up the totals.
-    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    Q_FormatTo(string, "\n***TOTAL:");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        Com_sprintf(string, sizeof(string), "\t%d", totalshots[j]);
+        Q_FormatTo(string, "\t{}", totalshots[j]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
 
-    Com_sprintf(string, sizeof(string), "\n\n\n");
+    Q_FormatTo(string, "\n\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Weapon time per character
-    Com_sprintf(string, sizeof(string), "Weapon Use Time per Player:\n\n");
+    Q_FormatTo(string, "Weapon Use Time per Player:\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
-    Com_sprintf(string, sizeof(string), "Player");
+    Q_FormatTo(string, "Player");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
+        Q_FormatTo(string, "\t{}", weaponNameFromIndex[j]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
-    Com_sprintf(string, sizeof(string), "\n");
+    Q_FormatTo(string, "\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Cycle through each player, give their name and the number of times they picked up each weapon.
@@ -454,39 +455,39 @@ void G_LogWeaponOutput(void)
             trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
 
             for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-                Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogTime[i][j]);
+                Q_FormatTo(string, "\t{}", G_WeaponLogTime[i][j]);
                 trap->FS_Write(string, strlen(string), weaponfile);
             }
 
-            Com_sprintf(string, sizeof(string), "\n");
+            Q_FormatTo(string, "\n");
             trap->FS_Write(string, strlen(string), weaponfile);
         }
     }
 
     // Sum up the totals.
-    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    Q_FormatTo(string, "\n***TOTAL:");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        Com_sprintf(string, sizeof(string), "\t%d", totaltime[j]);
+        Q_FormatTo(string, "\t{}", totaltime[j]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
 
-    Com_sprintf(string, sizeof(string), "\n\n\n");
+    Q_FormatTo(string, "\n\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Weapon deaths per character
-    Com_sprintf(string, sizeof(string), "Weapon Deaths per Player:\n\n");
+    Q_FormatTo(string, "Weapon Deaths per Player:\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
-    Com_sprintf(string, sizeof(string), "Player");
+    Q_FormatTo(string, "Player");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
+        Q_FormatTo(string, "\t{}", weaponNameFromIndex[j]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
-    Com_sprintf(string, sizeof(string), "\n");
+    Q_FormatTo(string, "\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Cycle through each player, give their name and the number of times they picked up each weapon.
@@ -501,40 +502,40 @@ void G_LogWeaponOutput(void)
             trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
 
             for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-                Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogDeaths[i][j]);
+                Q_FormatTo(string, "\t{}", G_WeaponLogDeaths[i][j]);
                 trap->FS_Write(string, strlen(string), weaponfile);
             }
 
-            Com_sprintf(string, sizeof(string), "\n");
+            Q_FormatTo(string, "\n");
             trap->FS_Write(string, strlen(string), weaponfile);
         }
     }
 
     // Sum up the totals.
-    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    Q_FormatTo(string, "\n***TOTAL:");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        Com_sprintf(string, sizeof(string), "\t%d", totaldeaths[j]);
+        Q_FormatTo(string, "\t{}", totaldeaths[j]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
 
-    Com_sprintf(string, sizeof(string), "\n\n\n");
+    Q_FormatTo(string, "\n\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Weapon damage per character
 
-    Com_sprintf(string, sizeof(string), "Weapon Damage per Player:\n\n");
+    Q_FormatTo(string, "Weapon Damage per Player:\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
-    Com_sprintf(string, sizeof(string), "Player");
+    Q_FormatTo(string, "Player");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
+        Q_FormatTo(string, "\t{}", weaponNameFromIndex[j]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
-    Com_sprintf(string, sizeof(string), "\n");
+    Q_FormatTo(string, "\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Cycle through each player, give their name and the number of times they picked up each weapon.
@@ -559,40 +560,40 @@ void G_LogWeaponOutput(void)
             trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
 
             for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-                Com_sprintf(string, sizeof(string), "\t%d", percharacter[j]);
+                Q_FormatTo(string, "\t{}", percharacter[j]);
                 trap->FS_Write(string, strlen(string), weaponfile);
             }
 
-            Com_sprintf(string, sizeof(string), "\n");
+            Q_FormatTo(string, "\n");
             trap->FS_Write(string, strlen(string), weaponfile);
         }
     }
 
     // Sum up the totals.
-    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    Q_FormatTo(string, "\n***TOTAL:");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        Com_sprintf(string, sizeof(string), "\t%d", totaldamage[j]);
+        Q_FormatTo(string, "\t{}", totaldamage[j]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
 
-    Com_sprintf(string, sizeof(string), "\n\n\n");
+    Q_FormatTo(string, "\n\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Weapon kills per character
 
-    Com_sprintf(string, sizeof(string), "Weapon Kills per Player:\n\n");
+    Q_FormatTo(string, "Weapon Kills per Player:\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
-    Com_sprintf(string, sizeof(string), "Player");
+    Q_FormatTo(string, "Player");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
+        Q_FormatTo(string, "\t{}", weaponNameFromIndex[j]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
-    Com_sprintf(string, sizeof(string), "\n");
+    Q_FormatTo(string, "\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Cycle through each player, give their name and the number of times they picked up each weapon.
@@ -617,39 +618,39 @@ void G_LogWeaponOutput(void)
             trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
 
             for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-                Com_sprintf(string, sizeof(string), "\t%d", percharacter[j]);
+                Q_FormatTo(string, "\t{}", percharacter[j]);
                 trap->FS_Write(string, strlen(string), weaponfile);
             }
 
-            Com_sprintf(string, sizeof(string), "\n");
+            Q_FormatTo(string, "\n");
             trap->FS_Write(string, strlen(string), weaponfile);
         }
     }
 
     // Sum up the totals.
-    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    Q_FormatTo(string, "\n***TOTAL:");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
-        Com_sprintf(string, sizeof(string), "\t%d", totalkills[j]);
+        Q_FormatTo(string, "\t{}", totalkills[j]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
 
-    Com_sprintf(string, sizeof(string), "\n\n\n");
+    Q_FormatTo(string, "\n\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Damage type damage per character
-    Com_sprintf(string, sizeof(string), "Typed Damage per Player:\n\n");
+    Q_FormatTo(string, "Typed Damage per Player:\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
-    Com_sprintf(string, sizeof(string), "Player");
+    Q_FormatTo(string, "Player");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
-        Com_sprintf(string, sizeof(string), "\t%s", modNames[mod]);
+        Q_FormatTo(string, "\t{}", modNames[mod]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
-    Com_sprintf(string, sizeof(string), "\n");
+    Q_FormatTo(string, "\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Cycle through each player, give their name and the number of times they picked up each weapon.
@@ -664,39 +665,39 @@ void G_LogWeaponOutput(void)
             trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
 
             for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
-                Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogDamage[i][mod]);
+                Q_FormatTo(string, "\t{}", G_WeaponLogDamage[i][mod]);
                 trap->FS_Write(string, strlen(string), weaponfile);
             }
 
-            Com_sprintf(string, sizeof(string), "\n");
+            Q_FormatTo(string, "\n");
             trap->FS_Write(string, strlen(string), weaponfile);
         }
     }
 
     // Sum up the totals.
-    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    Q_FormatTo(string, "\n***TOTAL:");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
-        Com_sprintf(string, sizeof(string), "\t%d", totaldamageMOD[mod]);
+        Q_FormatTo(string, "\t{}", totaldamageMOD[mod]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
 
-    Com_sprintf(string, sizeof(string), "\n\n\n");
+    Q_FormatTo(string, "\n\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Damage type kills per character
-    Com_sprintf(string, sizeof(string), "Damage-Typed Kills per Player:\n\n");
+    Q_FormatTo(string, "Damage-Typed Kills per Player:\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
-    Com_sprintf(string, sizeof(string), "Player");
+    Q_FormatTo(string, "Player");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
-        Com_sprintf(string, sizeof(string), "\t%s", modNames[mod]);
+        Q_FormatTo(string, "\t{}", modNames[mod]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
-    Com_sprintf(string, sizeof(string), "\n");
+    Q_FormatTo(string, "\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     // Cycle through each player, give their name and the number of times they picked up each weapon.
@@ -711,25 +712,25 @@ void G_LogWeaponOutput(void)
             trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
 
             for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
-                Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogKills[i][mod]);
+                Q_FormatTo(string, "\t{}", G_WeaponLogKills[i][mod]);
                 trap->FS_Write(string, strlen(string), weaponfile);
             }
 
-            Com_sprintf(string, sizeof(string), "\n");
+            Q_FormatTo(string, "\n");
             trap->FS_Write(string, strlen(string), weaponfile);
         }
     }
 
     // Sum up the totals.
-    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    Q_FormatTo(string, "\n***TOTAL:");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
-        Com_sprintf(string, sizeof(string), "\t%d", totalkillsMOD[mod]);
+        Q_FormatTo(string, "\t{}", totalkillsMOD[mod]);
         trap->FS_Write(string, strlen(string), weaponfile);
     }
 
-    Com_sprintf(string, sizeof(string), "\n\n\n");
+    Q_FormatTo(string, "\n\n\n");
     trap->FS_Write(string, strlen(string), weaponfile);
 
     trap->FS_Close(weaponfile);
@@ -1310,44 +1311,44 @@ void CalculateAwards(gentity_t *ent, char *msg)
 	if (CalculateEfficiency(ent, &efficiency))
 	{
 		awardFlags |= (1<<awardType_t::AWARD_EFFICIENCY);
-		Com_sprintf(buf1, AWARDS_MSG_LENGTH, " %d", efficiency);
+		Q_FormatTo(std::span(buf1, AWARDS_MSG_LENGTH), " {}", efficiency);
 	}
 	if (CalculateSharpshooter(ent, &kills))
 	{
 		awardFlags |= (1<<awardType_t::AWARD_SHARPSHOOTER);
 		strcpy(buf2, buf1);
-		Com_sprintf(buf1, AWARDS_MSG_LENGTH, "%s %d", buf2, kills);
+		Q_FormatTo(std::span(buf1, AWARDS_MSG_LENGTH), "{} {}", buf2, kills);
 	}
 	if (CalculateUntouchable(ent))
 	{
 		awardFlags |= (1<<awardType_t::AWARD_UNTOUCHABLE);
 		strcpy(buf2, buf1);
-		Com_sprintf(buf1, AWARDS_MSG_LENGTH, "%s %d", buf2, 0);
+		Q_FormatTo(std::span(buf1, AWARDS_MSG_LENGTH), "{} {}", buf2, 0);
 	}
 	if (CalculateLogistics(ent, &stuffUsed))
 	{
 		awardFlags |= (1<<awardType_t::AWARD_LOGISTICS);
 		strcpy(buf2, buf1);
-		Com_sprintf(buf1, AWARDS_MSG_LENGTH, "%s %d", buf2, stuffUsed);
+		Q_FormatTo(std::span(buf1, AWARDS_MSG_LENGTH), "{} {}", buf2, stuffUsed);
 	}
 	if (CalculateTactician(ent, &kills))
 	{
 		awardFlags |= (1<<awardType_t::AWARD_TACTICIAN);
 		strcpy(buf2, buf1);
-		Com_sprintf(buf1, AWARDS_MSG_LENGTH, "%s %d", buf2, kills);
+		Q_FormatTo(std::span(buf1, AWARDS_MSG_LENGTH), "{} {}", buf2, kills);
 	}
 	if (CalculateDemolitionist(ent, &kills))
 	{
 		awardFlags |= (1<<awardType_t::AWARD_DEMOLITIONIST);
 		strcpy(buf2, buf1);
-		Com_sprintf(buf1, AWARDS_MSG_LENGTH, "%s %d", buf2, kills);
+		Q_FormatTo(std::span(buf1, AWARDS_MSG_LENGTH), "{} {}", buf2, kills);
 	}
 	streak = CalculateStreak(ent);
 	if (streak)
 	{
 		awardFlags |= (1<<awardType_t::AWARD_STREAK);
 		strcpy(buf2, buf1);
-		Com_sprintf(buf1, AWARDS_MSG_LENGTH, "%s %d", buf2, streak);
+		Q_FormatTo(std::span(buf1, AWARDS_MSG_LENGTH), "{} {}", buf2, streak);
 	}
 	if (level.gametype >= gametype_t::GT_TEAM)
 	{
@@ -1356,17 +1357,17 @@ void CalculateAwards(gentity_t *ent, char *msg)
 		{
 			awardFlags |= (1<<awardType_t::AWARD_TEAM);
 			strcpy(buf2, buf1);
-			Com_sprintf(buf1, AWARDS_MSG_LENGTH, "%s %d", buf2, teamAwards);
+			Q_FormatTo(std::span(buf1, AWARDS_MSG_LENGTH), "{} {}", buf2, teamAwards);
 		}
 	}
 	if (CalculateSection31Award(ent))
 	{
 		awardFlags |= (1<<awardType_t::AWARD_SECTION31);
 		strcpy(buf2, buf1);
-		Com_sprintf(buf1, AWARDS_MSG_LENGTH, "%s %d", buf2, 0);
+		Q_FormatTo(std::span(buf1, AWARDS_MSG_LENGTH), "{} {}", buf2, 0);
 	}
 	Q_strncpyz( buf2, msg, sizeof( buf2 ) );
-	Com_sprintf( msg, AWARDS_MSG_LENGTH, "%s %d%s", buf2, awardFlags, buf1);
+	Q_FormatTo(std::span(msg, AWARDS_MSG_LENGTH), "{} {}{}", buf2, awardFlags, buf1);
 #endif // LOGGING_WEAPONS
 }
 

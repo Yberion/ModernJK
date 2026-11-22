@@ -1,0 +1,14 @@
+# clang-tidy's conversion of plan step 22 part 3 (fmtconv.py): every shimmed call (QX_SHIM, its format second) and
+# every va call, in the strict mode (the casts that keep printf's output for the signedness)
+Checks: '-*,modernize-use-std-print,modernize-use-std-format'
+CheckOptions:
+  modernize-use-std-print.FprintfLikeFunctions: '::QX_SHIM;::QX_SHIM_NR'
+  modernize-use-std-print.PrintfLikeFunctions: ''
+  modernize-use-std-print.ReplacementPrintFunction: 'QX_PRINT'
+  modernize-use-std-print.ReplacementPrintlnFunction: 'QX_PRINTLN'
+  modernize-use-std-print.PrintHeader: ''
+  modernize-use-std-print.StrictMode: true
+  modernize-use-std-format.StrFormatLikeFunctions: '::va'
+  modernize-use-std-format.ReplacementFormatFunction: 'Q_Format'
+  modernize-use-std-format.FormatHeader: ''
+  modernize-use-std-format.StrictMode: true

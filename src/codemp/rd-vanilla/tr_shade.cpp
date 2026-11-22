@@ -1405,8 +1405,8 @@ static void ComputeTexCoords(shaderStage_t* pStage)
                 break;
 
             default:
-                Com_Error(errorParm_t::ERR_DROP, "ERROR: unknown texmod '%d' in shader '%s'\n", to_underlying(pStage->bundle[b].texMods[tm].type),
-                          tess.shader->name);
+                Q_Error(errorParm_t::ERR_DROP, "ERROR: unknown texmod '{}' in shader '{}'", to_underlying(pStage->bundle[b].texMods[tm].type),
+                        tess.shader->name);
                 break;
             }
         }
@@ -1633,7 +1633,7 @@ void RB_StageIteratorGeneric(void)
     if (r_logFile->integer) {
         // don't just call LogComment, or we will get
         // a call to va() every frame!
-        GLimp_LogComment(va("--- RB_StageIteratorGeneric( %s ) ---\n", tess.shader->name));
+        GLimp_LogComment(Q_Format("--- RB_StageIteratorGeneric( {} ) ---\n", tess.shader->name).c_str());
     }
 
     //
@@ -1756,10 +1756,10 @@ void RB_EndSurface(void)
     }
 
     if (input->indexes[SHADER_MAX_INDEXES - 1] != 0) {
-        Com_Error(errorParm_t::ERR_DROP, "RB_EndSurface() - SHADER_MAX_INDEXES hit");
+        Q_Error(errorParm_t::ERR_DROP, "RB_EndSurface() - SHADER_MAX_INDEXES hit");
     }
     if (input->xyz[SHADER_MAX_VERTEXES - 1][0] != 0) {
-        Com_Error(errorParm_t::ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
+        Q_Error(errorParm_t::ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
     }
 
     if (tess.shader == tr.shadowShader) {

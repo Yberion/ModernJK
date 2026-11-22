@@ -90,7 +90,7 @@ static bool StringToFilter(char* s, ipFilter_t* f)
                 s++;
                 continue;
             }
-            Com_Printf("Bad filter address: %s\n", s);
+            Q_Println("Bad filter address: {}", s);
             return false;
         }
 
@@ -137,13 +137,13 @@ static void UpdateIPBans(void)
             if (m.b[j] != 0xFF)
                 Q_strcat(ip, sizeof(ip), "*");
             else
-                Q_strcat(ip, sizeof(ip), va("%i", b.b[j]));
+                Q_strcat(ip, sizeof(ip), Q_Format("{}", b.b[j]).c_str());
             Q_strcat(ip, sizeof(ip), (j < 3) ? "." : " ");
         }
         if (strlen(iplist_final) + strlen(ip) < MAX_CVAR_VALUE_STRING)
             Q_strcat(iplist_final, sizeof(iplist_final), ip);
         else {
-            Com_Printf("g_banIPs overflowed at MAX_CVAR_VALUE_STRING\n");
+            Q_Println("g_banIPs overflowed at MAX_CVAR_VALUE_STRING");
             break;
         }
     }
@@ -201,7 +201,7 @@ static void AddIP(char* str)
     }
     if (i == numIPFilters) {
         if (numIPFilters == MAX_IPFILTERS) {
-            Com_Printf("IP filter list is full\n");
+            Q_Println("IP filter list is full");
             return;
         }
         numIPFilters++;
@@ -247,7 +247,7 @@ void Svcmd_AddIP_f(void)
     char str[MAX_TOKEN_CHARS];
 
     if (trap->Argc() < 2) {
-        Com_Printf("Usage: addip <ip-mask>\n");
+        Q_Println("Usage: addip <ip-mask>");
         return;
     }
 
@@ -268,7 +268,7 @@ void Svcmd_RemoveIP_f(void)
     char str[MAX_TOKEN_CHARS];
 
     if (trap->Argc() < 2) {
-        Com_Printf("Usage: removeip <ip-mask>\n");
+        Q_Println("Usage: removeip <ip-mask>");
         return;
     }
 
@@ -280,14 +280,14 @@ void Svcmd_RemoveIP_f(void)
     for (i = 0; i < numIPFilters; i++) {
         if (ipFilters[i].mask == f.mask && ipFilters[i].compare == f.compare) {
             ipFilters[i].compare = 0xffffffffu;
-            Com_Printf("Removed.\n");
+            Q_Println("Removed.");
 
             UpdateIPBans();
             return;
         }
     }
 
-    Com_Printf("Didn't find %s.\n", str);
+    Q_Println("Didn't find {}.", str);
 }
 
 void Svcmd_ListIP_f(void)
@@ -300,10 +300,10 @@ void Svcmd_ListIP_f(void)
             continue;
 
         b.ui = ipFilters[i].compare;
-        Com_Printf("%i.%i.%i.%i\n", b.b[0], b.b[1], b.b[2], b.b[3]);
+        Q_Println("{}.{}.{}.{}", b.b[0], b.b[1], b.b[2], b.b[3]);
         count++;
     }
-    Com_Printf("%i bans.\n", count);
+    Q_Println("{} bans.", count);
 }
 
 /*
@@ -321,68 +321,68 @@ void Svcmd_EntityList_f(void)
         if (!check->inuse) {
             continue;
         }
-        Com_Printf("%3i:", e);
+        Q_Print("{:3}:", e);
         switch (check->s.eType) {
         case entityType_t::ET_GENERAL:
-            Com_Printf("ET_GENERAL          ");
+            Q_Print("ET_GENERAL          ");
             break;
         case entityType_t::ET_PLAYER:
-            Com_Printf("ET_PLAYER           ");
+            Q_Print("ET_PLAYER           ");
             break;
         case entityType_t::ET_ITEM:
-            Com_Printf("ET_ITEM             ");
+            Q_Print("ET_ITEM             ");
             break;
         case entityType_t::ET_MISSILE:
-            Com_Printf("ET_MISSILE          ");
+            Q_Print("ET_MISSILE          ");
             break;
         case entityType_t::ET_SPECIAL:
-            Com_Printf("ET_SPECIAL          ");
+            Q_Print("ET_SPECIAL          ");
             break;
         case entityType_t::ET_HOLOCRON:
-            Com_Printf("ET_HOLOCRON         ");
+            Q_Print("ET_HOLOCRON         ");
             break;
         case entityType_t::ET_MOVER:
-            Com_Printf("ET_MOVER            ");
+            Q_Print("ET_MOVER            ");
             break;
         case entityType_t::ET_BEAM:
-            Com_Printf("ET_BEAM             ");
+            Q_Print("ET_BEAM             ");
             break;
         case entityType_t::ET_PORTAL:
-            Com_Printf("ET_PORTAL           ");
+            Q_Print("ET_PORTAL           ");
             break;
         case entityType_t::ET_SPEAKER:
-            Com_Printf("ET_SPEAKER          ");
+            Q_Print("ET_SPEAKER          ");
             break;
         case entityType_t::ET_PUSH_TRIGGER:
-            Com_Printf("ET_PUSH_TRIGGER     ");
+            Q_Print("ET_PUSH_TRIGGER     ");
             break;
         case entityType_t::ET_TELEPORT_TRIGGER:
-            Com_Printf("ET_TELEPORT_TRIGGER ");
+            Q_Print("ET_TELEPORT_TRIGGER ");
             break;
         case entityType_t::ET_INVISIBLE:
-            Com_Printf("ET_INVISIBLE        ");
+            Q_Print("ET_INVISIBLE        ");
             break;
         case entityType_t::ET_NPC:
-            Com_Printf("ET_NPC              ");
+            Q_Print("ET_NPC              ");
             break;
         case entityType_t::ET_BODY:
-            Com_Printf("ET_BODY             ");
+            Q_Print("ET_BODY             ");
             break;
         case entityType_t::ET_TERRAIN:
-            Com_Printf("ET_TERRAIN          ");
+            Q_Print("ET_TERRAIN          ");
             break;
         case entityType_t::ET_FX:
-            Com_Printf("ET_FX               ");
+            Q_Print("ET_FX               ");
             break;
         default:
-            Com_Printf("%-3i                ", to_underlying(check->s.eType));
+            Q_Print("{:<3}                ", to_underlying(check->s.eType));
             break;
         }
 
         if (check->classname) {
-            Com_Printf("%s", check->classname);
+            Q_Print("{}", check->classname);
         }
-        Com_Printf("\n");
+        Q_Println("");
     }
 }
 
@@ -422,7 +422,7 @@ gclient_t* ClientForString(const char* s)
         }
     }
 
-    Com_Printf("User %s is not on the server\n", s);
+    Q_Println("User {} is not on the server", s);
     return nullptr;
 }
 
@@ -439,7 +439,7 @@ void Svcmd_ForceTeam_f(void)
     char str[MAX_TOKEN_CHARS];
 
     if (trap->Argc() < 3) {
-        Com_Printf("Usage: forceteam <player> <team>\n");
+        Q_Println("Usage: forceteam <player> <team>");
         return;
     }
 
@@ -469,14 +469,14 @@ void Svcmd_Say_f(void)
 
     if (strlen(p) >= MAX_SAY_TEXT) {
         p[MAX_SAY_TEXT - 1] = '\0';
-        G_SecurityLogPrintf("Cmd_Say_f from -1 (server) has been truncated: %s\n", p);
+        G_SecurityLogPrintln("Cmd_Say_f from -1 (server) has been truncated: {}", p);
     }
 
     Q_strncpyz(text, p, sizeof(text));
     Q_strstrip(text, "\n\r", "  ");
 
-    // G_LogPrintf( "say: server: %s\n", text );
-    trap->SendServerCommand(-1, va("print \"server: %s\n\"", text));
+    // G_LogPrintln("say: server: {}", text);
+    trap->SendServerCommand(-1, Q_Format("print \"server: {}\n\"", text).c_str());
 }
 
 // gamestats: the combat statistics since the last call (g_stats), then reset; the ratios per saber swing are what must not
@@ -518,31 +518,31 @@ static void G_PrintCentralStats(void)
     Q_strncpyz(line, "event statistics:", sizeof(line));
     for (entity_event_t ev = entity_event_t::EV_NONE + 1; ev < entity_event_t::EV_NUM_ENTITY_EVENTS; ev++) {
         if (s->events[ev]) {
-            Q_strcat(line, sizeof(line), va(" %s %d", eventnames[ev], s->events[ev]));
+            Q_strcat(line, sizeof(line), Q_Format(" {} {}", eventnames[ev], s->events[ev]).c_str());
         }
     }
-    Com_Printf("%s\n", line);
+    Q_Println("{}", line);
     Q_strncpyz(line, "damage statistics (health taken from clients and deaths, by cause):", sizeof(line));
     for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
         if (s->modDamage[mod] || s->modKills[mod]) {
-            Q_strcat(line, sizeof(line), va(" %s %d %d", modNames[mod], s->modDamage[mod], s->modKills[mod]));
+            Q_strcat(line, sizeof(line), Q_Format(" {} {} {}", modNames[mod], s->modDamage[mod], s->modKills[mod]).c_str());
         }
     }
-    Com_Printf("%s\n", line);
+    Q_Println("{}", line);
     Q_strncpyz(line, "shot statistics (primary and alternate fire, by weapon number):", sizeof(line));
     for (i = weapon_t::WP_NONE; i < weapon_t::WP_NUM_WEAPONS; i++) {
         if (s->shots[i][0] || s->shots[i][1]) {
-            Q_strcat(line, sizeof(line), va(" w%d %d %d", to_underlying(i), s->shots[i][0], s->shots[i][1]));
+            Q_strcat(line, sizeof(line), Q_Format(" w{} {} {}", to_underlying(i), s->shots[i][0], s->shots[i][1]).c_str());
         }
     }
-    Com_Printf("%s\n", line);
+    Q_Println("{}", line);
     Q_strncpyz(line, "saber style statistics (attacks started, moves bounced or deflected):", sizeof(line));
     for (saber_styles_t style = saber_styles_t::SS_FAST; style < saber_styles_t::SS_NUM_SABER_STYLES; style++) {
         if (s->styleAttacks[style] || s->styleBounces[style]) {
-            Q_strcat(line, sizeof(line), va(" %s %d %d", styles[style], s->styleAttacks[style], s->styleBounces[style]));
+            Q_strcat(line, sizeof(line), Q_Format(" {} {} {}", styles[style], s->styleAttacks[style], s->styleBounces[style]).c_str());
         }
     }
-    Com_Printf("%s\n", line);
+    Q_Println("{}", line);
     // the moves by the name of saberMoveData, its spaces as underscores
     Q_strncpyz(line, "saber special move statistics (moves started):", sizeof(line));
     for (saberMoveName_t move = saberMoveName_t::LS_A_BACKSTAB; move <= saberMoveName_t::LS_HILT_BASH; move++) {
@@ -555,10 +555,10 @@ static void G_PrintCentralStats(void)
                     *c = '_';
                 }
             }
-            Q_strcat(line, sizeof(line), va(" %s %d", name, s->specialMoves[move]));
+            Q_strcat(line, sizeof(line), Q_Format(" {} {}", name, s->specialMoves[move]).c_str());
         }
     }
-    Com_Printf("%s\n", line);
+    Q_Println("{}", line);
 }
 
 void Svcmd_GameStats_f(void)
@@ -566,13 +566,12 @@ void Svcmd_GameStats_f(void)
     const gameStats_t* s = &g_stats;
     const float swings = s->saberSwings ? (float)s->saberSwings : 1.0f;
 
-    Com_Printf("game statistics over %.1f s, %d frames: %d saber swings; per swing: %.3f wounds, %.2f damage, "
-               "%.3f saber against saber (blocks), %.3f body hits parried without the sabers touching, %.4f saber locks, %.3f idle "
-               "touches (wounds %d, damage %d, saber against saber %d, parried %d, locks %d, touches %d); %d missiles blocked by "
-               "sabers, %d force damage, %d deaths, %d saber hit effects on clients\n",
-               (level.time - s->startTime) / 1000.0f, s->frames, s->saberSwings, s->saberWounds / swings, s->saberDamage / swings, s->saberClashes / swings,
-               s->saberBlocks / swings, s->saberLocks / swings, s->saberTouches / swings, s->saberWounds, s->saberDamage, s->saberClashes, s->saberBlocks,
-               s->saberLocks, s->saberTouches, s->missileBlocks, s->forceDamage, s->deaths, s->saberHitEffects);
+    Q_Println("game statistics over {:.1f} s, {} frames: {} saber swings; per swing: {:.3f} wounds, {:.2f} damage, {:.3f} saber against saber (blocks), {:.3f} "
+              "body hits parried without the sabers touching, {:.4f} saber locks, {:.3f} idle touches (wounds {}, damage {}, saber against saber {}, parried "
+              "{}, locks {}, touches {}); {} missiles blocked by sabers, {} force damage, {} deaths, {} saber hit effects on clients",
+              (level.time - s->startTime) / 1000.0f, s->frames, s->saberSwings, s->saberWounds / swings, s->saberDamage / swings, s->saberClashes / swings,
+              s->saberBlocks / swings, s->saberLocks / swings, s->saberTouches / swings, s->saberWounds, s->saberDamage, s->saberClashes, s->saberBlocks,
+              s->saberLocks, s->saberTouches, s->missileBlocks, s->forceDamage, s->deaths, s->saberHitEffects);
     { // raw counts of the powers whose timing depends on the frame rate: gamestats_agg.py computes the rates
         static const struct {
             forcePowers_t power;
@@ -585,9 +584,10 @@ void Svcmd_GameStats_f(void)
         size_t i;
         for (i = 0; i < ARRAY_LEN(shown); i++) {
             const forcePowers_t f = shown[i].power;
-            Q_strcat(line, sizeof(line), va("%s %s %d %d %d", i ? "," : "", shown[i].name, s->forceStarts[f], s->forceTimerEvents[f], s->forceActiveMsec[f]));
+            Q_strcat(line, sizeof(line),
+                     Q_Format("{} {} {} {} {}", i ? "," : "", shown[i].name, s->forceStarts[f], s->forceTimerEvents[f], s->forceActiveMsec[f]).c_str());
         }
-        Com_Printf("%s\n", line);
+        Q_Println("{}", line);
     }
     { // the other powers, which have no periodic events
         static const struct {
@@ -604,9 +604,9 @@ void Svcmd_GameStats_f(void)
         size_t i;
         for (i = 0; i < ARRAY_LEN(shown); i++) {
             const forcePowers_t f = shown[i].power;
-            Q_strcat(line, sizeof(line), va("%s %s %d %d", i ? "," : "", shown[i].name, s->forceStarts[f], s->forceActiveMsec[f]));
+            Q_strcat(line, sizeof(line), Q_Format("{} {} {} {}", i ? "," : "", shown[i].name, s->forceStarts[f], s->forceActiveMsec[f]).c_str());
         }
-        Com_Printf("%s\n", line);
+        Q_Println("{}", line);
     }
     G_PrintCentralStats();
     G_ScenarioPrintStats();

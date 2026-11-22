@@ -47,13 +47,13 @@ void SetMiscModelModels(char* modelNameString, gentity_t* ent, bool damage_model
         len = strlen(modelNameString) - 4; // extract the extension
 
         // Dead/damaged model
-        Com_sprintf(damageModel, sizeof(damageModel), "%.*s_d1.md3", len, modelNameString);
+        Q_FormatTo(damageModel, "{:.{}}_d1.md3", modelNameString, len);
         ent->s.modelindex2 = G_ModelIndex(damageModel);
 
         ent->spawnflags |= 4; // deadsolid
 
         // Chunk model
-        Com_sprintf(chunkModel, sizeof(chunkModel), "%.*s_c1.md3", len, modelNameString);
+        Q_FormatTo(chunkModel, "{:.{}}_c1.md3", modelNameString, len);
         ent->s.modelindex3 = G_ModelIndex(chunkModel);
     }
 }
@@ -212,7 +212,7 @@ void SP_misc_model_ghoul(gentity_t* ent)
 
     // we found the model ok - load it's animation config
     if (!G_ParseAnimFileSet("kyle", "_humanoid", &temp_animFileIndex)) {
-        Com_Printf(S_COLOR_RED "Failed to load animation file set models/players/jedi/animation.cfg\n");
+        Q_Println(S_COLOR_RED "Failed to load animation file set models/players/jedi/animation.cfg");
     }
 
     ent->s.angles[0] = 0;

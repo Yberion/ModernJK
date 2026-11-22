@@ -95,14 +95,23 @@ After SF.12 of the C++ Core Guidelines:
 - A file without a notice gets one after its origin (the lines of the source it came from, then ModernJK's); a new file gets OpenJK's notice with ModernJK in place of OpenJK.
 - Third-party code under another licence keeps its own notice alone.
 
-## 13. Changes and bugs
+## 13. Printing and formatting
+
+- Every message and every formatted text goes through `src/shared/qcommon/q_fmt.h`, in {fmt}'s syntax, checked at compile time: `Q_Print` writes its text as it is, `Q_Println` ends the line, `Q_DPrintln` (with `developer`), `Q_PrintlnWarning`, `Q_PrintlnError`, `Q_Error` (stops); `Q_Format` returns a text, `Q_FormatTo` writes into a `std::span<char>`, `Q_FilePrint` and `Q_FilePrintln` into a file. A function that ends the line has `ln` in its name. Never the printf family, a `va_list` or a static buffer.
+- One line per call: a warning, an error or a developer's message written in several calls is one call, so that the whole line takes its colour and a log one record.
+- Another printing function is a template taking `fmt::format_string` that calls a function taking `fmt::format_args` (its name with a `V`, as {fmt}'s `vformat`), the arguments packed by `Q_FormatArgs` (a null C string written `(null)`, as printf did: a text of data read back expects it); {fmt}'s types are written `fmt::`.
+- A format read at run time (a translated text, a format of the game's data) is converted with `Q_FormatFromPrintf` and formatted with `fmt::runtime`.
+- A `formatText_t` lives as long as its expression: a pointer kept is a `formatText_t` kept, a pointer returned a `static formatText_t`.
+- netcodec's tests, benchmarks and tools and the tests of `test/` call {fmt} directly: `fmt::println`, a text written in pieces built by `fmt::format_to`; not `fmt::print`, whose code after its `return` cannot run with `FMT_UNICODE` 0, which MSVC's `/W4 /WX` refuses (C4702).
+
+## 14. Changes and bugs
 
 - Every change of behaviour against OpenJK (engine, game, cgame, settings) is described in [CHANGES.md](docs/modernization/CHANGES.md): one section per change, always in the same order (Before, Now, Why, Gain, then the technical details folded), and a line in its summary; a change that moves a delay also updates "Delays before and now", with the measure.
 - A bug is shown before it is fixed: what a player sees before and after, with an example in game; the original code is kept until the fix is decided.
 - A fix of the game is not done until its edge cases are reproduced, with bots or the scripted scenarios (walls, animations, one's own missiles); a fix that brings more bugs than it removes is undone.
 - The scripted scenarios stay `golden: SAME`, or every difference is explained in [GOLDEN.md](docs/modernization/tools/gamestats/GOLDEN.md); the tests stay short, several checks per run.
 
-## 14. Documents and commits
+## 15. Documents and commits
 
 - Everything written into the repository is in English, in full sentences: documents, comments, commit messages.
 - Dates are absolute ("21 November 2026"), never relative. A decision is written with its date, never with who took it or asked for it; the roles are neutral ("the development machine").

@@ -29,9 +29,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "fnv.h"
 #include "message_compare.h"
 #include "negate_zeros.h"
+#include <fmt/base.h>
 #include <netcodec/engine.h>
 
-#include <cinttypes>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -152,7 +153,7 @@ void RoundTrip(const trace::DemoStream& s, const char* label, Totals& t)
         t.messages++;
         if (!ok) {
             if (t.orderFailures++ < 5)
-                std::fprintf(stderr, "not in the engine's order: %s %s seq %u\n", s.Meta(1).c_str(), label, m.seq);
+                fmt::println(stderr, "not in the engine's order: {} {} seq {}", s.Meta(1), label, m.seq);
             continue;
         }
 
@@ -239,7 +240,7 @@ void RoundTrip(const trace::DemoStream& s, const char* label, Totals& t)
                        server.Commands(), eng::Baselines{.bytes = serverBaselines.data(), .stride = kServerBaselineStride}, out.data(), out.size(), delta, rec);
         if (n == 0 || delta != m.delta) {
             if (t.encodeFailures++ < 5)
-                std::fprintf(stderr, "encode failure: %s %s seq %u (delta %u, asked %u)\n", s.Meta(1).c_str(), label, m.seq, delta, m.delta);
+                fmt::println(stderr, "encode failure: {} {} seq {} (delta {}, asked {})", s.Meta(1), label, m.seq, delta, m.delta);
             continue;
         }
         if (sm.snapshot) {
@@ -326,7 +327,7 @@ void RoundTrip(const trace::DemoStream& s, const char* label, Totals& t)
             same = same && trace::SameMessage(dm, m.msg);
         }
         if (!same && t.decodeFailures++ < 5)
-            std::fprintf(stderr, "round trip failure: %s %s seq %u%s\n", s.Meta(1).c_str(), label, m.seq, decoded ? "" : " (decoder failed)");
+            fmt::println(stderr, "round trip failure: {} {} seq {}{}", s.Meta(1), label, m.seq, decoded ? "" : " (decoder failed)");
     }
 }
 
@@ -339,7 +340,7 @@ int main(int argc, char** argv)
     if (argc > 1 && std::strncmp(argv[1], "--hash=", 7) == 0)
         expected = std::strtoull(argv[first++] + 7, nullptr, 16);
     if (argc <= first) {
-        std::fprintf(stderr, "usage: %s [--hash=0x...] trace.bin ...\n", argv[0]);
+        fmt::println(stderr, "usage: {} [--hash=0x...] trace.bin ...", argv[0]);
         return 2;
     }
     Totals recorded, negated;
@@ -361,18 +362,18 @@ int main(int argc, char** argv)
     size_t failures = 0;
     for (const auto& [label, t] :
          {std::pair<const char*, const Totals&>{"recorded", recorded}, std::pair<const char*, const Totals&>{"zero floats as -0.0", negated}}) {
-        std::printf("engine interface, %s: %zu streams, %zu messages (%zu without a held base), %zu bytes: order failures %zu, "
-                    "encode failures %zu, decode failures %zu\n",
-                    label, streams, t.messages, t.skipped, t.bytes, t.orderFailures, t.encodeFailures, t.decodeFailures);
+        fmt::println(
+            "engine interface, {}: {} streams, {} messages ({} without a held base), {} bytes: order failures {}, encode failures {}, decode failures {}",
+            label, streams, t.messages, t.skipped, t.bytes, t.orderFailures, t.encodeFailures, t.decodeFailures);
         failures += t.orderFailures + t.encodeFailures + t.decodeFailures;
     }
     test::Fnv both;
     both.Feed(recorded.hash.h, 8);
     both.Feed(negated.hash.h, 8);
-    std::printf("hash of the coded bytes 0x%016" PRIX64, both.h);
     if (expected)
-        std::printf(", expected 0x%016" PRIX64 "%s", *expected, *expected == both.h ? "" : " (MISMATCH)");
-    std::printf("\n");
+        fmt::println("hash of the coded bytes 0x{:016X}, expected 0x{:016X}{}", both.h, *expected, *expected == both.h ? "" : " (MISMATCH)");
+    else
+        fmt::println("hash of the coded bytes 0x{:016X}", both.h);
     const bool ok = (!expected || *expected == both.h) && failures == 0;
     return ok && recorded.messages != 0 ? 0 : 1;
 }

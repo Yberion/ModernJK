@@ -91,11 +91,11 @@ bot_character_t* botcharacters[MAX_CLIENTS + 1];
 bot_character_t* BotCharacterFromHandle(int handle)
 {
     if (handle <= 0 || handle > MAX_CLIENTS) {
-        Com_PrintError("character handle %d out of range\n", handle);
+        Q_PrintlnError("character handle {} out of range", handle);
         return nullptr;
     } // end if
     if (!botcharacters[handle]) {
-        Com_PrintError("invalid character %d\n", handle);
+        Q_PrintlnError("invalid character {}", handle);
         return nullptr;
     } // end if
     return botcharacters[handle];
@@ -110,25 +110,25 @@ void BotDumpCharacter(bot_character_t* ch)
 {
     int i;
 
-    Log_Write("%s\n", ch->filename);
-    Log_Write("skill %.1f\n", ch->skill);
-    Log_Write("{\n");
+    Log_Write("{}\n", ch->filename);
+    Log_Write("skill {:.1f}\n", ch->skill);
+    Log_Write("{{\n");
     for (i = 0; i < MAX_CHARACTERISTICS; i++) {
         switch (ch->c[i].type) {
         case characteristicType_t::CT_INTEGER:
-            Log_Write(" %4d %d\n", i, ch->c[i].value.integer);
+            Log_Write(" {:4} {}\n", i, ch->c[i].value.integer);
             break;
         case characteristicType_t::CT_FLOAT:
-            Log_Write(" %4d %f\n", i, ch->c[i].value._float);
+            Log_Write(" {:4} {:f}\n", i, ch->c[i].value._float);
             break;
         case characteristicType_t::CT_STRING:
-            Log_Write(" %4d %s\n", i, ch->c[i].value.string);
+            Log_Write(" {:4} {}\n", i, ch->c[i].value.string);
             break;
         case characteristicType_t::CT_EMPTY:
             break;
         } // end case
     } // end for
-    Log_Write("}\n");
+    Log_Write("}}}}\n");
 } // end of the function BotDumpCharacter
 //========================================================================
 //
@@ -155,11 +155,11 @@ void BotFreeCharacterStrings(bot_character_t* ch)
 void BotFreeCharacter2(int handle)
 {
     if (handle <= 0 || handle > MAX_CLIENTS) {
-        Com_PrintError("character handle %d out of range\n", handle);
+        Q_PrintlnError("character handle {} out of range", handle);
         return;
     } // end if
     if (!botcharacters[handle]) {
-        Com_PrintError("invalid character %d\n", handle);
+        Q_PrintlnError("invalid character {}", handle);
         return;
     } // end if
     BotFreeCharacterStrings(botcharacters[handle]);
@@ -225,7 +225,7 @@ bot_character_t* BotLoadCharacterFromFile(const char* charfile, int skill)
     PC_SetBaseFolder(BOTFILESBASEFOLDER);
     source = LoadSourceFile(charfile);
     if (!source) {
-        Com_PrintError("counldn't load %s\n", charfile);
+        Q_PrintlnError("counldn't load {}", charfile);
         return nullptr;
     } // end if
     ch = (bot_character_t*)GetClearedMemory(sizeof(bot_character_t) + MAX_CHARACTERISTICS * sizeof(bot_characteristic_t));
@@ -252,7 +252,7 @@ bot_character_t* BotLoadCharacterFromFile(const char* charfile, int skill)
                     if (!strcmp(token.string, "}"))
                         break;
                     if (token.type != tokenType_t::TT_NUMBER || !(token.subtype & TT_INTEGER)) {
-                        SourceError(source, "expected integer index, found %s", token.string);
+                        SourceError(source, "expected integer index, found {}", token.string);
                         FreeSource(source);
                         BotFreeCharacterStrings(ch);
                         FreeMemory(ch);
@@ -260,14 +260,14 @@ bot_character_t* BotLoadCharacterFromFile(const char* charfile, int skill)
                     } // end if
                     index = token.intvalue;
                     if (index < 0 || index > MAX_CHARACTERISTICS) {
-                        SourceError(source, "characteristic index out of range [0, %d]", MAX_CHARACTERISTICS);
+                        SourceError(source, "characteristic index out of range [0, {}]", MAX_CHARACTERISTICS);
                         FreeSource(source);
                         BotFreeCharacterStrings(ch);
                         FreeMemory(ch);
                         return nullptr;
                     } // end if
                     if (ch->c[index].type != characteristicType_t::CT_EMPTY) {
-                        SourceError(source, "characteristic %d already initialized", index);
+                        SourceError(source, "characteristic {} already initialized", index);
                         FreeSource(source);
                         BotFreeCharacterStrings(ch);
                         FreeMemory(ch);
@@ -296,7 +296,7 @@ bot_character_t* BotLoadCharacterFromFile(const char* charfile, int skill)
                         ch->c[index].type = characteristicType_t::CT_STRING;
                     } // end else if
                     else {
-                        SourceError(source, "expected integer, float or string, found %s", token.string);
+                        SourceError(source, "expected integer, float or string, found {}", token.string);
                         FreeSource(source);
                         BotFreeCharacterStrings(ch);
                         FreeMemory(ch);
@@ -322,7 +322,7 @@ bot_character_t* BotLoadCharacterFromFile(const char* charfile, int skill)
             } // end else
         } // end if
         else {
-            SourceError(source, "unknown definition %s", token.string);
+            SourceError(source, "unknown definition {}", token.string);
             FreeSource(source);
             BotFreeCharacterStrings(ch);
             FreeMemory(ch);
@@ -384,7 +384,7 @@ int BotLoadCachedCharacter(const char* charfile, float skill, int reload)
     if (!reload) {
         cachedhandle = BotFindCachedCharacter(charfile, skill);
         if (cachedhandle) {
-            Com_Printf("loaded cached skill %f from %s\n", skill, charfile);
+            Q_Println("loaded cached skill {:f} from {}", skill, charfile);
             return cachedhandle;
         } // end if
     } // end else
@@ -395,22 +395,22 @@ int BotLoadCachedCharacter(const char* charfile, float skill, int reload)
     if (ch) {
         botcharacters[handle] = ch;
         //
-        Com_Printf("loaded skill %d from %s\n", intskill, charfile);
+        Q_Println("loaded skill {} from {}", intskill, charfile);
 #ifdef DEBUG
         if (botDeveloper) {
-            Com_Printf("skill %d loaded in %d msec from %s\n", intskill, Sys_MilliSeconds() - starttime, charfile);
+            Q_Println("skill {} loaded in {} msec from {}", intskill, Sys_MilliSeconds() - starttime, charfile);
         } // end if
 #endif // DEBUG
         return handle;
     } // end if
     //
-    Com_Warning("couldn't find skill %d in %s\n", intskill, charfile);
+    Q_PrintlnWarning("couldn't find skill {} in {}", intskill, charfile);
     //
     if (!reload) {
         // try to load a cached default character with the given skill
         cachedhandle = BotFindCachedCharacter(DEFAULT_CHARACTER, skill);
         if (cachedhandle) {
-            Com_Printf("loaded cached default skill %d from %s\n", intskill, charfile);
+            Q_Println("loaded cached default skill {} from {}", intskill, charfile);
             return cachedhandle;
         } // end if
     } // end if
@@ -418,7 +418,7 @@ int BotLoadCachedCharacter(const char* charfile, float skill, int reload)
     ch = BotLoadCharacterFromFile(DEFAULT_CHARACTER, intskill);
     if (ch) {
         botcharacters[handle] = ch;
-        Com_Printf("loaded default skill %d from %s\n", intskill, charfile);
+        Q_Println("loaded default skill {} from {}", intskill, charfile);
         return handle;
     } // end if
     //
@@ -426,7 +426,7 @@ int BotLoadCachedCharacter(const char* charfile, float skill, int reload)
         // try to load a cached character with any skill
         cachedhandle = BotFindCachedCharacter(charfile, -1);
         if (cachedhandle) {
-            Com_Printf("loaded cached skill %f from %s\n", botcharacters[cachedhandle]->skill, charfile);
+            Q_Println("loaded cached skill {:f} from {}", botcharacters[cachedhandle]->skill, charfile);
             return cachedhandle;
         } // end if
     } // end if
@@ -434,7 +434,7 @@ int BotLoadCachedCharacter(const char* charfile, float skill, int reload)
     ch = BotLoadCharacterFromFile(charfile, -1);
     if (ch) {
         botcharacters[handle] = ch;
-        Com_Printf("loaded skill %f from %s\n", ch->skill, charfile);
+        Q_Println("loaded skill {:f} from {}", ch->skill, charfile);
         return handle;
     } // end if
     //
@@ -442,7 +442,7 @@ int BotLoadCachedCharacter(const char* charfile, float skill, int reload)
         // try to load a cached character with any skill
         cachedhandle = BotFindCachedCharacter(DEFAULT_CHARACTER, -1);
         if (cachedhandle) {
-            Com_Printf("loaded cached default skill %f from %s\n", botcharacters[cachedhandle]->skill, charfile);
+            Q_Println("loaded cached default skill {:f} from {}", botcharacters[cachedhandle]->skill, charfile);
             return cachedhandle;
         } // end if
     } // end if
@@ -450,11 +450,11 @@ int BotLoadCachedCharacter(const char* charfile, float skill, int reload)
     ch = BotLoadCharacterFromFile(DEFAULT_CHARACTER, -1);
     if (ch) {
         botcharacters[handle] = ch;
-        Com_Printf("loaded default skill %f from %s\n", ch->skill, charfile);
+        Q_Println("loaded default skill {:f} from {}", ch->skill, charfile);
         return handle;
     } // end if
     //
-    Com_Warning("couldn't load any skill from %s\n", charfile);
+    Q_PrintlnWarning("couldn't load any skill from {}", charfile);
     // couldn't load any character
     return 0;
 } // end of the function BotLoadCachedCharacter
@@ -546,7 +546,7 @@ int BotLoadCharacter(char* charfile, float skill)
     // check if there's a cached skill
     handle = BotFindCachedCharacter(charfile, skill);
     if (handle) {
-        Com_Printf("loaded cached skill %f from %s\n", skill, charfile);
+        Q_Println("loaded cached skill {:f} from {}", skill, charfile);
         return handle;
     } // end if
     if (skill < 4.0) {
@@ -590,11 +590,11 @@ int CheckCharacteristicIndex(int character, int index)
     if (!ch)
         return false;
     if (index < 0 || index >= MAX_CHARACTERISTICS) {
-        Com_PrintError("characteristic %d does not exist\n", index);
+        Q_PrintlnError("characteristic {} does not exist", index);
         return false;
     } // end if
     if (ch->c[index].type == characteristicType_t::CT_EMPTY) {
-        Com_PrintError("characteristic %d is not initialized\n", index);
+        Q_PrintlnError("characteristic {} is not initialized", index);
         return false;
     } // end if
     return true;
@@ -625,7 +625,7 @@ float Characteristic_Float(int character, int index)
     } // end else if
     // cannot convert a string pointer to a float
     else {
-        Com_PrintError("characteristic %d is not a float\n", index);
+        Q_PrintlnError("characteristic {} is not a float", index);
         return 0;
     } // end else if
     //	return 0;
@@ -645,7 +645,7 @@ float Characteristic_BFloat(int character, int index, float min, float max)
     if (!ch)
         return 0;
     if (min > max) {
-        Com_PrintError("cannot bound characteristic %d between %f and %f\n", index, min, max);
+        Q_PrintlnError("cannot bound characteristic {} between {:f} and {:f}", index, min, max);
         return 0;
     } // end if
     value = Characteristic_Float(character, index);
@@ -680,7 +680,7 @@ int Characteristic_Integer(int character, int index)
         return (int)ch->c[index].value._float;
     } // end else if
     else {
-        Com_PrintError("characteristic %d is not an integer\n", index);
+        Q_PrintlnError("characteristic {} is not an integer", index);
         return 0;
     } // end else if
     //	return 0;
@@ -700,7 +700,7 @@ int Characteristic_BInteger(int character, int index, int min, int max)
     if (!ch)
         return 0;
     if (min > max) {
-        Com_PrintError("cannot bound characteristic %d between %d and %d\n", index, min, max);
+        Q_PrintlnError("cannot bound characteristic {} between {} and {}", index, min, max);
         return 0;
     } // end if
     value = Characteristic_Integer(character, index);
@@ -733,7 +733,7 @@ void Characteristic_String(int character, int index, char* buf, int size)
         return;
     } // end if
     else {
-        Com_PrintError("characteristic %d is not a string\n", index);
+        Q_PrintlnError("characteristic {} is not a string", index);
         return;
     } // end else if
     return;

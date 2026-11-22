@@ -360,7 +360,7 @@ void G_UcmdMoveForDir(gentity_t* self, usercmd_t* cmd, vec3_t dir)
     VectorNormalize( wishvel );
     if ( !VectorCompare( wishvel, dir ) )
     {
-        Com_Printf( "PRECISION LOSS: %s != %s\n", vtos(wishvel), vtos(dir) );
+        Q_Println("PRECISION LOSS: {} != {}", vtos(wishvel), vtos(dir));
     }
     */
 }

@@ -313,7 +313,7 @@ bool NET_GetPacket(netadr_t* net_from, msg_t* net_message, fd_set* fdr)
         if (err == EAGAIN || err == ECONNRESET)
             return false;
 
-        Com_Printf("NET_GetPacket: %s\n", NET_ErrorString());
+        Q_Println("NET_GetPacket: {}", NET_ErrorString());
         return false;
     }
 
@@ -337,7 +337,7 @@ bool NET_GetPacket(netadr_t* net_from, msg_t* net_message, fd_set* fdr)
     }
 
     if (ret >= net_message->maxsize) {
-        Com_Printf("Oversize packet from %s\n", NET_AdrToString(net_from));
+        Q_Println("Oversize packet from {}", NET_AdrToString(net_from));
         return false;
     }
 
@@ -360,7 +360,7 @@ void Sys_SendPacket(int length, const void* data, const netadr_t* to)
     struct sockaddr_in addr;
 
     if (to->type != netadrtype_t::NA_BROADCAST && to->type != netadrtype_t::NA_IP) {
-        Com_Error(errorParm_t::ERR_FATAL, "Sys_SendPacket: bad address type");
+        Q_Error(errorParm_t::ERR_FATAL, "Sys_SendPacket: bad address type");
         return;
     }
 
@@ -396,7 +396,7 @@ void Sys_SendPacket(int length, const void* data, const netadr_t* to)
             return;
         }
 
-        Com_Printf("NET_SendPacket: %s\n", NET_ErrorString());
+        Q_Println("NET_SendPacket: {}", NET_ErrorString());
     }
 }
 
@@ -456,7 +456,7 @@ Sys_ShowIP
 void Sys_ShowIP(void)
 {
     for (int i = 0; i < numIP; i++)
-        Com_Printf("IP: %i.%i.%i.%i\n", localIP[i][0], localIP[i][1], localIP[i][2], localIP[i][3]);
+        Q_Println("IP: {}.{}.{}.{}", localIP[i][0], localIP[i][1], localIP[i][2], localIP[i][3]);
 }
 
 //=============================================================================
@@ -476,21 +476,21 @@ static SOCKET NET_IPSocket(const char* net_interface, int port, int* err)
     *err = 0;
 
     if (net_interface) {
-        Com_Printf("Opening IP socket: %s:%i\n", net_interface, port);
+        Q_Println("Opening IP socket: {}:{}", net_interface, port);
     }
     else {
-        Com_Printf("Opening IP socket: localhost:%i\n", port);
+        Q_Println("Opening IP socket: localhost:{}", port);
     }
 
     if ((newsocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET) {
         *err = socketError;
-        Com_Warning("NET_IPSocket: socket: %s\n", NET_ErrorString());
+        Q_PrintlnWarning("NET_IPSocket: socket: {}", NET_ErrorString());
         return newsocket;
     }
 
     // make it non-blocking
     if (ioctlsocket(newsocket, FIONBIO, &_true) == SOCKET_ERROR) {
-        Com_Warning("NET_IPSocket: ioctl FIONBIO: %s\n", NET_ErrorString());
+        Q_PrintlnWarning("NET_IPSocket: ioctl FIONBIO: {}", NET_ErrorString());
         *err = socketError;
         closesocket(newsocket);
         return INVALID_SOCKET;
@@ -498,7 +498,7 @@ static SOCKET NET_IPSocket(const char* net_interface, int port, int* err)
 
     // make it broadcast capable
     if (setsockopt(newsocket, SOL_SOCKET, SO_BROADCAST, (char*)&i, sizeof(i)) == SOCKET_ERROR) {
-        Com_Warning("NET_IPSocket: setsockopt SO_BROADCAST: %s\n", NET_ErrorString());
+        Q_PrintlnWarning("NET_IPSocket: setsockopt SO_BROADCAST: {}", NET_ErrorString());
     }
 
     if (!net_interface || !net_interface[0] || !Q_stricmp(net_interface, "localhost")) {
@@ -521,7 +521,7 @@ static SOCKET NET_IPSocket(const char* net_interface, int port, int* err)
     }
 
     if (bind(newsocket, (const struct sockaddr*)&address, sizeof(address)) == SOCKET_ERROR) {
-        Com_Warning("NET_IPSocket: bind: %s\n", NET_ErrorString());
+        Q_PrintlnWarning("NET_IPSocket: bind: {}", NET_ErrorString());
         *err = socketError;
         closesocket(newsocket);
         return INVALID_SOCKET;
@@ -545,20 +545,20 @@ void NET_OpenSocks(int port)
 
     usingSocks = false;
 
-    Com_Printf("Opening connection to SOCKS server.\n");
+    Q_Println("Opening connection to SOCKS server.");
 
     if ((socks_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
-        Com_Warning("NET_OpenSocks: socket: %s\n", NET_ErrorString());
+        Q_PrintlnWarning("NET_OpenSocks: socket: {}", NET_ErrorString());
         return;
     }
 
     h = gethostbyname(net_socksServer->string);
     if (h == nullptr) {
-        Com_Warning("NET_OpenSocks: gethostbyname: %s\n", NET_ErrorString());
+        Q_PrintlnWarning("NET_OpenSocks: gethostbyname: {}", NET_ErrorString());
         return;
     }
     if (h->h_addrtype != AF_INET) {
-        Com_Warning("NET_OpenSocks: gethostbyname: address type was not AF_INET\n");
+        Q_PrintlnWarning("NET_OpenSocks: gethostbyname: address type was not AF_INET");
         return;
     }
     memset(&address, 0, sizeof(address));
@@ -567,7 +567,7 @@ void NET_OpenSocks(int port)
     address.sin_port = htons(net_socksPort->integer);
 
     if (connect(socks_socket, (struct sockaddr*)&address, sizeof(address)) == SOCKET_ERROR) {
-        Com_Printf("NET_OpenSocks: connect: %s\n", NET_ErrorString());
+        Q_Println("NET_OpenSocks: connect: {}", NET_ErrorString());
         return;
     }
 
@@ -594,18 +594,18 @@ void NET_OpenSocks(int port)
         buf[2] = 2; // method #2 - method id #02: username/password
     }
     if (send(socks_socket, (const char*)buf, len, 0) == SOCKET_ERROR) {
-        Com_Printf("NET_OpenSocks: send: %s\n", NET_ErrorString());
+        Q_Println("NET_OpenSocks: send: {}", NET_ErrorString());
         return;
     }
 
     // get the response
     len = recv(socks_socket, (char*)buf, 64, 0);
     if (len == SOCKET_ERROR) {
-        Com_Printf("NET_OpenSocks: recv: %s\n", NET_ErrorString());
+        Q_Println("NET_OpenSocks: recv: {}", NET_ErrorString());
         return;
     }
     if (len != 2 || buf[0] != 5) {
-        Com_Printf("NET_OpenSocks: bad response\n");
+        Q_Println("NET_OpenSocks: bad response");
         return;
     }
     switch (buf[1]) {
@@ -614,7 +614,7 @@ void NET_OpenSocks(int port)
     case 2: // username/password authentication
         break;
     default:
-        Com_Printf("NET_OpenSocks: request denied\n");
+        Q_Println("NET_OpenSocks: request denied");
         return;
     }
 
@@ -639,22 +639,22 @@ void NET_OpenSocks(int port)
 
         // send it
         if (send(socks_socket, (const char*)buf, 3 + ulen + plen, 0) == SOCKET_ERROR) {
-            Com_Printf("NET_OpenSocks: send: %s\n", NET_ErrorString());
+            Q_Println("NET_OpenSocks: send: {}", NET_ErrorString());
             return;
         }
 
         // get the response
         len = recv(socks_socket, (char*)buf, 64, 0);
         if (len == SOCKET_ERROR) {
-            Com_Printf("NET_OpenSocks: recv: %s\n", NET_ErrorString());
+            Q_Println("NET_OpenSocks: recv: {}", NET_ErrorString());
             return;
         }
         if (len != 2 || buf[0] != 1) {
-            Com_Printf("NET_OpenSocks: bad response\n");
+            Q_Println("NET_OpenSocks: bad response");
             return;
         }
         if (buf[1] != 0) {
-            Com_Printf("NET_OpenSocks: authentication failed\n");
+            Q_Println("NET_OpenSocks: authentication failed");
             return;
         }
     }
@@ -669,27 +669,27 @@ void NET_OpenSocks(int port)
     uint16_t networkOrderPort = htons(port); // port
     memcpy(&buf[8], &networkOrderPort, 2);
     if (send(socks_socket, (const char*)buf, 10, 0) == SOCKET_ERROR) {
-        Com_Printf("NET_OpenSocks: send: %s\n", NET_ErrorString());
+        Q_Println("NET_OpenSocks: send: {}", NET_ErrorString());
         return;
     }
 
     // get the response
     len = recv(socks_socket, (char*)buf, 64, 0);
     if (len == SOCKET_ERROR) {
-        Com_Printf("NET_OpenSocks: recv: %s\n", NET_ErrorString());
+        Q_Println("NET_OpenSocks: recv: {}", NET_ErrorString());
         return;
     }
     if (len < 2 || buf[0] != 5) {
-        Com_Printf("NET_OpenSocks: bad response\n");
+        Q_Println("NET_OpenSocks: bad response");
         return;
     }
     // check completion code
     if (buf[1] != 0) {
-        Com_Printf("NET_OpenSocks: request denied: %i\n", buf[1]);
+        Q_Println("NET_OpenSocks: request denied: {}", buf[1]);
         return;
     }
     if (buf[3] != 1) {
-        Com_Printf("NET_OpenSocks: relay address is not IPV4: %i\n", buf[3]);
+        Q_Println("NET_OpenSocks: relay address is not IPV4: {}", buf[3]);
         return;
     }
     socksRelayAddr.sin_family = AF_INET;
@@ -739,12 +739,12 @@ void NET_GetLocalAddress(void)
     // ONAddressFamily and at a -interfaces method to it.
     family = AF_INET;
     if ((interfaceSocket = socket(family, SOCK_DGRAM, 0)) < 0) {
-        Com_Printf("NET_GetLocalAddress: Unable to create temporary socket, errno = %d\n", errno);
+        Q_Println("NET_GetLocalAddress: Unable to create temporary socket, errno = {}", errno);
         return;
     }
 
     if (ioctl(interfaceSocket, SIOCGIFCONF, &ifc) != 0) {
-        Com_Printf("NET_GetLocalAddress: Unable to get list of network interfaces, errno = %d\n", errno);
+        Q_Println("NET_GetLocalAddress: Unable to get list of network interfaces, errno = {}", errno);
         return;
     }
 
@@ -779,9 +779,9 @@ void NET_GetLocalAddress(void)
                         // Get the local interface address
                         strncpy(ifr.ifr_name, inetInterface->ifr_name, sizeof(ifr.ifr_name));
                         if (ioctl(interfaceSocket, SIOCGIFADDR, (caddr_t)&ifr) < 0) {
-                            Com_Printf("NET_GetLocalAddress: Unable to get local address "
-                                       "for interface '%s', errno = %d\n",
-                                       inetInterface->ifr_name, errno);
+                            Q_Println("NET_GetLocalAddress: Unable to get local address "
+                                      "for interface '{}', errno = {}",
+                                      inetInterface->ifr_name, errno);
                         }
                         else {
                             struct sockaddr_in* sin;
@@ -794,8 +794,8 @@ void NET_GetLocalAddress(void)
                             localIP[numIP][1] = (ip >> 16) & 0xff;
                             localIP[numIP][2] = (ip >> 8) & 0xff;
                             localIP[numIP][3] = (ip >> 0) & 0xff;
-                            Com_Printf("IP: %i.%i.%i.%i (%s)\n", localIP[numIP][0], localIP[numIP][1], localIP[numIP][2], localIP[numIP][3],
-                                       inetInterface->ifr_name);
+                            Q_Println("IP: {}.{}.{}.{} ({})", localIP[numIP][0], localIP[numIP][1], localIP[numIP][2], localIP[numIP][3],
+                                      inetInterface->ifr_name);
                             numIP++;
                         }
                     }
@@ -834,10 +834,10 @@ void NET_GetLocalAddress(void)
         return;
     }
 
-    Com_Printf("Hostname: %s\n", hostInfo->h_name);
+    Q_Println("Hostname: {}", hostInfo->h_name);
     n = 0;
     while ((p = hostInfo->h_aliases[n++]) != nullptr) {
-        Com_Printf("Alias: %s\n", p);
+        Q_Println("Alias: {}", p);
     }
 
     if (hostInfo->h_addrtype != AF_INET) {
@@ -850,7 +850,7 @@ void NET_GetLocalAddress(void)
         localIP[numIP][1] = p[1];
         localIP[numIP][2] = p[2];
         localIP[numIP][3] = p[3];
-        Com_Printf("IP: %i.%i.%i.%i\n", (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
+        Q_Println("IP: {}.{}.{}.{}", (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
         numIP++;
     }
 }
@@ -888,7 +888,7 @@ void NET_OpenIP(void)
             }
         }
         if (ip_socket == INVALID_SOCKET)
-            Com_Warning("Couldn't bind to a v4 ip address.\n");
+            Q_PrintlnWarning("Couldn't bind to a v4 ip address.");
     }
 }
 
@@ -1015,11 +1015,11 @@ void NET_Init(void)
 #ifdef _WIN32
     int r = WSAStartup(MAKEWORD(1, 1), &winsockdata);
     if (r) {
-        Com_Warning("Winsock initialization failed, returned %d\n", r);
+        Q_PrintlnWarning("Winsock initialization failed, returned {}", r);
         return;
     }
 
-    Com_Printf("Winsock Initialized\n");
+    Q_Println("Winsock Initialized");
 #endif
 
     NET_Config(true);
@@ -1116,7 +1116,7 @@ void NET_Sleep(int usec)
     retval = select(highestfd + 1, &fdset, nullptr, nullptr, &timeout);
 
     if (retval == SOCKET_ERROR)
-        Com_Warning("select() syscall failed: %s\n", NET_ErrorString());
+        Q_PrintlnWarning("select() syscall failed: {}", NET_ErrorString());
     else if (retval > 0)
         NET_Event(&fdset);
 }

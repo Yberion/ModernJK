@@ -109,7 +109,7 @@ void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... ) {
 
     va_start (argptr,fmt);
     if (vsprintf (msg, fmt, argptr) > sizeof(msg)) {
-        Com_Error( errorParm_t::ERR_DROP, "PrintMsg overrun" );
+        Q_Error(errorParm_t::ERR_DROP, "PrintMsg overrun");
     }
     va_end (argptr);
 
@@ -117,7 +117,7 @@ void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... ) {
     while ((p = strchr(msg, '"')) != nullptr)
         *p = '\'';
 
-    trap->SendServerCommand ( ( (ent == nullptr) ? -1 : ent-g_entities ), va("print \"%s\"", msg ));
+    trap->SendServerCommand ( ( (ent == nullptr) ? -1 : ent-g_entities ), Q_Format("print \"{}\"", msg).c_str());
 }
 */
 // Printing messages to players via this method is no longer done, StringEd stuff is client only.
@@ -553,7 +553,7 @@ void Team_ReturnFlagSound(gentity_t* ent, team_t team)
     gentity_t* te;
 
     if (ent == nullptr) {
-        Com_Warning("NULL passed to Team_ReturnFlagSound\n");
+        Q_PrintlnWarning("NULL passed to Team_ReturnFlagSound");
         return;
     }
 
@@ -572,7 +572,7 @@ void Team_TakeFlagSound(gentity_t* ent, team_t team)
     gentity_t* te;
 
     if (ent == nullptr) {
-        Com_Warning("NULL passed to Team_TakeFlagSound\n");
+        Q_PrintlnWarning("NULL passed to Team_TakeFlagSound");
         return;
     }
 
@@ -613,7 +613,7 @@ void Team_CaptureFlagSound(gentity_t* ent, team_t team)
     gentity_t* te;
 
     if (ent == nullptr) {
-        Com_Warning("NULL passed to Team_CaptureFlagSound\n");
+        Q_PrintlnWarning("NULL passed to Team_CaptureFlagSound");
         return;
     }
 
@@ -994,10 +994,10 @@ bool Team_GetLocationMsg(gentity_t* ent, char* loc, int loclen)
             best->count = 0;
         if (best->count > 7)
             best->count = 7;
-        Com_sprintf(loc, loclen, "%c%c%s" S_COLOR_WHITE, Q_COLOR_ESCAPE, best->count + '0', best->message);
+        Q_FormatTo(std::span(loc, loclen), "{}{:c}{}" S_COLOR_WHITE, Q_COLOR_ESCAPE, best->count + '0', best->message);
     }
     else
-        Com_sprintf(loc, loclen, "%s", best->message);
+        Q_FormatTo(std::span(loc, loclen), "{}", best->message);
 
     return true;
 }
@@ -1212,7 +1212,7 @@ void TeamplayInfoMessage(gentity_t* ent)
             if (player->client->tempSpectate >= level.time) {
                 h = a = 0;
 
-                Com_sprintf(entry, sizeof(entry), " %i %i %i %i %i %i", i, 0, h, a, 0, 0);
+                Q_FormatTo(entry, " {} {} {} {} {} {}", i, 0, h, a, 0, 0);
             }
             else {
                 h = player->client->ps.stats[statIndex_t::STAT_HEALTH];
@@ -1222,8 +1222,8 @@ void TeamplayInfoMessage(gentity_t* ent)
                 if (a < 0)
                     a = 0;
 
-                Com_sprintf(entry, sizeof(entry), " %i %i %i %i %i %i", i, player->client->pers.teamState.location, h, a,
-                            to_underlying(player->client->ps.weapon), player->s.powerups);
+                Q_FormatTo(entry, " {} {} {} {} {} {}", i, player->client->pers.teamState.location, h, a, to_underlying(player->client->ps.weapon),
+                           player->s.powerups);
             }
             j = strlen(entry);
             if (stringlength + j >= std::ssize(string))
@@ -1234,7 +1234,7 @@ void TeamplayInfoMessage(gentity_t* ent)
         }
     }
 
-    trap->SendServerCommand(ent - g_entities, va("tinfo %i %s", cnt, string));
+    trap->SendServerCommand(ent - g_entities, Q_Format("tinfo {} {}", cnt, string).c_str());
 }
 
 void CheckTeamStatus(void)

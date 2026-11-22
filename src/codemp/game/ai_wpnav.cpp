@@ -317,9 +317,9 @@ checkprint:
     if (gotbestindex && bestindex != gLastPrintedIndex) {
         flagstr = GetFlagStr(gWPArray[bestindex]->flags);
         gLastPrintedIndex = bestindex;
-        Com_Printf(S_COLOR_YELLOW "Waypoint %i\nFlags - %i (%s) (w%f)\nOrigin - (%i %i %i)\n", (int)(gWPArray[bestindex]->index),
-                   to_underlying(gWPArray[bestindex]->flags), flagstr, gWPArray[bestindex]->weight, (int)(gWPArray[bestindex]->origin[0]),
-                   (int)(gWPArray[bestindex]->origin[1]), (int)(gWPArray[bestindex]->origin[2]));
+        Q_Println(S_COLOR_YELLOW "Waypoint {}\nFlags - {} ({}) (w{:f})\nOrigin - ({} {} {})", (int)(gWPArray[bestindex]->index),
+                  to_underlying(gWPArray[bestindex]->flags), flagstr, gWPArray[bestindex]->weight, (int)(gWPArray[bestindex]->origin[0]),
+                  (int)(gWPArray[bestindex]->origin[1]), (int)(gWPArray[bestindex]->origin[2]));
         // GetFlagStr allocates 128 bytes for this, if it's changed then obviously this must be as well
         B_TempFree(128); // flagstr
 
@@ -339,7 +339,7 @@ void TransferWPData(int from, int to)
     }
 
     if (!gWPArray[to]) {
-        Com_Printf(S_COLOR_RED "FATAL ERROR: Could not allocated memory for waypoint\n");
+        Q_Println(S_COLOR_RED "FATAL ERROR: Could not allocated memory for waypoint");
     }
 
     gWPArray[to]->flags = gWPArray[from]->flags;
@@ -356,7 +356,7 @@ void CreateNewWP(vec3_t origin, waypointFlags_t flags)
 {
     if (gWPNum >= MAX_WPARRAY_SIZE) {
         if (!RMG.integer) {
-            Com_Warning("Waypoint limit hit (%i)\n", MAX_WPARRAY_SIZE);
+            Q_PrintlnWarning("Waypoint limit hit ({})", MAX_WPARRAY_SIZE);
         }
         return;
     }
@@ -366,7 +366,7 @@ void CreateNewWP(vec3_t origin, waypointFlags_t flags)
     }
 
     if (!gWPArray[gWPNum]) {
-        Com_PrintError("Could not allocated memory for waypoint\n");
+        Q_PrintlnError("Could not allocated memory for waypoint");
     }
 
     gWPArray[gWPNum]->flags = flags;
@@ -393,7 +393,7 @@ void CreateNewWP_FromObject(wpobject_t* wp)
     }
 
     if (!gWPArray[gWPNum]) {
-        Com_PrintError("Could not allocated memory for waypoint\n");
+        Q_PrintlnError("Could not allocated memory for waypoint");
     }
 
     gWPArray[gWPNum]->flags = wp->flags;
@@ -471,7 +471,7 @@ void RemoveWP_InTrail(int afterindex)
     i = 0;
 
     if (afterindex < 0 || afterindex >= gWPNum) {
-        Com_Printf(S_COLOR_YELLOW "Waypoint number %i does not exist\n", afterindex);
+        Q_Println(S_COLOR_YELLOW "Waypoint number {} does not exist", afterindex);
         return;
     }
 
@@ -486,7 +486,7 @@ void RemoveWP_InTrail(int afterindex)
     }
 
     if (!foundanindex) {
-        Com_Printf(S_COLOR_YELLOW "Waypoint index %i should exist, but does not (?)\n", afterindex);
+        Q_Println(S_COLOR_YELLOW "Waypoint index {} should exist, but does not (?)", afterindex);
         return;
     }
 
@@ -531,13 +531,13 @@ int CreateNewWP_InTrail(vec3_t origin, waypointFlags_t flags, int afterindex)
 
     if (gWPNum >= MAX_WPARRAY_SIZE) {
         if (!RMG.integer) {
-            Com_Warning("Waypoint limit hit (%i)\n", MAX_WPARRAY_SIZE);
+            Q_PrintlnWarning("Waypoint limit hit ({})", MAX_WPARRAY_SIZE);
         }
         return 0;
     }
 
     if (afterindex < 0 || afterindex >= gWPNum) {
-        Com_Printf(S_COLOR_YELLOW "Waypoint number %i does not exist\n", afterindex);
+        Q_Println(S_COLOR_YELLOW "Waypoint number {} does not exist", afterindex);
         return 0;
     }
 
@@ -552,7 +552,7 @@ int CreateNewWP_InTrail(vec3_t origin, waypointFlags_t flags, int afterindex)
     }
 
     if (!foundanindex) {
-        Com_Printf(S_COLOR_YELLOW "Waypoint index %i should exist, but does not (?)\n", afterindex);
+        Q_Println(S_COLOR_YELLOW "Waypoint index {} should exist, but does not (?)", afterindex);
         return 0;
     }
 
@@ -599,13 +599,13 @@ int CreateNewWP_InsertUnder(vec3_t origin, waypointFlags_t flags, int afterindex
 
     if (gWPNum >= MAX_WPARRAY_SIZE) {
         if (!RMG.integer) {
-            Com_Warning("Waypoint limit hit (%i)\n", MAX_WPARRAY_SIZE);
+            Q_PrintlnWarning("Waypoint limit hit ({})", MAX_WPARRAY_SIZE);
         }
         return 0;
     }
 
     if (afterindex < 0 || afterindex >= gWPNum) {
-        Com_Printf(S_COLOR_YELLOW "Waypoint number %i does not exist\n", afterindex);
+        Q_Println(S_COLOR_YELLOW "Waypoint number {} does not exist", afterindex);
         return 0;
     }
 
@@ -620,7 +620,7 @@ int CreateNewWP_InsertUnder(vec3_t origin, waypointFlags_t flags, int afterindex
     }
 
     if (!foundanindex) {
-        Com_Printf(S_COLOR_YELLOW "Waypoint index %i should exist, but does not (?)\n", afterindex);
+        Q_Println(S_COLOR_YELLOW "Waypoint index {} should exist, but does not (?)", afterindex);
         return 0;
     }
 
@@ -671,7 +671,7 @@ void TeleportToWP(gentity_t* pl, int afterindex)
     i = 0;
 
     if (afterindex < 0 || afterindex >= gWPNum) {
-        Com_Printf(S_COLOR_YELLOW "Waypoint number %i does not exist\n", afterindex);
+        Q_Println(S_COLOR_YELLOW "Waypoint number {} does not exist", afterindex);
         return;
     }
 
@@ -686,7 +686,7 @@ void TeleportToWP(gentity_t* pl, int afterindex)
     }
 
     if (!foundanindex) {
-        Com_Printf(S_COLOR_YELLOW "Waypoint index %i should exist, but does not (?)\n", afterindex);
+        Q_Println(S_COLOR_YELLOW "Waypoint index {} should exist, but does not (?)", afterindex);
         return;
     }
 
@@ -698,7 +698,7 @@ void TeleportToWP(gentity_t* pl, int afterindex)
 void WPFlagsModify(int wpnum, waypointFlags_t flags)
 {
     if (wpnum < 0 || wpnum >= gWPNum || !gWPArray[wpnum] || !gWPArray[wpnum]->inuse) {
-        Com_Printf(S_COLOR_YELLOW "WPFlagsModify: Waypoint %i does not exist\n", wpnum);
+        Q_Println(S_COLOR_YELLOW "WPFlagsModify: Waypoint {} does not exist", wpnum);
         return;
     }
 
@@ -989,7 +989,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
     i = 0;
 
     if (!behindTheScenes) {
-        Com_Printf(S_COLOR_YELLOW "Point %i is not connected to %i - Repairing...\n", startindex, endindex);
+        Q_Println(S_COLOR_YELLOW "Point {} is not connected to {} - Repairing...", startindex, endindex);
     }
 
     VectorCopy(gWPArray[startindex]->origin, startplace);
@@ -1182,14 +1182,14 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
         if (!behindTheScenes)
 #endif
         {
-            Com_Printf(S_COLOR_RED "Could not link %i to %i, unreachable by node branching.\n", startindex, endindex);
+            Q_Println(S_COLOR_RED "Could not link {} to {}, unreachable by node branching.", startindex, endindex);
         }
         gWPArray[startindex]->flags |= waypointFlags_t::WPFLAG_ONEWAY_FWD;
         gWPArray[endindex]->flags |= waypointFlags_t::WPFLAG_ONEWAY_BACK;
         if (!behindTheScenes) {
-            Com_Printf(S_COLOR_YELLOW
-                       "Since points cannot be connected, point %i has been flagged as only-forward and point %i has been flagged as only-backward.\n",
-                       startindex, endindex);
+            Q_Println(S_COLOR_YELLOW
+                      "Since points cannot be connected, point {} has been flagged as only-forward and point {} has been flagged as only-backward.",
+                      startindex, endindex);
         }
 
         /*while (nodenum >= 0)
@@ -1259,7 +1259,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
             nodetable[i].flags |= waypointFlags_t::WPFLAG_CALCULATED;
             if (!CreateNewWP_InTrail(nodetable[i].origin, nodetable[i].flags, insertindex)) {
                 if (!behindTheScenes) {
-                    Com_Printf(S_COLOR_RED "Could not link %i to %i, waypoint limit hit.\n", startindex, endindex);
+                    Q_Println(S_COLOR_RED "Could not link {} to {}, waypoint limit hit.", startindex, endindex);
                 }
                 return 0;
             }
@@ -1277,7 +1277,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
     }
 
     if (!behindTheScenes) {
-        Com_Printf(S_COLOR_YELLOW "Finished connecting %i to %i.\n", startindex, endindex);
+        Q_Println(S_COLOR_YELLOW "Finished connecting {} to {}.", startindex, endindex);
     }
 
     return 1;
@@ -1814,19 +1814,19 @@ int LoadPathData(const char* filename)
 
     routePath = (char*)B_TempAlloc(1024);
 
-    Com_sprintf(routePath, 1024, "botroutes/%s.wnt", filename);
+    Q_FormatTo(std::span(routePath, 1024), "botroutes/{}.wnt", filename);
 
     len = trap->FS_Open(routePath, &f, fsMode_t::FS_READ);
 
     B_TempFree(1024); // routePath
 
     if (!f) {
-        Com_Printf(S_COLOR_YELLOW "Bot route data not found for %s\n", filename);
+        Q_Println(S_COLOR_YELLOW "Bot route data not found for {}", filename);
         return 2;
     }
 
     if (len >= 524288) {
-        Com_Printf(S_COLOR_RED "Route file exceeds maximum length\n");
+        Q_Println(S_COLOR_RED "Route file exceeds maximum length");
         trap->FS_Close(f);
         return 0;
     }
@@ -2145,14 +2145,14 @@ int SavePathData(const char* filename)
 
     routePath = (char*)B_TempAlloc(1024);
 
-    Com_sprintf(routePath, 1024, "botroutes/%s.wnt", filename);
+    Q_FormatTo(std::span(routePath, 1024), "botroutes/{}.wnt", filename);
 
     trap->FS_Open(routePath, &f, fsMode_t::FS_WRITE);
 
     B_TempFree(1024); // routePath
 
     if (!f) {
-        Com_PrintError("Could not open file to write path data\n");
+        Q_PrintlnError("Could not open file to write path data");
         return 0;
     }
 
@@ -2169,17 +2169,17 @@ int SavePathData(const char* filename)
     fileString = (char*)B_TempAlloc(524288);
     storeString = (char*)B_TempAlloc(4096);
 
-    Com_sprintf(fileString, 524288, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, to_underlying(gWPArray[i]->flags), gWPArray[i]->weight,
-                gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
+    Q_FormatTo(std::span(fileString, 524288), "{} {} {:f} ({:f} {:f} {:f}) {{ ", gWPArray[i]->index, to_underlying(gWPArray[i]->flags), gWPArray[i]->weight,
+               gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 
     n = 0;
 
     while (n < gWPArray[i]->neighbornum) {
         if (gWPArray[i]->neighbors[n].forceJumpTo) {
-            Com_sprintf(storeString, 4096, "%s%i-%i ", storeString, gWPArray[i]->neighbors[n].num, gWPArray[i]->neighbors[n].forceJumpTo);
+            Q_FormatTo(std::span(storeString, 4096), "{}{}-{} ", storeString, gWPArray[i]->neighbors[n].num, gWPArray[i]->neighbors[n].forceJumpTo);
         }
         else {
-            Com_sprintf(storeString, 4096, "%s%i ", storeString, gWPArray[i]->neighbors[n].num);
+            Q_FormatTo(std::span(storeString, 4096), "{}{} ", storeString, gWPArray[i]->neighbors[n].num);
         }
         n++;
     }
@@ -2194,24 +2194,24 @@ int SavePathData(const char* filename)
 
     gWPArray[i]->disttonext = flLen;
 
-    Com_sprintf(fileString, 524288, "%s} %f\n", fileString, flLen);
+    Q_FormatTo(std::span(fileString, 524288), "{}}} {:f}\n", fileString, flLen);
 
     i++;
 
     while (i < gWPNum) {
-        // sprintf(fileString, "%s%i %i %f (%f %f %f) { ", fileString, gWPArray[i]->index, to_underlying( gWPArray[i]->flags ), gWPArray[i]->weight,
+        // Q_FormatTo(fileString, "{}{} {} {:f} ({:f} {:f} {:f}) {{ ", fileString, gWPArray[i]->index, to_underlying( gWPArray[i]->flags ), gWPArray[i]->weight,
         // gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
-        Com_sprintf(storeString, 4096, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, to_underlying(gWPArray[i]->flags), gWPArray[i]->weight,
-                    gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
+        Q_FormatTo(std::span(storeString, 4096), "{} {} {:f} ({:f} {:f} {:f}) {{ ", gWPArray[i]->index, to_underlying(gWPArray[i]->flags), gWPArray[i]->weight,
+                   gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 
         n = 0;
 
         while (n < gWPArray[i]->neighbornum) {
             if (gWPArray[i]->neighbors[n].forceJumpTo) {
-                Com_sprintf(storeString, 4096, "%s%i-%i ", storeString, gWPArray[i]->neighbors[n].num, gWPArray[i]->neighbors[n].forceJumpTo);
+                Q_FormatTo(std::span(storeString, 4096), "{}{}-{} ", storeString, gWPArray[i]->neighbors[n].num, gWPArray[i]->neighbors[n].forceJumpTo);
             }
             else {
-                Com_sprintf(storeString, 4096, "%s%i ", storeString, gWPArray[i]->neighbors[n].num);
+                Q_FormatTo(std::span(storeString, 4096), "{}{} ", storeString, gWPArray[i]->neighbors[n].num);
             }
             n++;
         }
@@ -2226,7 +2226,7 @@ int SavePathData(const char* filename)
 
         gWPArray[i]->disttonext = flLen;
 
-        Com_sprintf(storeString, 4096, "%s} %f\n", storeString, flLen);
+        Q_FormatTo(std::span(storeString, 4096), "{}}} {:f}\n", storeString, flLen);
 
         strcat(fileString, storeString);
 
@@ -2240,7 +2240,7 @@ int SavePathData(const char* filename)
 
     trap->FS_Close(f);
 
-    Com_Printf("Path data has been saved and updated. You may need to restart the level for some things to be properly calculated.\n");
+    Q_Println("Path data has been saved and updated. You may need to restart the level for some things to be properly calculated.");
 
     return 1;
 }
@@ -2422,7 +2422,7 @@ void G_DebugNodeFile()
     placeX = terrain->r.absmin[0];
 
     while (i < nodenum) {
-        strcat(fileString, va("%i-%f ", i, nodetable[i].weight));
+        strcat(fileString, Q_Format("{}-{:f} ", i, nodetable[i].weight).c_str());
         placeX += DEFAULT_GRID_SPACING;
 
         if (placeX >= terrain->r.absmax[0]) {
@@ -2493,10 +2493,11 @@ void CreateAsciiTableRepresentation()
                     fileString[sP] = bChr;
                     fileString[sP + 1] = '0';
                     fileString[sP + 2] = '0';
-                    fileString[sP + 3] = va("%i", gWPArray[i]->index)[0];
+                    fileString[sP + 3] = Q_Format("{}", gWPArray[i]->index).c_str()[0];
                 }
                 else if (gWPArray[i]->index < 100) {
-                    char* vastore = va("%i", gWPArray[i]->index);
+                    formatText_t vastoreText; // holds the text vastore points into
+                    const char* vastore = (vastoreText = Q_Format("{}", gWPArray[i]->index)).c_str();
 
                     fileString[sP] = bChr;
                     fileString[sP + 1] = '0';
@@ -2504,7 +2505,8 @@ void CreateAsciiTableRepresentation()
                     fileString[sP + 3] = vastore[1];
                 }
                 else if (gWPArray[i]->index < 1000) {
-                    char* vastore = va("%i", gWPArray[i]->index);
+                    formatText_t vastoreText; // holds the text vastore points into
+                    const char* vastore = (vastoreText = Q_Format("{}", gWPArray[i]->index)).c_str();
 
                     fileString[sP] = bChr;
                     fileString[sP + 1] = vastore[0];
@@ -2603,10 +2605,11 @@ void CreateAsciiNodeTableRepresentation(int start, int end)
                     fileString[sP] = '+';
                     fileString[sP + 1] = '0';
                     fileString[sP + 2] = '0';
-                    fileString[sP + 3] = va("%f", nodetable[i].weight)[0];
+                    fileString[sP + 3] = Q_Format("{:f}", nodetable[i].weight).c_str()[0];
                 }
                 else if (nodetable[i].weight < 100) {
-                    char* vastore = va("%f", nodetable[i].weight);
+                    formatText_t vastoreText; // holds the text vastore points into
+                    const char* vastore = (vastoreText = Q_Format("{:f}", nodetable[i].weight)).c_str();
 
                     fileString[sP] = '+';
                     fileString[sP + 1] = '0';
@@ -2614,7 +2617,8 @@ void CreateAsciiNodeTableRepresentation(int start, int end)
                     fileString[sP + 3] = vastore[1];
                 }
                 else if (nodetable[i].weight < 1000) {
-                    char* vastore = va("%f", nodetable[i].weight);
+                    formatText_t vastoreText; // holds the text vastore points into
+                    const char* vastore = (vastoreText = Q_Format("{:f}", nodetable[i].weight)).c_str();
 
                     fileString[sP] = '+';
                     fileString[sP + 1] = vastore[0];
@@ -2745,7 +2749,7 @@ void G_RMGPathing(void)
     gentity_t* terrain = G_Find(nullptr, FOFS(classname), "terrain");
 
     if (!terrain || !terrain->inuse || terrain->s.eType != entityType_t::ET_TERRAIN) {
-        Com_PrintError("RMG with no terrain!\n");
+        Q_PrintlnError("RMG with no terrain!");
         return;
     }
 
@@ -2874,7 +2878,7 @@ void G_RMGPathing(void)
 #ifdef PATH_TIME_DEBUG
     endTime = trap->Milliseconds();
 
-    Com_Printf("Total routing time taken: %ims\n", (endTime - startTime));
+    Q_Println("Total routing time taken: {}ms", (endTime - startTime));
 #endif
 
 #ifdef ASCII_ART_DEBUG
@@ -3088,14 +3092,14 @@ int AcceptBotCommand(char* cmd, gentity_t* pl)
 
     if (Q_stricmp(cmd, "bot_wp_cmdlist") == 0) // lists all the bot waypoint commands.
     {
-        Com_Printf(S_COLOR_YELLOW "bot_wp_add" S_COLOR_WHITE
-                                  " - Add a waypoint (optional int parameter will insert the point after the specified waypoint index in a trail)\n\n");
-        Com_Printf(S_COLOR_YELLOW "bot_wp_rem" S_COLOR_WHITE " - Remove a waypoint (removes last unless waypoint index is specified as a parameter)\n\n");
-        Com_Printf(S_COLOR_YELLOW "bot_wp_addflagged" S_COLOR_WHITE " - Same as wp_add, but adds a flagged point (type bot_wp_addflagged for help)\n\n");
-        Com_Printf(S_COLOR_YELLOW "bot_wp_switchflags" S_COLOR_WHITE " - Switches flags on an existing waypoint (type bot_wp_switchflags for help)\n\n");
-        Com_Printf(S_COLOR_YELLOW "bot_wp_tele" S_COLOR_WHITE " - Teleport yourself to the specified waypoint's location\n");
-        Com_Printf(S_COLOR_YELLOW "bot_wp_killoneways" S_COLOR_WHITE " - Removes oneway (backward and forward) flags on all waypoints in the level\n\n");
-        Com_Printf(S_COLOR_YELLOW "bot_wp_save" S_COLOR_WHITE " - Saves all waypoint data into a file for later use\n");
+        Q_Println(S_COLOR_YELLOW "bot_wp_add" S_COLOR_WHITE
+                                 " - Add a waypoint (optional int parameter will insert the point after the specified waypoint index in a trail)\n");
+        Q_Println(S_COLOR_YELLOW "bot_wp_rem" S_COLOR_WHITE " - Remove a waypoint (removes last unless waypoint index is specified as a parameter)\n");
+        Q_Println(S_COLOR_YELLOW "bot_wp_addflagged" S_COLOR_WHITE " - Same as wp_add, but adds a flagged point (type bot_wp_addflagged for help)\n");
+        Q_Println(S_COLOR_YELLOW "bot_wp_switchflags" S_COLOR_WHITE " - Switches flags on an existing waypoint (type bot_wp_switchflags for help)\n");
+        Q_Println(S_COLOR_YELLOW "bot_wp_tele" S_COLOR_WHITE " - Teleport yourself to the specified waypoint's location");
+        Q_Println(S_COLOR_YELLOW "bot_wp_killoneways" S_COLOR_WHITE " - Removes oneway (backward and forward) flags on all waypoints in the level\n");
+        Q_Println(S_COLOR_YELLOW "bot_wp_save" S_COLOR_WHITE " - Saves all waypoint data into a file for later use");
 
         return 1;
     }
@@ -3148,7 +3152,7 @@ int AcceptBotCommand(char* cmd, gentity_t* pl)
             TeleportToWP(pl, OptionalArgument);
         }
         else {
-            Com_Printf(S_COLOR_YELLOW "You didn't specify an index. Assuming last.\n");
+            Q_Println(S_COLOR_YELLOW "You didn't specify an index. Assuming last.");
             TeleportToWP(pl, gWPNum - 1);
         }
         return 1;
@@ -3175,10 +3179,10 @@ int AcceptBotCommand(char* cmd, gentity_t* pl)
         RequiredSArgument = ConcatArgs(1);
 
         if (!RequiredSArgument || !RequiredSArgument[0]) {
-            Com_Printf(S_COLOR_YELLOW
-                       "Flag string needed for bot_wp_addflagged\nj - Jump point\nd - Duck point\nc - Snipe or camp standing\nf - Wait for func\nm - Do not "
-                       "move to when func is under\ns - Snipe or camp\nx - Oneway, forward\ny - Oneway, back\ng - Mission goal\nn - No visibility\nExample "
-                       "(for a point the bot would jump at, and reverse on when traveling a trail backwards):\nbot_wp_addflagged jx\n");
+            Q_Println(S_COLOR_YELLOW
+                      "Flag string needed for bot_wp_addflagged\nj - Jump point\nd - Duck point\nc - Snipe or camp standing\nf - Wait for func\nm - Do not "
+                      "move to when func is under\ns - Snipe or camp\nx - Oneway, forward\ny - Oneway, back\ng - Mission goal\nn - No visibility\nExample (for "
+                      "a point the bot would jump at, and reverse on when traveling a trail backwards):\nbot_wp_addflagged jx");
             return 1;
         }
 
@@ -3238,8 +3242,8 @@ int AcceptBotCommand(char* cmd, gentity_t* pl)
         RequiredSArgument = ConcatArgs(1);
 
         if (!RequiredSArgument || !RequiredSArgument[0]) {
-            Com_Printf(S_COLOR_YELLOW "Flag string needed for bot_wp_switchflags\nType bot_wp_addflagged for a list of flags and their corresponding "
-                                      "characters, or use 0 for no flags.\nSyntax: bot_wp_switchflags <flags> <n>\n");
+            Q_Println(S_COLOR_YELLOW "Flag string needed for bot_wp_switchflags\nType bot_wp_addflagged for a list of flags and their corresponding "
+                                     "characters, or use 0 for no flags.\nSyntax: bot_wp_switchflags <flags> <n>");
             return 1;
         }
 
@@ -3288,7 +3292,7 @@ int AcceptBotCommand(char* cmd, gentity_t* pl)
             WPFlagsModify(OptionalArgument, FlagsFromArgument);
         }
         else {
-            Com_Printf(S_COLOR_YELLOW "Waypoint number (to modify) needed for bot_wp_switchflags\nSyntax: bot_wp_switchflags <flags> <n>\n");
+            Q_Println(S_COLOR_YELLOW "Waypoint number (to modify) needed for bot_wp_switchflags\nSyntax: bot_wp_switchflags <flags> <n>");
         }
         return 1;
     }

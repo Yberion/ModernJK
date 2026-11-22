@@ -158,8 +158,8 @@ void fx_runner_link(gentity_t* ent)
 
         if (!target) {
             // Bah, no good, dump a warning, but continue on and use the UP vector
-            Com_Printf("fx_runner_link: target specified but not found: %s\n", ent->target);
-            Com_Printf("  -assuming UP orientation.\n");
+            Q_Println("fx_runner_link: target specified but not found: {}", ent->target);
+            Q_Println("  -assuming UP orientation.");
         }
         else {
             // Our target is valid so let's override the default UP vector
@@ -177,7 +177,7 @@ void fx_runner_link(gentity_t* ent)
 
         if (!target) {
             // Target2 is bogus, but we can still continue
-            Com_Printf("fx_runner_link: target2 was specified but is not valid: %s\n", ent->target2);
+            Q_Println("fx_runner_link: target2 was specified but is not valid: {}", ent->target2);
         }
     }
 
@@ -222,7 +222,7 @@ void SP_fx_runner(gentity_t* ent)
     }
 
     if (!ent->fxFile) {
-        Com_PrintError("fx_runner %s at %s has no fxFile specified\n", ent->targetname, vtos(ent->s.origin));
+        Q_PrintlnError("fx_runner {} at {} has no fxFile specified", ent->targetname, vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -313,7 +313,7 @@ void SP_CreateWind(gentity_t* ent)
         G_SpawnFloat("speed", "500", &ent->speed);
         VectorScale(windDir, ent->speed, windDir);
 
-        sprintf(temp, "constantwind ( %f %f %f )", windDir[0], windDir[1], windDir[2]);
+        Q_FormatTo(temp, "constantwind ( {:f} {:f} {:f} )", windDir[0], windDir[1], windDir[2]);
         G_FindConfigstringIndex(temp, CS_WORLD_FX, MAX_WORLD_FX, true);
     }
 
@@ -363,8 +363,8 @@ void SP_CreateWindZone(gentity_t* ent)
     VectorScale(windDir, ent->speed, windDir);
 
     char temp[256];
-    sprintf(temp, "windzone ( %f %f %f ) ( %f %f %f ) ( %f %f %f )", ent->mins[0], ent->mins[1], ent->mins[2], ent->maxs[0], ent->maxs[1], ent->maxs[2],
-            windDir[0], windDir[1], windDir[2]);
+    Q_FormatTo(temp, "windzone ( {:f} {:f} {:f} ) ( {:f} {:f} {:f} ) ( {:f} {:f} {:f} )", ent->mins[0], ent->mins[1], ent->mins[2], ent->maxs[0], ent->maxs[1],
+               ent->maxs[2], windDir[0], windDir[1], windDir[2]);
     G_FindConfigstringIndex(temp, CS_WORLD_FX, MAX_WORLD_FX, true);
 }
 
@@ -429,7 +429,7 @@ void fx_rain_think(gentity_t* ent)
             //----------------
             if (PlaySound && !PlayEffect) {
                 VectorMA(player->currentOrigin, 250.0f, effectDir, effectPos);
-                G_SoundAtSpot(effectPos, G_SoundIndex(va("sound/ambience/thunder%d", Q_irand(1, 4))), true);
+                G_SoundAtSpot(effectPos, G_SoundIndex(Q_Format("sound/ambience/thunder{}", Q_irand(1, 4)).c_str()), true);
             }
 
             // Play The Effect
@@ -437,7 +437,7 @@ void fx_rain_think(gentity_t* ent)
             if (PlayEffect) {
                 VectorMA(player->currentOrigin, 400.0f, effectDir, effectPos);
                 if (PlaySound) {
-                    G_Sound(player, G_SoundIndex(va("sound/ambience/thunder_close%d", Q_irand(1, 2))));
+                    G_Sound(player, G_SoundIndex(Q_Format("sound/ambience/thunder_close{}", Q_irand(1, 2)).c_str()));
                 }
 
                 // Raise It Up Into The Sky
@@ -620,13 +620,13 @@ void SP_CreatePuffSystem(gentity_t* ent)
         iPuffSystem = iVal;
         if (iPuffSystem < 0 || iPuffSystem > 1) {
             iPuffSystem = 0;
-            // Com_Error( errorParm_t::ERR_DROP, "Weather Effect: Invalid value for whichsystem key" );
-            Com_Printf("Weather Effect: Invalid value for whichsystem key\n");
+            // Q_Error(errorParm_t::ERR_DROP, "Weather Effect: Invalid value for whichsystem key");
+            Q_Println("Weather Effect: Invalid value for whichsystem key");
         }
     }
 
     if (r_weatherScale->value > 0.0f) {
-        sprintf(temp, "puff%i init %i", iPuffSystem, (int)(ent->count * r_weatherScale->value));
+        Q_FormatTo(temp, "puff{} init {}", iPuffSystem, (int)(ent->count * r_weatherScale->value));
 
         G_FindConfigstringIndex(temp, CS_WORLD_FX, MAX_WORLD_FX, true);
 
@@ -655,7 +655,7 @@ void SP_CreatePuffSystem(gentity_t* ent)
             continue;
 
         // Send the command.
-        Com_sprintf(temp, 128, "puff%i %s %s", iPuffSystem, key, value);
+        Q_FormatTo(std::span(temp, 128), "puff{} {} {}", iPuffSystem, key, value);
         G_FindConfigstringIndex(temp, CS_WORLD_FX, MAX_WORLD_FX, true);
     }
 }
@@ -679,7 +679,7 @@ void SP_CreatePuffSystem(gentity_t* ent)
         strCommand = nullptr;
 
         // Fetch a command.
-        G_SpawnString( va("c%02d", i), nullptr, &strCommand );
+        G_SpawnString( Q_Format("c{:02}", i).c_str(), nullptr, &strCommand );
 
         // If it's valid, issue it.
         if ( strCommand && strCommand[0] )
@@ -812,7 +812,7 @@ void fx_explosion_trail_link(gentity_t* ent)
         target = G_Find(target, FOFS(targetname), ent->target);
 
         if (!target) {
-            Com_PrintError("fx_explosion_trail %s could not find target %s\n", ent->targetname, ent->target);
+            Q_PrintlnError("fx_explosion_trail {} could not find target {}", ent->targetname, ent->target);
             G_FreeEntity(ent);
             return;
         }
@@ -857,7 +857,7 @@ void SP_fx_explosion_trail(gentity_t* ent)
 {
     // We have to be useable, otherwise we won't spawn in
     if (!ent->targetname) {
-        Com_PrintError("fx_explosion_trail at %s has no targetname specified\n", vtos(ent->s.origin));
+        Q_PrintlnError("fx_explosion_trail at {} has no targetname specified", vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -1020,7 +1020,7 @@ void fx_target_beam_link(gentity_t* ent)
     target = G_Find(target, FOFS(targetname), ent->target);
 
     if (!target) {
-        Com_Printf("bolt_link: unable to find target %s\n", ent->target);
+        Q_Println("bolt_link: unable to find target {}", ent->target);
         G_FreeEntity(ent);
         return;
     }

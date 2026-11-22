@@ -567,48 +567,48 @@ static void FixIllegalChars(char* psText)
 {
     char* p;
 
-    //	strXLS_Speech.Replace(va("%c",0x92),va("%c",0x27));	// "'"
+    //	strXLS_Speech.Replace(Q_Format("{:c}", 0x92).c_str(),Q_Format("{:c}", 0x27).c_str());	// "'"
     while ((p = strchr(psText, 0x92)) != nullptr) // "rich" (and illegal) apostrophe
     {
         *p = 0x27;
     }
 
-    //	strXLS_Speech.Replace(va("%c",0x93),"\"");			// smart quotes -> '"'
+    //	strXLS_Speech.Replace(Q_Format("{:c}", 0x93).c_str(),"\"");			// smart quotes -> '"'
     while ((p = strchr(psText, 0x93)) != nullptr) // "rich" (and illegal) apostrophe
     {
         *p = '"';
     }
 
-    //	strXLS_Speech.Replace(va("%c",0x94),"\"");			// smart quotes -> '"'
+    //	strXLS_Speech.Replace(Q_Format("{:c}", 0x94).c_str(),"\"");			// smart quotes -> '"'
     while ((p = strchr(psText, 0x94)) != nullptr) // "rich" (and illegal) apostrophe
     {
         *p = '"';
     }
 
-    //	strXLS_Speech.Replace(va("%c",0x0B),".");			// full stop
+    //	strXLS_Speech.Replace(Q_Format("{:c}", 0x0B).c_str(),".");			// full stop
     while ((p = strchr(psText, 0x0B)) != nullptr) // "rich" (and illegal) apostrophe
     {
         *p = '.';
     }
 
-    //	strXLS_Speech.Replace(va("%c",0x85),"...");			// "..."-char ->  3-char "..."
+    //	strXLS_Speech.Replace(Q_Format("{:c}", 0x85).c_str(),"...");			// "..."-char ->  3-char "..."
     while ((p = strchr(psText, 0x85)) != nullptr) // "rich" (and illegal) apostrophe
     {
         *p = '.'; // can't do in-string replace of "." with "...", so just forget it
     }
 
-    //	strXLS_Speech.Replace(va("%c",0x91),va("%c",0x27));	// "'"
+    //	strXLS_Speech.Replace(Q_Format("{:c}", 0x91).c_str(),Q_Format("{:c}", 0x27).c_str());	// "'"
     while ((p = strchr(psText, 0x91)) != nullptr) // "rich" (and illegal) apostrophe
     {
         *p = 0x27;
     }
 
-    //	strXLS_Speech.Replace(va("%c",0x96),va("%c",0x2D));	// "-"
+    //	strXLS_Speech.Replace(Q_Format("{:c}", 0x96).c_str(),Q_Format("{:c}", 0x2D).c_str());	// "-"
     while ((p = strchr(psText, 0x96)) != nullptr) {
         *p = 0x2D;
     }
 
-    //	strXLS_Speech.Replace(va("%c",0x97),va("%c",0x2D));	// "-"
+    //	strXLS_Speech.Replace(Q_Format("{:c}", 0x97).c_str(),Q_Format("{:c}", 0x2D).c_str());	// "-"
     while ((p = strchr(psText, 0x97)) != nullptr) {
         *p = 0x2D;
     }
@@ -885,10 +885,10 @@ bool JK2SP_Register(const char* inPackage, spRegistrationFlags_t Registration)
     }
     else {
 
-        size = FS_ReadFile(va("strip/%s.sp", Package), (void**)&buffer);
+        size = FS_ReadFile(Q_Format("strip/{}.sp", Package).c_str(), (void**)&buffer);
         if (size == -1) {
             if (Any(Registration & spRegistrationFlags_t::SP_REGISTER_REQUIRED)) {
-                Com_Error(errorParm_t::ERR_FATAL, "Could not open string package '%s'", Package);
+                Q_Error(errorParm_t::ERR_FATAL, "Could not open string package '{}'", Package);
             }
             return false;
         }
@@ -899,10 +899,10 @@ bool JK2SP_Register(const char* inPackage, spRegistrationFlags_t Registration)
         FS_FreeFile(buffer);
 
         if (Any(Registration & spRegistrationFlags_t::SP_REGISTER_CLIENT)) {
-            Com_DPrintf(S_COLOR_YELLOW "JK2SP_Register: Registered client string package '%s' with ID %02x\n", Package, (int)new_sp->GetID());
+            Q_DPrintln(S_COLOR_YELLOW "JK2SP_Register: Registered client string package '{}' with ID {:02x}", Package, (int)new_sp->GetID());
         }
         else {
-            Com_DPrintf(S_COLOR_YELLOW "JK2SP_Register: Registered string package '%s' with ID %02x\n", Package, (int)new_sp->GetID());
+            Q_DPrintln(S_COLOR_YELLOW "JK2SP_Register: Registered string package '{}' with ID {:02x}", Package, (int)new_sp->GetID());
         }
 
         // Insert into the name vs package map
@@ -930,7 +930,7 @@ void JK2SP_Unload(spRegistrationFlags_t Registration)
         ++next;
 
         if ((*i).second->UnRegister(Registration)) {
-            Com_DPrintf(S_COLOR_YELLOW "JK2SP_UnRegister: Package '%s' with ID %02x\n", (*i).first.c_str(), (int)(*i).second->GetID());
+            Q_DPrintln(S_COLOR_YELLOW "JK2SP_UnRegister: Package '{}' with ID {:02x}", (*i).first, (int)(*i).second->GetID());
 
             id = JK2SP_ListByID.find((*i).second->GetID());
             JK2SP_ListByID.erase(id);
@@ -978,7 +978,7 @@ cStringsSingle* JK2SP_GetString(unsigned short ID)
 
     i = JK2SP_ListByID.find(SP_GET_PACKAGE(ID));
     if (i == JK2SP_ListByID.end()) {
-        Com_Error(errorParm_t::ERR_DROP, "String package not registered for ID %04x", ID);
+        Q_Error(errorParm_t::ERR_DROP, "String package not registered for ID {:04x}", ID);
         return nullptr;
     }
 
@@ -986,7 +986,7 @@ cStringsSingle* JK2SP_GetString(unsigned short ID)
     string = sp->FindString(ID & SP_STRING);
 
     if (!string) {
-        Com_Error(errorParm_t::ERR_DROP, "String ID %04x not defined\n", ID);
+        Q_Error(errorParm_t::ERR_DROP, "String ID {:04x} not defined", ID);
     }
     return string;
 }
@@ -1086,11 +1086,12 @@ static void JK2SP_UpdateLanguage(void)
 
 void JK2SP_Init(void)
 {
-    sp_language = Cvar_Get("sp_language", va("%d", to_underlying(spLanguage_t::SP_LANGUAGE_ENGLISH)), cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
+    sp_language = Cvar_Get("sp_language", Q_Format("{}", to_underlying(spLanguage_t::SP_LANGUAGE_ENGLISH)).c_str(),
+                           cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
     sp_show_strip = Cvar_Get("sp_show_strip", "0", cvarFlags_t::CVAR_NONE); // don't switch this on!!!!!!, test only (apparently)
     sp_leet = Cvar_Get("sp_leet", "0", cvarFlags_t::CVAR_ROM);              // do NOT leave this on in final product!!!!  (only works when == 42 anyway ;-)
 
-    //	Cvar_Set("sp_language", va("%d", spLanguage_t::SP_LANGUAGE_JAPANESE));	// stetest, do NOT leave in
+    //	Cvar_Set("sp_language", Q_Format("{}", spLanguage_t::SP_LANGUAGE_JAPANESE).c_str());	// stetest, do NOT leave in
 
     JK2SP_UpdateLanguage();
     sp_language->modified = false;

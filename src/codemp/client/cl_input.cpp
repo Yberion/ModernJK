@@ -284,7 +284,7 @@ void IN_GenCMD18(void)
 void IN_GenCMD19(void)
 {
     if (Cvar_VariableIntegerValue("d_saberStanceDebug")) {
-        Com_Printf("SABERSTANCEDEBUG: Gencmd on client set successfully.\n");
+        Q_Println("SABERSTANCEDEBUG: Gencmd on client set successfully.");
     }
     cl.gcmdSendValue = true;
     cl.gcmdValue = to_underlying(genCmds_t::GENCMD_SABERATTACKCYCLE);
@@ -423,7 +423,7 @@ void IN_KeyDown(kbutton_t* b)
         b->down[1] = k;
     }
     else {
-        Com_Printf("Three keys down for a button!\n");
+        Q_Println("Three keys down for a button!");
         return;
     }
 
@@ -513,7 +513,7 @@ float CL_KeyState(kbutton_t* key, unsigned span)
 
 #if 0
 	if (msec) {
-		Com_Printf ("%i ", msec);
+		Q_Print("{} ", msec);
 	}
 #endif
 
@@ -1061,7 +1061,7 @@ Joystick values stay set until changed
 void CL_JoystickEvent(int axis, int value, int time)
 {
     if (axis < 0 || axis >= to_underlying(joystickAxis_t::MAX_JOYSTICK_AXIS)) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_JoystickEvent: bad axis %i", axis);
+        Q_Error(errorParm_t::ERR_DROP, "CL_JoystickEvent: bad axis {}", axis);
     }
     cl.joystickAxis[static_cast<joystickAxis_t>(axis)] = value;
 }
@@ -1199,7 +1199,7 @@ static void CL_MouseMove(void)
             my *= accelSensitivity;
 
             if (cl_showMouseRate->integer)
-                Com_Printf("rate: %f, accelSensitivity: %f\n", rate, accelSensitivity);
+                Q_Println("rate: {:f}, accelSensitivity: {:f}", rate, accelSensitivity);
         }
         else {
             float rate[2];
@@ -1233,7 +1233,7 @@ static void CL_MouseMove(void)
             }
 
             if (cl_showMouseRate->integer)
-                Com_Printf("ratex: %f, ratey: %f, powx: %f, powy: %f\n", rate[0], rate[1], power[0], power[1]);
+                Q_Println("ratex: {:f}, ratey: {:f}, powx: {:f}, powy: {:f}", rate[0], rate[1], power[0], power[1]);
         }
     }
     else {
@@ -1664,10 +1664,10 @@ void CL_WritePacket(void)
     count = cl.cmdNumber - cl.outPackets[oldPacketNum].p_cmdNumber;
     if (count > MAX_PACKET_USERCMDS) {
         count = MAX_PACKET_USERCMDS;
-        Com_Printf("MAX_PACKET_USERCMDS\n");
+        Q_Println("MAX_PACKET_USERCMDS");
     }
     if (count >= 1 && cl_showSend->integer) {
-        Com_Printf("(%i)", count);
+        Q_Print("({})", count);
     }
 
     // the usercmds are a delta (clc_move) unless the last message's snapshot is missing (clc_moveNoDelta: the server
@@ -1693,7 +1693,7 @@ void CL_WritePacket(void)
     clc.lastPacketSentTime = cls.realtime;
 
     if (cl_showSend->integer) {
-        Com_Printf("%i ", buf.cursize);
+        Q_Print("{} ", buf.cursize);
     }
 
     CL_Netchan_Transmit(&clc.netchan, &buf);
@@ -1723,7 +1723,7 @@ static void CL_MakeAndSend(void)
     // don't send a packet if the last packet was sent too recently
     if (!CL_ReadyToSendPacket(cl.cmdNumber != cmdNumber ? true : false)) {
         if (cl_showSend->integer) {
-            Com_Printf(". ");
+            Q_Print(". ");
         }
         return;
     }

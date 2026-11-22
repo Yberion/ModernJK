@@ -21,6 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Reader of the rANS golden trace written by docs/modernization/tools/python/export_rans_trace.py.
 #pragma once
 
+#include <fmt/base.h>
 #include <netcodec/rans.h>
 
 #include <cstdio>
@@ -68,7 +69,7 @@ inline bool LoadRansTrace(const char* path, RansTrace& t)
     const std::unique_ptr<FILE, int (*)(FILE*)> file(fopen(path, "rb"), &fclose);
     FILE* const f = file.get();
     if (!f) {
-        fprintf(stderr, "cannot open %s\n", path);
+        fmt::println(stderr, "cannot open {}", path);
         return false;
     }
     char magic[4];
@@ -119,7 +120,7 @@ inline bool LoadRansTrace(const char* path, RansTrace& t)
         }
     }
     if (!ok)
-        fprintf(stderr, "bad trace file %s\n", path);
+        fmt::println(stderr, "bad trace file {}", path);
     return ok;
 }
 

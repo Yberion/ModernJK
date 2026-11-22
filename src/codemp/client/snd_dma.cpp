@@ -34,8 +34,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "snd_mp3.h"
 #include "snd_music.h"
 #include "client.h"
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -255,47 +253,47 @@ static void DynamicMusicInfoPrint(void)
             psActualMusicState = "<unknown>";
         }
 
-        Com_Printf("( Dynamic music ON, request state: '%s'(%d), actual: '%s' (%d) )\n", psRequestMusicState, to_underlying(eMusic_StateRequest),
-                   psActualMusicState, to_underlying(eMusic_StateActual));
+        Q_Println("( Dynamic music ON, request state: '{}'({}), actual: '{}' ({}) )", psRequestMusicState, to_underlying(eMusic_StateRequest),
+                  psActualMusicState, to_underlying(eMusic_StateActual));
     }
     else {
-        Com_Printf("( Dynamic music OFF )\n");
+        Q_Println("( Dynamic music OFF )");
     }
 }
 
 void S_SoundInfo_f(void)
 {
-    Com_Printf("----- Sound Info -----\n");
+    Q_Println("----- Sound Info -----");
 
     if (!s_soundStarted) {
-        Com_Printf("sound system not started\n");
+        Q_Println("sound system not started");
     }
     else {
-        Com_Printf("%5d stereo\n", dma.channels - 1);
-        Com_Printf("%5d samples\n", dma.samples);
-        Com_Printf("%5d samplebits\n", dma.samplebits);
-        Com_Printf("%5d submission_chunk\n", dma.submission_chunk);
-        Com_Printf("%5d speed\n", dma.speed);
-        Com_Printf("0x%" PRIxPTR " dma buffer\n", (uintptr_t)dma.buffer);
+        Q_Println("{:5} stereo", dma.channels - 1);
+        Q_Println("{:5} samples", dma.samples);
+        Q_Println("{:5} samplebits", dma.samplebits);
+        Q_Println("{:5} submission_chunk", dma.submission_chunk);
+        Q_Println("{:5} speed", dma.speed);
+        Q_Println("0x{:x} dma buffer", (uintptr_t)dma.buffer);
 
         if (bMusic_IsDynamic) {
             DynamicMusicInfoPrint();
-            Com_Printf("( Dynamic music set name: \"%s\" )\n", sInfoOnly_CurrentDynamicMusicSet);
+            Q_Println("( Dynamic music set name: \"{}\" )", sInfoOnly_CurrentDynamicMusicSet);
         }
         else {
             if (!s_allowDynamicMusic->integer) {
-                Com_Printf("( Dynamic music inhibited (s_allowDynamicMusic == 0) )\n");
+                Q_Println("( Dynamic music inhibited (s_allowDynamicMusic == 0) )");
             }
             if (tMusic_Info[MusicState_e::eBGRNDTRACK_NONDYNAMIC].s_backgroundFile) {
-                Com_Printf("Background file: %s\n", sMusic_BackgroundLoop);
+                Q_Println("Background file: {}", sMusic_BackgroundLoop);
             }
             else {
-                Com_Printf("No background file.\n");
+                Q_Println("No background file.");
             }
         }
     }
     S_DisplayFreeMemory();
-    Com_Printf("----------------------\n");
+    Q_Println("----------------------");
 }
 
 /*
@@ -307,7 +305,7 @@ void S_Init(void)
 {
     bool r;
 
-    Com_Printf("\n------- sound initialization -------\n");
+    Q_Println("\n------- sound initialization -------");
 
     s_allowDynamicMusic = Cvar_Get("s_allowDynamicMusic", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
     s_debugdynamic = Cvar_Get("s_debugdynamic", "0", cvarFlags_t::CVAR_CHEAT);
@@ -332,8 +330,8 @@ void S_Init(void)
 
     if (!s_initsound->integer) {
         s_soundStarted = 0; // needed in case you set s_initsound to 0 midgame then snd_restart (div0 err otherwise later)
-        Com_Printf("not initializing.\n");
-        Com_Printf("------------------------------------\n");
+        Q_Println("not initializing.");
+        Q_Println("------------------------------------");
         return;
     }
 
@@ -361,9 +359,9 @@ void S_Init(void)
         S_SoundInfo_f();
     }
 
-    Com_Printf("------------------------------------\n");
+    Q_Println("------------------------------------");
 
-    Com_Printf("\n--- ambient sound initialization ---\n");
+    Q_Println("\n--- ambient sound initialization ---");
 
     AS_Init();
 }
@@ -459,14 +457,14 @@ sfx_t* S_FindName(const char* name)
     sfx_t* sfx;
 
     if (!name) {
-        Com_Error(errorParm_t::ERR_FATAL, "S_FindName: NULL");
+        Q_Error(errorParm_t::ERR_FATAL, "S_FindName: NULL");
     }
     if (!name[0]) {
-        Com_Error(errorParm_t::ERR_FATAL, "S_FindName: empty name");
+        Q_Error(errorParm_t::ERR_FATAL, "S_FindName: empty name");
     }
 
     if (strlen(name) >= MAX_QPATH) {
-        Com_Error(errorParm_t::ERR_FATAL, "Sound name too long: %s", name);
+        Q_Error(errorParm_t::ERR_FATAL, "Sound name too long: {}", name);
     }
 
     char sSoundNameNoExt[MAX_QPATH];
@@ -511,7 +509,7 @@ sfx_t* S_FindName(const char* name)
             //	events, so current MAX_SFX limit should do, or only need a small boost...	-ste
             //
 
-            Com_Error(errorParm_t::ERR_FATAL, "S_FindName: out of sfx_t");
+            Q_Error(errorParm_t::ERR_FATAL, "S_FindName: out of sfx_t");
         }
     }
     else {
@@ -605,7 +603,7 @@ sfxHandle_t S_RegisterSound(const char* name)
     }
 
     if (strlen(name) >= MAX_QPATH) {
-        Com_Printf(S_COLOR_RED "Sound name exceeds MAX_QPATH - %s\n", name);
+        Q_Println(S_COLOR_RED "Sound name exceeds MAX_QPATH - {}", name);
         return 0;
     }
 
@@ -629,7 +627,7 @@ sfxHandle_t S_RegisterSound(const char* name)
     if (sfx->bDefaultSound) {
 #ifndef FINAL_BUILD
         if (!s_shutUp) {
-            Com_Warning("could not find %s - using default\n", sfx->sSoundName);
+            Q_PrintlnWarning("could not find {} - using default", sfx->sSoundName);
         }
 #endif
         return 0;
@@ -643,7 +641,7 @@ void S_memoryLoad(sfx_t* sfx)
     // load the sound file...
     //
     if (!S_LoadSound(sfx)) {
-        //		Com_Warning( "couldn't load sound: %s\n", sfx->sSoundName );
+        //		Q_PrintlnWarning("couldn't load sound: {}", sfx->sSoundName);
         sfx->bDefaultSound = true;
     }
     sfx->bInMemory = true;
@@ -678,7 +676,7 @@ channel_t* S_PickChannel(int entnum, soundChannel_t entchannel)
     bool foundChan = false;
 
     if (to_underlying(entchannel) < 0) {
-        Com_Error(errorParm_t::ERR_DROP, "S_PickChannel: entchannel<0");
+        Q_Error(errorParm_t::ERR_DROP, "S_PickChannel: entchannel<0");
     }
 
     // Check for replacement sound, or find the best one to replace
@@ -697,7 +695,7 @@ channel_t* S_PickChannel(int entnum, soundChannel_t entchannel)
             else if (ch->entnum == entnum && S_CheckChannelStomp(ch->entchannel, entchannel)) {
                 // always override sound from same entity
                 if (s_show->integer == 1 && ch->thesfx) {
-                    Com_Printf(S_COLOR_YELLOW "...overrides %s\n", ch->thesfx->sSoundName);
+                    Q_Println(S_COLOR_YELLOW "...overrides {}", ch->thesfx->sSoundName);
                     ch->thesfx = nullptr; // just to clear the next error msg
                 }
                 firstToDie = ch;
@@ -722,7 +720,7 @@ channel_t* S_PickChannel(int entnum, soundChannel_t entchannel)
     }
 
     if (s_show->integer == 1 && firstToDie->thesfx) {
-        Com_Printf(S_COLOR_RED "***kicking %s\n", firstToDie->thesfx->sSoundName);
+        Q_Println(S_COLOR_RED "***kicking {}", firstToDie->thesfx->sSoundName);
     }
 
     Channel_Clear(firstToDie); // memset(firstToDie, 0, sizeof(*firstToDie));
@@ -836,10 +834,10 @@ void S_StartAmbientSound(const vec3_t origin, int entityNum, unsigned char volum
         return;
     }
     if (!origin && (entityNum < 0 || entityNum >= MAX_GENTITIES))
-        Com_Error(errorParm_t::ERR_DROP, "S_StartAmbientSound: bad entitynum %i", entityNum);
+        Q_Error(errorParm_t::ERR_DROP, "S_StartAmbientSound: bad entitynum {}", entityNum);
 
     if (sfxHandle < 0 || sfxHandle >= s_numSfx)
-        Com_Error(errorParm_t::ERR_DROP, "S_StartAmbientSound: handle %i out of range", sfxHandle);
+        Q_Error(errorParm_t::ERR_DROP, "S_StartAmbientSound: handle {} out of range", sfxHandle);
 
     sfx = &s_knownSfx[sfxHandle];
     if (sfx->bInMemory == false) {
@@ -848,7 +846,7 @@ void S_StartAmbientSound(const vec3_t origin, int entityNum, unsigned char volum
     SND_TouchSFX(sfx);
 
     if (s_show->integer == 1) {
-        Com_Printf("%i : %s on (%d) Ambient\n", s_paintedtime, sfx->sSoundName, entityNum);
+        Q_Println("{} : {} on ({}) Ambient", s_paintedtime, sfx->sSoundName, entityNum);
     }
 
     // pick a channel to play on
@@ -929,11 +927,11 @@ void S_StartSound(const vec3_t origin, int entityNum, soundChannel_t entchannel,
     }
 
     if (!origin && (entityNum < 0 || entityNum >= MAX_GENTITIES)) {
-        Com_Error(errorParm_t::ERR_DROP, "S_StartSound: bad entitynum %i", entityNum);
+        Q_Error(errorParm_t::ERR_DROP, "S_StartSound: bad entitynum {}", entityNum);
     }
 
     if (sfxHandle < 0 || sfxHandle >= s_numSfx) {
-        Com_Error(errorParm_t::ERR_DROP, "S_StartSound: handle %i out of range", sfxHandle);
+        Q_Error(errorParm_t::ERR_DROP, "S_StartSound: handle {} out of range", sfxHandle);
     }
 
     sfx = &s_knownSfx[sfxHandle];
@@ -943,7 +941,7 @@ void S_StartSound(const vec3_t origin, int entityNum, soundChannel_t entchannel,
     SND_TouchSFX(sfx);
 
     if (s_show->integer == 1) {
-        Com_Printf("%i : %s on (%d)\n", s_paintedtime, sfx->sSoundName, entityNum);
+        Q_Println("{} : {} on ({})", s_paintedtime, sfx->sSoundName, entityNum);
     }
 
     // pick a channel to play on
@@ -999,7 +997,7 @@ void S_StartLocalSound(sfxHandle_t sfxHandle, soundChannel_t channelNum)
     }
 
     if (sfxHandle < 0 || sfxHandle >= s_numSfx) {
-        Com_Error(errorParm_t::ERR_DROP, "S_StartLocalSound: handle %i out of range", sfxHandle);
+        Q_Error(errorParm_t::ERR_DROP, "S_StartLocalSound: handle {} out of range", sfxHandle);
     }
 
     S_StartSound(nullptr, listener_number, channelNum, sfxHandle);
@@ -1019,7 +1017,7 @@ void S_StartLocalLoopingSound(sfxHandle_t sfxHandle)
     }
 
     if (sfxHandle < 0 || sfxHandle >= s_numSfx) {
-        Com_Error(errorParm_t::ERR_DROP, "S_StartLocalLoopingSound: handle %i out of range", sfxHandle);
+        Q_Error(errorParm_t::ERR_DROP, "S_StartLocalLoopingSound: handle {} out of range", sfxHandle);
     }
 
     S_AddLoopingSound(listener_number, nullVec, nullVec, sfxHandle);
@@ -1087,7 +1085,7 @@ void S_ClearSoundBuffer(void)
 void S_CIN_StopSound(sfxHandle_t sfxHandle)
 {
     if (sfxHandle < 0 || sfxHandle >= s_numSfx) {
-        Com_Error(errorParm_t::ERR_DROP, "S_CIN_StopSound: handle %i out of range", sfxHandle);
+        Q_Error(errorParm_t::ERR_DROP, "S_CIN_StopSound: handle {} out of range", sfxHandle);
     }
 
     sfx_t* sfx = &s_knownSfx[sfxHandle];
@@ -1217,7 +1215,7 @@ void S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity
     }
 
     if (sfxHandle < 0 || sfxHandle >= s_numSfx) {
-        Com_Error(errorParm_t::ERR_DROP, "S_AddLoopingSound: handle %i out of range", sfxHandle);
+        Q_Error(errorParm_t::ERR_DROP, "S_AddLoopingSound: handle {} out of range", sfxHandle);
     }
 
     sfx = &s_knownSfx[sfxHandle];
@@ -1227,7 +1225,7 @@ void S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity
     SND_TouchSFX(sfx);
 
     if (!sfx->iSoundLengthInSamples) {
-        Com_Error(errorParm_t::ERR_DROP, "%s has length 0", sfx->sSoundName);
+        Q_Error(errorParm_t::ERR_DROP, "{} has length 0", sfx->sSoundName);
     }
     assert(!sfx->pMP3StreamHeader);
     VectorCopy(origin, loopSounds[numLoopSounds].origin);
@@ -1276,7 +1274,7 @@ void S_AddAmbientLoopingSound(const vec3_t origin, unsigned char volume, sfxHand
     }
 
     if (sfxHandle < 0 || sfxHandle >= s_numSfx) {
-        Com_Error(errorParm_t::ERR_DROP, "S_StartSound: handle %i out of range", sfxHandle);
+        Q_Error(errorParm_t::ERR_DROP, "S_StartSound: handle {} out of range", sfxHandle);
     }
 
     sfx = &s_knownSfx[sfxHandle];
@@ -1286,7 +1284,7 @@ void S_AddAmbientLoopingSound(const vec3_t origin, unsigned char volume, sfxHand
     SND_TouchSFX(sfx);
 
     if (!sfx->iSoundLengthInSamples) {
-        Com_Error(errorParm_t::ERR_DROP, "%s has length 0", sfx->sSoundName);
+        Q_Error(errorParm_t::ERR_DROP, "{} has length 0", sfx->sSoundName);
     }
     VectorCopy(origin, loopSounds[numLoopSounds].origin);
     loopSounds[numLoopSounds].doppler = false;
@@ -1362,7 +1360,7 @@ void S_AddLoopSounds(void)
         // you cannot use MP3 files here because they offer only streaming access, not random
         //
         if (loop->sfx->pMP3StreamHeader) {
-            Com_Error(errorParm_t::ERR_DROP, "S_AddLoopSounds(): Cannot use streamed MP3 files here for random access (%s)\n", loop->sfx->sSoundName);
+            Q_Error(errorParm_t::ERR_DROP, "S_AddLoopSounds(): Cannot use streamed MP3 files here for random access ({})", loop->sfx->sSoundName);
         }
         else {
             memset(&ch->MP3StreamHeader, 0, sizeof(ch->MP3StreamHeader));
@@ -1425,13 +1423,13 @@ void S_RawSamples(int samples, int rate, int width, int channels, const byte* da
     intVolume = 256 * volume;
 
     if (s_rawend < s_soundtime) {
-        Com_DPrintf("S_RawSamples: resetting minimum: %i < %i\n", s_rawend, s_soundtime);
+        Q_DPrintln("S_RawSamples: resetting minimum: {} < {}", s_rawend, s_soundtime);
         s_rawend = s_soundtime;
     }
 
     scale = (float)rate / dma.speed;
 
-    // Com_Printf ("%i < %i < %i\n", s_soundtime, s_paintedtime, s_rawend);
+    // Q_Println("{} < {} < {}", s_soundtime, s_paintedtime, s_rawend);
     if (channels == 2 && width == 2) {
         if (scale == 1.0) { // optimized case
             if (bFirstOrOnlyUpdateThisFrame) {
@@ -1554,7 +1552,7 @@ void S_RawSamples(int samples, int rate, int width, int channels, const byte* da
     }
 
     if (s_rawend > s_soundtime + MAX_RAW_SAMPLES) {
-        Com_DPrintf("S_RawSamples: overflowed %i > %i\n", s_rawend, s_soundtime);
+        Q_DPrintln("S_RawSamples: overflowed {} > {}", s_rawend, s_soundtime);
     }
 }
 
@@ -1570,7 +1568,7 @@ let the sound system know where an entity currently is
 void S_UpdateEntityPosition(int entityNum, const vec3_t origin)
 {
     if (entityNum < 0 || entityNum >= MAX_GENTITIES) {
-        Com_Error(errorParm_t::ERR_DROP, "S_UpdateEntityPosition: bad entitynum %i", entityNum);
+        Q_Error(errorParm_t::ERR_DROP, "S_UpdateEntityPosition: bad entitynum {}", entityNum);
     }
 
     VectorCopy(origin, s_entityPosition[entityNum]);
@@ -1672,7 +1670,7 @@ static int S_CheckAmplitude(channel_t* ch, const unsigned int s_oldpaintedtime)
             sample = 4;
         }
 
-        //		Com_DPrintf("Returning sample %d\n",sample);
+        //		Q_DPrintln("Returning sample {}", sample);
 
         // store away the value we got into the back up table
         s_entityWavVol_back[ch->entnum] = sample;
@@ -1817,7 +1815,7 @@ void S_DoLipSynchs(const unsigned s_oldpaintedtime)
             // go away and work out amplitude for this sound we are playing right now.
             s_entityWavVol[ch->entnum] = S_CheckAmplitude(ch, s_oldpaintedtime);
             if (s_show->integer == 3) {
-                Com_Printf("(%i)%i %s vol = %i\n", ch->entnum, i, ch->thesfx->sSoundName, s_entityWavVol[ch->entnum]);
+                Q_Println("({}){} {} vol = {}", ch->entnum, i, ch->thesfx->sSoundName, s_entityWavVol[ch->entnum]);
             }
         }
     }
@@ -1853,7 +1851,7 @@ void S_Update(void)
         ch = s_channels;
         for (i = 0; i < MAX_CHANNELS; i++, ch++) {
             if (ch->thesfx && (ch->leftvol || ch->rightvol)) {
-                Com_Printf("(%i) %3i %3i %s\n", ch->entnum, ch->leftvol, ch->rightvol, ch->thesfx->sSoundName);
+                Q_Println("({}) {:3} {:3} {}", ch->entnum, ch->leftvol, ch->rightvol, ch->thesfx->sSoundName);
                 total++;
                 totalMeg += Z_Size(ch->thesfx->pSoundData);
                 if (ch->thesfx->pMP3StreamHeader) {
@@ -1863,7 +1861,7 @@ void S_Update(void)
         }
 
         if (total)
-            Com_Printf("----(%i)---- painted: %i, SND %.2fMB\n", total, s_paintedtime, totalMeg / 1024.0f / 1024.0f);
+            Q_Println("----({})---- painted: {}, SND {:.2f}MB", total, s_paintedtime, totalMeg / 1024.0f / 1024.0f);
     }
 
     // The Open AL code, handles background music in the S_UpdateRawSamples function
@@ -1914,7 +1912,7 @@ void S_GetSoundtime(void)
 // check to make sure that we haven't overshot
 	if (s_paintedtime < s_soundtime)
 	{
-		Com_DPrintf ("S_Update_ : overflow\n");
+		Q_DPrintln("S_Update_ : overflow");
 		s_paintedtime = s_soundtime;
 	}
 #endif
@@ -2026,14 +2024,14 @@ void S_SetLipSyncs()
 
                 if (ch->thesfx->lipSyncData == nullptr) {
 #ifdef _DEBUG
-                    Com_DPrintf("Missing lip-sync info. for %s\n", ch->thesfx->sSoundName);
+                    Q_DPrintln("Missing lip-sync info. for {}", ch->thesfx->sSoundName);
 #endif
                 }
 
                 if ((ch->thesfx->lipSyncData) && ((int)samples < ch->thesfx->iSoundLengthInSamples)) {
                     s_entityWavVol[ch->entnum] = ch->thesfx->lipSyncData[samples / 1000];
                     if (s_show->integer == 3) {
-                        Com_Printf("(%i)%i %s vol = %i\n", ch->entnum, i, ch->thesfx->sSoundName, s_entityWavVol[ch->entnum]);
+                        Q_Println("({}){} {} vol = {}", ch->entnum, i, ch->thesfx->sSoundName, s_entityWavVol[ch->entnum]);
                     }
                 }
             }
@@ -2046,7 +2044,7 @@ void S_SetLipSyncs()
 
                 if (ch->thesfx->lipSyncData == nullptr) {
 #ifdef _DEBUG
-                    Com_DPrintf("Missing lip-sync info. for %s\n", ch->thesfx->sSoundName);
+                    Q_DPrintln("Missing lip-sync info. for {}", ch->thesfx->sSoundName);
 #endif
                 }
 
@@ -2054,7 +2052,7 @@ void S_SetLipSyncs()
                     s_entityWavVol[ch->entnum] = ch->thesfx->lipSyncData[(samples / 576) % 16];
 
                     if (s_show->integer == 3) {
-                        Com_Printf("(%i)%i %s vol = %i\n", ch->entnum, i, ch->thesfx->sSoundName, s_entityWavVol[ch->entnum]);
+                        Q_Println("({}){} {} vol = {}", ch->entnum, i, ch->thesfx->sSoundName, s_entityWavVol[ch->entnum]);
                     }
                 }
             }
@@ -2079,7 +2077,7 @@ static void S_Play_f(void)
     i = 1;
     while (i < Cmd_Argc()) {
         if (!strrchr(Cmd_Argv(i), '.')) {
-            Com_sprintf(name, sizeof(name), "%s.wav", Cmd_Argv(1));
+            Q_FormatTo(name, "{}.wav", Cmd_Argv(1));
         }
         else {
             Q_strncpyz(name, Cmd_Argv(i), sizeof(name));
@@ -2105,7 +2103,7 @@ static void S_Music_f(void)
         S_StartBackgroundTrack(Cmd_Argv(1), Cmd_Argv(2), false);
     }
     else {
-        Com_Printf("music <musicfile> [loopfile]\n");
+        Q_Println("music <musicfile> [loopfile]");
         return;
     }
 }
@@ -2143,7 +2141,7 @@ static void S_SetDynamicMusic_f(void)
                     S_SetDynamicMusicState(MusicState_e::eBGRNDTRACK_BOSS);
                 }
                 else {
-                    Com_Printf("No 'boss' music defined in current dynamic set\n");
+                    Q_Println("No 'boss' music defined in current dynamic set");
                 }
                 return;
             }
@@ -2152,7 +2150,7 @@ static void S_SetDynamicMusic_f(void)
                     S_SetDynamicMusicState(MusicState_e::eBGRNDTRACK_DEATH);
                 }
                 else {
-                    Com_Printf("No 'death' music defined in current dynamic set\n");
+                    Q_Println("No 'death' music defined in current dynamic set");
                 }
                 return;
             }
@@ -2165,7 +2163,7 @@ static void S_SetDynamicMusic_f(void)
 
     // show usage...
     //
-    Com_Printf("Usage: s_dynamic <explore/action/silence/boss/death>\n");
+    Q_Println("Usage: s_dynamic <explore/action/silence/boss/death>");
     DynamicMusicInfoPrint();
 }
 
@@ -2208,19 +2206,19 @@ void S_SoundList_f(void)
         }
     }
     else {
-        Com_Printf("( additional (mutually exclusive) options available:\n'wavonly', 'ShouldBeMP3', '1'/'2'/'3' for %%d-variant capping )\n");
+        Q_Println("( additional (mutually exclusive) options available:\n'wavonly', 'ShouldBeMP3', '1'/'2'/'3' for %d-variant capping )");
     }
 
     total = 0;
 
-    Com_Printf("\n");
-    Com_Printf("                    InMemory?\n");
-    Com_Printf("                    |\n");
-    Com_Printf("                    |  LevelLastUsedOn\n");
-    Com_Printf("                    |  |\n");
-    Com_Printf("                    |  |\n");
-    Com_Printf(" Slot   Smpls Type  |  |   Name\n");
-    //	Com_Printf(" Slot   Smpls Type  InMem?   Name\n");
+    Q_Println("");
+    Q_Println("                    InMemory?");
+    Q_Println("                    |");
+    Q_Println("                    |  LevelLastUsedOn");
+    Q_Println("                    |  |");
+    Q_Println("                    |  |");
+    Q_Println(" Slot   Smpls Type  |  |   Name");
+    //	Q_Println(" Slot   Smpls Type  InMem?   Name");
 
     for (sfx = s_knownSfx, i = 0; i < s_numSfx; i++, sfx++) {
         extern cvar_t* cv_MP3overhead;
@@ -2236,7 +2234,7 @@ void S_SoundList_f(void)
                     char c = sfx->sSoundName[iStrLen - 1];
                     char c2 = sfx->sSoundName[iStrLen - 2];
                     if (!isdigit(c2) // quick-avoid of stuff like "pain75"
-                        && isdigit(c) && atoi(va("%c", c)) > iVariantCap) {
+                        && isdigit(c) && atoi(Q_Format("{}", c).c_str()) > iVariantCap) {
                         // need to see if this %d-variant should be omitted, in other words if there's a %1 version then skip this...
                         //
                         char sFindName[MAX_QPATH];
@@ -2256,7 +2254,7 @@ void S_SoundList_f(void)
 
             size = sfx->iSoundLengthInSamples;
             if (sfx->bDefaultSound) {
-                Com_Printf("%5d Missing file: \"%s\"\n", i, sfx->sSoundName);
+                Q_Println("{:5} Missing file: \"{}\"", i, sfx->sSoundName);
             }
             else {
                 if (bDumpThisOne) {
@@ -2264,22 +2262,22 @@ void S_SoundList_f(void)
                     iTotalBytes += (sfx->bInMemory && sfx->pMP3StreamHeader) ? sizeof(*sfx->pMP3StreamHeader) : 0;
                     total += sfx->bInMemory ? size : 0;
                 }
-                Com_Printf("%5d %7i [%s] %s %2d %s", i, size, sSoundCompressionMethodStrings[sfx->eSoundCompressionMethod], sfx->bInMemory ? "y" : "n",
-                           sfx->iLastLevelUsedOn, sfx->sSoundName);
+                Q_Print("{:5} {:7} [{}] {} {:2} {}", i, size, sSoundCompressionMethodStrings[sfx->eSoundCompressionMethod], sfx->bInMemory ? "y" : "n",
+                        sfx->iLastLevelUsedOn, sfx->sSoundName);
 
                 if (!bDumpThisOne) {
-                    Com_Printf("   ( Skipping, variant capped )");
-                    // Com_DPrintf("Variant capped: %s\n",sfx->sSoundName);
+                    Q_Print("   ( Skipping, variant capped )");
+                    // Q_DPrintln("Variant capped: {}", sfx->sSoundName);
                 }
-                Com_Printf("\n");
+                Q_Println("");
             }
         }
     }
-    Com_Printf(" Slot   Smpls Type  In? Lev  Name\n");
+    Q_Println(" Slot   Smpls Type  In? Lev  Name");
 
-    Com_Printf("Total resident samples: %i %s ( not mem usage, see 'meminfo' ).\n", total, bWavOnly ? "(WAV only)" : "");
-    Com_Printf("%d out of %d sfx_t slots used\n", s_numSfx, MAX_SFX);
-    Com_Printf("%.2fMB bytes used when counting sfx_t->pSoundData + MP3 headers (if any)\n", (float)iTotalBytes / 1024.0f / 1024.0f);
+    Q_Println("Total resident samples: {} {} ( not mem usage, see 'meminfo' ).", total, bWavOnly ? "(WAV only)" : "");
+    Q_Println("{} out of {} sfx_t slots used", s_numSfx, MAX_SFX);
+    Q_Println("{:.2f}MB bytes used when counting sfx_t->pSoundData + MP3 headers (if any)", (float)iTotalBytes / 1024.0f / 1024.0f);
     S_DisplayFreeMemory();
 }
 
@@ -2467,7 +2465,7 @@ static bool S_StartBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool qbDynami
         }
 
         if (!pMusicInfo->s_backgroundFile) {
-            Com_Printf(S_COLOR_RED "Couldn't open music file %s\n", name);
+            Q_Println(S_COLOR_RED "Couldn't open music file {}", name);
             return false;
         }
 
@@ -2541,7 +2539,7 @@ static bool S_StartBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool qbDynami
                 bMusicSucceeded = true;
             }
             else {
-                Com_Printf(S_COLOR_RED "Error streaming file %s: %s\n", name, psError);
+                Q_Println(S_COLOR_RED "Error streaming file {}: {}", name, psError);
                 if (pMusicInfo->s_backgroundFile != -1) {
                     FS_FCloseFile(pMusicInfo->s_backgroundFile);
                 }
@@ -2549,7 +2547,7 @@ static bool S_StartBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool qbDynami
             }
         }
         else {
-            // MP3_IsValid() will already have printed any errors via Com_Printf at this point...
+            // MP3_IsValid() will already have printed any errors via Q_Println at this point...
             //
             if (pMusicInfo->s_backgroundFile != -1) {
                 FS_FCloseFile(pMusicInfo->s_backgroundFile);
@@ -2566,7 +2564,7 @@ static bool S_StartBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool qbDynami
         //
         FS_FOpenFileRead(name, &pMusicInfo->s_backgroundFile, true);
         if (!pMusicInfo->s_backgroundFile) {
-            Com_Warning("couldn't open music file %s\n", name);
+            Q_PrintlnWarning("couldn't open music file {}", name);
             return false;
         }
 
@@ -2575,7 +2573,7 @@ static bool S_StartBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool qbDynami
         FS_Read(dump, 12, pMusicInfo->s_backgroundFile);
 
         if (!S_FindWavChunk(pMusicInfo->s_backgroundFile, "fmt ")) {
-            Com_Warning("No fmt chunk in %s\n", name);
+            Q_PrintlnWarning("No fmt chunk in {}", name);
             FS_FCloseFile(pMusicInfo->s_backgroundFile);
             pMusicInfo->s_backgroundFile = 0;
             return false;
@@ -2592,18 +2590,18 @@ static bool S_StartBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool qbDynami
         if (pMusicInfo->s_backgroundInfo.format != wavFormat_t::WAV_FORMAT_PCM) {
             FS_FCloseFile(pMusicInfo->s_backgroundFile);
             pMusicInfo->s_backgroundFile = 0;
-            Com_Warning("Not a microsoft PCM format wav: %s\n", name);
+            Q_PrintlnWarning("Not a microsoft PCM format wav: {}", name);
             return false;
         }
 
         if (pMusicInfo->s_backgroundInfo.channels != 2 || pMusicInfo->s_backgroundInfo.rate != 22050) {
-            Com_Warning("music file %s is not 22k stereo\n", name);
+            Q_PrintlnWarning("music file {} is not 22k stereo", name);
         }
 
         if ((len = S_FindWavChunk(pMusicInfo->s_backgroundFile, "data")) == 0) {
             FS_FCloseFile(pMusicInfo->s_backgroundFile);
             pMusicInfo->s_backgroundFile = 0;
-            Com_Warning("No data chunk in %s\n", name);
+            Q_PrintlnWarning("No data chunk in {}", name);
             return false;
         }
 
@@ -2642,7 +2640,7 @@ static void S_SwitchDynamicTracks(MusicState_e eOldState, MusicState_e eNewState
         const char* psNewStateString = Music_BaseStateToString(eNewState, true);
         psNewStateString = psNewStateString ? psNewStateString : "<unknown>";
 
-        Com_Printf(S_COLOR_MAGENTA "S_SwitchDynamicTracks( \"%s\" )\n", psNewStateString);
+        Q_Println(S_COLOR_MAGENTA "S_SwitchDynamicTracks( \"{}\" )", psNewStateString);
     }
 }
 
@@ -2660,7 +2658,7 @@ static void S_SetDynamicMusicState(MusicState_e eNewState)
             const char* psNewStateString = Music_BaseStateToString(eNewState, true);
             psNewStateString = psNewStateString ? psNewStateString : "<unknown>";
 
-            Com_Printf(S_COLOR_MAGENTA "S_SetDynamicMusicState( Request: \"%s\" )\n", psNewStateString);
+            Q_Println(S_COLOR_MAGENTA "S_SetDynamicMusicState( Request: \"{}\" )", psNewStateString);
         }
     }
 }
@@ -2865,7 +2863,7 @@ void S_StartBackgroundTrack(const char* intro, const char* loop, bool bCalledByC
                                                                // dynamic since literal files all need at least one slash in their name (eg "music/blah")
     {
         const char* psLoopName = S_FileExists(sNameLoop) ? sNameLoop : sNameIntro;
-        Com_DPrintf("S_StartBackgroundTrack: Found/using non-dynamic music track '%s' (loop: '%s')\n", sNameIntro, psLoopName);
+        Q_DPrintln("S_StartBackgroundTrack: Found/using non-dynamic music track '{}' (loop: '{}')", sNameIntro, psLoopName);
         S_StartBackgroundTrack_Actual(&tMusic_Info[MusicState_e::eBGRNDTRACK_NONDYNAMIC], bMusic_IsDynamic, sNameIntro, psLoopName);
     }
     else {
@@ -2897,7 +2895,7 @@ void S_StartBackgroundTrack(const char* intro, const char* loop, bool bCalledByC
             }
 
             if (tMusic_Info[MusicState_e::eBGRNDTRACK_EXPLORE].bExists && tMusic_Info[MusicState_e::eBGRNDTRACK_ACTION].bExists) {
-                Com_DPrintf("S_StartBackgroundTrack: Found dynamic music tracks\n");
+                Q_DPrintln("S_StartBackgroundTrack: Found dynamic music tracks");
                 bMusic_IsDynamic = true;
 
                 //
@@ -2917,14 +2915,14 @@ void S_StartBackgroundTrack(const char* intro, const char* loop, bool bCalledByC
                 // #endif
             }
             else {
-                Com_Printf(S_COLOR_RED "Dynamic music did not have both 'action' and 'explore' versions, inhibiting...\n");
+                Q_Println(S_COLOR_RED "Dynamic music did not have both 'action' and 'explore' versions, inhibiting...");
                 S_StopBackgroundTrack();
             }
         }
         else {
             if (sNameIntro[0] != '.') // blank name with ".mp3" or whatever attached - no error print out
             {
-                Com_Printf(S_COLOR_RED "Unable to find music \"%s\" as explicit track or dynamic music entry!\n", sNameIntro);
+                Q_Println(S_COLOR_RED "Unable to find music \"{}\" as explicit track or dynamic music entry!", sNameIntro);
                 S_StopBackgroundTrack();
             }
         }
@@ -2987,7 +2985,7 @@ static bool S_UpdateBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool bFirstO
     }
 
     pMusicInfo->fSmoothedOutVolume = (pMusicInfo->fSmoothedOutVolume + fMasterVol) / 2.0f;
-    //	Com_DPrintf("%f\n",pMusicInfo->fSmoothedOutVolume);
+    //	Q_DPrintln("{:f}", pMusicInfo->fSmoothedOutVolume);
 
     // don't bother playing anything if musicvolume is 0
     if (pMusicInfo->fSmoothedOutVolume <= 0) {
@@ -3025,14 +3023,14 @@ static bool S_UpdateBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool bFirstO
         bool qbForceFinish = false;
         if (pMusicInfo->bIsMP3) {
             int iStartingSampleNum = pMusicInfo->chMP3_Bgrnd.thesfx->iSoundLengthInSamples - pMusicInfo->s_backgroundSamples; // but this IS relevant
-            // Com_Printf(S_COLOR_YELLOW "Requesting MP3 samples: sample %d\n",iStartingSampleNum);
+            // Q_Println(S_COLOR_YELLOW "Requesting MP3 samples: sample {}", iStartingSampleNum);
 
             if (pMusicInfo->s_backgroundFile == -1) {
                 // in-mem...
                 //
                 qbForceFinish = (MP3Stream_GetSamples(&pMusicInfo->chMP3_Bgrnd, iStartingSampleNum, fileBytes / 2, (short*)raw, true)) ? false : true;
 
-                // Com_Printf(S_COLOR_YELLOW "Music time remaining: %f seconds\n", MP3Stream_GetRemainingTimeInSeconds( &pMusicInfo->chMP3_Bgrnd.MP3StreamHeader
+                // Q_Println(S_COLOR_YELLOW "Music time remaining: {:f} seconds", MP3Stream_GetRemainingTimeInSeconds( &pMusicInfo->chMP3_Bgrnd.MP3StreamHeader
                 // ));
             }
             else {
@@ -3051,7 +3049,7 @@ static bool S_UpdateBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool bFirstO
             //
             r = FS_Read(raw, fileBytes, pMusicInfo->s_backgroundFile);
             if (r != fileBytes) {
-                Com_Printf(S_COLOR_RED "StreamedRead failure on music track\n");
+                Q_Println(S_COLOR_RED "StreamedRead failure on music track");
                 S_StopBackgroundTrack();
                 return false;
             }
@@ -3200,7 +3198,7 @@ static void S_UpdateBackgroundTrack(void)
                             if (iPrevFrontVol != pMusicInfoCurrent->iXFadeVolume)
                             {
                                 iPrevFrontVol  = pMusicInfoCurrent->iXFadeVolume;
-                                Com_Printf("front vol = %d\n",pMusicInfoCurrent->iXFadeVolume);
+                                Q_Println("front vol = {}", pMusicInfoCurrent->iXFadeVolume);
                             }
                 */
                 if (pMusicInfoFadeOut->bActive) {
@@ -3211,7 +3209,7 @@ static void S_UpdateBackgroundTrack(void)
                                                                                                                     if (iPrevFadeVol != pMusicInfoFadeOut->iXFadeVolume)
                                                                                                                     {
                                                                                                                         iPrevFadeVol  = pMusicInfoFadeOut->iXFadeVolume;
-                                                                                                                        Com_Printf("fade vol = %d\n",pMusicInfoFadeOut->iXFadeVolume);
+                                                                                                                        Q_Println("fade vol = {}", pMusicInfoFadeOut->iXFadeVolume);
                                                                                                                     }
                                                                                                     */
                     //
@@ -3223,7 +3221,7 @@ static void S_UpdateBackgroundTrack(void)
                 }
 
                 float fRemainingTimeInSeconds = MP3Stream_GetRemainingTimeInSeconds(&pMusicInfoCurrent->chMP3_Bgrnd.MP3StreamHeader);
-                // Com_Printf("Remaining: %3.3f\n",fRemainingTimeInSeconds);
+                // Q_Println("Remaining: {:3.3f}", fRemainingTimeInSeconds);
 
                 if (fRemainingTimeInSeconds < fDYNAMIC_XFADE_SECONDS * 2) {
                     // now either loop current track, switch if finishing a transition, or stop if finished a death...
@@ -3313,7 +3311,7 @@ void SND_setup()
         Cvar_Set("s_soundpoolmegs", "0");
     }
 
-    Com_Printf("Sound memory manager started\n");
+    Q_Println("Sound memory manager started");
 }
 
 // ask how much mem an sfx has allocated...
@@ -3363,8 +3361,8 @@ void S_DisplayFreeMemory()
     int iMusicDataSize = Z_MemSize(memtag::TAG_SND_DYNAMICMUSIC);
 
     if (iSoundDataSize || iMusicDataSize) {
-        Com_Printf("\n%.2fMB audio data:  ( %.2fMB WAV/MP3 ) + ( %.2fMB Music )\n", ((float)(iSoundDataSize + iMusicDataSize)) / 1024.0f / 1024.0f,
-                   ((float)(iSoundDataSize)) / 1024.0f / 1024.0f, ((float)(iMusicDataSize)) / 1024.0f / 1024.0f);
+        Q_Println("\n{:.2f}MB audio data:  ( {:.2f}MB WAV/MP3 ) + ( {:.2f}MB Music )", ((float)(iSoundDataSize + iMusicDataSize)) / 1024.0f / 1024.0f,
+                  ((float)(iSoundDataSize)) / 1024.0f / 1024.0f, ((float)(iMusicDataSize)) / 1024.0f / 1024.0f);
 
         // now count up amount used on this level...
         //
@@ -3377,7 +3375,7 @@ void S_DisplayFreeMemory()
             }
         }
 
-        Com_Printf("%.2fMB in sfx_t alloc data (WAV/MP3) loaded this level\n", (float)iSoundDataSize / 1024.0f / 1024.0f);
+        Q_Println("{:.2f}MB in sfx_t alloc data (WAV/MP3) loaded this level", (float)iSoundDataSize / 1024.0f / 1024.0f);
     }
 }
 
@@ -3438,7 +3436,7 @@ int SND_FreeOldestSound(sfx_t* pButNotThisOne /* = nullptr */)
     if (iUsed) {
         sfx = &s_knownSfx[iUsed];
 
-        Com_DPrintf("SND_FreeOldestSound: freeing sound %s\n", sfx->sSoundName);
+        Q_DPrintln("SND_FreeOldestSound: freeing sound {}", sfx->sSoundName);
 
         iBytesFreed = SND_FreeSFXMem(sfx);
     }
@@ -3460,10 +3458,10 @@ bool SND_RegisterAudio_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* 99
 {
     bool bAtLeastOneSoundDropped = false;
 
-    Com_DPrintf("SND_RegisterAudio_LevelLoadEnd():\n");
+    Q_DPrintln("SND_RegisterAudio_LevelLoadEnd():");
 
     if (gbInsideLoadSound) {
-        Com_DPrintf("(Inside S_LoadSound (z_malloc recovery?), exiting...\n");
+        Q_DPrintln("(Inside S_LoadSound (z_malloc recovery?), exiting...");
     }
     else {
         int iLoadedAudioBytes = Z_MemSize(memtag::TAG_SND_RAWDATA) + Z_MemSize(memtag::TAG_SND_MP3STREAMHDR);
@@ -3485,7 +3483,7 @@ bool SND_RegisterAudio_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* 99
                 }
 
                 if (bDeleteThis) {
-                    Com_DPrintf("Dumping sfx_t \"%s\"\n", sfx->sSoundName);
+                    Q_DPrintln("Dumping sfx_t \"{}\"", sfx->sSoundName);
 
                     if (SND_FreeSFXMem(sfx)) {
                         bAtLeastOneSoundDropped = true;
@@ -3497,7 +3495,7 @@ bool SND_RegisterAudio_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* 99
         }
     }
 
-    Com_DPrintf("SND_RegisterAudio_LevelLoadEnd(): Ok\n");
+    Q_DPrintln("SND_RegisterAudio_LevelLoadEnd(): Ok");
 
     return bAtLeastOneSoundDropped;
 }

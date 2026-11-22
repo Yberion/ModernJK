@@ -23,7 +23,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <climits>
 #include <csignal>
 #include <cstdlib>
-#include <cstdarg>
 #include <cstdio>
 #include <ctime>
 #include <sys/stat.h>
@@ -225,7 +224,7 @@ static void Sys_ErrorDialog(const char* error)
     strftime(timeStr, sizeof(timeStr), "%Y-%m-%d_%H-%M-%S", localtime(&rawtime)); // or gmtime
     const char* homePath = Sys_DefaultHomePath();
     const char* logPath = (homePath && homePath[0]) ? homePath : Sys_DefaultInstallPath();
-    Com_sprintf(crashLogPath, sizeof(crashLogPath), "%s%ccrashlog-%s.txt", logPath, PATH_SEP, timeStr);
+    Q_FormatTo(crashLogPath, "{}{}crashlog-{}.txt", logPath, PATH_SEP, timeStr);
 
     Sys_Mkdir(logPath);
 
@@ -234,9 +233,11 @@ static void Sys_ErrorDialog(const char* error)
         ConsoleLogWriteOut(fp);
         fclose(fp);
 
-        const char* errorMessage = va("%s\n\nThe crash log was written to %s", error, crashLogPath);
+        const formatText_t errorMessageText = Q_Format("{}\n\nThe crash log was written to {}", error, crashLogPath);
+        const char* errorMessage = errorMessageText.c_str();
+
         if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", errorMessage, nullptr) < 0) {
-            fprintf(stderr, "%s", errorMessage);
+            Q_FilePrint(stderr, "{}", errorMessage);
         }
     }
     else {
@@ -244,25 +245,22 @@ static void Sys_ErrorDialog(const char* error)
         ConsoleLogWriteOut(stderr);
         fflush(stderr);
 
-        const char* errorMessage = va("%s\nCould not write the crash log file, but we printed it to stderr.\n"
-                                      "Try running the game using a command line interface.",
-                                      error);
+        const formatText_t errorMessageText =
+            Q_Format("{}\nCould not write the crash log file, but we printed it to stderr.\nTry running the game using a command line interface.", error);
+        const char* errorMessage = errorMessageText.c_str();
         if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", errorMessage, nullptr) < 0) {
             // We really have hit rock bottom here :(
-            fprintf(stderr, "%s", errorMessage);
+            Q_FilePrint(stderr, "{}", errorMessage);
         }
     }
 }
 #endif
 
-void NORETURN QDECL Sys_Error(const char* error, ...)
+void NORETURN Sys_VError(fmt::string_view error, fmt::format_args args)
 {
-    va_list argptr;
     char string[1024];
 
-    va_start(argptr, error);
-    Q_vsnprintf(string, sizeof(string), error, argptr);
-    va_end(argptr);
+    Q_VFormatToCut(string, error, args);
 
     Sys_Print(string);
 
@@ -306,7 +304,7 @@ Sys_UnloadDll
 void Sys_UnloadDll(void* dllHandle)
 {
     if (!dllHandle) {
-        Com_Printf("Sys_UnloadDll(NULL)\n");
+        Q_Println("Sys_UnloadDll(NULL)");
         return;
     }
 
@@ -327,18 +325,18 @@ void* Sys_LoadDll(const char* name, bool useSystemLib)
 
     // Don't load any DLLs that end with the pk3 extension
     if (COM_CompareExtension(name, ".pk3")) {
-        Com_Warning("Rejecting DLL named \"%s\"", name);
+        Q_PrintlnWarning("Rejecting DLL named \"{}\"", name);
         return nullptr;
     }
 
     if (useSystemLib) {
-        Com_Printf("Trying to load \"%s\"...\n", name);
+        Q_Println("Trying to load \"{}\"...", name);
 
         dllhandle = Sys_LoadLibrary(name);
         if (dllhandle)
             return dllhandle;
 
-        Com_Printf("%s(%s) failed: \"%s\"\n", __FUNCTION__, name, Sys_LibraryError());
+        Q_Println("{}({}) failed: \"{}\"", __FUNCTION__, name, Sys_LibraryError());
     }
 
     const char* binarypath = Sys_BinaryPath();
@@ -358,13 +356,14 @@ void* Sys_LoadDll(const char* name, bool useSystemLib)
         if (!libDir[0])
             continue;
 
-        Com_Printf("Trying to load \"%s\" from \"%s\"...\n", name, libDir);
-        char* fn = va("%s%c%s", libDir, PATH_SEP, name);
+        Q_Println("Trying to load \"{}\" from \"{}\"...", name, libDir);
+        const formatText_t fnText = Q_Format("{}{}{}", libDir, PATH_SEP, name);
+        const char* fn = fnText.c_str();
         dllhandle = Sys_LoadLibrary(fn);
         if (dllhandle)
             return dllhandle;
 
-        Com_Printf("%s(%s) failed: \"%s\"\n", __FUNCTION__, fn, Sys_LibraryError());
+        Q_Println("{}({}) failed: \"{}\"", __FUNCTION__, fn, Sys_LibraryError());
     }
     return nullptr;
 }
@@ -379,7 +378,7 @@ void* Sys_LoadMachOBundle(const char* name)
     char* gamedir = Cvar_VariableString("fs_game");
     char dllName[MAX_QPATH];
 
-    Com_sprintf(dllName, sizeof(dllName), "%s_pk3" DLL_EXT, name);
+    Q_FormatTo(dllName, "{}_pk3" DLL_EXT, name);
 
     // load the unzipped library
     char* fn = FS_BuildOSPath(homepath, gamedir, dllName);
@@ -387,7 +386,7 @@ void* Sys_LoadMachOBundle(const char* name)
     void* libHandle = Sys_LoadLibrary(fn);
 
     if (libHandle != nullptr) {
-        Com_Printf("Loaded pk3 bundle %s.\n", name);
+        Q_Println("Loaded pk3 bundle {}.", name);
     }
 
     return libHandle;
@@ -406,7 +405,8 @@ template <> inline constexpr bool enableEnumFlags<SearchPathFlags> = true;
 static void* Sys_LoadDllFromPaths(const char* filename, const char* gamedir, const char** searchPaths, size_t numPaths, SearchPathFlags searchFlags,
                                   const char* callerName)
 {
-    char* fn;
+    const char* fn;
+    formatText_t fnText; // holds the text fn points into
     void* libHandle;
 
     if (Any(searchFlags & SearchPathFlags::SEARCH_PATH_MOD)) {
@@ -420,7 +420,7 @@ static void* Sys_LoadDllFromPaths(const char* filename, const char* gamedir, con
             if (libHandle)
                 return libHandle;
 
-            Com_Printf("%s(%s) failed: \"%s\"\n", callerName, fn, Sys_LibraryError());
+            Q_Println("{}({}) failed: \"{}\"", callerName, fn, Sys_LibraryError());
         }
     }
 
@@ -435,7 +435,7 @@ static void* Sys_LoadDllFromPaths(const char* filename, const char* gamedir, con
             if (libHandle)
                 return libHandle;
 
-            Com_Printf("%s(%s) failed: \"%s\"\n", callerName, fn, Sys_LibraryError());
+            Q_Println("{}({}) failed: \"{}\"", callerName, fn, Sys_LibraryError());
         }
     }
 
@@ -450,7 +450,7 @@ static void* Sys_LoadDllFromPaths(const char* filename, const char* gamedir, con
             if (libHandle)
                 return libHandle;
 
-            Com_Printf("%s(%s) failed: \"%s\"\n", callerName, fn, Sys_LibraryError());
+            Q_Println("{}({}) failed: \"{}\"", callerName, fn, Sys_LibraryError());
         }
     }
 
@@ -460,12 +460,12 @@ static void* Sys_LoadDllFromPaths(const char* filename, const char* gamedir, con
             if (!libDir[0])
                 continue;
 
-            fn = va("%s%c%s", libDir, PATH_SEP, filename);
+            fn = (fnText = Q_Format("{}{}{}", libDir, PATH_SEP, filename)).c_str();
             libHandle = Sys_LoadLibrary(fn);
             if (libHandle)
                 return libHandle;
 
-            Com_Printf("%s(%s) failed: \"%s\"\n", callerName, fn, Sys_LibraryError());
+            Q_Println("{}({}) failed: \"{}\"", callerName, fn, Sys_LibraryError());
         }
     }
 
@@ -485,7 +485,7 @@ void* Sys_LoadSPGameDll(const char* name, GetGameAPIProc** GetGameAPI)
 
     assert(GetGameAPI);
 
-    Com_sprintf(filename, sizeof(filename), "%s" ARCH_STRING DLL_EXT, name);
+    Q_FormatTo(filename, "{}" ARCH_STRING DLL_EXT, name);
 
 #if defined(MACOS_X) && !defined(_JK2EXE)
     // First, look for the old-style mac .bundle that's inside a pk3
@@ -522,7 +522,7 @@ void* Sys_LoadSPGameDll(const char* name, GetGameAPIProc** GetGameAPI)
 
     *GetGameAPI = (GetGameAPIProc*)Sys_LoadFunction(libHandle, "GetGameAPI");
     if (!*GetGameAPI) {
-        Com_DPrintf("%s(%s) failed to find GetGameAPI function:\n...%s!\n", __FUNCTION__, name, Sys_LibraryError());
+        Q_DPrintln("{}({}) failed to find GetGameAPI function:\n...{}!", __FUNCTION__, name, Sys_LibraryError());
         Sys_UnloadLibrary(libHandle);
         return nullptr;
     }
@@ -535,7 +535,7 @@ void* Sys_LoadGameDll(const char* name, GetModuleAPIProc** moduleAPI)
     void* libHandle = nullptr;
     char filename[MAX_OSPATH];
 
-    Com_sprintf(filename, sizeof(filename), "%s" ARCH_STRING DLL_EXT, name);
+    Q_FormatTo(filename, "{}" ARCH_STRING DLL_EXT, name);
 
 #if defined(_DEBUG)
     libHandle = Sys_LoadLibrary(filename);
@@ -547,7 +547,7 @@ void* Sys_LoadGameDll(const char* name, GetModuleAPIProc** moduleAPI)
             if (!unpackResult.succeeded) {
                 if (Sys_DLLNeedsUnpacking()) {
                     FreeUnpackDLLResult(&unpackResult);
-                    Com_DPrintf("Sys_LoadGameDll: Failed to unpack %s from PK3.\n", filename);
+                    Q_DPrintln("Sys_LoadGameDll: Failed to unpack {} from PK3.", filename);
                     return nullptr;
                 }
             }
@@ -594,7 +594,7 @@ void* Sys_LoadGameDll(const char* name, GetModuleAPIProc** moduleAPI)
 
     *moduleAPI = (GetModuleAPIProc*)Sys_LoadFunction(libHandle, "GetModuleAPI");
     if (!*moduleAPI) {
-        Com_DPrintf("Sys_LoadGameDll(%s) failed to find GetModuleAPI function:\n...%s!\n", name, Sys_LibraryError());
+        Q_DPrintln("Sys_LoadGameDll({}) failed to find GetModuleAPI function:\n...{}!", name, Sys_LibraryError());
         Sys_UnloadLibrary(libHandle);
         return nullptr;
     }
@@ -612,16 +612,16 @@ void Sys_SigHandler(int signal)
     static bool signalcaught = false;
 
     if (signalcaught) {
-        fprintf(stderr, "DOUBLE SIGNAL FAULT: Received signal %d, exiting...\n", signal);
+        Q_FilePrintln(stderr, "DOUBLE SIGNAL FAULT: Received signal {}, exiting...", signal);
     }
     else {
         signalcaught = true;
         // VM_Forced_Unload_Start();
 #ifndef DEDICATED
         CL_Shutdown();
-        // CL_Shutdown(va("Received signal %d", signal), true, true);
+        // CL_Shutdown(Q_Format("Received signal {}", signal).c_str(), true, true);
 #endif
-        SV_Shutdown(va("Received signal %d", signal));
+        SV_Shutdown(Q_Format("Received signal {}", signal).c_str());
         // VM_Forced_Unload_Done();
     }
 
@@ -710,8 +710,8 @@ int main(int argc, char* argv[])
     SDL_VERSION(&compiled);
     SDL_GetVersion(&linked);
 
-    Com_Printf("SDL Version Compiled: %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch);
-    Com_Printf("SDL Version Linked: %d.%d.%d\n", linked.major, linked.minor, linked.patch);
+    Q_Println("SDL Version Compiled: {}.{}.{}", compiled.major, compiled.minor, compiled.patch);
+    Q_Println("SDL Version Linked: {}.{}.{}", linked.major, linked.minor, linked.patch);
 #endif
 
     // main game loop

@@ -255,7 +255,7 @@ static void CL_AddCgameCommand(const char* cmdName)
 static void CL_CM_LoadMap(const char* mapname, bool subBSP)
 {
     if (subBSP)
-        CM_LoadSubBSP(va("maps/%s.bsp", mapname + 1), false);
+        CM_LoadSubBSP(Q_Format("maps/{}.bsp", mapname + 1).c_str(), false);
     else
         CM_LoadMap(mapname, true, nullptr);
 }
@@ -436,7 +436,7 @@ static bool CL_SE_GetStringTextString(const char* text, char* buffer, int buffer
         return true;
     }
 
-    Com_sprintf(buffer, bufferLength, "??%s", str);
+    Q_FormatTo(std::span(buffer, bufferLength), "??{}", str);
     return false;
 }
 
@@ -927,8 +927,8 @@ void CL_BindCGame(void)
 
     cgvm = VM_Create(vmSlots_t::VM_CGAME);
     if (cgvm) {
-        cgi.Print = Com_VPrintf;
-        cgi.Error = Com_VError;
+        cgi.Print = Q_VPrint;
+        cgi.Error = Q_VError;
         cgi.SnapVector = Sys_SnapVector;
         cgi.MemoryRemaining = Hunk_MemoryRemaining;
         cgi.RegisterSharedMemory = RegisterSharedMemory;
@@ -1139,7 +1139,7 @@ void CL_BindCGame(void)
         if (!ret) {
             // free VM?
             cls.cgameStarted = false;
-            Com_Error(errorParm_t::ERR_FATAL, "GetGameAPI failed on %s", dllName);
+            Q_Error(errorParm_t::ERR_FATAL, "GetGameAPI failed on {}", dllName);
         }
         cge = ret;
 
@@ -1147,7 +1147,7 @@ void CL_BindCGame(void)
     }
 
     cls.cgameStarted = false;
-    Com_Error(errorParm_t::ERR_DROP, "VM_Create on cgame failed");
+    Q_Error(errorParm_t::ERR_DROP, "VM_Create on cgame failed");
 }
 
 void CL_UnbindCGame(void)

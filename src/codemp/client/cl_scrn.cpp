@@ -316,7 +316,7 @@ void SCR_DrawDemoRecording(void)
         return;
     }
     pos = FS_FTell(clc.demofile);
-    Com_sprintf(string, sizeof(string), "RECORDING %s: %ik", clc.demoName, pos / 1024);
+    Q_FormatTo(string, "RECORDING {}: {}k", clc.demoName, pos / 1024);
 
     SCR_DrawStringExt(320 - strlen(string) * 4, 20, 8, string, g_color_table[7], true, false);
 }
@@ -415,7 +415,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
     bool uiFullscreen = (cls.uiStarted && UIVM_IsFullscreen());
 
     if (!cls.uiStarted) {
-        Com_DPrintf("draw screen without UI loaded\n");
+        Q_DPrintln("draw screen without UI loaded");
         return;
     }
 
@@ -426,7 +426,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
     if ((cls.uiStarted && !uiFullscreen) || (!(cls.framecount & 7) && cls.state == connstate_t::CA_ACTIVE)) {
         switch (cls.state) {
         default:
-            Com_Error(errorParm_t::ERR_FATAL, "SCR_DrawScreenField: bad cls.state");
+            Q_Error(errorParm_t::ERR_FATAL, "SCR_DrawScreenField: bad cls.state");
             break;
         case connstate_t::CA_CINEMATIC:
             SCR_DrawCinematic();
@@ -496,7 +496,7 @@ void SCR_UpdateScreen(void)
     }
 
     if (++recursive > 2) {
-        Com_Error(errorParm_t::ERR_FATAL, "SCR_UpdateScreen: recursively called");
+        Q_Error(errorParm_t::ERR_FATAL, "SCR_UpdateScreen: recursively called");
     }
     recursive = 1;
 

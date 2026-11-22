@@ -140,13 +140,13 @@ int ClientNumberFromString(gentity_t* to, char* s)
     if (s[0] >= '0' && s[0] <= '9') {
         idnum = atoi(s);
         if (idnum < 0 || idnum >= level.maxclients) {
-            gi.SendServerCommand(to - g_entities, "print \"Bad client slot: %i\n\"", idnum);
+            gi.SendServerCommand(to - g_entities, "print \"Bad client slot: {}\n\"", idnum);
             return -1;
         }
 
         cl = &level.clients[idnum];
         if (cl->pers.connected != clientConnected_t::CON_CONNECTED) {
-            gi.SendServerCommand(to - g_entities, "print \"Client %i is not active\n\"", idnum);
+            gi.SendServerCommand(to - g_entities, "print \"Client {} is not active\n\"", idnum);
             return -1;
         }
         return idnum;
@@ -164,7 +164,7 @@ int ClientNumberFromString(gentity_t* to, char* s)
         }
     }
 
-    gi.SendServerCommand(to - g_entities, "print \"User %s is not on the server\n\"", s);
+    gi.SendServerCommand(to - g_entities, "print \"User {} is not on the server\n\"", s);
     return -1;
 }
 
@@ -322,7 +322,7 @@ void Cmd_Fx(gentity_t* ent)
                 fx_ent->delay = atoi(gi.argv(2));
             }
             else {
-                Com_Printf(S_COLOR_GREEN "FX: current delay is: %i\n", fx_ent->delay);
+                Q_Println(S_COLOR_GREEN "FX: current delay is: {}", fx_ent->delay);
             }
 
             return;
@@ -334,7 +334,7 @@ void Cmd_Fx(gentity_t* ent)
                 fx_ent->random = atoi(gi.argv(2));
             }
             else {
-                Com_Printf(S_COLOR_GREEN "FX: current random is: %6.2f\n", fx_ent->random);
+                Q_Println(S_COLOR_GREEN "FX: current random is: {:6.2f}", fx_ent->random);
             }
 
             return;
@@ -350,8 +350,8 @@ void Cmd_Fx(gentity_t* ent)
                 G_SetOrigin(fx_ent, fx_ent->s.origin);
             }
             else {
-                Com_Printf(S_COLOR_GREEN "FX: current origin is: <%6.2f %6.2f %6.2f>\n", fx_ent->currentOrigin[0], fx_ent->currentOrigin[1],
-                           fx_ent->currentOrigin[2]);
+                Q_Println(S_COLOR_GREEN "FX: current origin is: <{:6.2f} {:6.2f} {:6.2f}>", fx_ent->currentOrigin[0], fx_ent->currentOrigin[1],
+                          fx_ent->currentOrigin[2]);
             }
 
             return;
@@ -370,22 +370,22 @@ void Cmd_Fx(gentity_t* ent)
                 }
             }
             else {
-                Com_Printf(S_COLOR_GREEN "FX: current dir is: <%6.2f %6.2f %6.2f>\n", fx_ent->s.angles[0], fx_ent->s.angles[1], fx_ent->s.angles[2]);
+                Q_Println(S_COLOR_GREEN "FX: current dir is: <{:6.2f} {:6.2f} {:6.2f}>", fx_ent->s.angles[0], fx_ent->s.angles[1], fx_ent->s.angles[2]);
             }
 
             return;
         }
     }
 
-    Com_Printf(S_COLOR_CYAN "Fx--------------------------------------------------------\n");
-    Com_Printf(S_COLOR_CYAN "commands:              sample usage:\n");
-    Com_Printf(S_COLOR_CYAN "----------------------------------------------------------\n");
-    Com_Printf(S_COLOR_CYAN "fx play <filename>     fx play sparks, fx play env/fire\n");
-    Com_Printf(S_COLOR_CYAN "fx stop                fx stop\n");
-    Com_Printf(S_COLOR_CYAN "fx delay <#>           fx delay 1000\n");
-    Com_Printf(S_COLOR_CYAN "fx random <#>          fx random 200\n");
-    Com_Printf(S_COLOR_CYAN "fx origin <#><#><#>    fx origin 10 20 30\n");
-    Com_Printf(S_COLOR_CYAN "fx dir <#><#><#>       fx dir 0 0 -1\n\n");
+    Q_Println(S_COLOR_CYAN "Fx--------------------------------------------------------");
+    Q_Println(S_COLOR_CYAN "commands:              sample usage:");
+    Q_Println(S_COLOR_CYAN "----------------------------------------------------------");
+    Q_Println(S_COLOR_CYAN "fx play <filename>     fx play sparks, fx play env/fire");
+    Q_Println(S_COLOR_CYAN "fx stop                fx stop");
+    Q_Println(S_COLOR_CYAN "fx delay <#>           fx delay 1000");
+    Q_Println(S_COLOR_CYAN "fx random <#>          fx random 200");
+    Q_Println(S_COLOR_CYAN "fx origin <#><#><#>    fx origin 10 20 30");
+    Q_Println(S_COLOR_CYAN "fx dir <#><#><#>       fx dir 0 0 -1\n");
 }
 
 /*
@@ -411,7 +411,7 @@ void Cmd_God_f(gentity_t* ent)
     else
         msg = "godmode ON\n";
 
-    gi.SendServerCommand(ent - g_entities, "print \"%s\"", msg);
+    gi.SendServerCommand(ent - g_entities, "print \"{}\"", msg);
 }
 
 /*
@@ -456,7 +456,7 @@ void Cmd_Undying_f(gentity_t* ent)
         }
     }
 
-    gi.SendServerCommand(ent - g_entities, "print \"%s\"", msg);
+    gi.SendServerCommand(ent - g_entities, "print \"{}\"", msg);
 }
 
 /*
@@ -482,7 +482,7 @@ void Cmd_Notarget_f(gentity_t* ent)
     else
         msg = "notarget ON\n";
 
-    gi.SendServerCommand(ent - g_entities, "print \"%s\"", msg);
+    gi.SendServerCommand(ent - g_entities, "print \"{}\"", msg);
 }
 
 /*
@@ -508,7 +508,7 @@ void Cmd_Noclip_f(gentity_t* ent)
     }
     ent->client->noclip = !ent->client->noclip;
 
-    gi.SendServerCommand(ent - g_entities, "print \"%s\"", msg);
+    gi.SendServerCommand(ent - g_entities, "print \"{}\"", msg);
 }
 
 /*
@@ -558,7 +558,7 @@ void Cmd_Where_f(gentity_t* ent)
     gentity_t* check;
 
     if (gi.argc() < 2) {
-        Com_Printf("usage: where classname\n");
+        Q_Println("usage: where classname");
         return;
     }
     for (int i = 0; i < globals.num_entities; i++) {
@@ -569,7 +569,7 @@ void Cmd_Where_f(gentity_t* ent)
         //		}
         check = &g_entities[i];
         if (!Q_stricmpn(s, check->classname, len)) {
-            gi.SendServerCommand(ent - g_entities, "print \"%s %s\n\"", check->classname, vtos(check->s.pos.trBase));
+            gi.SendServerCommand(ent - g_entities, "print \"{} {}\n\"", check->classname, vtos(check->s.pos.trBase));
         }
     }
 }
@@ -609,7 +609,7 @@ void UserSpawn(gentity_t* ent, const char* name)
 
     // Find a valid spawning spot
     if (G_CallSpawn(ent2) == false) {
-        gi.SendServerCommand(ent - g_entities, "print \"Failed to spawn '%s'\n\"", name);
+        gi.SendServerCommand(ent - g_entities, "print \"Failed to spawn '{}'\n\"", name);
         G_FreeEntity(ent2);
         return;
     }
@@ -627,7 +627,7 @@ void Cmd_Spawn(gentity_t* ent)
 
     name = ConcatArgs(1);
 
-    gi.SendServerCommand(ent - g_entities, "print \"Spawning '%s'\n\"", name);
+    gi.SendServerCommand(ent - g_entities, "print \"Spawning '{}'\n\"", name);
 
     UserSpawn(ent, name);
 }
@@ -676,7 +676,7 @@ void Cmd_SetObjective_f(gentity_t* ent)
     if (gi.argc() == 2) {
         objectiveI = atoi(gi.argv(1));
         const objectives_t& objective = ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>(objectiveI)];
-        Com_Printf("objective #%d  display status=%d, status=%d\n", objectiveI, objective.display, objective.status);
+        Q_Println("objective #{}  display status={:d}, status={}", objectiveI, objective.display, objective.status);
         return;
     }
     if (gi.argc() != 4) {
@@ -715,7 +715,8 @@ void Cmd_ViewObjective_f(gentity_t* ent)
     objectiveI = atoi(gi.argv(1));
     const objectives_t& objective = ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>(objectiveI)];
 
-    gi.SendServerCommand(ent - g_entities, "print \"Objective %d   Display Status(1=show): %d  Status:%d\n\"", objectiveI, objective.display, objective.status);
+    gi.SendServerCommand(ent - g_entities, "print \"Objective {}   Display Status(1=show): {:d}  Status:{}\n\"", objectiveI, objective.display,
+                         objective.status);
 }
 
 /*
@@ -1380,8 +1381,8 @@ void ClientCommand(int clientNum)
         }
         if ( gi.argc() < 2 )
         {
-            gi.SendServerCommand( ent-g_entities, va("print \"usage: drive <vehicle name>\n\""));
-            gi.SendServerCommand( ent-g_entities, va("print \"Vehicles will be in vehicles.cfg, try using 'speeder' for now\n\""));
+            gi.SendServerCommand( ent-g_entities, Q_Format("print \"usage: drive <vehicle name>\n\""));
+            gi.SendServerCommand( ent-g_entities, Q_Format("print \"Vehicles will be in vehicles.cfg, try using 'speeder' for now\n\""));
             return;
         }
         G_DriveVehicle( ent, nullptr, gi.argv(1) );
@@ -1443,6 +1444,6 @@ void ClientCommand(int clientNum)
         }
     }
     else {
-        gi.SendServerCommand(clientNum, "print \"Unknown command %s\n\"", cmd);
+        gi.SendServerCommand(clientNum, "print \"Unknown command {}\n\"", cmd);
     }
 }

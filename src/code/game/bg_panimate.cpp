@@ -3858,7 +3858,7 @@ std::optional<animNumber_t> PM_ValidateAnimRange(const int startFrame, const int
         if (animSpeed < 0) { // playing backwards
             if (animations[anim].firstFrame == endFrame) {
                 if (animations[anim].numFrames + animations[anim].firstFrame == startFrame) {
-                    // Com_Printf( "valid reverse anim: %s\n", BG_AnimName( anim ) );
+                    // Q_Println("valid reverse anim: {}", BG_AnimName( anim ));
                     return anim;
                 }
             }
@@ -3866,7 +3866,7 @@ std::optional<animNumber_t> PM_ValidateAnimRange(const int startFrame, const int
         else {                                                                              // playing forwards
             if (animations[anim].firstFrame == startFrame) {                                // This anim starts on this frame
                 if (animations[anim].firstFrame + animations[anim].numFrames == endFrame) { // This anim ends on this frame
-                    // Com_Printf( "valid forward anim: %s\n", BG_AnimName( anim ) );
+                    // Q_Println("valid forward anim: {}", BG_AnimName( anim ));
                     return anim;
                 }
             }
@@ -3875,7 +3875,7 @@ std::optional<animNumber_t> PM_ValidateAnimRange(const int startFrame, const int
     }
 
     // Not in ANY anim?  SHOULD NEVER HAPPEN
-    Com_Printf("invalid anim range %d to %d, speed %4.2f\n", startFrame, endFrame, animSpeed);
+    Q_Println("invalid anim range {} to {}, speed {:4.2f}", startFrame, endFrame, animSpeed);
     return std::nullopt;
 }
 /*
@@ -4206,10 +4206,10 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
 #ifndef FINAL_BUILD
         if (g_AnimWarning->integer) {
             if (anim < animNumber_t::FACE_TALK0 || anim >= animNumber_t::MAX_ANIMATIONS) {
-                Com_Printf(S_COLOR_RED "PM_SetAnimFinal: Invalid Anim Index (%d)!\n", to_underlying(anim));
+                Q_Println(S_COLOR_RED "PM_SetAnimFinal: Invalid Anim Index ({})!", to_underlying(anim));
             }
             else {
-                Com_Printf(S_COLOR_RED "PM_SetAnimFinal: Invalid Anim File Index (%d)!\n", gent->client->clientInfo.animFileIndex);
+                Q_Println(S_COLOR_RED "PM_SetAnimFinal: Invalid Anim File Index ({})!", gent->client->clientInfo.animFileIndex);
             }
         }
 #endif
@@ -4234,7 +4234,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
                 (cg_debugAnim.integer == 2 && gent->s.number != 0) ||                       // 2 = only everyone else
                 (cg_debugAnim.integer == 4 && gent->s.number != cg_debugAnimTarget.integer) // 4 = specific entnum
             ) {
-                Com_Printf(S_COLOR_RED "PM_SetAnimFinal: Anim %s does not exist in this model (%s)!\n", BG_AnimName(anim), gent->NPC_type);
+                Q_Println(S_COLOR_RED "PM_SetAnimFinal: Anim {} does not exist in this model ({})!", BG_AnimName(anim), gent->NPC_type);
             }
         }
         LastAnimWarningNum = anim;
@@ -4291,7 +4291,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
 		{
 			if (animFlags&boneFlags_t::BONE_ANIM_OVERRIDE_LOOP)
 			{
-				Com_Printf(S_COLOR_YELLOW"PM_SetAnimFinal: WARNING: Anim (%s) looping backwards!\n", BG_AnimName( anim ));
+				Q_Println(S_COLOR_YELLOW"PM_SetAnimFinal: WARNING: Anim ({}) looping backwards!", BG_AnimName( anim ));
 			}
 		}
 #endif
@@ -4450,7 +4450,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
 
             // Print It!
             //-----------
-            Com_Printf("[%10d] ent[%3d-%18s] %s anim[%3d] - %s\n", actualTime, gent->s.number, entName, location, to_underlying(anim), BG_AnimName(anim));
+            Q_Println("[{:10}] ent[{:3}-{:>18}] {} anim[{:3}] - {}", actualTime, gent->s.number, entName, location, to_underlying(anim), BG_AnimName(anim));
         }
     }
 #endif
@@ -4508,18 +4508,18 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
     // PRINT SOME DEBUG TEXT OF EXISTING VALUES
     //==========================================
     if (false) {
-        Com_Printf("PLAYANIM: (%3d) Speed(%4.2f) ", to_underlying(anim), animSpeed);
+        Q_Print("PLAYANIM: ({:3}) Speed({:4.2f}) ", to_underlying(anim), animSpeed);
         if (bodyAnimating) {
-            Com_Printf("BODY: (%4.2f) (%4.2f) ", bodyCurrent, bodySpeed);
+            Q_Print("BODY: ({:4.2f}) ({:4.2f}) ", bodyCurrent, bodySpeed);
         }
         else {
-            Com_Printf("                      ");
+            Q_Print("                      ");
         }
         if (torsAnimating) {
-            Com_Printf("TORS: (%4.2f) (%4.2f)\n", torsCurrent, torsSpeed);
+            Q_Println("TORS: ({:4.2f}) ({:4.2f})", torsCurrent, torsSpeed);
         }
         else {
-            Com_Printf("\n");
+            Q_Println("");
         }
     }
 }

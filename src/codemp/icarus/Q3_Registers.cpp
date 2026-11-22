@@ -24,7 +24,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <game/g_public.h>
 #include "Q3_Registers.h"
 
-extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
+void Q3_VDebugPrintln(WL_e level, fmt::string_view format, fmt::format_args args);
+template <typename... T> void Q3_DebugPrintln(WL_e level, fmt::format_string<T...> format, T&&... args)
+{
+    Q3_VDebugPrintln(level, format.get(), Q_FormatArgs(args...));
+}
 
 varString_m varStrings;
 varFloat_m varFloats;
@@ -74,7 +78,7 @@ void Q3_DeclareVariable(icarusToken_t type, const char* name)
         return;
 
     if (numVariables > MAX_VARIABLES) {
-        Q3_DebugPrint(WL_e::WL_ERROR, "too many variables already declared, maximum is %d\n", MAX_VARIABLES);
+        Q3_DebugPrintln(WL_e::WL_ERROR, "too many variables already declared, maximum is {}", MAX_VARIABLES);
         return;
     }
 
@@ -92,7 +96,7 @@ void Q3_DeclareVariable(icarusToken_t type, const char* name)
         break;
 
     default:
-        Q3_DebugPrint(WL_e::WL_ERROR, "unknown 'type' for declare() function!\n");
+        Q3_DebugPrintln(WL_e::WL_ERROR, "unknown 'type' for declare() function!");
         return;
         break;
     }
@@ -208,7 +212,7 @@ void Q3_InitVariables(void)
     varVectors.clear();
 
     if (numVariables > 0)
-        Q3_DebugPrint(WL_e::WL_WARNING, "%d residual variables found!\n", numVariables);
+        Q3_DebugPrintln(WL_e::WL_WARNING, "{} residual variables found!", numVariables);
 
     numVariables = 0;
 }

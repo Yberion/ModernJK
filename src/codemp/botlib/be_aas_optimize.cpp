@@ -325,5 +325,5 @@ void AAS_Optimize(void)
     // store the optimized AAS data into aasworld
     AAS_OptimizeStore(&optimized);
     // print some nice stuff :)
-    Com_Printf("AAS data optimized.\n");
+    Q_Println("AAS data optimized.");
 } // end of the function AAS_Optimize

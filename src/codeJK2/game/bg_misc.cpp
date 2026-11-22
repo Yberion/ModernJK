@@ -206,7 +206,7 @@ gitem_t* FindItemForWeapon(weapon_t weapon)
         }
     }
 
-    Com_Error(errorParm_t::ERR_DROP, "Couldn't find item for weapon %i", to_underlying(weapon));
+    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for weapon {}", to_underlying(weapon));
     return nullptr;
 }
 
@@ -226,7 +226,7 @@ gitem_t* FindItemForInventory(inventory_t inv)
         }
     }
 
-    Com_Error(errorParm_t::ERR_DROP, "Couldn't find item for inventory %i", to_underlying(inv));
+    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for inventory {}", to_underlying(inv));
     return nullptr;
 }
 
@@ -244,7 +244,7 @@ gitem_t* FindItemForAmmo(ammo_t ammo)
         }
     }
 
-    Com_Error(errorParm_t::ERR_DROP, "Couldn't find item for ammo %i", to_underlying(ammo));
+    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for ammo {}", to_underlying(ammo));
     return nullptr;
 }
 
@@ -277,7 +277,7 @@ bool BG_CanItemBeGrabbed(const entityState_t* ent, const playerState_t* ps)
     gitem_t* item;
 
     if (ent->modelindex < 1 || ent->modelindex >= bg_numItems) {
-        Com_Error(errorParm_t::ERR_DROP, "BG_CanItemBeGrabbed: index out of range");
+        Q_Error(errorParm_t::ERR_DROP, "BG_CanItemBeGrabbed: index out of range");
     }
 
     item = &bg_itemlist[ES_ItemNum(*ent)];
@@ -436,7 +436,7 @@ void EvaluateTrajectory(const trajectory_t* tr, int atTime, vec3_t result)
         result[2] -= 0.5F * g_gravity->value * deltaTime * deltaTime; // DEFAULT_GRAVITY
         break;
     default:
-        Com_Error(errorParm_t::ERR_DROP, "EvaluateTrajectory: unknown trType: %i", tr->trTime);
+        Q_Error(errorParm_t::ERR_DROP, "EvaluateTrajectory: unknown trType: {}", tr->trTime);
         break;
     }
 }
@@ -488,7 +488,7 @@ void EvaluateTrajectoryDelta(const trajectory_t* tr, int atTime, vec3_t result)
         result[2] -= g_gravity->value * deltaTime; // DEFAULT_GRAVITY
         break;
     default:
-        Com_Error(errorParm_t::ERR_DROP, "EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime);
+        Q_Error(errorParm_t::ERR_DROP, "EvaluateTrajectoryDelta: unknown trType: {}", tr->trTime);
         break;
     }
 }

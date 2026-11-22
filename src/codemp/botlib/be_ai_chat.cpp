@@ -214,11 +214,11 @@ bot_replychat_t* replychats = nullptr;
 bot_chatstate_t* BotChatStateFromHandle(int handle)
 {
     if (handle <= 0 || handle > MAX_CLIENTS) {
-        Com_PrintError("chat state handle %d out of range\n", handle);
+        Q_PrintlnError("chat state handle {} out of range", handle);
         return nullptr;
     } // end if
     if (!botchatstates[handle]) {
-        Com_PrintError("invalid chat state %d\n", handle);
+        Q_PrintlnError("invalid chat state {}", handle);
         return nullptr;
     } // end if
     return botchatstates[handle];
@@ -332,7 +332,7 @@ void BotQueueConsoleMessage(int chatstate, int type, char* message)
 
     m = AllocConsoleMessage();
     if (!m) {
-        Com_PrintError("empty console message heap\n");
+        Q_PrintlnError("empty console message heap");
         return;
     } // end if
     cs->handle++;
@@ -577,13 +577,13 @@ void BotDumpSynonymList(bot_synonymlist_t* synlist)
     if (!fp)
         return;
     for (syn = synlist; syn; syn = syn->next) {
-        fprintf(fp, "%ld : [", syn->context);
+        Q_FilePrint(fp, "{} : [", static_cast<long>(syn->context));
         for (synonym = syn->firstsynonym; synonym; synonym = synonym->next) {
-            fprintf(fp, "(\"%s\", %1.2f)", synonym->string, synonym->weight);
+            Q_FilePrint(fp, "(\"{}\", {:1.2f})", synonym->string, synonym->weight);
             if (synonym->next)
-                fprintf(fp, ", ");
+                Q_FilePrint(fp, ", ");
         } // end for
-        fprintf(fp, "]\n");
+        Q_FilePrintln(fp, "]");
     } // end for
 } // end of the function BotDumpSynonymList
 //===========================================================================
@@ -615,7 +615,7 @@ bot_synonymlist_t* BotLoadSynonyms(char* filename)
         PC_SetBaseFolder(BOTFILESBASEFOLDER);
         source = LoadSourceFile(filename);
         if (!source) {
-            Com_PrintError("counldn't load %s\n", filename);
+            Q_PrintlnError("counldn't load {}", filename);
             return nullptr;
         } // end if
         //
@@ -643,7 +643,7 @@ bot_synonymlist_t* BotLoadSynonyms(char* filename)
                 if (!strcmp(token.string, "}")) {
                     contextlevel--;
                     if (contextlevel < 0) {
-                        SourceError(source, "too many }");
+                        SourceError(source, "too many }}}}");
                         FreeSource(source);
                         return nullptr;
                     } // end if
@@ -717,7 +717,7 @@ bot_synonymlist_t* BotLoadSynonyms(char* filename)
                     } // end if
                 } // end else
                 else {
-                    SourceError(source, "unexpected %s", token.string);
+                    SourceError(source, "unexpected {}", token.string);
                     FreeSource(source);
                     return nullptr;
                 } // end if
@@ -727,11 +727,11 @@ bot_synonymlist_t* BotLoadSynonyms(char* filename)
         FreeSource(source);
         //
         if (contextlevel > 0) {
-            SourceError(source, "missing }");
+            SourceError(source, "missing }}}}");
             return nullptr;
         } // end if
     } // end for
-    Com_Printf("loaded %s\n", filename);
+    Q_Println("loaded {}", filename);
     //
     // BotDumpSynonymList(synlist);
     //
@@ -875,7 +875,8 @@ int BotLoadChatMessage(source_t* source, char* chatmessagestring)
                 SourceError(source, "chat message too long");
                 return false;
             } // end if
-            sprintf(&ptr[strlen(ptr)], "%cv%ld%c", ESCAPE_CHAR, token.intvalue, ESCAPE_CHAR);
+            Q_FormatTo(std::span(&ptr[strlen(ptr)], MAX_MESSAGE_SIZE - strlen(ptr)), "{:c}v{}{:c}", ESCAPE_CHAR, static_cast<long>(token.intvalue),
+                       ESCAPE_CHAR);
         } // end if
         // random string
         else if (token.type == tokenType_t::TT_NAME) {
@@ -883,10 +884,10 @@ int BotLoadChatMessage(source_t* source, char* chatmessagestring)
                 SourceError(source, "chat message too long");
                 return false;
             } // end if
-            sprintf(&ptr[strlen(ptr)], "%cr%s%c", ESCAPE_CHAR, token.string, ESCAPE_CHAR);
+            Q_FormatTo(std::span(&ptr[strlen(ptr)], MAX_MESSAGE_SIZE - strlen(ptr)), "{:c}r{}{:c}", ESCAPE_CHAR, token.string, ESCAPE_CHAR);
         } // end else if
         else {
-            SourceError(source, "unknown message component %s", token.string);
+            SourceError(source, "unknown message component {}", token.string);
             return false;
         } // end else
         if (PC_CheckTokenString(source, ";"))
@@ -913,13 +914,13 @@ void BotDumpRandomStringList(bot_randomlist_t* randomlist)
     if (!fp)
         return;
     for (random = randomlist; random; random = random->next) {
-        fprintf(fp, "%s = {", random->string);
+        Q_FilePrint(fp, "{} = {{", random->string);
         for (rs = random->firstrandomstring; rs; rs = rs->next) {
-            fprintf(fp, "\"%s\"", rs->string);
+            Q_FilePrint(fp, "\"{}\"", rs->string);
             if (rs->next)
-                fprintf(fp, ", ");
+                Q_FilePrint(fp, ", ");
             else
-                fprintf(fp, "}\n");
+                Q_FilePrintln(fp, "}}");
         } // end for
     } // end for
 } // end of the function BotDumpRandomStringList
@@ -954,7 +955,7 @@ bot_randomlist_t* BotLoadRandomStrings(char* filename)
         PC_SetBaseFolder(BOTFILESBASEFOLDER);
         source = LoadSourceFile(filename);
         if (!source) {
-            Com_PrintError("counldn't load %s\n", filename);
+            Q_PrintlnError("counldn't load {}", filename);
             return nullptr;
         } // end if
         //
@@ -964,7 +965,7 @@ bot_randomlist_t* BotLoadRandomStrings(char* filename)
         while (PC_ReadToken(source, &token)) {
             size_t len;
             if (token.type != tokenType_t::TT_NAME) {
-                SourceError(source, "unknown random %s", token.string);
+                SourceError(source, "unknown random {}", token.string);
                 FreeSource(source);
                 return nullptr;
             } // end if
@@ -1015,10 +1016,10 @@ bot_randomlist_t* BotLoadRandomStrings(char* filename)
         // free the source after one pass
         FreeSource(source);
     } // end for
-    Com_Printf("loaded %s\n", filename);
+    Q_Println("loaded {}", filename);
     //
 #ifdef DEBUG
-    Com_Printf("random strings %d msec\n", Sys_MilliSeconds() - starttime);
+    Q_Println("random strings {} msec", Sys_MilliSeconds() - starttime);
     // BotDumpRandomStringList(randomlist);
 #endif // DEBUG
     //
@@ -1067,22 +1068,22 @@ void BotDumpMatchTemplates(bot_matchtemplate_t* matches)
     if (!fp)
         return;
     for (mt = matches; mt; mt = mt->next) {
-        fprintf(fp, "{ ");
+        Q_FilePrint(fp, "{{ ");
         for (mp = mt->first; mp; mp = mp->next) {
             if (mp->type == MT_STRING) {
                 for (ms = mp->firststring; ms; ms = ms->next) {
-                    fprintf(fp, "\"%s\"", ms->string);
+                    Q_FilePrint(fp, "\"{}\"", ms->string);
                     if (ms->next)
-                        fprintf(fp, "|");
+                        Q_FilePrint(fp, "|");
                 } // end for
             } // end if
             else if (mp->type == MT_VARIABLE) {
-                fprintf(fp, "%d", mp->variable);
+                Q_FilePrint(fp, "{}", mp->variable);
             } // end else if
             if (mp->next)
-                fprintf(fp, ", ");
+                Q_FilePrint(fp, ", ");
         } // end for
-        fprintf(fp, " = (%d, %d);}\n", mt->type, mt->subtype);
+        Q_FilePrintln(fp, " = ({}, {});}}", mt->type, mt->subtype);
     } // end for
 } // end of the function BotDumpMatchTemplates
 //===========================================================================
@@ -1128,7 +1129,7 @@ bot_matchpiece_t* BotLoadMatchPieces(source_t* source, const char* endtoken)
     while (PC_ReadToken(source, &token)) {
         if (token.type == tokenType_t::TT_NUMBER && (token.subtype & TT_INTEGER)) {
             if (token.intvalue >= MAX_MATCHVARIABLES) {
-                SourceError(source, "can't have more than %d match variables", MAX_MATCHVARIABLES);
+                SourceError(source, "can't have more than {} match variables", MAX_MATCHVARIABLES);
                 FreeSource(source);
                 BotFreeMatchPieces(firstpiece);
                 return nullptr;
@@ -1193,7 +1194,7 @@ bot_matchpiece_t* BotLoadMatchPieces(source_t* source, const char* endtoken)
                 lastwasvariable = false;
         } // end if
         else {
-            SourceError(source, "invalid token %s", token.string);
+            SourceError(source, "invalid token {}", token.string);
             FreeSource(source);
             BotFreeMatchPieces(firstpiece);
             return nullptr;
@@ -1240,7 +1241,7 @@ bot_matchtemplate_t* BotLoadMatchTemplates(char* matchfile)
     PC_SetBaseFolder(BOTFILESBASEFOLDER);
     source = LoadSourceFile(matchfile);
     if (!source) {
-        Com_PrintError("counldn't load %s\n", matchfile);
+        Q_PrintlnError("counldn't load {}", matchfile);
         return nullptr;
     } // end if
     //
@@ -1249,7 +1250,7 @@ bot_matchtemplate_t* BotLoadMatchTemplates(char* matchfile)
 
     while (PC_ReadToken(source, &token)) {
         if (token.type != tokenType_t::TT_NUMBER || !(token.subtype & TT_INTEGER)) {
-            SourceError(source, "expected integer, found %s", token.string);
+            SourceError(source, "expected integer, found {}", token.string);
             BotFreeMatchTemplates(matches);
             FreeSource(source);
             return nullptr;
@@ -1308,7 +1309,7 @@ bot_matchtemplate_t* BotLoadMatchTemplates(char* matchfile)
     } // end while
     // free the source
     FreeSource(source);
-    Com_Printf("loaded %s\n", matchfile);
+    Q_Println("loaded {}", matchfile);
     //
     // BotDumpMatchTemplates(matches);
     //
@@ -1331,7 +1332,7 @@ int StringsMatch(bot_matchpiece_t* pieces, bot_match_t* match)
     lastvariable = -1;
     // pointer to the string to compare the match string with
     strptr = match->string;
-    // Log_Write("match: %s", strptr);
+    // Log_Write("match: {}", strptr);
     // compare the string with the current match string
     for (mp = pieces; mp; mp = mp->next) {
         // if it is a piece of string
@@ -1342,7 +1343,7 @@ int StringsMatch(bot_matchpiece_t* pieces, bot_match_t* match)
                     newstrptr = strptr;
                     break;
                 } // end if
-                // Log_Write("MT_STRING: %s", mp->string);
+                // Log_Write("MT_STRING: {}", mp->string);
                 index = StringContains(strptr, ms->string, false);
                 if (index >= 0) {
                     newstrptr = strptr + index;
@@ -1421,7 +1422,7 @@ int BotFindMatch(char* str, bot_match_t* match, unsigned long int context)
 void BotMatchVariable(bot_match_t* match, int variable, char* buf, int size)
 {
     if (variable < 0 || variable >= MAX_MATCHVARIABLES) {
-        Com_PrintError("BotMatchVariable: variable out of range\n");
+        Q_PrintlnError("BotMatchVariable: variable out of range");
         strcpy(buf, "");
         return;
     } // end if
@@ -1498,7 +1499,7 @@ bot_stringlist_t* BotCheckChatMessageIntegrety(char* message, bot_stringlist_t* 
                 // find the random keyword
                 if (!RandomString(temp)) {
                     if (!BotFindStringInList(stringlist, temp)) {
-                        Log_Write("%s = {\"%s\"} //MISSING RANDOM\r\n", temp, temp);
+                        Log_Write("{} = {{\"{}\"}} //MISSING RANDOM\r\n", temp, temp);
                         s = (struct bot_stringlist_s*)GetClearedMemory(sizeof(bot_stringlist_t) + strlen(temp) + 1);
                         s->string = (char*)s + sizeof(bot_stringlist_t);
                         strcpy(s->string, temp);
@@ -1509,7 +1510,7 @@ bot_stringlist_t* BotCheckChatMessageIntegrety(char* message, bot_stringlist_t* 
                 break;
             } // end case
             default: {
-                Com_PrintError("BotCheckChatMessageIntegrety: message \"%s\" invalid escape char\n", message);
+                Q_PrintlnError("BotCheckChatMessageIntegrety: message \"{}\" invalid escape char", message);
                 break;
             } // end default
             } // end switch
@@ -1583,48 +1584,48 @@ void BotDumpReplyChat(bot_replychat_t* replychat)
     fp = Log_FilePointer();
     if (!fp)
         return;
-    fprintf(fp, "BotDumpReplyChat:\n");
+    Q_FilePrintln(fp, "BotDumpReplyChat:");
     for (rp = replychat; rp; rp = rp->next) {
-        fprintf(fp, "[");
+        Q_FilePrint(fp, "[");
         for (key = rp->keys; key; key = key->next) {
             if (Any(key->flags & replyChatKeyFlags_t::RCKFL_AND))
-                fprintf(fp, "&");
+                Q_FilePrint(fp, "&");
             else if (Any(key->flags & replyChatKeyFlags_t::RCKFL_NOT))
-                fprintf(fp, "!");
+                Q_FilePrint(fp, "!");
             //
             if (Any(key->flags & replyChatKeyFlags_t::RCKFL_NAME))
-                fprintf(fp, "name");
+                Q_FilePrint(fp, "name");
             else if (Any(key->flags & replyChatKeyFlags_t::RCKFL_GENDERFEMALE))
-                fprintf(fp, "female");
+                Q_FilePrint(fp, "female");
             else if (Any(key->flags & replyChatKeyFlags_t::RCKFL_GENDERMALE))
-                fprintf(fp, "male");
+                Q_FilePrint(fp, "male");
             else if (Any(key->flags & replyChatKeyFlags_t::RCKFL_GENDERLESS))
-                fprintf(fp, "it");
+                Q_FilePrint(fp, "it");
             else if (Any(key->flags & replyChatKeyFlags_t::RCKFL_VARIABLES)) {
-                fprintf(fp, "(");
+                Q_FilePrint(fp, "(");
                 for (mp = key->match; mp; mp = mp->next) {
                     if (mp->type == MT_STRING)
-                        fprintf(fp, "\"%s\"", mp->firststring->string);
+                        Q_FilePrint(fp, "\"{}\"", mp->firststring->string);
                     else
-                        fprintf(fp, "%d", mp->variable);
+                        Q_FilePrint(fp, "{}", mp->variable);
                     if (mp->next)
-                        fprintf(fp, ", ");
+                        Q_FilePrint(fp, ", ");
                 } // end for
-                fprintf(fp, ")");
+                Q_FilePrint(fp, ")");
             } // end if
             else if (Any(key->flags & replyChatKeyFlags_t::RCKFL_STRING)) {
-                fprintf(fp, "\"%s\"", key->string);
+                Q_FilePrint(fp, "\"{}\"", key->string);
             } // end if
             if (key->next)
-                fprintf(fp, ", ");
+                Q_FilePrint(fp, ", ");
             else
-                fprintf(fp, "] = %1.0f\n", rp->priority);
+                Q_FilePrintln(fp, "] = {:1.0f}", rp->priority);
         } // end for
-        fprintf(fp, "{\n");
+        Q_FilePrintln(fp, "{{");
         for (cm = rp->firstchatmessage; cm; cm = cm->next) {
-            fprintf(fp, "\t\"%s\";\n", cm->chatmessage);
+            Q_FilePrintln(fp, "\t\"{}\";", cm->chatmessage);
         } // end for
-        fprintf(fp, "}\n");
+        Q_FilePrintln(fp, "}}");
     } // end for
 } // end of the function BotDumpReplyChat
 //===========================================================================
@@ -1707,10 +1708,7 @@ void BotCheckValidReplyChatKeySet(source_t* source, bot_replychatkey_t* keys)
                         } // end if
                     } // end for
                     if (!m) {
-                        SourceWarning(source,
-                                      "one of the match templates does not "
-                                      "leave space for the key %s with the & prefix",
-                                      key->string);
+                        SourceWarning(source, "one of the match templates does not leave space for the key {} with the & prefix", key->string);
                     } // end if
                 } // end if
             } // end for
@@ -1723,7 +1721,7 @@ void BotCheckValidReplyChatKeySet(source_t* source, bot_replychatkey_t* keys)
                     continue;
                 if (Any(key2->flags & replyChatKeyFlags_t::RCKFL_STRING)) {
                     if (StringContains(key2->string, key->string, false) != -1) {
-                        SourceWarning(source, "the key %s with prefix ! is inside the key %s", key->string, key2->string);
+                        SourceWarning(source, "the key {} with prefix ! is inside the key {}", key->string, key2->string);
                     } // end if
                 } // end if
                 else if (Any(key2->flags & replyChatKeyFlags_t::RCKFL_VARIABLES)) {
@@ -1731,10 +1729,7 @@ void BotCheckValidReplyChatKeySet(source_t* source, bot_replychatkey_t* keys)
                         if (m->type == MT_STRING) {
                             for (ms = m->firststring; ms; ms = ms->next) {
                                 if (StringContains(ms->string, key->string, false) != -1) {
-                                    SourceWarning(source,
-                                                  "the key %s with prefix ! is inside "
-                                                  "the match template string %s",
-                                                  key->string, ms->string);
+                                    SourceWarning(source, "the key {} with prefix ! is inside the match template string {}", key->string, ms->string);
                                 } // end if
                             } // end for
                         } // end if
@@ -1769,7 +1764,7 @@ bot_replychat_t* BotLoadReplyChat(char* filename)
     PC_SetBaseFolder(BOTFILESBASEFOLDER);
     source = LoadSourceFile(filename);
     if (!source) {
-        Com_PrintError("counldn't load %s\n", filename);
+        Q_PrintlnError("counldn't load {}", filename);
         return nullptr;
     } // end if
     //
@@ -1777,7 +1772,7 @@ bot_replychat_t* BotLoadReplyChat(char* filename)
     //
     while (PC_ReadToken(source, &token)) {
         if (strcmp(token.string, "[")) {
-            SourceError(source, "expected [, found %s", token.string);
+            SourceError(source, "expected [, found {}", token.string);
             BotFreeReplyChat(replychatlist);
             FreeSource(source);
             return nullptr;
@@ -1891,7 +1886,7 @@ bot_replychat_t* BotLoadReplyChat(char* filename)
         } // end while
     } // end while
     FreeSource(source);
-    Com_Printf("loaded %s\n", filename);
+    Q_Println("loaded {}", filename);
     //
     // BotDumpReplyChat(replychatlist);
     if (botDeveloper) {
@@ -1899,7 +1894,7 @@ bot_replychat_t* BotLoadReplyChat(char* filename)
     } // end if
     //
     if (!replychatlist)
-        Com_Printf("no rchats\n");
+        Q_Println("no rchats");
     //
     return replychatlist;
 } // end of the function BotLoadReplyChat
@@ -1914,17 +1909,17 @@ void BotDumpInitialChat(bot_chat_t* chat)
     bot_chattype_t* t;
     bot_chatmessage_t* m;
 
-    Log_Write("{");
+    Log_Write("{{");
     for (t = chat->types; t; t = t->next) {
-        Log_Write(" type \"%s\"", t->name);
-        Log_Write(" {");
-        Log_Write("  numchatmessages = %d", t->numchatmessages);
+        Log_Write(" type \"{}\"", t->name);
+        Log_Write(" {{");
+        Log_Write("  numchatmessages = {}", t->numchatmessages);
         for (m = t->firstchatmessage; m; m = m->next) {
-            Log_Write("  \"%s\"", m->chatmessage);
+            Log_Write("  \"{}\"", m->chatmessage);
         } // end for
-        Log_Write(" }");
+        Log_Write(" }}}}");
     } // end for
-    Log_Write("}");
+    Log_Write("}}}}");
 } // end of the function BotDumpInitialChat
 //===========================================================================
 //
@@ -1959,7 +1954,7 @@ bot_chat_t* BotLoadInitialChat(char* chatfile, char* chatname)
         PC_SetBaseFolder(BOTFILESBASEFOLDER);
         source = LoadSourceFile(chatfile);
         if (!source) {
-            Com_PrintError("counldn't load %s\n", chatfile);
+            Q_PrintlnError("counldn't load {}", chatfile);
             return nullptr;
         } // end if
         // chat structure
@@ -1993,7 +1988,7 @@ bot_chat_t* BotLoadInitialChat(char* chatfile, char* chatname)
                         if (!strcmp(token.string, "}"))
                             break;
                         if (strcmp(token.string, "type")) {
-                            SourceError(source, "expected type found %s", token.string);
+                            SourceError(source, "expected type found {}", token.string);
                             FreeSource(source);
                             return nullptr;
                         } // end if
@@ -2057,7 +2052,7 @@ bot_chat_t* BotLoadInitialChat(char* chatfile, char* chatname)
                 } // end else
             } // end if
             else {
-                SourceError(source, "unknown definition %s", token.string);
+                SourceError(source, "unknown definition {}", token.string);
                 FreeSource(source);
                 return nullptr;
             } // end else
@@ -2066,19 +2061,19 @@ bot_chat_t* BotLoadInitialChat(char* chatfile, char* chatname)
         FreeSource(source);
         // if the requested character is not found
         if (!foundchat) {
-            Com_PrintError("couldn't find chat %s in %s\n", chatname, chatfile);
+            Q_PrintlnError("couldn't find chat {} in {}", chatname, chatfile);
             return nullptr;
         } // end if
     } // end for
     //
-    Com_Printf("loaded %s from %s\n", chatname, chatfile);
+    Q_Println("loaded {} from {}", chatname, chatfile);
     //
     // BotDumpInitialChat(chat);
     if (botDeveloper) {
         BotCheckInitialChatIntegrety(chat);
     } // end if
 #ifdef DEBUG
-    Com_Printf("initial chats loaded in %d msec\n", Sys_MilliSeconds() - starttime);
+    Q_Println("initial chats loaded in {} msec", Sys_MilliSeconds() - starttime);
 #endif // DEBUG
     // character was read successfully
     return chat;
@@ -2132,19 +2127,19 @@ botlibError_t BotLoadChatFile(int chatstate, char* chatfile, char* chatname)
                 continue;
             }
             cs->chat = ichatdata[n]->chat;
-            //		Com_Printf("retained %s from %s\n", chatname, chatfile );
+            //		Q_Println("retained {} from {}", chatname, chatfile);
             return botlibError_t::BLERR_NOERROR;
         }
 
         if (avail == -1) {
-            Com_PrintError("ichatdata table full; couldn't load chat %s from %s\n", chatname, chatfile);
+            Q_PrintlnError("ichatdata table full; couldn't load chat {} from {}", chatname, chatfile);
             return botlibError_t::BLERR_CANNOTLOADICHAT;
         }
     }
 
     cs->chat = BotLoadInitialChat(chatfile, chatname);
     if (!cs->chat) {
-        Com_PrintError("couldn't load chat %s from %s\n", chatname, chatfile);
+        Q_PrintlnError("couldn't load chat {} from {}", chatname, chatfile);
         return botlibError_t::BLERR_CANNOTLOADICHAT;
     } // end if
     if (!LibVarGetValue("bot_reloadcharacters")) {
@@ -2188,7 +2183,7 @@ int BotExpandChatMessage(char* outmessage, char* message, unsigned long mcontext
                 if (*msgptr)
                     msgptr++;
                 if (num > MAX_MATCHVARIABLES) {
-                    Com_PrintError("BotConstructChat: message %s variable %d out of range\n", message, num);
+                    Q_PrintlnError("BotConstructChat: message {} variable {} out of range", message, num);
                     return false;
                 } // end if
                 if (match->variables[num].offset >= 0) {
@@ -2209,7 +2204,7 @@ int BotExpandChatMessage(char* outmessage, char* message, unsigned long mcontext
                     } // end else
                     //
                     if (len + strlen(temp) >= MAX_MESSAGE_SIZE) {
-                        Com_PrintError("BotConstructChat: message %s too long\n", message);
+                        Q_PrintlnError("BotConstructChat: message {} too long", message);
                         return false;
                     } // end if
                     strcpy(&outputbuf[len], temp);
@@ -2230,11 +2225,11 @@ int BotExpandChatMessage(char* outmessage, char* message, unsigned long mcontext
                 // find the random keyword
                 ptr = RandomString(temp);
                 if (!ptr) {
-                    Com_PrintError("BotConstructChat: unknown random string %s\n", temp);
+                    Q_PrintlnError("BotConstructChat: unknown random string {}", temp);
                     return false;
                 } // end if
                 if (len + strlen(ptr) >= MAX_MESSAGE_SIZE) {
-                    Com_PrintError("BotConstructChat: message \"%s\" too long\n", message);
+                    Q_PrintlnError("BotConstructChat: message \"{}\" too long", message);
                     return false;
                 } // end if
                 strcpy(&outputbuf[len], ptr);
@@ -2243,7 +2238,7 @@ int BotExpandChatMessage(char* outmessage, char* message, unsigned long mcontext
                 break;
             } // end case
             default: {
-                Com_PrintError("BotConstructChat: message \"%s\" invalid escape char\n", message);
+                Q_PrintlnError("BotConstructChat: message \"{}\" invalid escape char", message);
                 break;
             } // end default
             } // end switch
@@ -2251,7 +2246,7 @@ int BotExpandChatMessage(char* outmessage, char* message, unsigned long mcontext
         else {
             outputbuf[len++] = *msgptr++;
             if (len >= MAX_MESSAGE_SIZE) {
-                Com_PrintError("BotConstructChat: message \"%s\" too long\n", message);
+                Q_PrintlnError("BotConstructChat: message \"{}\" too long", message);
                 break;
             } // end if
         } // end else
@@ -2281,8 +2276,8 @@ void BotConstructChatMessage(bot_chatstate_t* chatstate, char* message, unsigned
         strcpy(srcmessage, chatstate->chatmessage);
     } // end for
     if (i >= 10) {
-        Com_Warning("too many expansions in chat message\n");
-        Com_Warning("%s\n", chatstate->chatmessage);
+        Q_PrintlnWarning("too many expansions in chat message");
+        Q_PrintlnWarning("{}", chatstate->chatmessage);
     } // end if
 } // end of the function BotConstructChatMessage
 //===========================================================================
@@ -2357,8 +2352,8 @@ int BotNumInitialChats(int chatstate, char* type)
     for (t = cs->chat->types; t; t = t->next) {
         if (!Q_stricmp(t->name, type)) {
             if (LibVarGetValue("bot_testichat")) {
-                Com_Printf("%s has %d chat lines\n", type, t->numchatmessages);
-                Com_Printf("-------------------\n");
+                Q_Println("{} has {} chat lines", type, t->numchatmessages);
+                Q_Println("-------------------");
             }
             return t->numchatmessages;
         } // end if
@@ -2389,7 +2384,7 @@ void BotInitialChat(int chatstate, char* type, int mcontext, char* var0, char* v
     // if there's no message of the given type
     if (!message) {
 #ifdef DEBUG
-        Com_Printf("no chat messages of type %s\n", type);
+        Q_Println("no chat messages of type {}", type);
 #endif // DEBUG
         return;
     } // end if
@@ -2458,42 +2453,42 @@ void BotPrintReplyChatKeys(bot_replychat_t* replychat)
     bot_replychatkey_t* key;
     bot_matchpiece_t* mp;
 
-    Com_Printf("[");
+    Q_Print("[");
     for (key = replychat->keys; key; key = key->next) {
         if (Any(key->flags & replyChatKeyFlags_t::RCKFL_AND))
-            Com_Printf("&");
+            Q_Print("&");
         else if (Any(key->flags & replyChatKeyFlags_t::RCKFL_NOT))
-            Com_Printf("!");
+            Q_Print("!");
         //
         if (Any(key->flags & replyChatKeyFlags_t::RCKFL_NAME))
-            Com_Printf("name");
+            Q_Print("name");
         else if (Any(key->flags & replyChatKeyFlags_t::RCKFL_GENDERFEMALE))
-            Com_Printf("female");
+            Q_Print("female");
         else if (Any(key->flags & replyChatKeyFlags_t::RCKFL_GENDERMALE))
-            Com_Printf("male");
+            Q_Print("male");
         else if (Any(key->flags & replyChatKeyFlags_t::RCKFL_GENDERLESS))
-            Com_Printf("it");
+            Q_Print("it");
         else if (Any(key->flags & replyChatKeyFlags_t::RCKFL_VARIABLES)) {
-            Com_Printf("(");
+            Q_Print("(");
             for (mp = key->match; mp; mp = mp->next) {
                 if (mp->type == MT_STRING)
-                    Com_Printf("\"%s\"", mp->firststring->string);
+                    Q_Print("\"{}\"", mp->firststring->string);
                 else
-                    Com_Printf("%d", mp->variable);
+                    Q_Print("{}", mp->variable);
                 if (mp->next)
-                    Com_Printf(", ");
+                    Q_Print(", ");
             } // end for
-            Com_Printf(")");
+            Q_Print(")");
         } // end if
         else if (Any(key->flags & replyChatKeyFlags_t::RCKFL_STRING)) {
-            Com_Printf("\"%s\"", key->string);
+            Q_Print("\"{}\"", key->string);
         } // end if
         if (key->next)
-            Com_Printf(", ");
+            Q_Print(", ");
         else
-            Com_Printf("] = %1.0f\n", replychat->priority);
+            Q_Println("] = {:1.0f}", replychat->priority);
     } // end for
-    Com_Printf("{\n");
+    Q_Println("{{");
 } // end of the function BotPrintReplyChatKeys
 //===========================================================================
 //
@@ -2637,7 +2632,7 @@ int BotReplyChat(int chatstate, char* message, int mcontext, int vcontext, char*
             for (m = bestrchat->firstchatmessage; m; m = m->next) {
                 BotConstructChatMessage(cs, m->chatmessage, mcontext, &bestmatch, vcontext, true);
                 BotRemoveTildes(cs->chatmessage);
-                Com_Printf("%s\n", cs->chatmessage);
+                Q_Println("{}", cs->chatmessage);
             } // end if
         } // end if
         else {
@@ -2680,18 +2675,18 @@ void BotEnterChat(int chatstate, int clientto, int sendto)
     if (strlen(cs->chatmessage)) {
         BotRemoveTildes(cs->chatmessage);
         if (LibVarGetValue("bot_testichat")) {
-            Com_Printf("%s\n", cs->chatmessage);
+            Q_Println("{}", cs->chatmessage);
         }
         else {
             switch (sendto) {
             case CHAT_TEAM:
-                EA_Command(cs->client, va("say_team %s", cs->chatmessage));
+                EA_Command(cs->client, Q_Format("say_team {}", cs->chatmessage).c_str());
                 break;
             case CHAT_TELL:
-                EA_Command(cs->client, va("tell %d %s", clientto, cs->chatmessage));
+                EA_Command(cs->client, Q_Format("tell {} {}", clientto, cs->chatmessage).c_str());
                 break;
             default: // CHAT_ALL
-                EA_Command(cs->client, va("say %s", cs->chatmessage));
+                EA_Command(cs->client, Q_Format("say {}", cs->chatmessage).c_str());
                 break;
             }
         }
@@ -2808,11 +2803,11 @@ void BotFreeChatState(int handle)
     int h;
 
     if (handle <= 0 || handle > MAX_CLIENTS) {
-        Com_PrintError("chat state handle %d out of range\n", handle);
+        Q_PrintlnError("chat state handle {} out of range", handle);
         return;
     } // end if
     if (!botchatstates[handle]) {
-        Com_PrintError("invalid chat state %d\n", handle);
+        Q_PrintlnError("invalid chat state {}", handle);
         return;
     } // end if
     if (LibVarGetValue("bot_reloadcharacters")) {
@@ -2855,7 +2850,7 @@ botlibError_t BotSetupChatAI(void)
     InitConsoleMessageHeap();
 
 #ifdef DEBUG
-    Com_Printf("setup chat AI %d msec\n", Sys_MilliSeconds() - starttime);
+    Q_Println("setup chat AI {} msec", Sys_MilliSeconds() - starttime);
 #endif // DEBUG
     return botlibError_t::BLERR_NOERROR;
 } // end of the function BotSetupChatAI

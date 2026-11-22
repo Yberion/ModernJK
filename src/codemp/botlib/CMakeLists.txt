@@ -49,4 +49,4 @@ add_library(botlib STATIC
 	l_struct.cpp)
 target_include_directories(botlib PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src")
 target_compile_definitions(botlib PRIVATE BOTLIB)
-target_link_libraries(botlib PRIVATE modernjk_options modernjk_warnings modernjk_defines)
+target_link_libraries(botlib PRIVATE modernjk_options modernjk_warnings modernjk_defines vendored::fmt)

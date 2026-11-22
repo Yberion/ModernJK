@@ -49,7 +49,7 @@ void NPC_Rancor_Precache(void)
 {
     int i;
     for (i = 1; i < 5; i++) {
-        G_SoundIndex(va("sound/chars/rancor/snort_%d.wav", i));
+        G_SoundIndex(Q_Format("sound/chars/rancor/snort_{}.wav", i).c_str());
     }
     G_SoundIndex("sound/chars/rancor/swipehit.wav");
     G_SoundIndex("sound/chars/rancor/chomp.wav");
@@ -199,7 +199,7 @@ void Rancor_Move(bool visible)
                 */
             }
             else { // all else fails, look at him
-                //	Com_Printf("Fail\n");
+                //	Q_Println("Fail");
                 NPCInfo->lockedDesiredYaw = NPCInfo->desiredYaw = savYaw;
                 /*	if ( !NPCInfo->blockedEntity )
                     {//not already trying to break a breakable somewhere
@@ -1186,8 +1186,8 @@ bool Rancor_AttackBBrush(void)
         NPCInfo->enemyLastSeenTime = level.time;
     }
     else {
-        // Com_Printf( S_COLOR_RED"RANCOR cannot reach intended breakable %s, blocked by %s\n", NPC->blockedEntity->targetname,
-        // g_entities[trace.entityNum].classname );
+        // Q_Println(S_COLOR_RED"RANCOR cannot reach intended breakable {}, blocked by {}", NPC->blockedEntity->targetname,
+        // g_entities[trace.entityNum].classname);
         if (G_EntIsBreakable(trace.entityNum, NPC)) { // oh, well, smash that, then
             // G_SetEnemy( NPC, &g_entities[trace.entityNum] );
             gentity_t* prevblockedEnt = NPCInfo->blockedEntity;
@@ -1331,7 +1331,7 @@ void NPC_BSRancor_Default(void)
             G_SetEnemy(NPC->enemy, NPC);
         }
         if (TIMER_Done(NPC, "angrynoise")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/rancor/anger%d.wav", Q_irand(1, 3)));
+            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/rancor/anger{}.wav", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPC, "angrynoise", Q_irand(5000, 10000));
         }
@@ -1435,7 +1435,7 @@ void NPC_BSRancor_Default(void)
     }
     else {
         if (TIMER_Done(NPC, "idlenoise")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/rancor/snort_%d.wav", Q_irand(1, 4)));
+            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/rancor/snort_{}.wav", Q_irand(1, 4)).c_str());
 
             TIMER_Set(NPC, "idlenoise", Q_irand(2000, 4000));
             AddSoundEvent(NPC, NPC->currentOrigin, 384, alertEventLevel_e::AEL_DANGER, false, false);

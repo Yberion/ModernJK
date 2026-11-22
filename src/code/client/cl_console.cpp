@@ -125,7 +125,7 @@ void Con_Dump_f(void)
 #endif
 
     if (Cmd_Argc() != 2) {
-        Com_Printf("%s\n", SE_GetString("CON_TEXT_DUMP_USAGE"));
+        Q_Println("{}", SE_GetString("CON_TEXT_DUMP_USAGE"));
         return;
     }
 
@@ -133,17 +133,17 @@ void Con_Dump_f(void)
     COM_DefaultExtension(filename, sizeof(filename), ".txt");
 
     if (!COM_CompareExtension(filename, ".txt")) {
-        Com_Printf("Con_Dump_f: Only the \".txt\" extension is supported by this command!\n");
+        Q_Println("Con_Dump_f: Only the \".txt\" extension is supported by this command!");
         return;
     }
 
     f = FS_FOpenFileWrite(filename);
     if (!f) {
-        Com_PrintError("couldn't open %s.\n", filename);
+        Q_PrintlnError("couldn't open {}.", filename);
         return;
     }
 
-    Com_Printf("Dumped console text to %s.\n", filename);
+    Q_Println("Dumped console text to {}.", filename);
 
     // skip empty lines
     for (l = 1, empty = true; l < con.totallines && empty; l++) {
@@ -366,7 +366,7 @@ void Con_CheckResize(void)
     }
 
     if (charWidth < 1) {
-        Com_Error(errorParm_t::ERR_FATAL, "Con_CheckResize: Window too small to draw a console");
+        Q_Error(errorParm_t::ERR_FATAL, "Con_CheckResize: Window too small to draw a console");
     }
 
     rowwidth = width + 1 + (con_timestamps->integer ? 0 : CON_TIMESTAMP_LEN);
@@ -448,7 +448,7 @@ void Con_Linefeed(void)
         char timestamp[CON_TIMESTAMP_LEN + 1];
         const unsigned char color = ColorIndex(COLOR_GREY);
 
-        Com_sprintf(timestamp, sizeof(timestamp), "[%02d:%02d:%02d] ", tms->tm_hour, tms->tm_min, tms->tm_sec);
+        Q_FormatTo(timestamp, "[{:02}:{:02}:{:02}] ", tms->tm_hour, tms->tm_min, tms->tm_sec);
 
         for (i = 0; i < CON_TIMESTAMP_LEN; i++) {
             con.text[line + i].f = {color, timestamp[i]};
@@ -633,9 +633,9 @@ void Con_DrawNotify(void)
             for (x = 0; x < lineLimit; x++) {
                 if (text[x].f.color != currentColor) {
                     currentColor = text[x].f.color;
-                    strcat(sTemp, va("^%i", currentColor));
+                    strcat(sTemp, Q_Format("^{}", currentColor).c_str());
                 }
-                strcat(sTemp, va("%c", text[x].f.character));
+                strcat(sTemp, Q_Format("{}", text[x].f.character).c_str());
             }
             //
             // and print...
@@ -777,9 +777,9 @@ void Con_DrawSolidConsole(float frac)
             for (x = 0; x < con.linewidth + 1; x++) {
                 if (text[x].f.color != currentColor) {
                     currentColor = text[x].f.color;
-                    strcat(sTemp, va("^%i", currentColor));
+                    strcat(sTemp, Q_Format("^{}", currentColor).c_str());
                 }
-                strcat(sTemp, va("%c", text[x].f.character));
+                strcat(sTemp, Q_Format("{}", text[x].f.character).c_str());
             }
             //
             // and print...

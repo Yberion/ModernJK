@@ -1966,7 +1966,7 @@ void Noghri_StickTrace(void)
                 if (traceEnt->takedamage && (!traceEnt->client || traceEnt == NPC->enemy || traceEnt->client->NPC_class != NPC->client->NPC_class)) { // smack
                     int dmg = Q_irand(12, 20); // FIXME: base on skill!
                     // FIXME: debounce?
-                    G_Sound(traceEnt, G_SoundIndex(va("sound/weapons/tusken_staff/stickhit%d.wav", Q_irand(1, 4))));
+                    G_Sound(traceEnt, G_SoundIndex(Q_Format("sound/weapons/tusken_staff/stickhit{}.wav", Q_irand(1, 4)).c_str()));
                     G_Damage(traceEnt, NPC, NPC, vec3_origin, trace.endpos, dmg, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE);
                     if (traceEnt->health > 0 && dmg > 17) { // do pain on enemy
                         G_Knockdown(traceEnt, NPC, dir, 300, true);
@@ -2024,13 +2024,13 @@ void NPC_BSST_Attack(void)
 #if AI_TIMERS
             int commTime = GetTime(startTime);
             if (commTime > 20) {
-                Com_PrintError("Commander time: %d\n", commTime);
+                Q_PrintlnError("Commander time: {}", commTime);
             }
             else if (commTime > 10) {
-                Com_Warning("Commander time: %d\n", commTime);
+                Q_PrintlnWarning("Commander time: {}", commTime);
             }
             else if (commTime > 2) {
-                Com_Printf(S_COLOR_GREEN "Commander time: %d\n", commTime);
+                Q_Println(S_COLOR_GREEN "Commander time: {}", commTime);
             }
 #endif //	AI_TIMERS
         }

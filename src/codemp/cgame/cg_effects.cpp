@@ -775,7 +775,7 @@ void CG_Chunks(int owner, vec3_t origin, const vec3_t normal, const vec3_t mins,
         return;
         break;
     case material_t::MAT_ELECTRICAL: // (sparks)
-        trap->S_StartSound(nullptr, owner, soundChannel_t::CHAN_BODY, trap->S_RegisterSound(va("sound/ambience/spark%d.wav", Q_irand(1, 6))));
+        trap->S_StartSound(nullptr, owner, soundChannel_t::CHAN_BODY, trap->S_RegisterSound(Q_Format("sound/ambience/spark{}.wav", Q_irand(1, 6)).c_str()));
         return;
         break;
     case material_t::MAT_DRK_STONE:
@@ -961,7 +961,7 @@ void CG_ScorePlum(int client, vec3_t org, int score)
         le->pos.trBase[2] -= 20;
     }
 
-    // Com_Printf( "Plum origin %i %i %i -- %i\n", (int)org[0], (int)org[1], (int)org[2], (int)Distance(org, lastPos));
+    // Q_Println("Plum origin {} {} {} -- {}", (int)org[0], (int)org[1], (int)org[2], (int)Distance(org, lastPos));
     VectorCopy(org, lastPos);
 
     re = &le->refEntity;
@@ -987,7 +987,7 @@ localEntity_t* CG_MakeExplosion(vec3_t origin, vec3_t dir, qhandle_t hModel, int
     vec3_t tmpVec, newOrigin;
 
     if (msec <= 0) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_MakeExplosion: msec = %i", msec);
+        Q_Error(errorParm_t::ERR_DROP, "CG_MakeExplosion: msec = {}", msec);
     }
 
     // skew the time a bit so they aren't all in sync

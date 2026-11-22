@@ -102,14 +102,14 @@ static void CG_ParseTeamInfo(void)
 
     numSortedTeamPlayers = atoi(CG_Argv(1));
     if (numSortedTeamPlayers < 0 || numSortedTeamPlayers > TEAM_MAXOVERLAY) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_ParseTeamInfo: numSortedTeamPlayers out of range (%d)", numSortedTeamPlayers);
+        Q_Error(errorParm_t::ERR_DROP, "CG_ParseTeamInfo: numSortedTeamPlayers out of range ({})", numSortedTeamPlayers);
         return;
     }
 
     for (i = 0; i < numSortedTeamPlayers; i++) {
         client = atoi(CG_Argv(i * TEAMINFO_OFFSET + 2));
         if (client < 0 || client >= MAX_CLIENTS) {
-            Com_Error(errorParm_t::ERR_DROP, "CG_ParseTeamInfo: bad client number: %d", client);
+            Q_Error(errorParm_t::ERR_DROP, "CG_ParseTeamInfo: bad client number: {}", client);
             return;
         }
 
@@ -149,7 +149,7 @@ void CG_ParseServerinfo(void)
     cgs.showDuelHealths = atoi(Info_ValueForKey(info, "g_showDuelHealths"));
 
     cgs.gametype = (gametype_t)atoi(Info_ValueForKey(info, "g_gametype"));
-    trap->Cvar_Set("g_gametype", va("%i", to_underlying(cgs.gametype)));
+    trap->Cvar_Set("g_gametype", Q_Format("{}", to_underlying(cgs.gametype)).c_str());
     cgs.needpass = atoi(Info_ValueForKey(info, "g_needpass"));
     cgs.jediVmerc = atoi(Info_ValueForKey(info, "g_jediVmerc"));
 
@@ -190,20 +190,20 @@ void CG_ParseServerinfo(void)
     // rww - You must do this one here, Info_ValueForKey always uses the same memory pointer.
     trap->Cvar_Set("ui_about_mapname", mapname);
 
-    Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s.bsp", mapname);
-    Com_sprintf(cgs.rawmapname, sizeof(cgs.rawmapname), "maps/%s", mapname);
+    Q_FormatTo(cgs.mapname, "maps/{}.bsp", mapname);
+    Q_FormatTo(cgs.rawmapname, "maps/{}", mapname);
     //	Q_strncpyz( cgs.redTeam, Info_ValueForKey( info, "g_redTeam" ), sizeof(cgs.redTeam) );
     //	trap->Cvar_Set("g_redTeam", cgs.redTeam);
     //	Q_strncpyz( cgs.blueTeam, Info_ValueForKey( info, "g_blueTeam" ), sizeof(cgs.blueTeam) );
     //	trap->Cvar_Set("g_blueTeam", cgs.blueTeam);
 
-    trap->Cvar_Set("ui_about_gametype", va("%i", to_underlying(cgs.gametype)));
-    trap->Cvar_Set("ui_about_fraglimit", va("%i", cgs.fraglimit));
-    trap->Cvar_Set("ui_about_duellimit", va("%i", cgs.duel_fraglimit));
-    trap->Cvar_Set("ui_about_capturelimit", va("%i", cgs.capturelimit));
-    trap->Cvar_Set("ui_about_timelimit", va("%i", cgs.timelimit));
-    trap->Cvar_Set("ui_about_maxclients", va("%i", cgs.maxclients));
-    trap->Cvar_Set("ui_about_dmflags", va("%i", to_underlying(cgs.dmflags)));
+    trap->Cvar_Set("ui_about_gametype", Q_Format("{}", to_underlying(cgs.gametype)).c_str());
+    trap->Cvar_Set("ui_about_fraglimit", Q_Format("{}", cgs.fraglimit).c_str());
+    trap->Cvar_Set("ui_about_duellimit", Q_Format("{}", cgs.duel_fraglimit).c_str());
+    trap->Cvar_Set("ui_about_capturelimit", Q_Format("{}", cgs.capturelimit).c_str());
+    trap->Cvar_Set("ui_about_timelimit", Q_Format("{}", cgs.timelimit).c_str());
+    trap->Cvar_Set("ui_about_maxclients", Q_Format("{}", cgs.maxclients).c_str());
+    trap->Cvar_Set("ui_about_dmflags", Q_Format("{}", to_underlying(cgs.dmflags)).c_str());
     trap->Cvar_Set("ui_about_hostname", Info_ValueForKey(info, "sv_hostname"));
     trap->Cvar_Set("ui_about_needpass", Info_ValueForKey(info, "g_needpass"));
     trap->Cvar_Set("ui_about_botminplayers", Info_ValueForKey(info, "bot_minplayers"));
@@ -438,7 +438,7 @@ static void CG_RegisterCustomSounds(clientInfo_t* ci, int setType, const char* p
         }
 
         s++;
-        hSFX = trap->S_RegisterSound(va("sound/chars/%s/misc/%s", psDir, s));
+        hSFX = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", psDir, s).c_str());
 
         if (hSFX == 0) {
             char modifiedSound[MAX_QPATH];
@@ -461,7 +461,7 @@ static void CG_RegisterCustomSounds(clientInfo_t* ci, int setType, const char* p
 
                     strcat(modifiedSound, "1.wav");
 
-                    hSFX = trap->S_RegisterSound(va("sound/chars/%s/misc/%s", psDir, modifiedSound));
+                    hSFX = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", psDir, modifiedSound).c_str());
                 }
             }
         }
@@ -502,7 +502,7 @@ void CG_PrecacheNPCSounds(const char* str)
                 sEnd[k - 1] = 0;
 
                 trap->S_Shutup(true);
-                trap->S_RegisterSound(va("sound/chars/%s/misc/%s", pEnd, sEnd));
+                trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", pEnd, sEnd).c_str());
                 trap->S_Shutup(false);
             }
             else { // move onto the next set
@@ -1004,7 +1004,7 @@ require a reload of all the media
 static void CG_MapRestart(void)
 {
     if (cg_showMiss.integer) {
-        Com_Printf("CG_MapRestart\n");
+        Q_Println("CG_MapRestart");
     }
 
     trap->R_ClearDecals();
@@ -1038,9 +1038,9 @@ static void CG_MapRestart(void)
     }
     /*
     if (cg_singlePlayerActive.integer) {
-        trap->Cvar_Set("ui_matchStartTime", va("%i", cg.time));
+        trap->Cvar_Set("ui_matchStartTime", Q_Format("{}", cg.time).c_str());
         if (cg_recordSPDemo.integer && cg_recordSPDemoName.string && *cg_recordSPDemoName.string) {
-            trap->SendConsoleCommand(va("set g_synchronousclients 1 ; record %s \n", cg_recordSPDemoName.string));
+            trap->SendConsoleCommand(Q_Format("set g_synchronousclients 1 ; record {} \n", cg_recordSPDemoName.string).c_str());
         }
     }
     */
@@ -1258,7 +1258,7 @@ static void CG_NewForceRank_f(void)
 
     if (trap->Cmd_Argc() < 3) {
 #ifdef _DEBUG
-        Com_Warning("Invalid newForceRank string\n");
+        Q_PrintlnWarning("Invalid newForceRank string");
 #endif
         return;
     }
@@ -1267,9 +1267,9 @@ static void CG_NewForceRank_f(void)
     doMenu = atoi(CG_Argv(2));
     setTeam = atoi(CG_Argv(3));
 
-    trap->Cvar_Set("ui_rankChange", va("%i", newRank));
+    trap->Cvar_Set("ui_rankChange", Q_Format("{}", newRank).c_str());
 
-    trap->Cvar_Set("ui_myteam", va("%i", setTeam));
+    trap->Cvar_Set("ui_myteam", Q_Format("{}", setTeam).c_str());
 
     if (!Any(trap->Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI) && doMenu && !cg.demoPlayback)
         trap->OpenUIMenu(uiMenuCommand_t::UIMENU_PLAYERCONFIG);
@@ -1293,7 +1293,7 @@ static void CG_KillGhoul2_f(void)
         if (cg_entities[indexNum].ghoul2 && trap->G2_HaveWeGhoul2Models(cg_entities[indexNum].ghoul2)) {
             if (indexNum < MAX_CLIENTS) { // You try to do very bad thing!
 #ifdef _DEBUG
-                Com_Warning("Tried to kill a client ghoul2 instance with a kg2 command!\n");
+                Q_PrintlnWarning("Tried to kill a client ghoul2 instance with a kg2 command!");
 #endif
                 return;
             }
@@ -1431,7 +1431,7 @@ static void CG_Print_f(void)
     char strEd[MAX_STRINGED_SV_STRING] = {0};
 
     CG_CheckSVStringEdRef(strEd, CG_Argv(1));
-    Com_Printf("%s", strEd);
+    Q_Print("{}", strEd);
 }
 
 void CG_ChatBox_AddString(char* chatStr);
@@ -1448,7 +1448,7 @@ static void CG_Chat_f(void)
             trap->Cmd_Argv(1, text, sizeof(text));
             CG_RemoveChatEscapeChar(text);
             CG_ChatBox_AddString(text);
-            Com_Printf("*%s\n", text);
+            Q_Println("*{}", text);
         }
     }
     else if (!strcmp(cmd, "lchat")) {
@@ -1469,10 +1469,10 @@ static void CG_Chat_f(void)
 
             if (cg_chatBeep.integer)
                 trap->S_StartLocalSound(cgs.media.talkSound, soundChannel_t::CHAN_LOCAL_SOUND);
-            Com_sprintf(text, sizeof(text), "%s^7<%s> ^%s%s", name, loc, color, message);
+            Q_FormatTo(text, "{}^7<{}> ^{}{}", name, loc, color, message);
             CG_RemoveChatEscapeChar(text);
             CG_ChatBox_AddString(text);
-            Com_Printf("*%s\n", text);
+            Q_Println("*{}", text);
         }
     }
     else if (!strcmp(cmd, "tchat")) {
@@ -1481,7 +1481,7 @@ static void CG_Chat_f(void)
         trap->Cmd_Argv(1, text, sizeof(text));
         CG_RemoveChatEscapeChar(text);
         CG_ChatBox_AddString(text);
-        Com_Printf("*%s\n", text);
+        Q_Println("*{}", text);
     }
     else if (!strcmp(cmd, "ltchat")) {
         char name[MAX_NETNAME] = {0}, loc[MAX_STRING_CHARS] = {0}, color[8] = {0}, message[MAX_STRING_CHARS] = {0};
@@ -1500,10 +1500,10 @@ static void CG_Chat_f(void)
 
         if (cg_teamChatBeep.integer)
             trap->S_StartLocalSound(cgs.media.talkSound, soundChannel_t::CHAN_LOCAL_SOUND);
-        Com_sprintf(text, sizeof(text), "%s^7<%s> ^%s%s", name, loc, color, message);
+        Q_FormatTo(text, "{}^7<{}> ^{}{}", name, loc, color, message);
         CG_RemoveChatEscapeChar(text);
         CG_ChatBox_AddString(text);
-        Com_Printf("*%s\n", text);
+        Q_Println("*{}", text);
     }
 }
 
@@ -1589,7 +1589,7 @@ static void CG_ServerCommand(void)
         return;
     }
 
-    Com_Printf("Unknown client game command: %s\n", cmd);
+    Q_Println("Unknown client game command: {}", cmd);
 }
 
 /*

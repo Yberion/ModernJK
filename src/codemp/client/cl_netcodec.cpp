@@ -178,20 +178,20 @@ static struct {
 void CL_NetcodecStats_f(void)
 {
     if (!s_stats.messages && !s_stats.packets) {
-        Com_Printf("No server message or client packet since the last netstats.\n");
+        Q_Println("No server message or client packet since the last netstats.");
         return;
     }
     if (s_stats.messages) {
-        Com_Printf("%d messages (%d lost on the way, %d not decoded), %.1f bytes per message; %d snapshots: %d without a base, "
-                   "base 1: %d, 2: %d, 3: %d, 4: %d, 5-8: %d, 9+: %d messages back\n",
-                   s_stats.messages, s_stats.lost, s_stats.notDecoded, s_stats.bytes / s_stats.messages, s_stats.snapshots, s_stats.noBase, s_stats.baseAge[0],
-                   s_stats.baseAge[1], s_stats.baseAge[2], s_stats.baseAge[3], s_stats.baseAge[4], s_stats.baseAge[5]);
+        Q_Println("{} messages ({} lost on the way, {} not decoded), {:.1f} bytes per message; {} snapshots: {} without a base, base 1: {}, 2: {}, 3: {}, 4: "
+                  "{}, 5-8: {}, 9+: {} messages back",
+                  s_stats.messages, s_stats.lost, s_stats.notDecoded, s_stats.bytes / s_stats.messages, s_stats.snapshots, s_stats.noBase, s_stats.baseAge[0],
+                  s_stats.baseAge[1], s_stats.baseAge[2], s_stats.baseAge[3], s_stats.baseAge[4], s_stats.baseAge[5]);
         CL_InterpStats();
         CL_CmdClockStats();
     }
     if (s_stats.packets) {
-        Com_Printf("%d client packets, %.1f bytes per packet, %d without a base\n", s_stats.packets, s_stats.packetBytes / s_stats.packets,
-                   s_stats.packetsNoBase);
+        Q_Println("{} client packets, {:.1f} bytes per packet, {} without a base", s_stats.packets, s_stats.packetBytes / s_stats.packets,
+                  s_stats.packetsNoBase);
     }
     const int lastSeq = s_stats.lastSeq;
     Com_Memset(&s_stats, 0, sizeof(s_stats));
@@ -213,10 +213,10 @@ void CL_NetcodecParseServerMessage(msg_t* msg)
     const bool show = cl_shownet->integer >= 2; // one line per decoded operation
 
     if (cl_shownet->integer == 1) {
-        Com_Printf("%i ", msg->cursize); // the whole packet, netchan header included, as before the codec
+        Q_Print("{} ", msg->cursize); // the whole packet, netchan header included, as before the codec
     }
     else if (show) {
-        Com_Printf("------------------ %i\n", msg->cursize);
+        Q_Println("------------------ {}", msg->cursize);
     }
     s_stats.messages++;
     if (s_stats.lastSeq && seq > s_stats.lastSeq + 1) {
@@ -256,10 +256,10 @@ void CL_NetcodecParseServerMessage(msg_t* msg)
         // a full one (clc_moveNoDelta); the reliable commands are sent again until acknowledged
         s_stats.notDecoded++;
         if (show) {
-            Com_Printf("not decoded\n");
+            Q_Println("not decoded");
         }
         else {
-            Com_DPrintf("netcodec: message %d not decoded\n", seq);
+            Q_DPrintln("netcodec: message {} not decoded", seq);
         }
         return;
     }
@@ -275,14 +275,14 @@ void CL_NetcodecParseServerMessage(msg_t* msg)
         const eng::Command& c = cm.commands[i];
         const char* s = Sanitized(c.text, c.length, text, MAX_STRING_CHARS);
         if (show) {
-            Com_Printf("serverCommand %d: %s\n", c.seq, s);
+            Q_Println("serverCommand {}: {}", c.seq, s);
         }
         CL_ParseCommandString(c.seq, s);
     }
 
     if (cm.gameState) {
         if (show) {
-            Com_Printf("gamestate: %u config strings\n", cm.numConfigStrings);
+            Q_Println("gamestate: {} config strings", cm.numConfigStrings);
         }
         CL_ParseGamestate(cm.relSeq); // clears the client state, and the codec's frames with it
         for (uint32_t i = 0; i < cm.numConfigStrings; i++) {
@@ -294,7 +294,7 @@ void CL_NetcodecParseServerMessage(msg_t* msg)
 
     if (cm.setGame) {
         if (show) {
-            Com_Printf("setgame: %s\n", cm.setGame);
+            Q_Println("setgame: {}", cm.setGame);
         }
         CL_ParseSetGame(cm.setGame);
     }
@@ -302,7 +302,7 @@ void CL_NetcodecParseServerMessage(msg_t* msg)
     s_frames[slot].seq = -1;
     if (cm.snapshot) {
         if (cm.numAreas > sizeof(newSnap.areamask)) {
-            Com_Error(errorParm_t::ERR_DROP, "CL_NetcodecParseServerMessage: Invalid size %u for areamask", cm.numAreas);
+            Q_Error(errorParm_t::ERR_DROP, "CL_NetcodecParseServerMessage: Invalid size {} for areamask", cm.numAreas);
             return;
         }
         s_stats.snapshots++;
@@ -326,7 +326,7 @@ void CL_NetcodecParseServerMessage(msg_t* msg)
         cl.parseEntitiesNum += (int)cm.numEntities;
 
         if (show) {
-            Com_Printf("snapshot: delta %u, %u entities%s\n", cm.delta, cm.numEntities, cm.vehicle ? ", vehicle" : "");
+            Q_Println("snapshot: delta {}, {} entities{}", cm.delta, cm.numEntities, cm.vehicle ? ", vehicle" : "");
         }
         CL_ParseSnapshot(&newSnap); // copies it to cl.snapshots[slot]
 
@@ -342,14 +342,14 @@ void CL_NetcodecParseServerMessage(msg_t* msg)
 
     if (cm.download) {
         if (show) {
-            Com_Printf("download: block %u, %u bytes\n", cm.block, cm.dataSize);
+            Q_Println("download: block {}, {} bytes", cm.block, cm.dataSize);
         }
         CL_ParseDownload((int)cm.block, cm.fileSize, cm.data, (int)cm.dataSize);
     }
 
     if (cm.mapChange) {
         if (show) {
-            Com_Printf("mapchange\n");
+            Q_Println("mapchange");
         }
         if (cls.cgameStarted) {
             CGVM_MapChange();
@@ -455,7 +455,7 @@ bool CL_NetcodecWritePacket(msg_t* buf, int count, bool delta)
     }
     const size_t size = Codec().EncodePacket(p, frame ? &base : nullptr, buf->data, (size_t)buf->maxsize);
     if (!size) {
-        Com_Warning("client packet not coded (too large)\n");
+        Q_PrintlnWarning("client packet not coded (too large)");
         return false;
     }
     buf->cursize = (int)size;

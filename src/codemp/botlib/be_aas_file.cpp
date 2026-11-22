@@ -244,39 +244,39 @@ void AAS_FileInfo(void)
 {
     int i, n, optimized;
 
-    Com_Printf("version = %d\n", AASVERSION);
-    Com_Printf("numvertexes = %d\n", aasworld.numvertexes);
-    Com_Printf("numplanes = %d\n", aasworld.numplanes);
-    Com_Printf("numedges = %d\n", aasworld.numedges);
-    Com_Printf("edgeindexsize = %d\n", aasworld.edgeindexsize);
-    Com_Printf("numfaces = %d\n", aasworld.numfaces);
-    Com_Printf("faceindexsize = %d\n", aasworld.faceindexsize);
-    Com_Printf("numareas = %d\n", aasworld.numareas);
-    Com_Printf("numareasettings = %d\n", aasworld.numareasettings);
-    Com_Printf("reachabilitysize = %d\n", aasworld.reachabilitysize);
-    Com_Printf("numnodes = %d\n", aasworld.numnodes);
-    Com_Printf("numportals = %d\n", aasworld.numportals);
-    Com_Printf("portalindexsize = %d\n", aasworld.portalindexsize);
-    Com_Printf("numclusters = %d\n", aasworld.numclusters);
+    Q_Println("version = {}", AASVERSION);
+    Q_Println("numvertexes = {}", aasworld.numvertexes);
+    Q_Println("numplanes = {}", aasworld.numplanes);
+    Q_Println("numedges = {}", aasworld.numedges);
+    Q_Println("edgeindexsize = {}", aasworld.edgeindexsize);
+    Q_Println("numfaces = {}", aasworld.numfaces);
+    Q_Println("faceindexsize = {}", aasworld.faceindexsize);
+    Q_Println("numareas = {}", aasworld.numareas);
+    Q_Println("numareasettings = {}", aasworld.numareasettings);
+    Q_Println("reachabilitysize = {}", aasworld.reachabilitysize);
+    Q_Println("numnodes = {}", aasworld.numnodes);
+    Q_Println("numportals = {}", aasworld.numportals);
+    Q_Println("portalindexsize = {}", aasworld.portalindexsize);
+    Q_Println("numclusters = {}", aasworld.numclusters);
     //
     for (n = 0, i = 0; i < aasworld.numareasettings; i++) {
         if (aasworld.areasettings[i].areaflags & areaFlags_t::AREA_GROUNDED)
             n++;
     } // end for
-    Com_Printf("num grounded areas = %d\n", n);
+    Q_Println("num grounded areas = {}", n);
     //
-    Com_Printf("planes size %d bytes\n", aasworld.numplanes * sizeof(aas_plane_t));
-    Com_Printf("areas size %d bytes\n", aasworld.numareas * sizeof(aas_area_t));
-    Com_Printf("areasettings size %d bytes\n", aasworld.numareasettings * sizeof(aas_areasettings_t));
-    Com_Printf("nodes size %d bytes\n", aasworld.numnodes * sizeof(aas_node_t));
-    Com_Printf("reachability size %d bytes\n", aasworld.reachabilitysize * sizeof(aas_reachability_t));
-    Com_Printf("portals size %d bytes\n", aasworld.numportals * sizeof(aas_portal_t));
-    Com_Printf("clusters size %d bytes\n", aasworld.numclusters * sizeof(aas_cluster_t));
+    Q_Println("planes size {} bytes", aasworld.numplanes * sizeof(aas_plane_t));
+    Q_Println("areas size {} bytes", aasworld.numareas * sizeof(aas_area_t));
+    Q_Println("areasettings size {} bytes", aasworld.numareasettings * sizeof(aas_areasettings_t));
+    Q_Println("nodes size {} bytes", aasworld.numnodes * sizeof(aas_node_t));
+    Q_Println("reachability size {} bytes", aasworld.reachabilitysize * sizeof(aas_reachability_t));
+    Q_Println("portals size {} bytes", aasworld.numportals * sizeof(aas_portal_t));
+    Q_Println("clusters size {} bytes", aasworld.numclusters * sizeof(aas_cluster_t));
 
     optimized = aasworld.numplanes * sizeof(aas_plane_t) + aasworld.numareas * sizeof(aas_area_t) + aasworld.numareasettings * sizeof(aas_areasettings_t) +
                 aasworld.numnodes * sizeof(aas_node_t) + aasworld.reachabilitysize * sizeof(aas_reachability_t) + aasworld.numportals * sizeof(aas_portal_t) +
                 aasworld.numclusters * sizeof(aas_cluster_t);
-    Com_Printf("optimzed size %d KB\n", optimized >> 10);
+    Q_Println("optimzed size {} KB", optimized >> 10);
 } // end of the function AAS_FileInfo
 #endif // AASFILEDEBUG
 //===========================================================================
@@ -296,9 +296,9 @@ char* AAS_LoadAASLump(fileHandle_t fp, int offset, int length, int* lastoffset, 
     } // end if
     // seek to the data
     if (offset != *lastoffset) {
-        Com_Warning("AAS file not sequentially read\n");
+        Q_PrintlnWarning("AAS file not sequentially read");
         if (botimport.FS_Seek(fp, offset, fsOrigin_t::FS_SEEK_SET)) {
-            Com_PrintError("can't seek to aas lump\n");
+            Q_PrintlnError("can't seek to aas lump");
             AAS_DumpAASData();
             botimport.FS_FCloseFile(fp);
             return nullptr;
@@ -340,13 +340,13 @@ botlibError_t AAS_LoadAASFile(char* filename)
     aas_header_t header;
     int offset, length, lastoffset;
 
-    Com_Printf("trying to load %s\n", filename);
+    Q_Println("trying to load {}", filename);
     // dump current loaded aas file
     AAS_DumpAASData();
     // open the file
     botimport.FS_FOpenFile(filename, &fp, fsMode_t::FS_READ);
     if (!fp) {
-        Com_PrintError("can't open %s\n", filename);
+        Q_PrintlnError("can't open {}", filename);
         return botlibError_t::BLERR_CANNOTOPENAASFILE;
     } // end if
     // read the header
@@ -355,7 +355,7 @@ botlibError_t AAS_LoadAASFile(char* filename)
     // check header identification
     header.ident = LittleLong(header.ident);
     if (header.ident != AASID) {
-        Com_PrintError("%s is not an AAS file\n", filename);
+        Q_PrintlnError("{} is not an AAS file", filename);
         botimport.FS_FCloseFile(fp);
         return botlibError_t::BLERR_WRONGAASFILEID;
     } // end if
@@ -363,7 +363,7 @@ botlibError_t AAS_LoadAASFile(char* filename)
     header.version = LittleLong(header.version);
     //
     if (header.version != AASVERSION_OLD && header.version != AASVERSION) {
-        Com_PrintError("aas file %s is version %i, not %i\n", filename, header.version, AASVERSION);
+        Q_PrintlnError("aas file {} is version {}, not {}", filename, header.version, AASVERSION);
         botimport.FS_FCloseFile(fp);
         return botlibError_t::BLERR_WRONGAASFILEVERSION;
     } // end if
@@ -374,7 +374,7 @@ botlibError_t AAS_LoadAASFile(char* filename)
     //
     aasworld.bspchecksum = atoi(LibVarGetString("sv_mapChecksum"));
     if (LittleLong(header.bspchecksum) != aasworld.bspchecksum) {
-        Com_PrintError("aas file %s is out of date\n", filename);
+        Q_PrintlnError("aas file {} is out of date", filename);
         botimport.FS_FCloseFile(fp);
         return botlibError_t::BLERR_WRONGAASFILEVERSION;
     } // end if
@@ -527,7 +527,7 @@ bool AAS_WriteAASFile(char* filename)
     aas_header_t header;
     fileHandle_t fp;
 
-    Com_Printf("writing %s\n", filename);
+    Q_Println("writing {}", filename);
     // swap the aas data
     AAS_SwapAASData();
     // initialize the file header
@@ -538,7 +538,7 @@ bool AAS_WriteAASFile(char* filename)
     // open a new file
     botimport.FS_FOpenFile(filename, &fp, fsMode_t::FS_WRITE);
     if (!fp) {
-        Com_PrintError("error opening %s\n", filename);
+        Q_PrintlnError("error opening {}", filename);
         return false;
     } // end if
     // write the header

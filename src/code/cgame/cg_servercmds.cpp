@@ -48,7 +48,7 @@ void CG_ParseServerinfo(void)
     cgs.timelimit = atoi(Info_ValueForKey(info, "timelimit"));
     cgs.maxclients = 1;
     mapname = Info_ValueForKey(info, "mapname");
-    Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s.bsp", mapname);
+    Q_FormatTo(cgs.mapname, "maps/{}.bsp", mapname);
     const char* p = strrchr(mapname, '/');
     Q_strncpyz(cgs.stripLevelName[0], p ? p + 1 : mapname, sizeof(cgs.stripLevelName[0]));
     Q_strupr(cgs.stripLevelName[0]);
@@ -141,7 +141,7 @@ static void CG_ConfigStringModified(void)
     }
     else if (num >= CS_MODELS && num < CS_MODELS + MAX_MODELS) {
         cgs.model_draw[num - CS_MODELS] = cgi_R_RegisterModel(str);
-        //		OutputDebugString(va("### CG_ConfigStringModified(): cgs.model_draw[%d] = \"%s\"\n",num-CS_MODELS,str));
+        //		OutputDebugString(Q_Format("### CG_ConfigStringModified(): cgs.model_draw[{}] = \"{}\"\n", num-CS_MODELS, str).c_str());
         // GHOUL2 Insert start
     }
     else if (num >= CS_CHARSKINS && num < CS_CHARSKINS + MAX_CHARSKINS) {
@@ -175,7 +175,7 @@ static void CG_CenterPrint_f(void)
 
 static void CG_Print_f(void)
 {
-    Com_Printf("%s", CG_Argv(1));
+    Q_Print("{}", CG_Argv(1));
 }
 
 static void CG_CaptionText_f(void)
@@ -192,9 +192,7 @@ static void CG_ScrollText_f(void)
 
 static void CG_LCARSText_f(void)
 {
-    Com_Printf("CG_LCARSText() being called. Tell Ste\n"
-               "String: \"%s\"\n",
-               CG_Argv(1));
+    Q_Println("CG_LCARSText() being called. Tell Ste\nString: \"{}\"", CG_Argv(1));
 }
 
 static void CG_ClientLevelShot_f(void)
@@ -250,7 +248,7 @@ static void CG_ServerCommand(void)
         return;
     }
 
-    Com_Printf("Unknown client game command: %s\n", cmd);
+    Q_Println("Unknown client game command: {}", cmd);
 }
 
 /*

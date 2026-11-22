@@ -60,7 +60,7 @@ CG_FreeLocalEntity
 void CG_FreeLocalEntity(localEntity_t* le)
 {
     if (!le->prev) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_FreeLocalEntity: not active");
+        Q_Error(errorParm_t::ERR_DROP, "CG_FreeLocalEntity: not active");
         return;
     }
 
@@ -822,7 +822,7 @@ void CG_AddLocalEntities(void)
         }
         switch (le->leType) {
         default:
-            Com_Error(errorParm_t::ERR_DROP, "Bad leType: %i", to_underlying(le->leType));
+            Q_Error(errorParm_t::ERR_DROP, "Bad leType: {}", to_underlying(le->leType));
             break;
 
         case leType_t::LE_MARK:

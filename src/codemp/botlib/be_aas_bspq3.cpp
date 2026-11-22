@@ -125,7 +125,7 @@ void PrintContents(int contents)
 
     for (i = 0; contentnames[i].value; i++) {
         if (contents & contentnames[i].value) {
-            Com_Printf("%s\n", contentnames[i].name);
+            Q_Println("{}", contentnames[i].name);
         } // end if
     } // end for
 } // end of the function PrintContents
@@ -254,7 +254,7 @@ int AAS_NextBSPEntity(int ent)
 int AAS_BSPEntityInRange(int ent)
 {
     if (ent <= 0 || ent >= bspworld.numentities) {
-        Com_Printf("bsp entity out of range\n");
+        Q_Println("bsp entity out of range");
         return false;
     } // end if
     return true;
@@ -383,13 +383,13 @@ void AAS_ParseBSPEntities(void)
 
     while (PS_ReadToken(script, &token)) {
         if (strcmp(token.string, "{")) {
-            ScriptError(script, "invalid %s", token.string);
+            ScriptError(script, "invalid {}", token.string);
             AAS_FreeBSPEntities();
             FreeScript(script);
             return;
         } // end if
         if (bspworld.numentities >= MAX_BSPENTITIES) {
-            Com_Printf("too many entities in BSP file\n");
+            Q_Println("too many entities in BSP file");
             break;
         } // end if
         ent = &bspworld.entities[bspworld.numentities];
@@ -402,7 +402,7 @@ void AAS_ParseBSPEntities(void)
             epair->next = ent->epairs;
             ent->epairs = epair;
             if (token.type != tokenType_t::TT_STRING) {
-                ScriptError(script, "invalid %s", token.string);
+                ScriptError(script, "invalid {}", token.string);
                 AAS_FreeBSPEntities();
                 FreeScript(script);
                 return;
@@ -420,7 +420,7 @@ void AAS_ParseBSPEntities(void)
             strcpy(epair->value, token.string);
         } // end while
         if (strcmp(token.string, "}")) {
-            ScriptError(script, "missing }");
+            ScriptError(script, "missing }}}}");
             AAS_FreeBSPEntities();
             FreeScript(script);
             return;

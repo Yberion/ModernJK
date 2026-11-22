@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MDXABONEDEF
 #include <rd-common/mdx_format.h>
 
-inline constexpr int GAME_API_VERSION = 2;
+inline constexpr int GAME_API_VERSION = 3;
 
 enum class itemType_t;                     // bg_public.h
 enum class variableType_t;                 // icarus/Q3_Registers.h
@@ -396,8 +396,8 @@ typedef struct T_G_ICARUS_GETSETIDFORSTRING_s {
 
 typedef struct gameImport_s {
     // misc
-    void (*Print)(printLevel_t level, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
-    NORETURN_PTR void (*Error)(errorParm_t code, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
+    void (*Print)(printLevel_t level, lineEnd_t end, fmt::string_view fmt, fmt::format_args args);
+    NORETURN_PTR void (*Error)(errorParm_t code, fmt::string_view fmt, fmt::format_args args);
     int (*Milliseconds)(void);
     void (*PrecisionTimerStart)(void** timer);
     int (*PrecisionTimerEnd)(void* timer);
@@ -652,7 +652,7 @@ typedef struct gameImport_s {
     // elementary action
     void (*EA_Say)(int client, char* str);
     void (*EA_SayTeam)(int client, const char* str);
-    void (*EA_Command)(int client, char* command);
+    void (*EA_Command)(int client, const char* command);
     void (*EA_Action)(int client, actionFlags_t action);
     void (*EA_Gesture)(int client);
     void (*EA_Talk)(int client);

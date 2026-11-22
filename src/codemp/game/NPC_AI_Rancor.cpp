@@ -50,7 +50,7 @@ void NPC_Rancor_Precache(void)
 {
     int i;
     for (i = 1; i < 3; i++) {
-        G_SoundIndex(va("sound/chars/rancor/snort_%d.wav", i));
+        G_SoundIndex(Q_Format("sound/chars/rancor/snort_{}.wav", i).c_str());
     }
     G_SoundIndex("sound/chars/rancor/swipehit.wav");
     G_SoundIndex("sound/chars/rancor/chomp.wav");
@@ -786,7 +786,7 @@ void NPC_BSRancor_Default(void)
         }
         */
         if (TIMER_Done(NPCS.NPC, "angrynoise")) {
-            G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex(va("sound/chars/rancor/misc/anger%d.wav", Q_irand(1, 3))));
+            G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/chars/rancor/misc/anger{}.wav", Q_irand(1, 3)).c_str()));
 
             TIMER_Set(NPCS.NPC, "angrynoise", Q_irand(5000, 10000));
         }
@@ -835,7 +835,7 @@ void NPC_BSRancor_Default(void)
     }
     else {
         if (TIMER_Done(NPCS.NPC, "idlenoise")) {
-            G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex(va("sound/chars/rancor/snort_%d.wav", Q_irand(1, 2))));
+            G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/chars/rancor/snort_{}.wav", Q_irand(1, 2)).c_str()));
 
             TIMER_Set(NPCS.NPC, "idlenoise", Q_irand(2000, 4000));
             AddSoundEvent(NPCS.NPC, NPCS.NPC->r.currentOrigin, 384, alertEventLevel_e::AEL_DANGER, false); //, false );

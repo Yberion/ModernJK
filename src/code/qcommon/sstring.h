@@ -62,7 +62,7 @@ public:
     sstring(const gsl::cstring_span& v)
     {
         if (v.size() + 1 > sizeof(mStorage.data)) {
-            Com_Error(errorParm_t::ERR_FATAL, "String dest buffer too small (%zu) to hold string of length %zu", sizeof(mStorage.data), v.size());
+            Q_Error(errorParm_t::ERR_FATAL, "String dest buffer too small ({}) to hold string of length {}", sizeof(mStorage.data), v.size());
         }
         std::copy(v.begin(), v.end(), mStorage.data);
         mStorage.data[v.size()] = '\0';

@@ -198,7 +198,7 @@ static void Key_KeynumToStringBuf(fakeAscii_t keynum, char* buf, int buflen)
 
     // see if there's a more friendly (or localised) name...
     //
-    const char* psKeyNameFriendly = SE_GetString(va("KEYNAMES_KEYNAME_%s", psKeyName));
+    const char* psKeyNameFriendly = SE_GetString(Q_Format("KEYNAMES_KEYNAME_{}", psKeyName).c_str());
 
     Q_strncpyz(buf, (psKeyNameFriendly && psKeyNameFriendly[0]) ? psKeyNameFriendly : psKeyName, buflen);
 }
@@ -650,8 +650,8 @@ void CL_BindUI(void)
 
     uivm = VM_Create(vmSlots_t::VM_UI);
     if (uivm) {
-        uii.Print = Com_VPrintf;
-        uii.Error = Com_VError;
+        uii.Print = Q_VPrint;
+        uii.Error = Q_VError;
         uii.Milliseconds = CL_Milliseconds;
         uii.RealTime = Com_RealTime;
         uii.MemoryRemaining = Hunk_MemoryRemaining;
@@ -804,7 +804,7 @@ void CL_BindUI(void)
         if (!ret) {
             // free VM?
             cls.uiStarted = false;
-            Com_Error(errorParm_t::ERR_FATAL, "GetGameAPI failed on %s", dllName);
+            Q_Error(errorParm_t::ERR_FATAL, "GetGameAPI failed on {}", dllName);
         }
         uie = ret;
 
@@ -812,7 +812,7 @@ void CL_BindUI(void)
     }
 
     cls.uiStarted = false;
-    Com_Error(errorParm_t::ERR_DROP, "VM_Create on ui failed");
+    Q_Error(errorParm_t::ERR_DROP, "VM_Create on ui failed");
 }
 
 void CL_UnbindUI(void)

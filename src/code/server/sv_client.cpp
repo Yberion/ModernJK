@@ -48,14 +48,14 @@ void SV_DirectConnect(netadr_t from)
     // int			challenge;
     char* denied;
 
-    Com_DPrintf("SVC_DirectConnect ()\n");
+    Q_DPrintln("SVC_DirectConnect ()");
 
     Q_strncpyz(userinfo, Cmd_Argv(1), sizeof(userinfo));
 
     version = atoi(Info_ValueForKey(userinfo, "protocol"));
     if (version != PROTOCOL_VERSION) {
-        NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "print\nServer uses protocol version %i.\n", PROTOCOL_VERSION);
-        Com_DPrintf("    rejected connect from version %i\n", version);
+        NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "print\nServer uses protocol version {}.\n", PROTOCOL_VERSION);
+        Q_DPrintln("    rejected connect from version {}", version);
         return;
     }
 
@@ -83,10 +83,10 @@ void SV_DirectConnect(netadr_t from)
         }
         if (NET_CompareBaseAdr(from, cl->netchan.remoteAddress) && (cl->netchan.qport == qport || from.port == cl->netchan.remoteAddress.port)) {
             if ((sv.time - cl->lastConnectTime) < (sv_reconnectlimit->integer * 1000)) {
-                Com_DPrintf("%s:reconnect rejected : too soon\n", NET_AdrToString(from));
+                Q_DPrintln("{}:reconnect rejected : too soon", NET_AdrToString(from));
                 return;
             }
-            Com_Printf("%s:reconnect\n", NET_AdrToString(from));
+            Q_Println("{}:reconnect", NET_AdrToString(from));
             newcl = cl;
             goto gotnewcl;
         }
@@ -103,7 +103,7 @@ void SV_DirectConnect(netadr_t from)
 
     if (!newcl) {
         NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "print\nServer is full.\n");
-        Com_DPrintf("Rejected a connection.\n");
+        Q_DPrintln("Rejected a connection.");
         return;
     }
 
@@ -125,8 +125,8 @@ gotnewcl:
     // get the game a chance to reject this connection or modify the userinfo
     denied = ge->ClientConnect(clientNum, true, eSavedGameJustLoaded); // firstTime = true
     if (denied) {
-        NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "print\n%s\n", denied);
-        Com_DPrintf("Game rejected a connection: %s.\n", denied);
+        NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "print\n{}\n", denied);
+        Q_DPrintln("Game rejected a connection: {}.", denied);
         return;
     }
 
@@ -171,7 +171,7 @@ void SV_DropClient(client_t* drop, const char* reason)
     ge->ClientDisconnect(drop - svs.clients);
 
     // tell everyone why they got dropped
-    SV_SendServerCommand(nullptr, "print \"%s %s\n\"", drop->name, reason);
+    SV_SendServerCommand(nullptr, "print \"{} {}\n\"", drop->name, reason);
 
     // add the disconnect command
     SV_SendServerCommand(drop, "disconnect");
@@ -194,7 +194,7 @@ void SV_SendClientGameState(client_t* client)
     msg_t msg;
     byte msgBuffer[MAX_MSGLEN];
 
-    Com_DPrintf("SV_SendGameState() for %s\n", client->name);
+    Q_DPrintln("SV_SendGameState() for {}", client->name);
     client->state = clientState_t::CS_PRIMED;
 
     // when we receive the first packet from the client, we will
@@ -225,7 +225,7 @@ void SV_SendClientGameState(client_t* client)
 
     // check for overflow
     if (msg.overflowed) {
-        Com_Warning("GameState overflowed for %s\n", client->name);
+        Q_PrintlnWarning("GameState overflowed for {}", client->name);
     }
 
     // deliver this to the client
@@ -242,7 +242,7 @@ void SV_ClientEnterWorld(client_t* client, usercmd_t* cmd, SavedGameJustLoaded_e
     int clientNum;
     gentity_t* ent;
 
-    Com_DPrintf("SV_ClientEnterWorld() from %s\n", client->name);
+    Q_DPrintln("SV_ClientEnterWorld() from {}", client->name);
     client->state = clientState_t::CS_ACTIVE;
 
     // set up the entity for the client
@@ -361,11 +361,11 @@ static void SV_ClientCommand(client_t* cl, msg_t* msg)
         return;
     }
 
-    Com_DPrintf("clientCommand: %s : %i : %s\n", cl->name, seq, s);
+    Q_DPrintln("clientCommand: {} : {} : {}", cl->name, seq, s);
 
     // drop the connection if we have somehow lost commands
     if (seq > cl->lastClientCommand + 1) {
-        Com_Printf("Client %s lost %i clientCommands\n", cl->name, seq - cl->lastClientCommand + 1);
+        Q_Println("Client {} lost {} clientCommands", cl->name, seq - cl->lastClientCommand + 1);
     }
 
     SV_ExecuteClientCommand(cl, s);
@@ -425,12 +425,12 @@ static void SV_UserMove(client_t* cl, msg_t* msg)
     cmdCount = MSG_ReadByte(msg);
 
     if (cmdCount < 1) {
-        Com_Printf("cmdCount < 1\n");
+        Q_Println("cmdCount < 1");
         return;
     }
 
     if (cmdCount > MAX_PACKET_USERCMDS) {
-        Com_Printf("cmdCount > MAX_PACKET_USERCMDS\n");
+        Q_Println("cmdCount > MAX_PACKET_USERCMDS");
         return;
     }
 
@@ -448,7 +448,7 @@ static void SV_UserMove(client_t* cl, msg_t* msg)
         // if we can tell that the client has dropped the last
         // gamestate we sent them, resend it
         if (cl->netchan.incomingAcknowledged > cl->gamestateMessageNum) {
-            Com_DPrintf("%s : dropped gamestate, resending\n", cl->name);
+            Q_DPrintln("{} : dropped gamestate, resending", cl->name);
             SV_SendClientGameState(cl);
         }
         return;
@@ -464,12 +464,12 @@ static void SV_UserMove(client_t* cl, msg_t* msg)
             if (eSavedGameJustLoaded == SavedGameJustLoaded_e::eNO) {
                 SG_WriteSavegame("auto", true);
                 if (Q_stricmpn(sv_mapname->string, "academy", 7) != 0) {
-                    Com_sprintf(savename, sizeof(savename), "auto_%s", sv_mapname->string);
+                    Q_FormatTo(savename, "auto_{}", sv_mapname->string);
                     SG_WriteSavegame(savename, true); // can't use va becuase it's nested
                 }
             }
             else if (qbLoadTransition == true) {
-                Com_sprintf(savename, sizeof(savename), "hub/%s", sv_mapname->string);
+                Q_FormatTo(savename, "hub/{}", sv_mapname->string);
                 SG_WriteSavegame(savename, false); // save a full one
                 SG_WriteSavegame("auto", false);   // need a copy for auto, too
             }
@@ -491,7 +491,7 @@ static void SV_UserMove(client_t* cl, msg_t* msg)
     if (cl->cmdNum < firstNum - 1) {
         cl->droppedCommands = true;
         if (sv_showloss->integer) {
-            Com_Printf("Lost %i usercmds from %s\n", firstNum - 1 - cl->cmdNum, cl->name);
+            Q_Println("Lost {} usercmds from {}", firstNum - 1 - cl->cmdNum, cl->name);
         }
         if (cl->cmdNum < firstNum - 6) {
             cl->cmdNum = firstNum - 6; // don't generate too many

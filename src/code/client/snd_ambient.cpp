@@ -270,7 +270,7 @@ static void AS_GetTimeBetweenWaves(ambientSet_t& set)
     // Check for swapped start / end
     if (startTime > endTime) {
 #ifndef FINAL_BUILD
-        Com_Warning("Corrected swapped start / end times in a \"timeBetweenWaves\" keyword\n");
+        Q_PrintlnWarning("Corrected swapped start / end times in a \"timeBetweenWaves\" keyword");
 #endif
 
         int swap = startTime;
@@ -310,19 +310,19 @@ static void AS_GetSubWaves(ambientSet_t& set)
 
         if (set.numSubWaves >= MAX_WAVES_PER_GROUP) {
 #ifndef FINAL_BUILD
-            Com_Warning("Too many subwaves on set \"%s\"\n", set.name);
+            Q_PrintlnWarning("Too many subwaves on set \"{}\"", set.name);
 #endif
         }
         else {
             // Construct the wave name (pretty, huh?)
-            Com_sprintf(waveName, sizeof(waveName), "sound/%s/%s.wav", dirBuffer, waveBuffer);
+            Q_FormatTo(waveName, "sound/{}/{}.wav", dirBuffer, waveBuffer);
 
             // Place this onto the sound directory name
 
             // Precache the file at this point and store off the ID instead of the name
             if ((set.subWaves[set.numSubWaves++] = S_RegisterSound(waveName)) <= 0) {
 #ifndef FINAL_BUILD
-                Com_PrintError("Unable to load ambient sound \"%s\"\n", waveName);
+                Q_PrintlnError("Unable to load ambient sound \"{}\"", waveName);
 #endif
             }
         }
@@ -353,12 +353,12 @@ static void AS_GetLoopedWave(ambientSet_t& set)
     sscanf(parseBuffer + parsePos, "%s %s", tempBuffer, waveBuffer);
 
     // Construct the wave name
-    Com_sprintf(waveName, sizeof(waveName), "sound/%s.wav", waveBuffer);
+    Q_FormatTo(waveName, "sound/{}.wav", waveBuffer);
 
     // Precache the file at this point and store off the ID instead of the name
     if ((set.loopedWave = S_RegisterSound(waveName)) <= 0) {
 #ifndef FINAL_BUILD
-        Com_PrintError("Unable to load ambient sound \"%s\"\n", waveName);
+        Q_PrintlnError("Unable to load ambient sound \"{}\"", waveName);
 #endif
     }
 
@@ -381,7 +381,7 @@ static void AS_GetVolumeRange(ambientSet_t& set)
     // Check for swapped min / max
     if (min > max) {
 #ifndef FINAL_BUILD
-        Com_Warning("Corrected swapped min / max range in a \"volRange\" keyword\n");
+        Q_PrintlnWarning("Corrected swapped min / max range in a \"volRange\" keyword");
 #endif
 
         int swap = min;
@@ -456,7 +456,7 @@ static void AS_GetGeneralSet(ambientSet_t& set)
 
 // This wasn't a set name, so it's an error
 #ifndef FINAL_BUILD
-                Com_Warning("Unknown ambient set keyword \"%s\"\n", tempBuffer);
+                Q_PrintlnWarning("Unknown ambient set keyword \"{}\"", tempBuffer);
 #endif
             }
 
@@ -516,7 +516,7 @@ static void AS_GetLocalSet(ambientSet_t& set)
 
 // This wasn't a set name, so it's an error
 #ifndef FINAL_BUILD
-                Com_Warning("Unknown ambient set keyword \"%s\"\n", tempBuffer);
+                Q_PrintlnWarning("Unknown ambient set keyword \"{}\"", tempBuffer);
 #endif
             }
 
@@ -560,7 +560,7 @@ static void AS_GetBModelSet(ambientSet_t& set)
 
 // This wasn't a set name, so it's an error
 #ifndef FINAL_BUILD
-                Com_Warning("Unknown ambient set keyword \"%s\"\n", tempBuffer);
+                Q_PrintlnWarning("Unknown ambient set keyword \"{}\"", tempBuffer);
 #endif
             }
 
@@ -650,7 +650,7 @@ static void AS_ParseHeader(void)
             if (!Q_stricmp((const char*)typeBuffer, "ambientSet")) {
                 return;
             }
-            Com_Error(errorParm_t::ERR_DROP, "AS_ParseHeader: Set type \"%s\" is not a valid set type!\n", typeBuffer);
+            Q_Error(errorParm_t::ERR_DROP, "AS_ParseHeader: Set type \"{}\" is not a valid set type!", typeBuffer);
 
             break;
 
@@ -778,10 +778,10 @@ void AS_ParseSets(void)
 
     // Parse all the sets
     if (AS_ParseFile(AMBIENT_SET_FILENAME, aSets) == false) {
-        Com_Error(errorParm_t::ERR_FATAL, S_COLOR_RED "ERROR: Couldn't load ambient sound sets from %s", AMBIENT_SET_FILENAME);
+        Q_Error(errorParm_t::ERR_FATAL, S_COLOR_RED "ERROR: Couldn't load ambient sound sets from {}", AMBIENT_SET_FILENAME);
     }
 
-    // Com_Printf( "AS_ParseFile: Loaded %d of %d ambient set(s)\n", pMap.size(), numSets );
+    // Q_Println("AS_ParseFile: Loaded {} of {} ambient set(s)", pMap.size(), numSets);
 
     int iErrorsOccured = 0;
     for (namePrecache_m::iterator it = pMap->begin(); it != pMap->end(); ++it) {
@@ -789,13 +789,13 @@ void AS_ParseSets(void)
         ambientSet_t* aSet = aSets->GetSet(str);
         if (!aSet) {
             // I print these red instead of yellow because they're going to cause an ERR_DROP if they occur
-            Com_PrintError("AS_ParseSets: Unable to find ambient soundset \"%s\"!\n", str);
+            Q_PrintlnError("AS_ParseSets: Unable to find ambient soundset \"{}\"!", str);
             iErrorsOccured++;
         }
     }
 
     if (iErrorsOccured) {
-        Com_Error(errorParm_t::ERR_DROP, "....%d missing sound sets! (see above)\n", iErrorsOccured);
+        Q_Error(errorParm_t::ERR_DROP, "....{} missing sound sets! (see above)", iErrorsOccured);
     }
 
     //	//Done with the precache info, it will be rebuilt on a restart

@@ -122,7 +122,7 @@ bool BG_FighterUpdate(Vehicle_t* pVeh, const usercmd_t* pUcmd, vec3_t trMins, ve
 #endif
 
     if (!parentPS) {
-        Com_Error(errorParm_t::ERR_DROP, "NULL PS in BG_FighterUpdate (%s)", pVeh->m_pVehicleInfo->name);
+        Q_Error(errorParm_t::ERR_DROP, "NULL PS in BG_FighterUpdate ({})", pVeh->m_pVehicleInfo->name);
         return false;
     }
 

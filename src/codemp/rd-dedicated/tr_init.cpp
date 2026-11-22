@@ -269,11 +269,11 @@ static void R_ModeList_f(void)
 {
     int i;
 
-    Com_Printf("\n");
+    Q_Println("");
     for (i = 0; i < s_numVidModes; i++) {
-        Com_Printf("%s\n", r_vidModes[i].description);
+        Q_Println("{}", r_vidModes[i].description);
     }
-    Com_Printf("\n");
+    Q_Println("");
 }
 
 typedef struct consoleCommand_s {
@@ -477,7 +477,7 @@ void R_Init(void)
     int i;
     byte* ptr;
 
-    //	Com_Printf ("----- R_Init -----\n" );
+    //	Q_Println("----- R_Init -----");
     // clear all our internal state
     memset(&tr, 0, sizeof(tr));
     memset(&backEnd, 0, sizeof(backEnd));
@@ -517,7 +517,7 @@ void R_Init(void)
 
     R_ModelInit();
 
-    //	Com_Printf ("----- finished R_Init -----\n" );
+    //	Q_Println("----- finished R_Init -----");
 }
 
 /*
@@ -528,7 +528,7 @@ RE_Shutdown
 void RE_Shutdown(bool destroyWindow, bool restarting)
 {
 
-    //	Com_Printf ("RE_Shutdown( %i )\n", destroyWindow );
+    //	Q_Println("RE_Shutdown( {} )", destroyWindow);
 
     for (size_t i = 0; i < numCommands; i++)
         ri.Cmd_RemoveCommand(commands[i].cmd);
@@ -566,7 +566,7 @@ refexport_t* GetRefAPI(int apiVersion, refimport_t* rimp)
     memset(&re, 0, sizeof(re));
 
     if (apiVersion != REF_API_VERSION) {
-        Com_Printf("Mismatched REF_API_VERSION: expected %i, got %i\n", REF_API_VERSION, apiVersion);
+        Q_Println("Mismatched REF_API_VERSION: expected {}, got {}", REF_API_VERSION, apiVersion);
         return nullptr;
     }
 

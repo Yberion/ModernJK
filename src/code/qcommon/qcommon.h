@@ -52,7 +52,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // msg.c
 //
 typedef struct {
-    bool allowoverflow; // if false, do a Com_Error
+    bool allowoverflow; // if false, do a Q_Error
     bool overflowed;    // set to true if the buffer size failed (with allowoverflow set)
     byte* data;
     int maxsize;
@@ -125,7 +125,11 @@ static inline void NET_Init(void) {}
 static inline void NET_Shutdown(void) {}
 
 void NET_SendPacket(netsrc_t sock, int length, const void* data, netadr_t to);
-void NET_OutOfBandPrint(netsrc_t net_socket, netadr_t adr, const char* format, ...) __attribute__((format(printf, 3, 4)));
+void NET_VOutOfBandPrint(netsrc_t net_socket, netadr_t adr, fmt::string_view format, fmt::format_args args);
+template <typename... T> void NET_OutOfBandPrint(netsrc_t net_socket, netadr_t adr, fmt::format_string<T...> format, T&&... args)
+{
+    NET_VOutOfBandPrint(net_socket, adr, format.get(), Q_FormatArgs(args...));
+}
 
 bool NET_CompareAdr(netadr_t a, netadr_t b);
 bool NET_CompareBaseAdr(netadr_t a, netadr_t b);

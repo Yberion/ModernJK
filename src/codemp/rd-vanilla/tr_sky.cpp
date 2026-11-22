@@ -151,7 +151,7 @@ static void ClipSkyPolygon(int nump, vec3_t vecs, int stage)
     int i, j;
 
     if (nump > MAX_CLIP_VERTS - 2)
-        Com_Error(errorParm_t::ERR_DROP, "ClipSkyPolygon: MAX_CLIP_VERTS");
+        Q_Error(errorParm_t::ERR_DROP, "ClipSkyPolygon: MAX_CLIP_VERTS");
     if (stage == 6) { // fully clipped, so draw it
         AddSkyPolygon(nump, vecs);
         return;
@@ -428,7 +428,7 @@ static void FillCloudySkySide(const int mins[2], const int maxs[2], bool addInde
             tess.numVertexes++;
 
             if (tess.numVertexes >= SHADER_MAX_VERTEXES) {
-                Com_Error(errorParm_t::ERR_DROP, "SHADER_MAX_VERTEXES hit in FillCloudySkySide()\n");
+                Q_Error(errorParm_t::ERR_DROP, "SHADER_MAX_VERTEXES hit in FillCloudySkySide()");
             }
         }
     }

@@ -548,7 +548,7 @@ bool CNavigator::Load(const char* filename, int checksum)
     fileHandle_t file;
 
     // Attempt to load the file
-    gi.FS_FOpenFile(va("maps/%s.nav", filename), &file, fsMode_t::FS_READ);
+    gi.FS_FOpenFile(Q_Format("maps/{}.nav", filename).c_str(), &file, fsMode_t::FS_READ);
 
     // See if we succeeded
     if (file == NULL_FILE)
@@ -605,7 +605,7 @@ bool CNavigator::Save(const char* filename, int checksum)
     fileHandle_t file;
 
     // Attempt to load the file
-    gi.FS_FOpenFile(va("maps/%s.nav", filename), &file, fsMode_t::FS_WRITE);
+    gi.FS_FOpenFile(Q_Format("maps/{}.nav", filename).c_str(), &file, fsMode_t::FS_WRITE);
 
     if (file == NULL_FILE)
         return false;
@@ -650,7 +650,7 @@ int CNavigator::AddRawPoint(vec3_t point, navNodeFlags_t flags, int radius)
     CNode* node = CNode::Create(point, flags, radius, m_nodes.size());
 
     if (node == nullptr) {
-        Com_Error(errorParm_t::ERR_DROP, "Error adding node!\n");
+        Q_Error(errorParm_t::ERR_DROP, "Error adding node!");
         return -1;
     }
 
@@ -831,7 +831,7 @@ void CNavigator::CalculatePaths(bool recalc)
 
 #ifndef FINAL_BUILD
     if (pathsCalculated) {
-        Com_Printf(S_COLOR_CYAN "%s recalced paths in %d ms\n", (NPC != nullptr ? NPC->targetname : "NULL"), gi.Milliseconds() - startTime);
+        Q_Println(S_COLOR_CYAN "{} recalced paths in {} ms", (NPC != nullptr ? NPC->targetname : "NULL"), gi.Milliseconds() - startTime);
     }
 #endif
 
@@ -1301,7 +1301,7 @@ int CNavigator::GetBestPathBetweenEnts(gentity_t* ent, gentity_t* goal, navNodeF
             // calc the paths for this node if they're out of date
             nodeFlags = node->GetFlags();
             if (Any(nodeFlags & navNodeFlags_t::NF_RECALC)) {
-                // Com_Printf( S_COLOR_CYAN"%d recalcing paths from node %d\n", level.time, nodeNum );
+                // Q_Println(S_COLOR_CYAN"{} recalcing paths from node {}", level.time, nodeNum);
                 CalculatePath(node);
             }
         }
@@ -1314,7 +1314,7 @@ int CNavigator::GetBestPathBetweenEnts(gentity_t* ent, gentity_t* goal, navNodeF
                 // calc the paths for this node if they're out of date
                 nodeFlags = node2->GetFlags();
                 if (Any(nodeFlags & navNodeFlags_t::NF_RECALC)) {
-                    // Com_Printf( S_COLOR_CYAN"%d recalcing paths from node %d\n", level.time, nodeNum2 );
+                    // Q_Println(S_COLOR_CYAN"{} recalcing paths from node {}", level.time, nodeNum2);
                     CalculatePath(node2);
                 }
             }
@@ -1526,7 +1526,7 @@ void CNavigator::ShowPath(int start, int end)
 
         // Some nodes may be fragmented
         if (bestNode == -1) {
-            Com_Printf("No connection possible between node %d and %d\n", start, end);
+            Q_Println("No connection possible between node {} and {}", start, end);
             return;
         }
 
@@ -1544,7 +1544,7 @@ void CNavigator::ShowPath(int start, int end)
         moveNode = testNode;
 
         if (runAway++ > 64) {
-            Com_Printf("Potential Run-away path!\n");
+            Q_Println("Potential Run-away path!");
             return;
         }
     }
@@ -1776,7 +1776,7 @@ void CNavigator::AddFailedEdge(int entID, int startID, int endID)
     // Validate the ent number
     if ((entID < 0) || (entID > ENTITYNUM_NONE)) {
 #ifndef FINAL_BUILD
-        Com_Printf(S_COLOR_RED "NAV ERROR: envalid ent %d\n", entID);
+        Q_Println(S_COLOR_RED "NAV ERROR: envalid ent {}", entID);
         assert(0 && "invalid entID");
 #endif
         return;
@@ -1785,7 +1785,7 @@ void CNavigator::AddFailedEdge(int entID, int startID, int endID)
     // Validate the start position
     if ((startID < 0) || (startID >= (int)m_nodes.size())) {
 #ifndef FINAL_BUILD
-        Com_Printf(S_COLOR_RED "NAV ERROR: tried to fail invalid waypoint %d\n", startID);
+        Q_Println(S_COLOR_RED "NAV ERROR: tried to fail invalid waypoint {}", startID);
         assert(0 && "invalid failed edge");
 #endif
         return;
@@ -1794,7 +1794,7 @@ void CNavigator::AddFailedEdge(int entID, int startID, int endID)
     // Validate the end position
     if ((endID < 0) || (endID >= (int)m_nodes.size())) {
 #ifndef FINAL_BUILD
-        Com_Printf(S_COLOR_RED "NAV ERROR: tried to fail invalid waypoint %d\n", endID);
+        Q_Println(S_COLOR_RED "NAV ERROR: tried to fail invalid waypoint {}", endID);
         assert(0 && "invalid failed edge");
 #endif
         return;
@@ -1869,7 +1869,7 @@ void CNavigator::AddFailedEdge(int entID, int startID, int endID)
             // now recalc all the paths!
             if (pathsCalculated) {
                 // reconnect the nodes and mark every node's flag NF_RECALC
-                // Com_Printf( S_COLOR_CYAN"%d marking all nodes for recalc\n", level.time );
+                // Q_Println(S_COLOR_CYAN"{} marking all nodes for recalc", level.time);
                 SetEdgeCost(startID, endID, Q3_INFINITE);
                 FlagAllNodes(navNodeFlags_t::NF_RECALC);
             }
@@ -1878,7 +1878,7 @@ void CNavigator::AddFailedEdge(int entID, int startID, int endID)
     }
 
 #ifndef FINAL_BUILD
-    Com_Printf(S_COLOR_RED "NAV ERROR: too many blocked waypoint connections (%d)!!!\n", j);
+    Q_Println(S_COLOR_RED "NAV ERROR: too many blocked waypoint connections ({})!!!", j);
 #endif
 }
 
@@ -1975,7 +1975,7 @@ void CNavigator::CheckAllFailedEdges(void)
     if (clearedAny) { // need to recalc the paths
         if (pathsCalculated) {
             // reconnect the nodes and mark every node's flag NF_RECALC
-            // Com_Printf( S_COLOR_CYAN"%d marking all nodes for recalc\n", level.time );
+            // Q_Println(S_COLOR_CYAN"{} marking all nodes for recalc", level.time);
             FlagAllNodes(navNodeFlags_t::NF_RECALC);
         }
     }

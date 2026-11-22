@@ -27,7 +27,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "fnv.h"
 #include "synthetic.h"
 
-#include <cinttypes>
+#include <fmt/base.h>
+
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -63,7 +65,7 @@ void RunStream(uint64_t seed, size_t nmsg, Stats& st)
         }
         const bool ok = s.Commit(c, coded ? std::span<const uint8_t>(out) : std::span<const uint8_t>(), rec, dm) && coded;
         if (!ok && st.failures++ < 5)
-            std::fprintf(stderr, "failure: seed %" PRIu64 " seq %u delta %u\n", seed, seq, c.delta);
+            fmt::println(stderr, "failure: seed {} seq {} delta {}", seed, seq, c.delta);
         for (const Op& o : c.msg.ops) {
             if (o.type == OpType::GameState)
                 st.gamestates++;
@@ -102,14 +104,12 @@ int main(int argc, char** argv)
     Stats st;
     for (size_t i = 0; i < streams; i++)
         RunStream((seed * 1'000'003) + i, nmsg, st);
-    std::printf("synthetic round trip: %zu streams, %zu messages, %zu bytes (largest %zu): failures %zu\n", streams, st.messages, st.bytes, st.maxBytes,
-                st.failures);
-    std::printf("  snapshots %zu (vehicle %zu, pilot %zu, no base %zu, base older than 11 %zu, oldest %u), entities %zu, "
-                "gamestates %zu, commands %zu, downloads %zu\n",
-                st.snapshots, st.vehicle, st.pilot, st.noBase, st.baseOld, st.maxDelta, st.entities, st.gamestates, st.commands, st.downloads);
-    std::printf("hash of the coded bytes 0x%016" PRIX64, st.hash.h);
+    fmt::println("synthetic round trip: {} streams, {} messages, {} bytes (largest {}): failures {}", streams, st.messages, st.bytes, st.maxBytes, st.failures);
+    fmt::println("  snapshots {} (vehicle {}, pilot {}, no base {}, base older than 11 {}, oldest {}), entities {}, gamestates {}, commands {}, downloads {}",
+                 st.snapshots, st.vehicle, st.pilot, st.noBase, st.baseOld, st.maxDelta, st.entities, st.gamestates, st.commands, st.downloads);
     if (expected)
-        std::printf(", expected 0x%016" PRIX64 "%s", *expected, *expected == st.hash.h ? "" : " (MISMATCH)");
-    std::printf("\n");
+        fmt::println("hash of the coded bytes 0x{:016X}, expected 0x{:016X}{}", st.hash.h, *expected, *expected == st.hash.h ? "" : " (MISMATCH)");
+    else
+        fmt::println("hash of the coded bytes 0x{:016X}", st.hash.h);
     return st.failures == 0 && st.messages != 0 && (!expected || *expected == st.hash.h) ? 0 : 1;
 }

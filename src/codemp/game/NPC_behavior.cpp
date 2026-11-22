@@ -770,7 +770,7 @@ void NPC_BSJump(void)
 
         assert(z >= 0);
 
-        //		Com_Printf("apex is %4.2f percent from p1: ", (xy-z)*0.5/xy*100.0f);
+        //		Q_Print("apex is {:4.2f} percent from p1: ", (xy-z)*0.5/xy*100.0f);
 
         // Don't need to set apex xy if NPC is jumping directly up.
         if (xy > 0.0f) {
@@ -789,7 +789,7 @@ void NPC_BSJump(void)
         height = apex[2] - NPCS.NPC->r.currentOrigin[2];
         time = Q_sqrt(height / (.5 * NPCS.NPC->client->ps.gravity));
         if (!time) {
-            //			Com_Printf("ERROR no time in jump\n");
+            //			Q_Println("ERROR no time in jump");
             return;
         }
 
@@ -803,7 +803,7 @@ void NPC_BSJump(void)
 
         NPCS.NPC->client->ps.velocity[2] = time * NPCS.NPC->client->ps.gravity;
 
-        //		Com_Printf( "%s jumping %s, gravity at %4.0f percent\n", NPC->targetname, vtos(NPC->client->ps.velocity), NPC->client->ps.gravity/8.0f );
+        //		Q_Println("{} jumping {}, gravity at {:4.0f} percent", NPC->targetname, vtos(NPC->client->ps.velocity), NPC->client->ps.gravity/8.0f);
 
         NPCS.NPC->flags |= gentityFlags_t::FL_NO_KNOCKBACK;
         NPCS.NPCInfo->jumpState = jumpState_t::JS_JUMPING;
@@ -957,8 +957,8 @@ void NPC_BSSearch(void)
                 }
             }
 
-            // Com_Printf("Got there.\n");
-            // Com_Printf("Looking...");
+            // Q_Println("Got there.");
+            // Q_Print("Looking...");
             if (!Q_irand(0, 1)) {
                 NPC_SetAnim(NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_GUARD_LOOKAROUND1, setAnimFlags_t::SETANIM_FLAG_NORMAL);
             }
@@ -1003,7 +1003,7 @@ void NPC_BSSearch(void)
                     // NPCInfo->desiredYaw = AngleNormalize360( vectoyaw( lookDir ) + Q_flrand( -45, 45 ) );
                 }
             }
-            // Com_Printf(".");
+            // Q_Print(".");
         }
         else { // Just finished waiting
             NPCS.NPC->waypoint = NAV_FindClosestWaypointForEnt(NPCS.NPC, WAYPOINT_NONE);
@@ -1026,7 +1026,7 @@ void NPC_BSSearch(void)
 
                 VectorCopy( waypoints[nextWp].origin, NPCInfo->tempGoal->r.currentOrigin );
                 NPCInfo->tempGoal->waypoint = nextWp;
-                //Com_Printf("\nHeading for wp %d...\n", waypoints[NPCInfo->homeWp].nextWaypoint[branch][NPC->client->moveType]);
+                //Q_Println("\nHeading for wp {}...", waypoints[NPCInfo->homeWp].nextWaypoint[branch][NPC->client->moveType]);
                 */
             }
             else { // At a branch, so return home
@@ -1035,7 +1035,7 @@ void NPC_BSSearch(void)
                 /*
                 VectorCopy( waypoints[NPCInfo->homeWp].origin, NPCInfo->tempGoal->r.currentOrigin );
                 NPCInfo->tempGoal->waypoint = NPCInfo->homeWp;
-                //Com_Printf("\nHeading for wp %d...\n", NPCInfo->homeWp);
+                //Q_Println("\nHeading for wp {}...", NPCInfo->homeWp);
                 */
             }
 
@@ -1070,7 +1070,7 @@ void NPC_BSSearchStart(int homeWp, bState_t bState)
     NPCS.NPCInfo->investigateDebounceTime = 0;
     trap->Nav_GetNodePosition(homeWp, NPCS.NPCInfo->tempGoal->r.currentOrigin);
     NPCS.NPCInfo->tempGoal->waypoint = homeWp;
-    // Com_Printf("\nHeading for wp %d...\n", NPCInfo->homeWp);
+    // Q_Println("\nHeading for wp {}...", NPCInfo->homeWp);
 }
 
 /*

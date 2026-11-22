@@ -164,7 +164,7 @@ static SEffectList* FX_GetValidEffect()
 
     // report the error.
 #ifndef FINAL_BUILD
-    Com_DPrintf("FX system out of effects\n");
+    Q_DPrintln("FX system out of effects");
 #endif
 
     // Hmmm.. just trashing the first effect in the list is a poor approach
@@ -225,7 +225,7 @@ void FX_Add(bool portal)
     }
     if (fx_debug.integer == 2 && !portal) {
         if (theFxHelper.mFrameTime > 100 || theFxHelper.mFrameTime < 5)
-            Com_DPrintf("theFxHelper.mFrameTime = %i\n", theFxHelper.mFrameTime);
+            Q_DPrintln("theFxHelper.mFrameTime = {}", theFxHelper.mFrameTime);
     }
     if (fx_debug.integer == 1 && !portal) {
         if (theFxHelper.mTime > mMaxTime) {
@@ -239,93 +239,12 @@ void FX_Add(bool portal)
             mMaxTime = theFxHelper.mTime + 4000; // since we just increased the max, hold it for at least 4 seconds
         }
 
-        // Particles
-        if (mParticles > 500) {
-            Com_DPrintf(">Particles  ^1%4i  ", mParticles);
-        }
-        else if (mParticles > 250) {
-            Com_DPrintf(">Particles  ^3%4i  ", mParticles);
-        }
-        else {
-            Com_DPrintf(">Particles  %4i  ", mParticles);
-        }
-
-        // Lines
-        if (mLines > 500) {
-            Com_DPrintf(">Lines ^1%4i\n", mLines);
-        }
-        else if (mLines > 250) {
-            Com_DPrintf(">Lines ^3%4i\n", mLines);
-        }
-        else {
-            Com_DPrintf(">Lines %4i\n", mLines);
-        }
-
-        // OParticles
-        if (mOParticles > 500) {
-            Com_DPrintf(">OParticles ^1%4i  ", mOParticles);
-        }
-        else if (mOParticles > 250) {
-            Com_DPrintf(">OParticles ^3%4i  ", mOParticles);
-        }
-        else {
-            Com_DPrintf(">OParticles %4i  ", mOParticles);
-        }
-
-        // Tails
-        if (mTails > 400) {
-            Com_DPrintf(">Tails ^1%4i\n", mTails);
-        }
-        else if (mTails > 200) {
-            Com_DPrintf(">Tails ^3%4i\n", mTails);
-        }
-        else {
-            Com_DPrintf(">Tails %4i\n", mTails);
-        }
-
-        // Active
-        if (activeFx > 600) {
-            Com_DPrintf(">Active     ^1%4i  ", activeFx);
-        }
-        else if (activeFx > 400) {
-            Com_DPrintf(">Active     ^3%4i  ", activeFx);
-        }
-        else {
-            Com_DPrintf(">Active     %4i  ", activeFx);
-        }
-
-        // Drawn
-        if (drawnFx > 600) {
-            Com_DPrintf(">Drawn ^1%4i  ", drawnFx);
-        }
-        else if (drawnFx > 400) {
-            Com_DPrintf(">Drawn ^3%4i  ", drawnFx);
-        }
-        else {
-            Com_DPrintf(">Drawn %4i  ", drawnFx);
-        }
-
-        // Max
-        if (mMax > 600) {
-            Com_DPrintf(">Max ^1%4i  ", mMax);
-        }
-        else if (mMax > 400) {
-            Com_DPrintf(">Max ^3%4i  ", mMax);
-        }
-        else {
-            Com_DPrintf(">Max %4i  ", mMax);
-        }
-
-        // Scheduled
-        if (theFxScheduler.NumScheduledFx() > 100) {
-            Com_DPrintf(">Scheduled ^1%4i\n", theFxScheduler.NumScheduledFx());
-        }
-        else if (theFxScheduler.NumScheduledFx() > 50) {
-            Com_DPrintf(">Scheduled ^3%4i\n", theFxScheduler.NumScheduledFx());
-        }
-        else {
-            Com_DPrintf(">Scheduled %4i\n", theFxScheduler.NumScheduledFx());
-        }
+        // a count in red above its first limit, in yellow above its second, the white back after it
+        const auto colour = [](int count, int red, int yellow) { return count > red ? "^1" : (count > yellow ? "^3" : ""); };
+        Q_DPrintln(">Particles  {}{:4}^7  >Lines {}{:4}", colour(mParticles, 500, 250), mParticles, colour(mLines, 500, 250), mLines);
+        Q_DPrintln(">OParticles {}{:4}^7  >Tails {}{:4}", colour(mOParticles, 500, 250), mOParticles, colour(mTails, 400, 200), mTails);
+        Q_DPrintln(">Active     {}{:4}^7  >Drawn {}{:4}^7  >Max {}{:4}^7  >Scheduled {}{:4}", colour(activeFx, 600, 400), activeFx, colour(drawnFx, 600, 400),
+                   drawnFx, colour(mMax, 600, 400), mMax, colour(theFxScheduler.NumScheduledFx(), 100, 50), theFxScheduler.NumScheduledFx());
     }
 }
 

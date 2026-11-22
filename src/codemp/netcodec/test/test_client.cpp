@@ -31,10 +31,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client_trace.h"
 #include "fnv.h"
 
+#include <fmt/base.h>
 #include <netcodec/engine.h>
 
 #include <array>
-#include <cinttypes>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -149,7 +150,7 @@ struct EngineRun {
 int main(int argc, char** argv)
 {
     if (argc < 3 || std::strncmp(argv[1], "--hash=", 7) != 0) {
-        std::fprintf(stderr, "usage: %s --hash=0x... synthetic <packets> | <client trace> ...\n", argv[0]);
+        fmt::println(stderr, "usage: {} --hash=0x... synthetic <packets> | <client trace> ...", argv[0]);
         return 2;
     }
     const uint64_t expected = std::strtoull(argv[1] + 7, nullptr, 16);
@@ -168,7 +169,7 @@ int main(int argc, char** argv)
             const int64_t latest = p.ack + r.Range(0, 255);
             run.Check(p, withBase ? &base : nullptr, latest);
         }
-        std::printf("client packets, synthetic: %zu packets, %zu bytes, failures %zu\n", run.packets, run.bytes, run.failures);
+        fmt::println("client packets, synthetic: {} packets, {} bytes, failures {}", run.packets, run.bytes, run.failures);
     }
     else {
         size_t withBase = 0;
@@ -190,11 +191,10 @@ int main(int argc, char** argv)
                     withBase += t.hasBase ? 1 : 0;
                 }
         }
-        std::printf("client packets, traces: %zu codings (%zu with a base), %zu bytes, failures %zu; through engine.h: %zu codings, "
-                    "failures %zu\n",
-                    run.packets, withBase, run.bytes, run.failures, eng.packets, eng.failures);
+        fmt::println("client packets, traces: {} codings ({} with a base), {} bytes, failures {}; through engine.h: {} codings, failures {}", run.packets,
+                     withBase, run.bytes, run.failures, eng.packets, eng.failures);
         run.failures += eng.failures;
     }
-    std::printf("hash of the coded bytes 0x%016" PRIX64 ", expected 0x%016" PRIX64 " (%s)\n", run.fnv.h, expected, run.fnv.h == expected ? "ok" : "MISMATCH");
+    fmt::println("hash of the coded bytes 0x{:016X}, expected 0x{:016X} ({})", run.fnv.h, expected, run.fnv.h == expected ? "ok" : "MISMATCH");
     return run.failures == 0 && run.fnv.h == expected ? 0 : 1;
 }

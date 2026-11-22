@@ -56,7 +56,7 @@ bot_input_t* botinputs;
 //===========================================================================
 void EA_Say(int client, char* str)
 {
-    botimport.BotClientCommand(client, va("say %s", str));
+    botimport.BotClientCommand(client, Q_Format("say {}", str).c_str());
 } // end of the function EA_Say
 //===========================================================================
 //
@@ -66,7 +66,7 @@ void EA_Say(int client, char* str)
 //===========================================================================
 void EA_SayTeam(int client, const char* str)
 {
-    botimport.BotClientCommand(client, va("say_team %s", str));
+    botimport.BotClientCommand(client, Q_Format("say_team {}", str).c_str());
 } // end of the function EA_SayTeam
 //===========================================================================
 //
@@ -76,7 +76,7 @@ void EA_SayTeam(int client, const char* str)
 //===========================================================================
 void EA_Tell(int client, int clientto, char* str)
 {
-    botimport.BotClientCommand(client, va("tell %d, %s", clientto, str));
+    botimport.BotClientCommand(client, Q_Format("tell {}, {}", clientto, str).c_str());
 } // end of the function EA_SayTeam
 //===========================================================================
 //
@@ -86,7 +86,7 @@ void EA_Tell(int client, int clientto, char* str)
 //===========================================================================
 void EA_UseItem(int client, char* it)
 {
-    botimport.BotClientCommand(client, va("use %s", it));
+    botimport.BotClientCommand(client, Q_Format("use {}", it).c_str());
 } // end of the function EA_UseItem
 //===========================================================================
 //
@@ -96,7 +96,7 @@ void EA_UseItem(int client, char* it)
 //===========================================================================
 void EA_DropItem(int client, char* it)
 {
-    botimport.BotClientCommand(client, va("drop %s", it));
+    botimport.BotClientCommand(client, Q_Format("drop {}", it).c_str());
 } // end of the function EA_DropItem
 //===========================================================================
 //
@@ -106,7 +106,7 @@ void EA_DropItem(int client, char* it)
 //===========================================================================
 void EA_UseInv(int client, char* inv)
 {
-    botimport.BotClientCommand(client, va("invuse %s", inv));
+    botimport.BotClientCommand(client, Q_Format("invuse {}", inv).c_str());
 } // end of the function EA_UseInv
 //===========================================================================
 //
@@ -116,7 +116,7 @@ void EA_UseInv(int client, char* inv)
 //===========================================================================
 void EA_DropInv(int client, char* inv)
 {
-    botimport.BotClientCommand(client, va("invdrop %s", inv));
+    botimport.BotClientCommand(client, Q_Format("invdrop {}", inv).c_str());
 } // end of the function EA_DropInv
 //===========================================================================
 //
@@ -138,7 +138,7 @@ void EA_Gesture(int client)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void EA_Command(int client, char* command)
+void EA_Command(int client, const char* command)
 {
     botimport.BotClientCommand(client, command);
 } // end of the function EA_Command

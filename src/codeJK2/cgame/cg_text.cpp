@@ -86,10 +86,10 @@ const char* CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHei
             }
 
             if (uiLetter > 255) {
-                Q_strcat(sLineForDisplay, sizeof(sLineForDisplay), va("%c%c", uiLetter >> 8, uiLetter & 0xFF));
+                Q_strcat(sLineForDisplay, sizeof(sLineForDisplay), Q_Format("{:c}{:c}", uiLetter >> 8, uiLetter & 0xFF).c_str());
             }
             else {
-                Q_strcat(sLineForDisplay, sizeof(sLineForDisplay), va("%c", uiLetter & 0xFF));
+                Q_strcat(sLineForDisplay, sizeof(sLineForDisplay), Q_Format("{:c}", uiLetter & 0xFF).c_str());
             }
 
             if (uiLetter == '\n') {
@@ -141,7 +141,7 @@ const char* CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHei
         // and echo to console in dev mode...
         //
         if (cg_developer.integer) {
-            //			Com_Printf( "%psCurrentTextReadPos\n", sLineForDisplay );
+            //			Q_Println("{}sCurrentTextReadPos", sLineForDisplay);
         }
     }
     return psReadPosAtLineStart;
@@ -170,13 +170,13 @@ static int cg_SP_GetStringTextStringWithRetry(const char* psReference, char* psD
     if (psReference[0] == '#') {
         // then we know the striped package name is already built in, so do NOT try prepending anything else...
         //
-        return cgi_SP_GetStringTextString(va("%s", psReference + 1), psDest, iSizeofDest);
+        return cgi_SP_GetStringTextString(Q_Format("{}", psReference + 1).c_str(), psDest, iSizeofDest);
     }
 
     for (int i = 0; i < STRIPED_LEVELNAME_VARIATIONS; i++) {
         if (cgs.stripLevelName[i][0]) // entry present?
         {
-            iReturn = cgi_SP_GetStringTextString(va("%s_%s", cgs.stripLevelName[i], psReference), psDest, iSizeofDest);
+            iReturn = cgi_SP_GetStringTextString(Q_Format("{}_{}", cgs.stripLevelName[i], psReference).c_str(), psDest, iSizeofDest);
             if (iReturn) {
                 return iReturn;
             }
@@ -202,7 +202,7 @@ void CG_CaptionText(const char* str, int sound)
     holds = strrchr(str, '/');
     if (!holds) {
 #ifndef FINAL_BUILD
-        Com_Warning("CG_CaptionText given audio filename with no '/':'%s'\n", str);
+        Q_PrintlnWarning("CG_CaptionText given audio filename with no '/':'{}'", str);
 #endif
         return;
     }
@@ -213,7 +213,7 @@ void CG_CaptionText(const char* str, int sound)
         // we only care about some sound dirs...
         if (!Q_strncmp(str, "sound/chars/", 12)) // whichever language it is, it'll be pathed as english at this point
         {
-            Com_Warning("CG_CaptionText given invalid text key :'%s'\n", str);
+            Q_PrintlnWarning("CG_CaptionText given invalid text key :'{}'", str);
         }
         else {
             // anything else is probably stuff we don't care about. It certainly shouldn't be speech, anyway
@@ -276,10 +276,10 @@ void CG_CaptionText(const char* str, int sound)
         }
 
         if (uiLetter > 255) {
-            Q_strcat(cg.captionText[i], sizeof(cg.captionText[i]), va("%c%c", uiLetter >> 8, uiLetter & 0xFF));
+            Q_strcat(cg.captionText[i], sizeof(cg.captionText[i]), Q_Format("{:c}{:c}", uiLetter >> 8, uiLetter & 0xFF).c_str());
         }
         else {
-            Q_strcat(cg.captionText[i], sizeof(cg.captionText[i]), va("%c", uiLetter & 0xFF));
+            Q_strcat(cg.captionText[i], sizeof(cg.captionText[i]), Q_Format("{:c}", uiLetter & 0xFF).c_str());
         }
 
         if (uiLetter == '\n') {
@@ -336,7 +336,7 @@ void CG_CaptionText(const char* str, int sound)
     cg.scrollTextTime = 0; // No scrolling during captions
 
     // Echo to console in dev mode
-    Com_DPrintf("%s\n", cg.captionText[0]); // ste:  was [i], but surely sentence 0 is more useful than last?
+    Q_DPrintln("{}", cg.captionText[0]); // ste:  was [i], but surely sentence 0 is more useful than last?
 }
 
 void CG_DrawCaptionText(void)
@@ -428,7 +428,7 @@ void CG_ScrollText(const char* str, int iPixelWidth)
     // ensure we found a match
     if (!i) {
 #ifndef FINAL_BUILD
-        Com_Warning("CG_ScrollText given invalid text key :'%s'\n", str);
+        Q_PrintlnWarning("CG_ScrollText given invalid text key :'{}'", str);
 #endif
         return;
     }
@@ -445,7 +445,7 @@ void CG_ScrollText(const char* str, int iPixelWidth)
         assert(0); // should never get here now, but wtf?
         cgi_Z_Free(psText);
 #ifndef FINAL_BUILD
-        Com_Warning("CG_ScrollText given invalid text key :'%s'\n", str);
+        Q_PrintlnWarning("CG_ScrollText given invalid text key :'{}'", str);
 #endif
         return;
     }
@@ -476,10 +476,10 @@ void CG_ScrollText(const char* str, int iPixelWidth)
         }
 
         if (uiLetter > 255) {
-            Q_strcat(cg.printText[i], sizeof(cg.printText[i]), va("%c%c", uiLetter >> 8, uiLetter & 0xFF));
+            Q_strcat(cg.printText[i], sizeof(cg.printText[i]), Q_Format("{:c}{:c}", uiLetter >> 8, uiLetter & 0xFF).c_str());
         }
         else {
-            Q_strcat(cg.printText[i], sizeof(cg.printText[i]), va("%c", uiLetter & 0xFF));
+            Q_strcat(cg.printText[i], sizeof(cg.printText[i]), Q_Format("{:c}", uiLetter & 0xFF).c_str());
         }
 
         // record last-good linebreak pos...  (ie if we've just concat'd a punctuation point (western or asian) or space)
@@ -543,7 +543,7 @@ void CG_DrawScrollText(void)
 
     y = cg.printTextY - (cg.time - cg.scrollTextTime) * SCROLL_LPM;
 
-    //	cgi_R_Font_DrawString(320, 200, va("Scrolltext printing @ %d",y), colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
+    //	cgi_R_Font_DrawString(320, 200, Q_Format("Scrolltext printing @ {}", y).c_str(), colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
 
     // See if text has finished scrolling off screen
     if ((y + cg.scrollTextLines * fontHeight) < 1) {
@@ -602,7 +602,7 @@ void CG_CenterPrint(const char* str, int y)
         i = cgi_SP_GetStringTextString(str + 1, cg.centerPrint, sizeof(cg.centerPrint));
 
         if (!i) {
-            Com_Printf(S_COLOR_RED "CG_CenterPrint: cannot find reference '%s' in StringPackage!\n", str);
+            Q_Println(S_COLOR_RED "CG_CenterPrint: cannot find reference '{}' in StringPackage!", str);
             Q_strncpyz(cg.centerPrint, str, sizeof(cg.centerPrint));
         }
     }

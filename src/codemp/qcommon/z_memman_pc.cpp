@@ -105,18 +105,18 @@ void Z_Validate(void)
         // this won't happen here, but wtf?
         int& iAllocCount = mapAllocatedZones[pMemory];
         if (iAllocCount <= 0) {
-            Com_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Bad block allocation count!");
+            Q_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Bad block allocation count!");
             return;
         }
 #endif
 
         if (pMemory->iMagic != ZONE_MAGIC) {
-            Com_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Corrupt zone header!");
+            Q_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Corrupt zone header!");
             return;
         }
 
         if (ZoneTailFromHeader(pMemory)->iMagic != ZONE_MAGIC) {
-            Com_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Corrupt zone tail!");
+            Q_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Corrupt zone tail!");
             return;
         }
 
@@ -250,9 +250,9 @@ void* Z_Malloc(int iSize, memtag_t eTag, bool bZeroit /* = false */, int iUnused
             //
             // findlabel:  "recovermem"
 
-            Com_Printf(S_COLOR_RED "Z_Malloc(): Failed to alloc %d bytes (TAG_%s) !!!!!\n", iSize, psTagStrings[eTag]);
+            Q_Println(S_COLOR_RED "Z_Malloc(): Failed to alloc {} bytes (TAG_{}) !!!!!", iSize, psTagStrings[eTag]);
             Z_Details_f();
-            Com_Error(errorParm_t::ERR_FATAL, "(Repeat): Z_Malloc(): Failed to alloc %d bytes (TAG_%s) !!!!!\n", iSize, psTagStrings[eTag]);
+            Q_Error(errorParm_t::ERR_FATAL, "(Repeat): Z_Malloc(): Failed to alloc {} bytes (TAG_{}) !!!!!", iSize, psTagStrings[eTag]);
             return nullptr;
         }
     }
@@ -301,7 +301,7 @@ void Z_MorphMallocTag(void* pvAddress, memtag_t eDesiredTag)
     zoneHeader_t* pMemory = ((zoneHeader_t*)pvAddress) - 1;
 
     if (pMemory->iMagic != ZONE_MAGIC) {
-        Com_Error(errorParm_t::ERR_FATAL, "Z_MorphMallocTag(): Not a valid zone header!");
+        Q_Error(errorParm_t::ERR_FATAL, "Z_MorphMallocTag(): Not a valid zone header!");
         return; // won't get here
     }
 
@@ -352,7 +352,7 @@ static void Zone_FreeBlock(zoneHeader_t* pMemory)
         // this has already been checked for in execution order, but wtf?
         int& iAllocCount = mapAllocatedZones[pMemory];
         if (iAllocCount == 0) {
-            Com_Error(errorParm_t::ERR_FATAL, "Zone_FreeBlock(): Double-freeing block!");
+            Q_Error(errorParm_t::ERR_FATAL, "Zone_FreeBlock(): Double-freeing block!");
             return;
         }
         iAllocCount--;
@@ -371,7 +371,7 @@ int Z_Size(void* pvAddress)
     }
 
     if (pMemory->iMagic != ZONE_MAGIC) {
-        Com_Error(errorParm_t::ERR_FATAL, "Z_Size(): Not a valid zone header!");
+        Q_Error(errorParm_t::ERR_FATAL, "Z_Size(): Not a valid zone header!");
         return 0; // won't get here
     }
 
@@ -384,7 +384,7 @@ void Z_Free(void* pvAddress)
 {
     if (pvAddress == nullptr) // I've put this in as a safety measure because of some bits of #ifdef BSPC stuff	-Ste.
     {
-        // Com_Error(errorParm_t::ERR_FATAL, "Z_Free(): nullptr arg");
+        // Q_Error(errorParm_t::ERR_FATAL, "Z_Free(): nullptr arg");
         return;
     }
 
@@ -400,17 +400,17 @@ void Z_Free(void* pvAddress)
     //
     int& iAllocCount = mapAllocatedZones[pMemory];
     if (iAllocCount <= 0) {
-        Com_Error(errorParm_t::ERR_FATAL, "Z_Free(): Block already-freed, or not allocated through Z_Malloc!");
+        Q_Error(errorParm_t::ERR_FATAL, "Z_Free(): Block already-freed, or not allocated through Z_Malloc!");
         return;
     }
 #endif
 
     if (pMemory->iMagic != ZONE_MAGIC) {
-        Com_Error(errorParm_t::ERR_FATAL, "Z_Free(): Corrupt zone header!");
+        Q_Error(errorParm_t::ERR_FATAL, "Z_Free(): Corrupt zone header!");
         return;
     }
     if (ZoneTailFromHeader(pMemory)->iMagic != ZONE_MAGIC) {
-        Com_Error(errorParm_t::ERR_FATAL, "Z_Free(): Corrupt zone tail!");
+        Q_Error(errorParm_t::ERR_FATAL, "Z_Free(): Corrupt zone tail!");
         return;
     }
 
@@ -471,19 +471,19 @@ static void Z_MemRecoverTest_f(void)
 
 static void Z_Stats_f(void)
 {
-    Com_Printf("\nThe zone is using %d bytes (%.2fMB) in %d memory blocks\n", TheZone.Stats.iCurrent, (float)TheZone.Stats.iCurrent / 1024.0f / 1024.0f,
-               TheZone.Stats.iCount);
+    Q_Println("\nThe zone is using {} bytes ({:.2f}MB) in {} memory blocks", TheZone.Stats.iCurrent, (float)TheZone.Stats.iCurrent / 1024.0f / 1024.0f,
+              TheZone.Stats.iCount);
 
-    Com_Printf("The zone peaked at %d bytes (%.2fMB)\n", TheZone.Stats.iPeak, (float)TheZone.Stats.iPeak / 1024.0f / 1024.0f);
+    Q_Println("The zone peaked at {} bytes ({:.2f}MB)", TheZone.Stats.iPeak, (float)TheZone.Stats.iPeak / 1024.0f / 1024.0f);
 }
 
 // Gives a detailed breakdown of the memory blocks in the zone
 
 static void Z_Details_f(void)
 {
-    Com_Printf("---------------------------------------------------------------------------\n");
-    Com_Printf("%20s %9s\n", "Zone Tag", "Bytes");
-    Com_Printf("%20s %9s\n", "--------", "-----");
+    Q_Println("---------------------------------------------------------------------------");
+    Q_Println("{:>20} {:>9}", "Zone Tag", "Bytes");
+    Q_Println("{:>20} {:>9}", "--------", "-----");
     for (memtag i = memtag::TAG_ALL; i < memtag::TAG_COUNT; i++) {
         int iThisCount = TheZone.Stats.iCountsPerTag[i];
         int iThisSize = TheZone.Stats.iSizesPerTag[i];
@@ -495,11 +495,11 @@ static void Z_Details_f(void)
             float fSize = (float)(iThisSize) / 1024.0f / 1024.0f;
             int iSize = fSize;
             int iRemainder = 100.0f * (fSize - Q_floor(fSize));
-            Com_Printf("%20s %9d (%2d.%02dMB) in %6d blocks (%9d average)\n", psTagStrings[i], iThisSize, iSize, iRemainder, iThisCount,
-                       iThisSize / iThisCount);
+            Q_Println("{:>20} {:9} ({:2}.{:02}MB) in {:6} blocks ({:9} average)", psTagStrings[i], iThisSize, iSize, iRemainder, iThisCount,
+                      iThisSize / iThisCount);
         }
     }
-    Com_Printf("---------------------------------------------------------------------------\n");
+    Q_Println("---------------------------------------------------------------------------");
 
     Z_Stats_f();
 }
@@ -507,13 +507,13 @@ static void Z_Details_f(void)
 // Shuts down the zone memory system and frees up all memory
 void Com_ShutdownZoneMemory(void)
 {
-    //	Com_Printf("Shutting down zone memory .....\n");
+    //	Q_Println("Shutting down zone memory .....");
 
     Cmd_RemoveCommand("zone_stats");
     Cmd_RemoveCommand("zone_details");
 
     if (TheZone.Stats.iCount) {
-        Com_Printf("Automatically freeing %d blocks making up %d bytes\n", TheZone.Stats.iCount, TheZone.Stats.iCurrent);
+        Q_Println("Automatically freeing {} blocks making up {} bytes", TheZone.Stats.iCount, TheZone.Stats.iCurrent);
         Z_TagFree(memtag::TAG_ALL);
 
         assert(!TheZone.Stats.iCount);
@@ -589,7 +589,7 @@ void Com_TouchMemory(void)
     Z_Validate();
 
     //	end = Sys_Milliseconds();
-    //	Com_Printf( "Com_TouchMemory: %i msec\n", end - start );
+    //	Q_Println("Com_TouchMemory: {} msec", end - start);
 }
 
 bool Com_TheHunkMarkHasBeenMade(void)
@@ -704,14 +704,14 @@ void Hunk_Clear(void)
         re->HunkClearCrap();
     }
 
-    //	Com_Printf( "Hunk_Clear: reset the hunk ok\n" );
+    //	Q_Println("Hunk_Clear: reset the hunk ok");
     VM_Clear();
 
 // See if any ghoul2 stuff was leaked, at this point it should be all cleaned up.
 #ifdef _FULL_G2_LEAK_CHECKING
     assert(g_Ghoul2Allocations == 0 && g_G2ClientAlloc == 0 && g_G2ServerAlloc == 0);
     if (g_Ghoul2Allocations) {
-        Com_Printf("%i bytes leaked by ghoul2 routines (%i client, %i server)\n", g_Ghoul2Allocations, g_G2ClientAlloc, g_G2ServerAlloc);
+        Q_Println("{} bytes leaked by ghoul2 routines ({} client, {} server)", g_Ghoul2Allocations, g_G2ClientAlloc, g_G2ServerAlloc);
         G2_DEBUG_ReportLeaks();
     }
 #endif

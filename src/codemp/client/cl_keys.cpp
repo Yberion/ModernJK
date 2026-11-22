@@ -452,7 +452,7 @@ void Field_VariableSizeDraw(field_t* edit, int x, int y, int size, bool showCurs
 
     // extract <drawLen> characters from the field at <prestep>
     if (drawLen >= MAX_STRING_CHARS) {
-        Com_Error(errorParm_t::ERR_DROP, "drawLen >= MAX_STRING_CHARS");
+        Q_Error(errorParm_t::ERR_DROP, "drawLen >= MAX_STRING_CHARS");
     }
 
     Com_Memcpy(str, edit->buffer + prestep, drawLen);
@@ -695,14 +695,14 @@ void Console_Key(fakeAscii_t key)
             char temp[MAX_EDIT_LINE - 1];
 
             Q_strncpyz(temp, g_consoleField.buffer + 1, sizeof(temp));
-            Com_sprintf(g_consoleField.buffer, sizeof(g_consoleField.buffer), "%s", temp);
+            Q_FormatTo(g_consoleField.buffer, "{}", temp);
             g_consoleField.cursor--;
         }
         //	else
         //		Field_AutoComplete( &g_consoleField );
 
         // print executed command
-        Com_Printf("%c%s\n", CONSOLE_PROMPT_CHAR, g_consoleField.buffer);
+        Q_Println("{}{}", CONSOLE_PROMPT_CHAR, g_consoleField.buffer);
 
         // check if cgame wants to eat the command...?
         if (cls.cgameStarted && cl.mSharedMemory) {
@@ -830,11 +830,11 @@ void Message_Key(fakeAscii_t key)
     if (key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
         if (chatField.buffer[0] && cls.state == connstate_t::CA_ACTIVE) {
             if (chat_playerNum != -1)
-                Com_sprintf(buffer, sizeof(buffer), "tell %i \"%s\"\n", chat_playerNum, chatField.buffer);
+                Q_FormatTo(buffer, "tell {} \"{}\"\n", chat_playerNum, chatField.buffer);
             else if (chat_team)
-                Com_sprintf(buffer, sizeof(buffer), "say_team \"%s\"\n", chatField.buffer);
+                Q_FormatTo(buffer, "say_team \"{}\"\n", chatField.buffer);
             else
-                Com_sprintf(buffer, sizeof(buffer), "say \"%s\"\n", chatField.buffer);
+                Q_FormatTo(buffer, "say \"{}\"\n", chatField.buffer);
 
             CL_AddReliableCommand(buffer, false);
         }
@@ -1068,13 +1068,13 @@ Key_Unbind_f
 void Key_Unbind_f(void)
 {
     if (Cmd_Argc() != 2) {
-        Com_Printf("unbind <key> : remove commands from a key\n");
+        Q_Println("unbind <key> : remove commands from a key");
         return;
     }
 
     const std::optional<fakeAscii_t> b = Key_StringToKeynum(Cmd_Argv(1));
     if (!b) {
-        Com_Printf("\"%s\" isn't a valid key\n", Cmd_Argv(1));
+        Q_Println("\"{}\" isn't a valid key", Cmd_Argv(1));
         return;
     }
 
@@ -1104,22 +1104,22 @@ void Key_Bind_f(void)
     int c = Cmd_Argc();
 
     if (c < 2) {
-        Com_Printf("bind <key> [command] : attach a command to a key\n");
+        Q_Println("bind <key> [command] : attach a command to a key");
         return;
     }
 
     const std::optional<fakeAscii_t> b = Key_StringToKeynum(Cmd_Argv(1));
     if (!b) {
-        Com_Printf("\"%s\" isn't a valid key\n", Cmd_Argv(1));
+        Q_Println("\"{}\" isn't a valid key", Cmd_Argv(1));
         return;
     }
 
     if (c == 2) {
         if (kg.keys[*b].binding && kg.keys[*b].binding[0])
-            Com_Printf(S_COLOR_GREY "Bind " S_COLOR_WHITE "%s = " S_COLOR_GREY "\"" S_COLOR_WHITE "%s" S_COLOR_GREY "\"" S_COLOR_WHITE "\n",
-                       Key_KeynumToString(*b), kg.keys[*b].binding);
+            Q_Println(S_COLOR_GREY "Bind " S_COLOR_WHITE "{} = " S_COLOR_GREY "\"" S_COLOR_WHITE "{}" S_COLOR_GREY "\"" S_COLOR_WHITE, Key_KeynumToString(*b),
+                      kg.keys[*b].binding);
         else
-            Com_Printf("\"%s\" is not bound\n", Key_KeynumToString(*b));
+            Q_Println("\"{}\" is not bound", Key_KeynumToString(*b));
         return;
     }
 
@@ -1135,16 +1135,16 @@ Writes lines containing "bind key value"
 */
 void Key_WriteBindings(fileHandle_t f)
 {
-    FS_Printf(f, "unbindall\n");
+    FS_Print(f, "unbindall\n");
     for (fakeAscii_t i = fakeAscii_t::A_NULL; i < fakeAscii_t::MAX_KEYS; i++) {
         if (kg.keys[i].binding && kg.keys[i].binding[0]) {
             const char* name = Key_KeynumToString(i);
 
             // handle the escape character nicely
             if (!strcmp(name, "\\"))
-                FS_Printf(f, "bind \"\\\" \"%s\"\n", kg.keys[i].binding);
+                FS_Print(f, "bind \"\\\" \"{}\"\n", kg.keys[i].binding);
             else
-                FS_Printf(f, "bind \"%s\" \"%s\"\n", name, kg.keys[i].binding);
+                FS_Print(f, "bind \"{}\" \"{}\"\n", name, kg.keys[i].binding);
         }
     }
 }
@@ -1159,8 +1159,8 @@ void Key_Bindlist_f(void)
 {
     for (fakeAscii_t i = fakeAscii_t::A_NULL; i < fakeAscii_t::MAX_KEYS; i++) {
         if (kg.keys[i].binding && kg.keys[i].binding[0])
-            Com_Printf(S_COLOR_GREY "Key " S_COLOR_WHITE "%s (%s) = " S_COLOR_GREY "\"" S_COLOR_WHITE "%s" S_COLOR_GREY "\"" S_COLOR_WHITE "\n",
-                       Key_KeynumToAscii(i), Key_KeynumToString(i), kg.keys[i].binding);
+            Q_Println(S_COLOR_GREY "Key " S_COLOR_WHITE "{} ({}) = " S_COLOR_GREY "\"" S_COLOR_WHITE "{}" S_COLOR_GREY "\"" S_COLOR_WHITE, Key_KeynumToAscii(i),
+                      Key_KeynumToString(i), kg.keys[i].binding);
     }
 }
 
@@ -1289,7 +1289,7 @@ void CL_ParseBinding(fakeAscii_t key, bool down, unsigned time)
             // subframe corrected
             if (allCommands || (allowUpCmds && !down)) {
                 char cmd[1024];
-                Com_sprintf(cmd, sizeof(cmd), "%c%s %d %d\n", (down) ? '+' : '-', p + 1, to_underlying(key), time);
+                Q_FormatTo(cmd, "{}{} {} {}\n", (down) ? '+' : '-', p + 1, to_underlying(key), static_cast<int>(time));
                 Cbuf_AddText(cmd);
             }
         }

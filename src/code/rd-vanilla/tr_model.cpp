@@ -230,7 +230,7 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
     bool bAtLeastoneModelFreed = false;
 
     if (gbInsideRegisterModel) {
-        Com_DPrintf("(Inside RE_RegisterModel (z_malloc recovery?), exiting...\n");
+        Q_DPrintln("(Inside RE_RegisterModel (z_malloc recovery?), exiting...");
     }
     else {
         int iLoadedModelBytes = GetModelDataAllocSize();
@@ -254,8 +254,8 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
             if (bDeleteThis) {
 #ifdef _DEBUG
                 //				LPCSTR psModelName = (*itModel).first.c_str();
-                //				Com_DPrintf("Dumping \"%s\"", psModelName);
-                //				Com_DPrintf(", used on lvl %d\n",CachedModel.iLastLevelUsedOn);
+                //				Q_DPrintln("Dumping \"{}\"", psModelName);
+                //				Q_DPrintln(", used on lvl {}", CachedModel.iLastLevelUsedOn);
 #endif
 
                 if (CachedModel.pModelDiskImage) {
@@ -273,7 +273,7 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
         }
     }
 
-    // Com_DPrintf("RE_RegisterModels_LevelLoadEnd(): Ok\n");
+    // Q_DPrintln("RE_RegisterModels_LevelLoadEnd(): Ok");
 
     return bAtLeastoneModelFreed;
 }
@@ -282,7 +282,7 @@ void RE_RegisterModels_Info_f(void)
 {
     int iTotalBytes = 0;
     if (!CachedModels) {
-        Com_Printf("%d bytes total (%.2fMB)\n", iTotalBytes, (float)iTotalBytes / 1024.0f / 1024.0f);
+        Q_Println("{} bytes total ({:.2f}MB)", iTotalBytes, (float)iTotalBytes / 1024.0f / 1024.0f);
         return;
     }
 
@@ -292,15 +292,15 @@ void RE_RegisterModels_Info_f(void)
     for (CachedModels_t::iterator itModel = CachedModels->begin(); itModel != CachedModels->end(); ++itModel, iModel++) {
         CachedEndianedModelBinary_t& CachedModel = (*itModel).second;
 
-        Com_Printf("%d/%d: \"%s\" (%d bytes)", iModel, iModels, (*itModel).first.c_str(), CachedModel.iAllocSize);
+        Q_Print("{}/{}: \"{}\" ({} bytes)", iModel, iModels, (*itModel).first.c_str(), CachedModel.iAllocSize);
 
 #ifdef _DEBUG
-        Com_Printf(", lvl %d\n", CachedModel.iLastLevelUsedOn);
+        Q_Println(", lvl {}", CachedModel.iLastLevelUsedOn);
 #endif
 
         iTotalBytes += CachedModel.iAllocSize;
     }
-    Com_Printf("%d bytes total (%.2fMB)\n", iTotalBytes, (float)iTotalBytes / 1024.0f / 1024.0f);
+    Q_Println("{} bytes total ({:.2f}MB)", iTotalBytes, (float)iTotalBytes / 1024.0f / 1024.0f);
 }
 
 static void RE_RegisterModels_DeleteAll(void)
@@ -516,12 +516,12 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
     */
 
     if (!name || !name[0]) {
-        Com_Warning("RE_RegisterModel: NULL name\n");
+        Q_PrintlnWarning("RE_RegisterModel: NULL name");
         return 0;
     }
 
     if (strlen(name) >= MAX_QPATH) {
-        Com_DPrintf("Model name exceeds MAX_QPATH\n");
+        Q_DPrintln("Model name exceeds MAX_QPATH");
         return 0;
     }
 
@@ -529,7 +529,7 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
     Ghoul2 Insert Start
     */
     //	if (!tr.registered) {
-    //		Com_Warning("RE_RegisterModel (%s) called before ready!\n",name );
+    //		Q_PrintlnWarning("RE_RegisterModel ({}) called before ready!", name);
     //		return 0;
     //	}
     //
@@ -559,10 +559,10 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
 
         tr.numBSPModels++;
 #ifndef DEDICATED
-        RE_LoadWorldMap_Actual(va("maps/%s.bsp", name + 1), tr.bspModels[tr.numBSPModels - 1],
+        RE_LoadWorldMap_Actual(Q_Format("maps/{}.bsp", name + 1).c_str(), tr.bspModels[tr.numBSPModels - 1],
                                tr.numBSPModels); // this calls R_LoadSubmodels which will put them into the Hash
 #endif
-        Com_sprintf(temp, MAX_QPATH, "*%d-0", tr.numBSPModels);
+        Q_FormatTo(std::span(temp, MAX_QPATH), "*{}-0", tr.numBSPModels);
         hash = generateHashValue(temp, FILE_HASH_SIZE);
         for (mh = mhHashTable[hash]; mh; mh = mh->next) {
             if (Q_stricmp(mh->name, temp) == 0) {
@@ -576,7 +576,7 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
     // allocate a new model_t
 
     if ((mod = R_AllocModel()) == nullptr) {
-        Com_Warning("RE_RegisterModel: R_AllocModel() failed for '%s'\n", name);
+        Q_PrintlnWarning("RE_RegisterModel: R_AllocModel() failed for '{}'", name);
         return 0;
     }
 
@@ -608,7 +608,7 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
             if (strrchr(filename, '.')) {
                 *strrchr(filename, '.') = 0;
             }
-            sprintf(namebuf, "_%d.md3", lod);
+            Q_FormatTo(namebuf, "_{}.md3", lod);
             strcat(filename, namebuf);
         }
 
@@ -616,7 +616,7 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
         if (!RE_RegisterModels_GetDiskFile(filename, (void**)&buf, &bAlreadyCached)) {
             if (numLoaded) // we loaded one already, but a higher LOD is missing!
             {
-                Com_Error(errorParm_t::ERR_DROP, "R_LoadMD3: %s has LOD %d but is missing LOD %d ('%s')!", mod->name, lod + 1, lod, filename);
+                Q_Error(errorParm_t::ERR_DROP, "R_LoadMD3: {} has LOD {} but is missing LOD {} ('{}')!", mod->name, lod + 1, lod, filename);
             }
             continue;
         }
@@ -653,7 +653,7 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
 
         default:
 
-            Com_Warning("RE_RegisterModel: unknown fileid for %s\n", filename);
+            Q_PrintlnWarning("RE_RegisterModel: unknown fileid for {}", filename);
             goto fail;
         }
 
@@ -663,7 +663,7 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
 
         if (!loaded) {
             if (lod == 0) {
-                Com_Warning("RE_RegisterModel: cannot load %s\n", filename);
+                Q_PrintlnWarning("RE_RegisterModel: cannot load {}", filename);
                 goto fail;
             }
             else {
@@ -761,7 +761,7 @@ static bool R_LoadMD3(model_t* mod, int lod, void* buffer, const char* mod_name,
     }
 
     if (version != MD3_VERSION) {
-        Com_Warning("R_LoadMD3: %s has wrong version (%i should be %i)\n", mod_name, version, MD3_VERSION);
+        Q_PrintlnWarning("R_LoadMD3: {} has wrong version ({} should be {})", mod_name, version, MD3_VERSION);
         return false;
     }
 
@@ -796,7 +796,7 @@ static bool R_LoadMD3(model_t* mod, int lod, void* buffer, const char* mod_name,
     }
 
     if (mod->md3[lod]->numFrames < 1) {
-        Com_Warning("R_LoadMD3: %s has no frames\n", mod_name);
+        Q_PrintlnWarning("R_LoadMD3: {} has no frames", mod_name);
         return false;
     }
 
@@ -843,11 +843,10 @@ static bool R_LoadMD3(model_t* mod, int lod, void* buffer, const char* mod_name,
         LL(surf->ofsEnd);
 
         if (surf->numVerts > SHADER_MAX_VERTEXES) {
-            Com_Error(errorParm_t::ERR_DROP, "R_LoadMD3: %s has more than %i verts on a surface (%i)", mod_name, SHADER_MAX_VERTEXES, surf->numVerts);
+            Q_Error(errorParm_t::ERR_DROP, "R_LoadMD3: {} has more than {} verts on a surface ({})", mod_name, SHADER_MAX_VERTEXES, surf->numVerts);
         }
         if (surf->numTriangles * 3 > SHADER_MAX_INDEXES) {
-            Com_Error(errorParm_t::ERR_DROP, "R_LoadMD3: %s has more than %i triangles on a surface (%i)", mod_name, SHADER_MAX_INDEXES / 3,
-                      surf->numTriangles);
+            Q_Error(errorParm_t::ERR_DROP, "R_LoadMD3: {} has more than {} triangles on a surface ({})", mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles);
         }
 
         // change to surface identifier
@@ -984,25 +983,25 @@ void R_Modellist_f(void)
         switch (mod->type) {
         default:
             assert(0);
-            Com_Printf("UNKNOWN  :      %s\n", mod->name);
+            Q_Println("UNKNOWN  :      {}", mod->name);
             break;
 
         case modtype_t::MOD_BAD:
-            Com_Printf("MOD_BAD  :      %s\n", mod->name);
+            Q_Println("MOD_BAD  :      {}", mod->name);
             break;
 
         case modtype_t::MOD_BRUSH:
-            Com_Printf("%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name);
+            Q_Println("{:8} : ({}) {}", mod->dataSize, mod->numLods, mod->name);
             break;
 
         case modtype_t::MOD_MDXA:
 
-            Com_Printf("%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name);
+            Q_Println("{:8} : ({}) {}", mod->dataSize, mod->numLods, mod->name);
             break;
 
         case modtype_t::MOD_MDXM:
 
-            Com_Printf("%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name);
+            Q_Println("{:8} : ({}) {}", mod->dataSize, mod->numLods, mod->name);
             break;
 
         case modtype_t::MOD_MESH:
@@ -1013,16 +1012,16 @@ void R_Modellist_f(void)
                     lods++;
                 }
             }
-            Com_Printf("%8i : (%i) %s\n", mod->dataSize, lods, mod->name);
+            Q_Println("{:8} : ({}) {}", mod->dataSize, lods, mod->name);
             break;
         }
         total += mod->dataSize;
     }
-    Com_Printf("%8i : Total models\n", total);
+    Q_Println("{:8} : Total models", total);
 
     /*	this doesn't work with the new hunks
         if ( tr.world ) {
-            Com_Printf("%8i : %s\n", tr.world->dataSize, tr.world->name );
+            Q_Println("{:8} : {}", tr.world->dataSize, tr.world->name);
         } */
 }
 

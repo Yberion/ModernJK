@@ -118,13 +118,13 @@ static void R_ModeList_f(void)
 {
     int i;
 
-    Com_Printf("\n");
-    Com_Printf("Mode -2: Use desktop resolution\n");
-    Com_Printf("Mode -1: Use r_customWidth and r_customHeight variables\n");
+    Q_Println("");
+    Q_Println("Mode -2: Use desktop resolution");
+    Q_Println("Mode -1: Use r_customWidth and r_customHeight variables");
     for (i = 0; i < s_numVidModes; i++) {
-        Com_Printf("%s\n", r_vidModes[i].description);
+        Q_Println("{}", r_vidModes[i].description);
     }
-    Com_Printf("\n");
+    Q_Println("");
 }
 
 /*
@@ -147,7 +147,7 @@ void WIN_Present(window_t* window)
         if (r_swapInterval->modified) {
             r_swapInterval->modified = false;
             if (SDL_GL_SetSwapInterval(r_swapInterval->integer) == -1) {
-                Com_DPrintf("SDL_GL_SetSwapInterval failed: %s\n", SDL_GetError());
+                Q_DPrintln("SDL_GL_SetSwapInterval failed: {}", SDL_GetError());
             }
         }
     }
@@ -161,7 +161,7 @@ void WIN_Present(window_t* window)
         fullscreen = (SDL_GetWindowFlags(screen) & SDL_WINDOW_FULLSCREEN) != 0;
 
         if (r_fullscreen->integer && Cvar_VariableIntegerValue("in_nograb")) {
-            Com_Printf("Fullscreen not allowed with in_nograb 1\n");
+            Q_Println("Fullscreen not allowed with in_nograb 1");
             Cvar_Set("r_fullscreen", "0");
             r_fullscreen->modified = false;
         }
@@ -223,24 +223,24 @@ static bool GLimp_DetectAvailableModes(void)
 
     int display = SDL_GetWindowDisplayIndex(screen);
     if (display < 0) {
-        Com_Warning("Couldn't get window display index, no resolutions detected: %s\n", SDL_GetError());
+        Q_PrintlnWarning("Couldn't get window display index, no resolutions detected: {}", SDL_GetError());
         return false;
     }
 
     SDL_DisplayMode windowMode;
 
     if (SDL_GetWindowDisplayMode(screen, &windowMode) < 0) {
-        Com_Warning("Couldn't get window display mode, no resolutions detected (%s).\n", SDL_GetError());
+        Q_PrintlnWarning("Couldn't get window display mode, no resolutions detected ({}).", SDL_GetError());
         return false;
     }
 
     int numDisplayModes = SDL_GetNumDisplayModes(display);
     if (numDisplayModes < 0)
-        Com_Error(errorParm_t::ERR_FATAL, "SDL_GetNumDisplayModes() FAILED (%s)", SDL_GetError());
+        Q_Error(errorParm_t::ERR_FATAL, "SDL_GetNumDisplayModes() FAILED ({})", SDL_GetError());
 
     modes = (SDL_Rect*)SDL_calloc((size_t)numDisplayModes, sizeof(SDL_Rect));
     if (!modes)
-        Com_Error(errorParm_t::ERR_FATAL, "Out of memory");
+        Q_Error(errorParm_t::ERR_FATAL, "Out of memory");
 
     for (i = 0; i < numDisplayModes; i++) {
         SDL_DisplayMode mode;
@@ -249,7 +249,7 @@ static bool GLimp_DetectAvailableModes(void)
             continue;
 
         if (!mode.w || !mode.h) {
-            Com_Printf("Display supports any resolution\n");
+            Q_Println("Display supports any resolution");
             SDL_free(modes);
             return true;
         }
@@ -276,17 +276,18 @@ static bool GLimp_DetectAvailableModes(void)
         qsort(modes, numModes, sizeof(SDL_Rect), GLimp_CompareModes);
 
     for (i = 0; i < numModes; i++) {
-        const char* newModeString = va("%ux%u ", modes[i].w, modes[i].h);
+        const formatText_t newModeStringText = Q_Format("{}x{} ", static_cast<unsigned int>(modes[i].w), static_cast<unsigned int>(modes[i].h));
+        const char* newModeString = newModeStringText.c_str();
 
         if (strlen(newModeString) < (int)sizeof(buf) - strlen(buf))
             Q_strcat(buf, sizeof(buf), newModeString);
         else
-            Com_Printf("Skipping mode %ux%u, buffer too small\n", modes[i].w, modes[i].h);
+            Q_Println("Skipping mode {}x{}, buffer too small", static_cast<unsigned int>(modes[i].w), static_cast<unsigned int>(modes[i].h));
     }
 
     if (*buf) {
         buf[strlen(buf) - 1] = 0;
-        Com_Printf("Available modes: '%s'\n", buf);
+        Q_Println("Available modes: '{}'", buf);
         Cvar_Set("r_availableModes", buf);
     }
 
@@ -315,7 +316,7 @@ static rserr_t GLimp_SetMode(glconfig_t* glConfig, const windowDesc_t* windowDes
         flags |= SDL_WINDOW_OPENGL;
     }
 
-    Com_Printf("Initializing display\n");
+    Q_Println("Initializing display");
 
     icon = SDL_CreateRGBSurfaceFrom((void*)CLIENT_WINDOW_ICON.pixel_data, CLIENT_WINDOW_ICON.width, CLIENT_WINDOW_ICON.height,
                                     CLIENT_WINDOW_ICON.bytes_per_pixel * 8, CLIENT_WINDOW_ICON.bytes_per_pixel * CLIENT_WINDOW_ICON.width,
@@ -330,22 +331,22 @@ static rserr_t GLimp_SetMode(glconfig_t* glConfig, const windowDesc_t* windowDes
     if (screen != nullptr) {
         display = SDL_GetWindowDisplayIndex(screen);
         if (display < 0) {
-            Com_DPrintf("SDL_GetWindowDisplayIndex() failed: %s\n", SDL_GetError());
+            Q_DPrintln("SDL_GetWindowDisplayIndex() failed: {}", SDL_GetError());
         }
     }
 
     if (display >= 0 && SDL_GetDesktopDisplayMode(display, &desktopMode) == 0) {
         displayAspect = (float)desktopMode.w / (float)desktopMode.h;
 
-        Com_Printf("Display aspect: %.3f\n", displayAspect);
+        Q_Println("Display aspect: {:.3f}", displayAspect);
     }
     else {
         Com_Memset(&desktopMode, 0, sizeof(SDL_DisplayMode));
 
-        Com_Printf("Cannot determine display aspect, assuming 1.333\n");
+        Q_Println("Cannot determine display aspect, assuming 1.333");
     }
 
-    Com_Printf("...setting mode %d:", mode);
+    Q_Print("...setting mode {}:", mode);
 
     if (mode == -2) {
         // use desktop video resolution
@@ -356,17 +357,17 @@ static rserr_t GLimp_SetMode(glconfig_t* glConfig, const windowDesc_t* windowDes
         else {
             glConfig->vidWidth = 640;
             glConfig->vidHeight = 480;
-            Com_Printf("Cannot determine display resolution, assuming 640x480\n");
+            Q_Println("Cannot determine display resolution, assuming 640x480");
         }
 
         // glConfig.windowAspect = (float)glConfig.vidWidth / (float)glConfig.vidHeight;
     }
     else if (!R_GetModeInfo(&glConfig->vidWidth, &glConfig->vidHeight, /*&glConfig.windowAspect,*/ mode)) {
-        Com_Printf(" invalid mode\n");
+        Q_Println(" invalid mode");
         SDL_FreeSurface(icon);
         return rserr_t::RSERR_INVALID_MODE;
     }
-    Com_Printf(" %d %d\n", glConfig->vidWidth, glConfig->vidHeight);
+    Q_Println(" {} {}", glConfig->vidWidth, glConfig->vidHeight);
 
     // Center window
     if (r_centerWindow->integer && !fullscreen) {
@@ -382,7 +383,7 @@ static rserr_t GLimp_SetMode(glconfig_t* glConfig, const windowDesc_t* windowDes
 
     if (screen != nullptr) {
         SDL_GetWindowPosition(screen, &x, &y);
-        Com_DPrintf("Existing window at %dx%d before being destroyed\n", x, y);
+        Q_DPrintln("Existing window at {}x{} before being destroyed", x, y);
         SDL_DestroyWindow(screen);
         screen = nullptr;
     }
@@ -525,7 +526,7 @@ static rserr_t GLimp_SetMode(glconfig_t* glConfig, const windowDesc_t* windowDes
             SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, !r_allowSoftwareGL->integer);
 
             if ((screen = SDL_CreateWindow(windowTitle, x, y, glConfig->vidWidth, glConfig->vidHeight, flags)) == nullptr) {
-                Com_DPrintf("SDL_CreateWindow failed: %s\n", SDL_GetError());
+                Q_DPrintln("SDL_CreateWindow failed: {}", SDL_GetError());
                 continue;
             }
 
@@ -544,7 +545,7 @@ static rserr_t GLimp_SetMode(glconfig_t* glConfig, const windowDesc_t* windowDes
                     mode.format = SDL_PIXELFORMAT_RGB24;
                     break;
                 default:
-                    Com_DPrintf("testColorBits is %d, can't fullscreen\n", testColorBits);
+                    Q_DPrintln("testColorBits is {}, can't fullscreen", testColorBits);
                     continue;
                 }
 
@@ -554,25 +555,25 @@ static rserr_t GLimp_SetMode(glconfig_t* glConfig, const windowDesc_t* windowDes
                 mode.driverdata = nullptr;
 
                 if (SDL_SetWindowDisplayMode(screen, &mode) < 0) {
-                    Com_DPrintf("SDL_SetWindowDisplayMode failed: %s\n", SDL_GetError());
+                    Q_DPrintln("SDL_SetWindowDisplayMode failed: {}", SDL_GetError());
                     continue;
                 }
             }
 
             if ((opengl_context = SDL_GL_CreateContext(screen)) == nullptr) {
-                Com_Printf("SDL_GL_CreateContext failed: %s\n", SDL_GetError());
+                Q_Println("SDL_GL_CreateContext failed: {}", SDL_GetError());
                 continue;
             }
 
             if (SDL_GL_SetSwapInterval(r_swapInterval->integer) == -1) {
-                Com_DPrintf("SDL_GL_SetSwapInterval failed: %s\n", SDL_GetError());
+                Q_DPrintln("SDL_GL_SetSwapInterval failed: {}", SDL_GetError());
             }
 
             glConfig->colorBits = testColorBits;
             glConfig->depthBits = testDepthBits;
             glConfig->stencilBits = testStencilBits;
 
-            Com_Printf("Using %d color bits, %d depth, %d stencil display.\n", glConfig->colorBits, glConfig->depthBits, glConfig->stencilBits);
+            Q_Println("Using {} color bits, {} depth, {} stencil display.", glConfig->colorBits, glConfig->depthBits, glConfig->stencilBits);
             break;
         }
 
@@ -584,7 +585,7 @@ static rserr_t GLimp_SetMode(glconfig_t* glConfig, const windowDesc_t* windowDes
     else {
         // Just create a regular window
         if ((screen = SDL_CreateWindow(windowTitle, x, y, glConfig->vidWidth, glConfig->vidHeight, flags)) == nullptr) {
-            Com_DPrintf("SDL_CreateWindow failed: %s\n", SDL_GetError());
+            Q_DPrintln("SDL_CreateWindow failed: {}", SDL_GetError());
         }
         else {
 #ifndef MACOS_X
@@ -592,7 +593,7 @@ static rserr_t GLimp_SetMode(glconfig_t* glConfig, const windowDesc_t* windowDes
 #endif
             if (fullscreen) {
                 if (SDL_SetWindowDisplayMode(screen, nullptr) < 0) {
-                    Com_DPrintf("SDL_SetWindowDisplayMode failed: %s\n", SDL_GetError());
+                    Q_DPrintln("SDL_SetWindowDisplayMode failed: {}", SDL_GetError());
                 }
             }
         }
@@ -620,27 +621,27 @@ static bool GLimp_StartDriverAndSetMode(glconfig_t* glConfig, const windowDesc_t
         const char* driverName;
 
         if (SDL_Init(SDL_INIT_VIDEO) == -1) {
-            Com_Printf("SDL_Init( SDL_INIT_VIDEO ) FAILED (%s)\n", SDL_GetError());
+            Q_Println("SDL_Init( SDL_INIT_VIDEO ) FAILED ({})", SDL_GetError());
             return false;
         }
 
         driverName = SDL_GetCurrentVideoDriver();
 
         if (!driverName) {
-            Com_Error(errorParm_t::ERR_FATAL, "No video driver initialized");
+            Q_Error(errorParm_t::ERR_FATAL, "No video driver initialized");
             return false;
         }
 
-        Com_Printf("SDL using driver \"%s\"\n", driverName);
+        Q_Println("SDL using driver \"{}\"", driverName);
         Cvar_Set("r_sdlDriver", driverName);
     }
 
     if (SDL_GetNumVideoDisplays() <= 0) {
-        Com_Error(errorParm_t::ERR_FATAL, "SDL_GetNumVideoDisplays() FAILED (%s)", SDL_GetError());
+        Q_Error(errorParm_t::ERR_FATAL, "SDL_GetNumVideoDisplays() FAILED ({})", SDL_GetError());
     }
 
     if (fullscreen && Cvar_VariableIntegerValue("in_nograb")) {
-        Com_Printf("Fullscreen not allowed with in_nograb 1\n");
+        Q_Println("Fullscreen not allowed with in_nograb 1");
         Cvar_Set("r_fullscreen", "0");
         r_fullscreen->modified = false;
         fullscreen = false;
@@ -650,13 +651,13 @@ static bool GLimp_StartDriverAndSetMode(glconfig_t* glConfig, const windowDesc_t
 
     switch (err) {
     case rserr_t::RSERR_INVALID_FULLSCREEN:
-        Com_Printf("...WARNING: fullscreen unavailable in this mode\n");
+        Q_Println("...WARNING: fullscreen unavailable in this mode");
         return false;
     case rserr_t::RSERR_INVALID_MODE:
-        Com_Printf("...WARNING: could not set the given mode (%d)\n", mode);
+        Q_Println("...WARNING: could not set the given mode ({})", mode);
         return false;
     case rserr_t::RSERR_UNKNOWN:
-        Com_Printf("...ERROR: no display modes could be found.\n");
+        Q_Println("...ERROR: no display modes could be found.");
         return false;
     default:
         break;
@@ -696,11 +697,11 @@ window_t WIN_Init(const windowDesc_t* windowDesc, glconfig_t* glConfig)
     // Create the window and set up the context
     if (!GLimp_StartDriverAndSetMode(glConfig, windowDesc, r_mode->integer, r_fullscreen->integer, r_noborder->integer)) {
         if (r_mode->integer != R_MODE_FALLBACK) {
-            Com_Printf("Setting r_mode %d failed, falling back on r_mode %d\n", r_mode->integer, R_MODE_FALLBACK);
+            Q_Println("Setting r_mode {} failed, falling back on r_mode {}", r_mode->integer, R_MODE_FALLBACK);
 
             if (!GLimp_StartDriverAndSetMode(glConfig, windowDesc, R_MODE_FALLBACK, false, false)) {
                 // Nothing worked, give up
-                Com_Error(errorParm_t::ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem");
+                Q_Error(errorParm_t::ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem");
             }
         }
     }
@@ -785,7 +786,7 @@ void WIN_SetGamma(glconfig_t* glConfig, byte red[256], byte green[256], byte blu
         vinfo.dwOSVersionInfoSize = sizeof(vinfo);
         GetVersionEx(&vinfo);
         if (vinfo.dwMajorVersion >= 5 && vinfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-            Com_DPrintf("performing gamma clamp.\n");
+            Q_DPrintln("performing gamma clamp.");
             for (j = 0; j < 3; j++) {
                 for (i = 0; i < 128; i++) {
                     table[j][i] = Q_min(table[j][i], (128 + i) << 8);
@@ -806,7 +807,7 @@ void WIN_SetGamma(glconfig_t* glConfig, byte red[256], byte green[256], byte blu
     }
 
     if (SDL_SetWindowGammaRamp(screen, table[0], table[1], table[2]) < 0) {
-        Com_DPrintf("SDL_SetWindowGammaRamp() failed: %s\n", SDL_GetError());
+        Q_DPrintln("SDL_SetWindowGammaRamp() failed: {}", SDL_GetError());
     }
 }
 

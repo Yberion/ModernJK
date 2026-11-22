@@ -58,7 +58,7 @@ bool SavedGame::open(const std::string& base_file_name)
 
         error_message_ = S_COLOR_RED "Failed to open a saved game file: \"" + file_path + "\".";
 
-        ::Com_DPrintf("%s\n", error_message_.c_str());
+        Q_DPrintln("{}", error_message_);
     }
 
     if (is_succeed) {
@@ -74,13 +74,13 @@ bool SavedGame::open(const std::string& base_file_name)
             if (sg_version != iSAVEGAME_VERSION) {
                 is_succeed = false;
 
-                Com_Printf(S_COLOR_RED "File \"%s\" has version # %d (expecting %d)\n", base_file_name.c_str(), sg_version, iSAVEGAME_VERSION);
+                Q_Println(S_COLOR_RED "File \"{}\" has version # {} (expecting {})", base_file_name, sg_version, iSAVEGAME_VERSION);
             }
         }
         else {
             is_succeed = false;
 
-            Com_Printf(S_COLOR_RED "Failed to read a version.\n");
+            Q_Println(S_COLOR_RED "Failed to read a version.");
         }
     }
 
@@ -104,7 +104,7 @@ bool SavedGame::create(const std::string& base_file_name)
     if (file_handle_ == 0) {
         const std::string error_message = S_COLOR_RED "Failed to create a saved game file: \"" + file_path + "\".";
 
-        Com_Printf("%s\n", error_message.c_str());
+        Q_Println("{}", error_message);
 
         return false;
     }
@@ -160,7 +160,7 @@ bool SavedGame::read_chunk(const uint32_t chunk_id)
 
     const std::string chunk_id_string = get_chunk_id_string(chunk_id);
 
-    ::Com_DPrintf("Attempting read of chunk %s\n", chunk_id_string.c_str());
+    Q_DPrintln("Attempting read of chunk {}", chunk_id_string);
 
     uint32_t loaded_chunk_id = 0;
     uint32_t loaded_data_size = 0;
@@ -301,7 +301,7 @@ bool SavedGame::write_chunk(const uint32_t chunk_id)
 
     const std::string chunk_id_string = get_chunk_id_string(chunk_id);
 
-    ::Com_DPrintf("Attempting write of chunk %s\n", chunk_id_string.c_str());
+    Q_DPrintln("Attempting write of chunk {}", chunk_id_string);
 
     if (::sv_testsave->integer != 0) {
         return true;
@@ -357,7 +357,7 @@ bool SavedGame::write_chunk(const uint32_t chunk_id)
 
             error_message_ = "Failed to write " + chunk_id_string + " chunk.";
 
-            Com_Printf("%s%s\n", S_COLOR_RED, error_message_.c_str());
+            Q_Println("{}{}", S_COLOR_RED, error_message_);
 
             return false;
         }
@@ -390,7 +390,7 @@ bool SavedGame::write_chunk(const uint32_t chunk_id)
 
             error_message_ = "Failed to write " + chunk_id_string + " chunk.";
 
-            Com_Printf("%s%s\n", S_COLOR_RED, error_message_.c_str());
+            Q_Println("{}{}", S_COLOR_RED, error_message_);
 
             return false;
         }
@@ -576,9 +576,7 @@ void SavedGame::rename(const std::string& old_base_file_name, const std::string&
     const int rename_result = ::FS_MoveUserGenFile(old_path.c_str(), new_path.c_str());
 
     if (rename_result == 0) {
-        Com_Printf(S_COLOR_RED "Error during savegame-rename."
-                               " Check \"%s\" for write-protect or disk full!\n",
-                   new_path.c_str());
+        Q_Println(S_COLOR_RED "Error during savegame-rename. Check \"{}\" for write-protect or disk full!", new_path);
     }
 }
 
@@ -609,7 +607,7 @@ void SavedGame::throw_error()
 
     error_message_ = "SG: " + error_message_;
 
-    ::Com_Error(errorParm_t::ERR_DROP, "%s", error_message_.c_str());
+    Q_Error(errorParm_t::ERR_DROP, "{}", error_message_);
 }
 
 void SavedGame::compress(const Buffer& src_buffer, Buffer& dst_buffer)

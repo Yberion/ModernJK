@@ -39,7 +39,7 @@ bool MP3_IsValid(const char* psLocalFilename, void* pvData, int iDataLen, bool b
     char* psError = C_MP3_IsValid(pvData, iDataLen, bStereoDesired);
 
     if (psError) {
-        Com_Printf(S_COLOR_RED "%s(%s)\n", psError, psLocalFilename);
+        Q_Println(S_COLOR_RED "{}({})", psError, psLocalFilename);
     }
 
     return !psError;
@@ -64,7 +64,7 @@ int MP3_GetUnpackedSize(const char* psLocalFilename, void* pvData, int iDataLen,
         char* psError = C_MP3_GetUnpackedSize(pvData, iDataLen, &iUnpackedSize, bStereoDesired);
 
         if (psError) {
-            Com_Printf(S_COLOR_RED "%s\n(File: %s)\n", psError, psLocalFilename);
+            Q_Println(S_COLOR_RED "{}\n(File: {})", psError, psLocalFilename);
             return 0;
         }
     }
@@ -82,7 +82,7 @@ int MP3_UnpackRawPCM(const char* psLocalFilename, void* pvData, int iDataLen, by
     char* psError = C_MP3_UnpackRawPCM(pvData, iDataLen, &iUnpackedSize, pbUnpackBuffer, bStereoDesired);
 
     if (psError) {
-        Com_Printf(S_COLOR_RED "%s\n(File: %s)\n", psError, psLocalFilename);
+        Q_Println(S_COLOR_RED "{}\n(File: {})", psError, psLocalFilename);
         return 0;
     }
 
@@ -99,7 +99,7 @@ bool MP3Stream_InitPlayingTimeFields(LP_MP3STREAM lpMP3Stream, const char* psLoc
 
     char* psError = C_MP3_GetHeaderData(pvData, iDataLen, &iRate, &iWidth, &iChannels, bStereoDesired);
     if (psError) {
-        Com_Printf(S_COLOR_RED "MP3Stream_InitPlayingTimeFields(): %s\n(File: %s)\n", psError, psLocalFilename);
+        Q_Println(S_COLOR_RED "MP3Stream_InitPlayingTimeFields(): {}\n(File: {})", psError, psLocalFilename);
     }
     else {
         int iUnpackLength = MP3_GetUnpackedSize(psLocalFilename, pvData, iDataLen, false, // bool qbIgnoreID3Tag
@@ -154,7 +154,7 @@ bool MP3_FakeUpWAVInfo(const char* psLocalFilename, void* pvData, int iDataLen, 
     //
     char* psError = C_MP3_GetHeaderData(pvData, iDataLen, &rate, &width, &channels, bStereoDesired);
     if (psError) {
-        Com_Printf(S_COLOR_RED "%s\n(File: %s)\n", psError, psLocalFilename);
+        Q_Println(S_COLOR_RED "{}\n(File: {})", psError, psLocalFilename);
     }
 
     // and some stuff needs calculating...
@@ -221,7 +221,7 @@ constexpr int FUZZY_AMOUNT = 5 * 1024; // so it has to be significantly over, no
 cvar_t* cv_MP3overhead = nullptr;
 void MP3_InitCvars(void)
 {
-    cv_MP3overhead = Cvar_Get("s_mp3overhead", va("%zu", sizeof(MP3STREAM) + FUZZY_AMOUNT), cvarFlags_t::CVAR_ARCHIVE);
+    cv_MP3overhead = Cvar_Get("s_mp3overhead", Q_Format("{}", sizeof(MP3STREAM) + FUZZY_AMOUNT).c_str(), cvarFlags_t::CVAR_ARCHIVE);
 }
 
 // a file has been loaded in memory, see if we want to keep it as MP3, else as normal WAV...
@@ -270,7 +270,7 @@ bool MP3Stream_InitFromFile(sfx_t* sfx, byte* pbSrcData, int iSrcDatalen, const 
             // This should never happen, since any errors or problems with the MP3 file would have stopped us getting
             //	to this whole function, but just in case...
             //
-            Com_Printf(S_COLOR_YELLOW "File \"%s\": %s\n", psSrcDataFilename, psError);
+            Q_Println(S_COLOR_YELLOW "File \"{}\": {}", psSrcDataFilename, psError);
 
             // This will leave iSrcDatalen bytes on the hunk stack (since you can't dealloc that), but MP3 files are
             //	usually small, and like I say, it should never happen.
@@ -426,7 +426,7 @@ bool MP3Stream_Rewind(channel_t* ch)
 
         if (psError)
         {
-            Com_Printf(S_COLOR_YELLOW"%s\n",psError);
+            Q_Println(S_COLOR_YELLOW"{}", psError);
             return false;
         }
 
@@ -448,7 +448,7 @@ bool MP3Stream_GetSamples(channel_t* ch, int startingSampleNum, int count, short
     const int iQuarterOfSlidingBuffer = sizeof(ch->MP3SlidingDecodeBuffer) / 4;
     const int iThreeQuartersOfSlidingBuffer = (sizeof(ch->MP3SlidingDecodeBuffer) * 3) / 4;
 
-    //	Com_Printf("startingSampleNum %d\n",startingSampleNum);
+    //	Q_Println("startingSampleNum {}", startingSampleNum);
 
     count *= 2 /* <- = SOF2; ch->sfx->width*/; // count arg was for words, so double it for bytes;
 
@@ -462,8 +462,8 @@ bool MP3Stream_GetSamples(channel_t* ch, int startingSampleNum, int count, short
         return false;
     }
 
-    //	Com_DPrintf("\nRequest: startingSampleNum %d, count %d\n",startingSampleNum,count);
-    //	Com_DPrintf("WindowPos %d, WindowWritePos %d\n",ch->iMP3SlidingDecodeWindowPos,ch->iMP3SlidingDecodeWritePos);
+    //	Q_DPrintln("\nRequest: startingSampleNum {}, count {}", startingSampleNum, count);
+    //	Q_DPrintln("WindowPos {}, WindowWritePos {}", ch->iMP3SlidingDecodeWindowPos, ch->iMP3SlidingDecodeWritePos);
 
     //	bool _bDecoded = false;
 
@@ -471,18 +471,18 @@ bool MP3Stream_GetSamples(channel_t* ch, int startingSampleNum, int count, short
              (startingSampleNum + count < ch->iMP3SlidingDecodeWindowPos + ch->iMP3SlidingDecodeWritePos))) {
         //		if (!_bDecoded)
         //		{
-        //			Com_Printf(S_COLOR_YELLOW"Decode needed!\n");
+        //			Q_Println(S_COLOR_YELLOW"Decode needed!");
         //		}
         //		_bDecoded = true;
-        //		Com_DPrintf("Scrolling...");
+        //		Q_DPrintln("Scrolling...");
 
         int _iBytesDecoded = MP3Stream_Decode((LP_MP3STREAM)&ch->MP3StreamHeader, bStereo); // stereo only for music, so this is safe
-                                                                                            //		Com_DPrintf("%d bytes decoded\n",_iBytesDecoded);
+                                                                                            //		Q_DPrintln("{} bytes decoded", _iBytesDecoded);
         if (_iBytesDecoded == 0) {
             // no more source data left so clear the remainder of the buffer...
             //
             memset(ch->MP3SlidingDecodeBuffer + ch->iMP3SlidingDecodeWritePos, 0, sizeof(ch->MP3SlidingDecodeBuffer) - ch->iMP3SlidingDecodeWritePos);
-            //			Com_DPrintf("Finished\n");
+            //			Q_DPrintln("Finished");
             qbStreamStillGoing = false;
             break;
         }
@@ -499,18 +499,18 @@ bool MP3Stream_GetSamples(channel_t* ch, int startingSampleNum, int count, short
                 ch->iMP3SlidingDecodeWindowPos += iQuarterOfSlidingBuffer;
             }
         }
-        //		Com_DPrintf("WindowPos %d, WindowWritePos %d\n",ch->iMP3SlidingDecodeWindowPos,ch->iMP3SlidingDecodeWritePos);
+        //		Q_DPrintln("WindowPos {}, WindowWritePos {}", ch->iMP3SlidingDecodeWindowPos, ch->iMP3SlidingDecodeWritePos);
     }
 
     //	if (!_bDecoded)
     //	{
-    //		Com_Printf(S_COLOR_YELLOW"No decode needed\n");
+    //		Q_Println(S_COLOR_YELLOW"No decode needed");
     //	}
 
     assert(startingSampleNum >= ch->iMP3SlidingDecodeWindowPos);
     memcpy(buf, ch->MP3SlidingDecodeBuffer + (startingSampleNum - ch->iMP3SlidingDecodeWindowPos), count);
 
-    //	Com_DPrintf("OK\n\n");
+    //	Q_DPrintln("OK\n");
 
     return qbStreamStillGoing;
 }

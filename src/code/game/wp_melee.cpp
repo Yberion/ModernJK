@@ -64,7 +64,7 @@ void WP_Melee(gentity_t* ent)
     if (tr_ent && tr_ent->takedamage) {
         damageFlags_t dflags = damageFlags_t::DAMAGE_NO_KNOCKBACK;
         G_PlayEffect(G_EffectIndex("melee/punch_impact"), tr.endpos, forwardVec);
-        // G_Sound( tr_ent, G_SoundIndex( va("sound/weapons/melee/punch%d", Q_irand(1, 4)) ) );
+        // G_Sound( tr_ent, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str() ) );
         if (ent->NPC && Any(ent->NPC->aiFlags & npcAiFlags_t::NPCAI_HEAVY_MELEE)) { // 4x damage for heavy melee class
             damage *= 4;
             dflags &= ~damageFlags_t::DAMAGE_NO_KNOCKBACK;

@@ -660,7 +660,7 @@ int NAVNEW_MoveToGoal(gentity_t* self, navInfo_t* info)
                 }
             }
         }
-        // Com_Printf( "goalwp = %d, mywp = %d, node = %d, origin = %s\n", self->NPC->goalEntity->waypoint, self->waypoint, bestNode, vtos(origin) );
+        // Q_Println("goalwp = {}, mywp = {}, node = {}, origin = {}", self->NPC->goalEntity->waypoint, self->waypoint, bestNode, vtos(origin));
 
         memcpy(&tempInfo, info, sizeof(tempInfo));
         VectorSubtract(origin, self->r.currentOrigin, tempInfo.direction);

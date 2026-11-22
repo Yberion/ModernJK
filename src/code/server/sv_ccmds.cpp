@@ -51,24 +51,24 @@ static bool SV_Map_(ForceReload_e eForceReload)
 
     map = Cmd_Argv(1);
     if (!*map) {
-        Com_Printf("no map specified\n");
+        Q_Println("no map specified");
         return false;
     }
 
     // make sure the level exists before trying to change, so that
     // a typo at the server console won't end the game
     if (strchr(map, '\\')) {
-        Com_Printf("Can't have mapnames with a \\\n");
+        Q_Print("Can't have mapnames with a \\\n");
         return false;
     }
 
-    Com_sprintf(expanded, sizeof(expanded), "maps/%s.bsp", map);
+    Q_FormatTo(expanded, "maps/{}.bsp", map);
 
     if (FS_ReadFile(expanded, nullptr) == -1) {
-        Com_Printf("Can't find map %s\n", expanded);
+        Q_Println("Can't find map {}", expanded);
         extern cvar_t* com_buildScript;
         if (com_buildScript && com_buildScript->integer) { // yes, it's happened, someone deleted a map during my build...
-            Com_Error(errorParm_t::ERR_FATAL, "Can't find map %s\n", expanded);
+            Q_Error(errorParm_t::ERR_FATAL, "Can't find map {}", expanded);
         }
         return false;
     }
@@ -99,50 +99,55 @@ void SV_Player_EndOfLevelSave(void)
         //		clientSnapshot_t*	pFrame = &cl->frames[cl->netchan.outgoingSequence & PACKET_MASK];
         playerState_t* pState = cl->gentity->client;
         const char* s2;
+        formatText_t s2Text; // holds the text s2 points into
         const char* s;
+        formatText_t sText; // holds the text s points into
 #ifdef JK2_MODE
-        s = va("%i %i %i %i %i %i %i %f %f %f %i %i %i %i %i %i", pState->stats[statIndex_t::STAT_HEALTH], pState->stats[statIndex_t::STAT_ARMOR],
-               pState->stats[statIndex_t::STAT_WEAPONS], pState->stats[statIndex_t::STAT_ITEMS], to_underlying(pState->weapon),
-               to_underlying(pState->weaponstate), pState->batteryCharge, pState->viewangles[0], pState->viewangles[1], pState->viewangles[2],
-               pState->forcePowersKnown, pState->forcePower, pState->saberActive, to_underlying(pState->saberAnimLevel), pState->saberLockEnemy,
-               pState->saberLockTime);
+        s = (sText = Q_Format("{} {} {} {} {} {} {} {:f} {:f} {:f} {} {} {:d} {} {} {}", pState->stats[statIndex_t::STAT_HEALTH],
+                              pState->stats[statIndex_t::STAT_ARMOR], pState->stats[statIndex_t::STAT_WEAPONS], pState->stats[statIndex_t::STAT_ITEMS],
+                              to_underlying(pState->weapon), to_underlying(pState->weaponstate), pState->batteryCharge, pState->viewangles[0],
+                              pState->viewangles[1], pState->viewangles[2], pState->forcePowersKnown, pState->forcePower, pState->saberActive,
+                              to_underlying(pState->saberAnimLevel), pState->saberLockEnemy, pState->saberLockTime))
+                .c_str();
 #else
         //				|general info				  |-force powers |-saber 1		|-saber 2										  |-general saber
-        s = va("%i %i %i %i %i %i %i %f %f %f %i %i %i %i %i %s %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %s %i %i %i %i %i %i %i %i %i %i %i %i %i %i "
-               "%i %i %i %i %i %i",
-               pState->stats[statIndex_t::STAT_HEALTH], pState->stats[statIndex_t::STAT_ARMOR], pState->stats[statIndex_t::STAT_WEAPONS],
-               pState->stats[statIndex_t::STAT_ITEMS], to_underlying(pState->weapon), to_underlying(pState->weaponstate), pState->batteryCharge,
-               pState->viewangles[0], pState->viewangles[1], pState->viewangles[2],
-               // force power data
-               pState->forcePowersKnown, pState->forcePower, pState->forcePowerMax, pState->forcePowerRegenRate, pState->forcePowerRegenAmount,
-               // saber 1 data
-               pState->saber[0].name, pState->saber[0].blade[0].active, pState->saber[0].blade[1].active, pState->saber[0].blade[2].active,
-               pState->saber[0].blade[3].active, pState->saber[0].blade[4].active, pState->saber[0].blade[5].active, pState->saber[0].blade[6].active,
-               pState->saber[0].blade[7].active, to_underlying(pState->saber[0].blade[0].color), to_underlying(pState->saber[0].blade[1].color),
-               to_underlying(pState->saber[0].blade[2].color), to_underlying(pState->saber[0].blade[3].color), to_underlying(pState->saber[0].blade[4].color),
-               to_underlying(pState->saber[0].blade[5].color), to_underlying(pState->saber[0].blade[6].color), to_underlying(pState->saber[0].blade[7].color),
-               // saber 2 data
-               pState->saber[1].name, pState->saber[1].blade[0].active, pState->saber[1].blade[1].active, pState->saber[1].blade[2].active,
-               pState->saber[1].blade[3].active, pState->saber[1].blade[4].active, pState->saber[1].blade[5].active, pState->saber[1].blade[6].active,
-               pState->saber[1].blade[7].active, to_underlying(pState->saber[1].blade[0].color), to_underlying(pState->saber[1].blade[1].color),
-               to_underlying(pState->saber[1].blade[2].color), to_underlying(pState->saber[1].blade[3].color), to_underlying(pState->saber[1].blade[4].color),
-               to_underlying(pState->saber[1].blade[5].color), to_underlying(pState->saber[1].blade[6].color), to_underlying(pState->saber[1].blade[7].color),
-               // general saber data
-               pState->saberStylesKnown, to_underlying(pState->saberAnimLevel), pState->saberLockEnemy, pState->saberLockTime);
+        s = (sText = Q_Format(
+                 "{} {} {} {} {} {} {} {:f} {:f} {:f} {} {} {} {} {} {} {:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d} {} {} {} {} {} {} {} {} {} {:d} {:d} {:d} {:d} "
+                 "{:d} {:d} {:d} {:d} {} {} {} {} {} {} {} {} {} {} {} {}",
+                 pState->stats[statIndex_t::STAT_HEALTH], pState->stats[statIndex_t::STAT_ARMOR], pState->stats[statIndex_t::STAT_WEAPONS],
+                 pState->stats[statIndex_t::STAT_ITEMS], to_underlying(pState->weapon), to_underlying(pState->weaponstate), pState->batteryCharge,
+                 pState->viewangles[0], pState->viewangles[1], pState->viewangles[2],
+                 // force power data
+                 pState->forcePowersKnown, pState->forcePower, pState->forcePowerMax, pState->forcePowerRegenRate, pState->forcePowerRegenAmount,
+                 // saber 1 data
+                 pState->saber[0].name, pState->saber[0].blade[0].active, pState->saber[0].blade[1].active, pState->saber[0].blade[2].active,
+                 pState->saber[0].blade[3].active, pState->saber[0].blade[4].active, pState->saber[0].blade[5].active, pState->saber[0].blade[6].active,
+                 pState->saber[0].blade[7].active, to_underlying(pState->saber[0].blade[0].color), to_underlying(pState->saber[0].blade[1].color),
+                 to_underlying(pState->saber[0].blade[2].color), to_underlying(pState->saber[0].blade[3].color), to_underlying(pState->saber[0].blade[4].color),
+                 to_underlying(pState->saber[0].blade[5].color), to_underlying(pState->saber[0].blade[6].color), to_underlying(pState->saber[0].blade[7].color),
+                 // saber 2 data
+                 pState->saber[1].name, pState->saber[1].blade[0].active, pState->saber[1].blade[1].active, pState->saber[1].blade[2].active,
+                 pState->saber[1].blade[3].active, pState->saber[1].blade[4].active, pState->saber[1].blade[5].active, pState->saber[1].blade[6].active,
+                 pState->saber[1].blade[7].active, to_underlying(pState->saber[1].blade[0].color), to_underlying(pState->saber[1].blade[1].color),
+                 to_underlying(pState->saber[1].blade[2].color), to_underlying(pState->saber[1].blade[3].color), to_underlying(pState->saber[1].blade[4].color),
+                 to_underlying(pState->saber[1].blade[5].color), to_underlying(pState->saber[1].blade[6].color), to_underlying(pState->saber[1].blade[7].color),
+                 // general saber data
+                 pState->saberStylesKnown, to_underlying(pState->saberAnimLevel), pState->saberLockEnemy, pState->saberLockTime))
+                .c_str();
 #endif
         Cvar_Set(sCVARNAME_PLAYERSAVE, s);
 
         // ammo
         s2 = "";
         for (const int ammo : pState->ammo) {
-            s2 = va("%s %i", s2, ammo);
+            s2 = (s2Text = Q_Format("{} {}", s2, ammo)).c_str();
         }
         Cvar_Set("playerammo", s2);
 
         // inventory
         s2 = "";
         for (inventory_t inv = inventory_t::INV_ELECTROBINOCULARS; inv < inventory_t::INV_MAX; inv++) {
-            s2 = va("%s %i", s2, pState->inventory[inv]);
+            s2 = (s2Text = Q_Format("{} {}", s2, pState->inventory[inv])).c_str();
         }
         Cvar_Set("playerinv", s2);
 
@@ -150,7 +155,7 @@ void SV_Player_EndOfLevelSave(void)
         //
         s2 = "";
         for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
-            s2 = va("%s %i", s2, to_underlying(pState->forcePowerLevel[fp]));
+            s2 = (s2Text = Q_Format("{} {}", s2, to_underlying(pState->forcePowerLevel[fp]))).c_str();
         }
         Cvar_Set("playerfplvl", s2);
     }
@@ -250,7 +255,7 @@ void SV_LoadTransition_f(void)
     SV_Player_EndOfLevelSave();
 
     // Save the full current state of the current map so we can return to it later
-    SG_WriteSavegame(va("hub/%s", sv_mapname->string), false);
+    SG_WriteSavegame(Q_Format("hub/{}", sv_mapname->string).c_str(), false);
 
     // set the spawntarget if there is one
     spawntarget = Cmd_Argv(2);
@@ -278,7 +283,7 @@ char* ivtos(const vec3_t v)
     s = str[index];
     index = (index + 1) & 7;
 
-    Com_sprintf(s, 32, "( %i %i %i )", (int)v[0], (int)v[1], (int)v[2]);
+    Q_FormatTo(std::span(s, 32), "( {} {} {} )", (int)v[0], (int)v[1], (int)v[2]);
 
     return s;
 }
@@ -294,14 +299,14 @@ static void SV_Status_f(void)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
     cl = &svs.clients[0];
 
     if (!cl) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
@@ -315,15 +320,15 @@ static void SV_Status_f(void)
 #define STATUS_OS "Unknown"
 #endif
 
-    Com_Printf("name    : %s^7\n", cl->name);
-    Com_Printf("score   : %i\n", cl->gentity->client->persistant[persEnum_t::PERS_SCORE]);
-    Com_Printf("version : %s %s %i\n", STATUS_OS, JK_VERSION, PROTOCOL_VERSION);
+    Q_Println("name    : {}^7", cl->name);
+    Q_Println("score   : {}", cl->gentity->client->persistant[persEnum_t::PERS_SCORE]);
+    Q_Println("version : {} {} {}", STATUS_OS, JK_VERSION, PROTOCOL_VERSION);
 #ifdef JK2_MODE
-    Com_Printf("game    : Jedi Outcast %s\n", FS_GetCurrentGameDir());
+    Q_Println("game    : Jedi Outcast {}", FS_GetCurrentGameDir());
 #else
-    Com_Printf("game    : Jedi Academy %s\n", FS_GetCurrentGameDir());
+    Q_Println("game    : Jedi Academy {}", FS_GetCurrentGameDir());
 #endif
-    Com_Printf("map     : %s at %s\n", sv_mapname->string, ivtos(cl->gentity->client->origin));
+    Q_Println("map     : {} at {}", sv_mapname->string, ivtos(cl->gentity->client->origin));
 }
 
 /*
@@ -335,7 +340,7 @@ Examine the serverinfo string
 */
 static void SV_Serverinfo_f(void)
 {
-    Com_Printf("Server info settings:\n");
+    Q_Println("Server info settings:");
     Info_Print(Cvar_InfoString(cvarFlags_t::CVAR_SERVERINFO));
 }
 
@@ -348,7 +353,7 @@ Examine or change the serverinfo string
 */
 static void SV_Systeminfo_f(void)
 {
-    Com_Printf("System info settings:\n");
+    Q_Println("System info settings:");
     Info_Print(Cvar_InfoString(cvarFlags_t::CVAR_SYSTEMINFO));
 }
 
@@ -365,23 +370,23 @@ static void SV_DumpUser_f(void)
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Q_Println("Server is not running.");
         return;
     }
 
     if (Cmd_Argc() != 1) {
-        Com_Printf("Usage: info\n");
+        Q_Println("Usage: info");
         return;
     }
 
     cl = &svs.clients[0];
     if (cl->state == clientState_t::CS_FREE) {
-        Com_Printf("Client is not active\n");
+        Q_Println("Client is not active");
         return;
     }
 
-    Com_Printf("userinfo\n");
-    Com_Printf("--------\n");
+    Q_Println("userinfo");
+    Q_Println("--------");
     Info_Print(cl->userinfo);
 }
 

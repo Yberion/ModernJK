@@ -205,7 +205,7 @@ static const char* GetCustomSound_VariantCapped(const char* ppsTable[], int iEnt
 
                         int iRandom = bForceVariant1 ? 1 : (!i ? Q_irand(1, iVariantCap) : 1);
 
-                        strcat(sName, va("%d", iRandom));
+                        strcat(sName, Q_Format("{}", iRandom).c_str());
 
                         // does this exist in the entries before the original one?...
                         //
@@ -240,10 +240,10 @@ static void CG_RegisterCustomSounds(clientInfo_t* ci, int iSoundEntryBase, int i
 
         sfxHandle_t hSFX = 0;
         if (g_sex->string[0] == 'f') {
-            hSFX = cgi_S_RegisterSound(va("sound/chars/%s/misc/%s_f.wav", psDir, s + 1));
+            hSFX = cgi_S_RegisterSound(Q_Format("sound/chars/{}/misc/{}_f.wav", psDir, s + 1).c_str());
         }
         if (hSFX == 0 || com_buildScript->integer) {
-            hSFX = cgi_S_RegisterSound(va("sound/chars/%s/misc/%s.wav", psDir, s + 1));
+            hSFX = cgi_S_RegisterSound(Q_Format("sound/chars/{}/misc/{}.wav", psDir, s + 1).c_str());
         }
         if (hSFX == 0) {
             // hmmm... variant in table was missing, so forcibly-retry with %1 version (which we may have just tried, but wtf?)...
@@ -251,10 +251,10 @@ static void CG_RegisterCustomSounds(clientInfo_t* ci, int iSoundEntryBase, int i
             pS = GetCustomSound_VariantCapped(ppsTable, i, true);
             COM_StripExtension(pS, s, sizeof(s));
             if (g_sex->string[0] == 'f') {
-                hSFX = cgi_S_RegisterSound(va("sound/chars/%s/misc/%s_f.wav", psDir, s + 1));
+                hSFX = cgi_S_RegisterSound(Q_Format("sound/chars/{}/misc/{}_f.wav", psDir, s + 1).c_str());
             }
             if (hSFX == 0 || com_buildScript->integer) {
-                hSFX = cgi_S_RegisterSound(va("sound/chars/%s/misc/%s.wav", psDir, s + 1));
+                hSFX = cgi_S_RegisterSound(Q_Format("sound/chars/{}/misc/{}.wav", psDir, s + 1).c_str());
             }
             //
             // and fall through regardless...
@@ -287,7 +287,7 @@ static sfxHandle_t CG_CustomSound(int entityNum, const char* soundName, customSo
     if (!g_entities[entityNum].client) {
         // No client, this should never happen, so just don't
 #ifndef FINAL_BUILD
-//		Com_Printf( "custom sound not on client: %s", soundName );
+//		Q_Print("custom sound not on client: {}", soundName);
 #endif
         return 0;
     }
@@ -367,9 +367,9 @@ static sfxHandle_t CG_CustomSound(int entityNum, const char* soundName, customSo
     }
 
 #ifdef FINAL_BUILD
-    Com_Printf("Unknown custom sound: %s", soundName);
+    Q_Print("Unknown custom sound: {}", soundName);
 #else
-    Com_Error(errorParm_t::ERR_DROP, "Unknown custom sound: %s", soundName);
+    Q_Error(errorParm_t::ERR_DROP, "Unknown custom sound: {}", soundName);
 #endif
     return 0;
 }
@@ -546,7 +546,7 @@ PLAYER ANIMATION
 bool ValidAnimFileIndex(int index)
 {
     if (index < 0 || index >= level.numKnownAnimFileSets) {
-        Com_Printf(S_COLOR_RED "Bad animFileIndex: %d\n", index);
+        Q_Println(S_COLOR_RED "Bad animFileIndex: {}", index);
         return false;
     }
 
@@ -582,7 +582,7 @@ static void CG_SetLerpFrameAnimation(clientInfo_t* ci, lerpFrame_t* lf, animNumb
 #ifdef FINAL_BUILD
         newAnimation = animNumber_t::FACE_TALK0;
 #else
-        Com_Error(errorParm_t::ERR_DROP, "Bad animation number: %i for %s", to_underlying(newAnimation), ci->name);
+        Q_Error(errorParm_t::ERR_DROP, "Bad animation number: {} for {}", to_underlying(newAnimation), ci->name);
 #endif
     }
 
@@ -592,7 +592,7 @@ static void CG_SetLerpFrameAnimation(clientInfo_t* ci, lerpFrame_t* lf, animNumb
 #ifdef FINAL_BUILD
         ci->animFileIndex = 0;
 #else
-        Com_Error(errorParm_t::ERR_DROP, "Bad animFileIndex: %i for %s", ci->animFileIndex, ci->name);
+        Q_Error(errorParm_t::ERR_DROP, "Bad animFileIndex: {} for {}", ci->animFileIndex, ci->name);
 #endif
     }
 
@@ -813,7 +813,7 @@ static void CG_PlayerAnimEventDo(centity_t* cent, animevent_t* animEvent)
                 }
                 else { // try a custom sound
                     const char* s = CG_ConfigString(CS_SOUNDS + holdSnd);
-                    CG_TryPlayCustomSound(nullptr, cent->currentState.clientNum, channel, va("%s.wav", s), customSoundSet_t::CS_TRY_ALL);
+                    CG_TryPlayCustomSound(nullptr, cent->currentState.clientNum, channel, Q_Format("{}.wav", s).c_str(), customSoundSet_t::CS_TRY_ALL);
                 }
             }
         }
@@ -849,7 +849,7 @@ static void CG_PlayerAnimEventDo(centity_t* cent, animevent_t* animEvent)
                         spinSound = cgi_S_RegisterSound("sound/weapons/saber/saberspin3.wav");
                         break;
                     default: // random saberspin1-3
-                        spinSound = cgi_S_RegisterSound(va("sound/weapons/saber/saberspin%d.wav", Q_irand(1, 3)));
+                        spinSound = cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberspin{}.wav", Q_irand(1, 3)).c_str());
                         break;
                     }
                 }
@@ -1099,8 +1099,8 @@ static void CG_PlayerAnimEvents(int animFileIndex, bool torso, int oldFrame, int
                     break;
                 case animEventType_t::AEV_FOOTSTEP:
                     // Determine probability of playing sound
-                    // Com_Printf( "Footstep event on frame %d, even should be on frame %d, off by %d\n", frame, animEvents[i].keyFrame,
-                    // frame-animEvents[i].keyFrame );
+                    // Q_Println("Footstep event on frame {}, even should be on frame {}, off by {}", frame, animEvents[i].keyFrame,
+                    // frame-animEvents[i].keyFrame);
                     if (!animEvents[i].eventData[AED_FOOTSTEP_PROBABILITY]) // 100%
                     {
                         doEvent = true;
@@ -1773,8 +1773,8 @@ static void CG_G2ClientSpineAngles(centity_t* cent, vec3_t viewAngles, const vec
                 motionBoneCorrectAngles[ang] = AngleNormalize180(AngleDelta(AngleNormalize180(destPAngles[ang]), AngleNormalize180(curPAngles[ang])));
             }
 #ifdef _DEBUG
-            Com_Printf("motion bone correction:  %4.2f %4.2f %4.2f\n", motionBoneCorrectAngles[PITCH], motionBoneCorrectAngles[YAW],
-                       motionBoneCorrectAngles[ROLL]);
+            Q_Println("motion bone correction:  {:4.2f} {:4.2f} {:4.2f}", motionBoneCorrectAngles[PITCH], motionBoneCorrectAngles[YAW],
+                      motionBoneCorrectAngles[ROLL]);
 #endif // _DEBUG
             /*
             for ( int ang = 0; ang < 3; ang++ )
@@ -5322,7 +5322,8 @@ static void CG_AddSaberBladeGo(centity_t* cent, centity_t* scent, refEntity_t* s
             // gi.G2API_GetBoltMatrix(scent->gent->ghoul2, modelIndex, 0, &boltMatrix, angles, origin, cg.time, cgs.model_draw, scent->currentState.modelScale);
 
             // New way, multiple blade tags:
-            char* tagName = va("*blade%d", bladeNum + 1);
+            const formatText_t tagNameText = Q_Format("*blade{}", bladeNum + 1);
+            const char* tagName = tagNameText.c_str();
             bolt = gi.G2API_AddBolt(&scent->gent->ghoul2[modelIndex], tagName);
 
             if (bolt == -1) {
@@ -5732,7 +5733,7 @@ static void CG_AddSaberBladeGo(centity_t* cent, centity_t* scent, refEntity_t* s
                                             100) { // ugh, need to have a real sound debouncer... or do this game-side
                                             cent->gent->client->ps.saberHitWallSoundDebounceTime = cg.time;
                                             cgi_S_StartSound(cent->lerpOrigin, cent->currentState.clientNum, soundChannel_t::CHAN_ITEM,
-                                                             cgi_S_RegisterSound(va("sound/weapons/saber/saberhitwall%d.wav", Q_irand(1, 3))));
+                                                             cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberhitwall{}.wav", Q_irand(1, 3)).c_str()));
                                         }
                                     }
                                 }

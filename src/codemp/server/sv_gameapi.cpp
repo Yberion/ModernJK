@@ -365,13 +365,13 @@ static void SV_GameDropClient(int clientNum, const char* reason)
 static void SV_GameSendServerCommand(int clientNum, const char* text)
 {
     if (clientNum == -1) {
-        SV_SendServerCommand(nullptr, "%s", text);
+        SV_SendServerCommand(nullptr, "{}", text);
     }
     else {
         if (clientNum < 0 || clientNum >= sv_maxclients->integer) {
             return;
         }
-        SV_SendServerCommand(svs.clients + clientNum, "%s", text);
+        SV_SendServerCommand(svs.clients + clientNum, "{}", text);
     }
 }
 
@@ -397,7 +397,7 @@ static void SV_SetBrushModel(sharedEntity_t* ent, const char* name)
     vec3_t mins, maxs;
 
     if (!name) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_SetBrushModel: NULL");
+        Q_Error(errorParm_t::ERR_DROP, "SV_SetBrushModel: NULL");
     }
 
     if (name[0] == '*') {
@@ -417,7 +417,7 @@ static void SV_SetBrushModel(sharedEntity_t* ent, const char* name)
         ent->r.contents = CM_ModelContents(h, -1);
     }
     else if (name[0] == '#') {
-        ent->s.modelindex = CM_LoadSubBSP(va("maps/%s.bsp", name + 1), false);
+        ent->s.modelindex = CM_LoadSubBSP(Q_Format("maps/{}.bsp", name + 1).c_str(), false);
         CM_ModelBounds(ent->s.modelindex, mins, maxs);
 
         VectorCopy(mins, ent->r.mins);
@@ -431,7 +431,7 @@ static void SV_SetBrushModel(sharedEntity_t* ent, const char* name)
         ent->r.contents = CM_ModelContents(h, CM_FindSubBSP(ent->s.modelindex));
     }
     else {
-        Com_Error(errorParm_t::ERR_DROP, "SV_SetBrushModel: %s isn't a brush model", name);
+        Q_Error(errorParm_t::ERR_DROP, "SV_SetBrushModel: {} isn't a brush model", name);
     }
 }
 
@@ -459,7 +459,7 @@ static bool SV_inPVSIgnorePortals(const vec3_t p1, const vec3_t p2)
 static void SV_GetServerinfo(char* buffer, int bufferSize)
 {
     if (bufferSize < 1) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize);
+        Q_Error(errorParm_t::ERR_DROP, "SV_GetServerinfo: bufferSize == {}", bufferSize);
         return;
     }
     Q_strncpyz(buffer, Cvar_InfoString(cvarFlags_t::CVAR_SERVERINFO), bufferSize);
@@ -479,7 +479,7 @@ static void SV_AdjustAreaPortalState(sharedEntity_t* ent, bool open)
 static void SV_GetUsercmd(int clientNum, usercmd_t* cmd)
 {
     if (clientNum < 0 || clientNum >= sv_maxclients->integer) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_GetUsercmd: bad clientNum:%i", clientNum);
+        Q_Error(errorParm_t::ERR_DROP, "SV_GetUsercmd: bad clientNum:{}", clientNum);
         return;
     }
     *cmd = svs.clients[clientNum].lastUsercmd;
@@ -1408,7 +1408,7 @@ static void SV_EA_SayTeam(int client, const char* str)
     botlib_export->ea.EA_SayTeam(client, str);
 }
 
-static void SV_EA_Command(int client, char* command)
+static void SV_EA_Command(int client, const char* command)
 {
     botlib_export->ea.EA_Command(client, command);
 }
@@ -1960,8 +1960,8 @@ void SV_BindGame(void)
 
     gvm = VM_Create(vmSlots_t::VM_GAME);
     if (gvm) {
-        gi.Print = Com_VPrintf;
-        gi.Error = Com_VError;
+        gi.Print = Q_VPrint;
+        gi.Error = Q_VError;
         gi.Milliseconds = Com_Milliseconds;
         gi.PrecisionTimerStart = SV_PrecisionTimerStart;
         gi.PrecisionTimerEnd = SV_PrecisionTimerEnd;
@@ -2275,7 +2275,7 @@ void SV_BindGame(void)
         if (!ret) {
             // free VM?
             svs.gameStarted = false;
-            Com_Error(errorParm_t::ERR_FATAL, "GetGameAPI failed on %s", dllName);
+            Q_Error(errorParm_t::ERR_FATAL, "GetGameAPI failed on {}", dllName);
         }
         ge = ret;
 
@@ -2283,7 +2283,7 @@ void SV_BindGame(void)
     }
 
     svs.gameStarted = false;
-    Com_Error(errorParm_t::ERR_DROP, "VM_Create on game failed");
+    Q_Error(errorParm_t::ERR_DROP, "VM_Create on game failed");
 }
 
 void SV_UnbindGame(void)
@@ -2301,7 +2301,7 @@ void SV_RestartGame(void)
     SV_BindGame();
     if (!gvm) {
         svs.gameStarted = false;
-        Com_Error(errorParm_t::ERR_DROP, "VM_Restart on game failed");
+        Q_Error(errorParm_t::ERR_DROP, "VM_Restart on game failed");
         return;
     }
 

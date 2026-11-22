@@ -38,7 +38,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // msg.c
 //
 typedef struct msg_s {
-    bool allowoverflow; // if false, do a Com_Error
+    bool allowoverflow; // if false, do a Q_Error
     bool overflowed;    // set to true if the buffer size failed (with allowoverflow set)
     bool oob;           // set to true if the buffer size failed (with allowoverflow set)
     byte* data;
@@ -166,7 +166,11 @@ void NET_Restart_f(void);
 void NET_Config(bool enableNetworking);
 
 void NET_SendPacket(netsrc_t sock, int length, const void* data, const netadr_t* to);
-void NET_OutOfBandPrint(netsrc_t net_socket, const netadr_t* adr, const char* format, ...) __attribute__((format(printf, 3, 4)));
+void NET_VOutOfBandPrint(netsrc_t net_socket, const netadr_t* adr, fmt::string_view format, fmt::format_args args);
+template <typename... T> void NET_OutOfBandPrint(netsrc_t net_socket, const netadr_t* adr, fmt::format_string<T...> format, T&&... args)
+{
+    NET_VOutOfBandPrint(net_socket, adr, format.get(), Q_FormatArgs(args...));
+}
 void NET_OutOfBandData(netsrc_t sock, const netadr_t* adr, byte* format, int len);
 
 bool NET_CompareAdr(const netadr_t* a, const netadr_t* b);

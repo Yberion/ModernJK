@@ -128,27 +128,27 @@ void G_CacheGametype(void)
     if (g_gametype.string[0] && isalpha(g_gametype.string[0])) {
         gametype_t gt = BG_GetGametypeForString(g_gametype.string);
         if (gt == gametype_t::GT_UNKNOWN) {
-            Com_Printf("Gametype '%s' unrecognised, defaulting to FFA/Deathmatch\n", g_gametype.string);
+            Q_Println("Gametype '{}' unrecognised, defaulting to FFA/Deathmatch", g_gametype.string);
             level.gametype = gametype_t::GT_FFA;
         }
         else
             level.gametype = gt;
     }
     else if (g_gametype.integer < 0 || g_gametype.integer >= to_underlying(gametype_t::GT_MAX_GAME_TYPE)) {
-        Com_Printf("g_gametype %i is out of range, defaulting to 0 (FFA/Deathmatch)\n", g_gametype.integer);
+        Q_Println("g_gametype {} is out of range, defaulting to 0 (FFA/Deathmatch)", g_gametype.integer);
         level.gametype = gametype_t::GT_FFA;
     }
     else
         level.gametype = (gametype_t)atoi(g_gametype.string);
 
-    trap->Cvar_Set("g_gametype", va("%i", to_underlying(level.gametype)));
+    trap->Cvar_Set("g_gametype", Q_Format("{}", to_underlying(level.gametype)).c_str());
     trap->Cvar_Update(&g_gametype);
 }
 
 void G_CacheMapname(const vmCvar_t* mapname)
 {
-    Com_sprintf(level.mapname, sizeof(level.mapname), "maps/%s.bsp", mapname->string);
-    Com_sprintf(level.rawmapname, sizeof(level.rawmapname), "maps/%s", mapname->string);
+    Q_FormatTo(level.mapname, "maps/{}.bsp", mapname->string);
+    Q_FormatTo(level.rawmapname, "maps/{}", mapname->string);
 }
 
 /*
@@ -191,9 +191,9 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
     // Load external vehicle data
     BG_VehicleLoadParms();
 
-    Com_Printf("------- Game Initialization -------\n");
-    Com_Printf("gamename: %s\n", JK_VERSION);
-    Com_Printf("gamedate: %s\n", SOURCE_DATE);
+    Q_Println("------- Game Initialization -------");
+    Q_Println("gamename: {}", JK_VERSION);
+    Q_Println("gamedate: {}", SOURCE_DATE);
 
     // init as zero, to be updated by the following cvar registration
     // relevant cvars call their update func to modify CS_LEGACY_FIXES when necessary
@@ -224,16 +224,16 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
     if (g_log.string[0]) {
         trap->FS_Open(g_log.string, &level.logFile, g_logSync.integer ? fsMode_t::FS_APPEND_SYNC : fsMode_t::FS_APPEND);
         if (level.logFile)
-            Com_Printf("Logging to %s\n", g_log.string);
+            Q_Println("Logging to {}", g_log.string);
         else
-            Com_Warning("Couldn't open logfile: %s\n", g_log.string);
+            Q_PrintlnWarning("Couldn't open logfile: {}", g_log.string);
     }
     else
-        Com_Printf("Not logging game events to disk.\n");
+        Q_Println("Not logging game events to disk.");
 
     trap->GetServerinfo(serverinfo, sizeof(serverinfo));
-    G_LogPrintf("------------------------------------------------------------\n");
-    G_LogPrintf("InitGame: %s\n", serverinfo);
+    G_LogPrintln("------------------------------------------------------------");
+    G_LogPrintln("InitGame: {}", serverinfo);
 
     if (g_securityLog.integer) {
         if (g_securityLog.integer == 1)
@@ -242,12 +242,12 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
             trap->FS_Open(SECURITY_LOG, &level.security.log, fsMode_t::FS_APPEND_SYNC);
 
         if (level.security.log)
-            Com_Printf("Logging to " SECURITY_LOG "\n");
+            Q_Println("Logging to " SECURITY_LOG);
         else
-            Com_Warning("Couldn't open logfile: " SECURITY_LOG "\n");
+            Q_PrintlnWarning("Couldn't open logfile: " SECURITY_LOG);
     }
     else
-        Com_Printf("Not logging security events to disk.\n");
+        Q_Println("Not logging security events to disk.");
 
     G_LogWeaponInit();
 
@@ -290,11 +290,11 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
     //
     // ICARUS INIT START
 
-    //	Com_Printf("------ ICARUS Initialization ------\n");
+    //	Q_Println("------ ICARUS Initialization ------");
 
     trap->ICARUS_Init();
 
-    //	Com_Printf ("-----------------------------------\n");
+    //	Q_Println("-----------------------------------");
 
     // ICARUS INIT END
     //
@@ -328,18 +328,18 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
     }
 
     if (level.gametype == gametype_t::GT_POWERDUEL) {
-        trap->SetConfigstring(CS_CLIENT_DUELISTS, va("-1|-1|-1"));
+        trap->SetConfigstring(CS_CLIENT_DUELISTS, Q_Format("-1|-1|-1").c_str());
     }
     else {
-        trap->SetConfigstring(CS_CLIENT_DUELISTS, va("-1|-1"));
+        trap->SetConfigstring(CS_CLIENT_DUELISTS, Q_Format("-1|-1").c_str());
     }
     // nmckenzie: DUEL_HEALTH: Default.
-    trap->SetConfigstring(CS_CLIENT_DUELHEALTHS, va("-1|-1|!"));
-    trap->SetConfigstring(CS_CLIENT_DUELWINNER, va("-1"));
+    trap->SetConfigstring(CS_CLIENT_DUELHEALTHS, Q_Format("-1|-1|!").c_str());
+    trap->SetConfigstring(CS_CLIENT_DUELWINNER, Q_Format("-1").c_str());
 
     SaveRegisteredItems();
 
-    // Com_Printf("-----------------------------------\n");
+    // Q_Println("-----------------------------------");
 
     if (level.gametype == gametype_t::GT_SINGLE_PLAYER || trap->Cvar_VariableIntegerValue("com_buildScript")) {
         G_ModelIndex(SP_PODIUM_MODEL);
@@ -357,7 +357,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
     }
 
     if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL) {
-        G_LogPrintf("Duel Tournament Begun: kill limit %d, win limit: %d\n", fraglimit.integer, duel_fraglimit.integer);
+        G_LogPrintln("Duel Tournament Begun: kill limit {}, win limit: {}", fraglimit.integer, duel_fraglimit.integer);
     }
 
     if (navCalculatePaths) {                                // not loaded - need to calc paths
@@ -405,7 +405,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
             gentity_t* spawnpoint = SelectRandomDeathmatchSpawnPoint(false);
 
             if (!spawnpoint) {
-                Com_Error(errorParm_t::ERR_DROP, "Couldn't find an FFA spawnpoint to drop the jedimaster saber at!\n");
+                Q_Error(errorParm_t::ERR_DROP, "Couldn't find an FFA spawnpoint to drop the jedimaster saber at!");
                 return;
             }
 
@@ -426,13 +426,13 @@ void G_ShutdownGame(int restart)
     int i = 0;
     gentity_t* ent;
 
-    //	Com_Printf("==== ShutdownGame ====\n");
+    //	Q_Println("==== ShutdownGame ====");
 
     G_CleanAllFakeClients(); // get rid of dynamically allocated fake client structs.
 
     BG_ClearAnimsets(); // free all dynamic allocations made through the engine
 
-    //	Com_Printf("... Gameside GHOUL2 Cleanup\n");
+    //	Q_Println("... Gameside GHOUL2 Cleanup");
     while (i < MAX_GENTITIES) { // clean up all the ghoul2 instances
         ent = &g_entities[i];
 
@@ -461,22 +461,22 @@ void G_ShutdownGame(int restart)
         precachedKyle = nullptr;
     }
 
-    //	Com_Printf ("... ICARUS_Shutdown\n");
+    //	Q_Println("... ICARUS_Shutdown");
     trap->ICARUS_Shutdown(); // Shut ICARUS down
 
-    //	Com_Printf ("... Reference Tags Cleared\n");
+    //	Q_Println("... Reference Tags Cleared");
     TAG_Init(); // Clear the reference tags
 
     G_LogWeaponOutput();
 
     if (level.logFile) {
-        G_LogPrintf("ShutdownGame:\n------------------------------------------------------------\n");
+        G_LogPrintln("ShutdownGame:\n------------------------------------------------------------");
         trap->FS_Close(level.logFile);
         level.logFile = 0;
     }
 
     if (level.security.log) {
-        G_SecurityLogPrintf("ShutdownGame\n\n");
+        G_SecurityLogPrintln("ShutdownGame\n");
         trap->FS_Close(level.security.log);
         level.security.log = 0;
     }
@@ -837,7 +837,7 @@ void AdjustTournamentScores(void)
 
             level.clients[clientNum].sess.wins++;
             ClientUserinfoChanged(clientNum);
-            trap->SetConfigstring(CS_CLIENT_DUELWINNER, va("%i", clientNum));
+            trap->SetConfigstring(CS_CLIENT_DUELWINNER, Q_Format("{}", clientNum).c_str());
 
             clientNum = level.sortedClients[clFailure];
 
@@ -852,7 +852,7 @@ void AdjustTournamentScores(void)
 
             level.clients[clientNum].sess.wins++;
             ClientUserinfoChanged(clientNum);
-            trap->SetConfigstring(CS_CLIENT_DUELWINNER, va("%i", clientNum));
+            trap->SetConfigstring(CS_CLIENT_DUELWINNER, Q_Format("{}", clientNum).c_str());
 
             clientNum = level.sortedClients[clFailure];
 
@@ -866,7 +866,7 @@ void AdjustTournamentScores(void)
             level.clients[clientNum].sess.wins++;
             ClientUserinfoChanged(clientNum);
 
-            trap->SetConfigstring(CS_CLIENT_DUELWINNER, va("%i", clientNum));
+            trap->SetConfigstring(CS_CLIENT_DUELWINNER, Q_Format("{}", clientNum).c_str());
         }
 
         clientNum = level.sortedClients[1];
@@ -1099,27 +1099,27 @@ void CalculateRanks(void)
 
     // set the CS_SCORES1/2 configstrings, which will be visible to everyone
     if (level.gametype >= gametype_t::GT_TEAM) {
-        trap->SetConfigstring(CS_SCORES1, va("%i", level.teamScores[team_t::TEAM_RED]));
-        trap->SetConfigstring(CS_SCORES2, va("%i", level.teamScores[team_t::TEAM_BLUE]));
+        trap->SetConfigstring(CS_SCORES1, Q_Format("{}", level.teamScores[team_t::TEAM_RED]).c_str());
+        trap->SetConfigstring(CS_SCORES2, Q_Format("{}", level.teamScores[team_t::TEAM_BLUE]).c_str());
     }
     else {
         if (level.numConnectedClients == 0) {
-            trap->SetConfigstring(CS_SCORES1, va("%i", SCORE_NOT_PRESENT));
-            trap->SetConfigstring(CS_SCORES2, va("%i", SCORE_NOT_PRESENT));
+            trap->SetConfigstring(CS_SCORES1, Q_Format("{}", SCORE_NOT_PRESENT).c_str());
+            trap->SetConfigstring(CS_SCORES2, Q_Format("{}", SCORE_NOT_PRESENT).c_str());
         }
         else if (level.numConnectedClients == 1) {
-            trap->SetConfigstring(CS_SCORES1, va("%i", level.clients[level.sortedClients[0]].ps.persistant[persEnum_t::PERS_SCORE]));
-            trap->SetConfigstring(CS_SCORES2, va("%i", SCORE_NOT_PRESENT));
+            trap->SetConfigstring(CS_SCORES1, Q_Format("{}", level.clients[level.sortedClients[0]].ps.persistant[persEnum_t::PERS_SCORE]).c_str());
+            trap->SetConfigstring(CS_SCORES2, Q_Format("{}", SCORE_NOT_PRESENT).c_str());
         }
         else {
-            trap->SetConfigstring(CS_SCORES1, va("%i", level.clients[level.sortedClients[0]].ps.persistant[persEnum_t::PERS_SCORE]));
-            trap->SetConfigstring(CS_SCORES2, va("%i", level.clients[level.sortedClients[1]].ps.persistant[persEnum_t::PERS_SCORE]));
+            trap->SetConfigstring(CS_SCORES1, Q_Format("{}", level.clients[level.sortedClients[0]].ps.persistant[persEnum_t::PERS_SCORE]).c_str());
+            trap->SetConfigstring(CS_SCORES2, Q_Format("{}", level.clients[level.sortedClients[1]].ps.persistant[persEnum_t::PERS_SCORE]).c_str());
         }
 
         if (level.gametype != gametype_t::GT_DUEL &&
             level.gametype != gametype_t::GT_POWERDUEL) { // when not in duel, use this configstring to pass the index of the player currently in first place
             if (level.numConnectedClients >= 1) {
-                trap->SetConfigstring(CS_CLIENT_DUELWINNER, va("%i", level.sortedClients[0]));
+                trap->SetConfigstring(CS_CLIENT_DUELWINNER, Q_Format("{}", level.sortedClients[0]).c_str());
             }
             else {
                 trap->SetConfigstring(CS_CLIENT_DUELWINNER, "-1");
@@ -1422,9 +1422,8 @@ G_LogPrintf
 Print to the logfile with a time stamp if it is open
 =================
 */
-void QDECL G_LogPrintf(const char* fmt, ...)
+void G_VLogPrintln(fmt::string_view fmt, fmt::format_args args)
 {
-    va_list argptr;
     char string[1024] = {0};
     int mins, seconds, msec, l;
 
@@ -1435,16 +1434,15 @@ void QDECL G_LogPrintf(const char* fmt, ...)
     seconds %= 60;
     //	msec %= 1000;
 
-    Com_sprintf(string, sizeof(string), "%i:%02i ", mins, seconds);
+    Q_FormatTo(string, "{}:{:02} ", mins, seconds);
 
     l = strlen(string);
 
-    va_start(argptr, fmt);
-    Q_vsnprintf(string + l, sizeof(string) - l, fmt, argptr);
-    va_end(argptr);
+    Q_VFormatToCut(std::span(string + l, sizeof(string) - l), fmt, args);
+    Q_strcat(string, sizeof(string), "\n");
 
     if (dedicated.integer)
-        Com_Printf("%s", string + l);
+        Q_Print("{}", string + l);
 
     if (!level.logFile)
         return;
@@ -1458,9 +1456,8 @@ G_SecurityLogPrintf
 Print to the security logfile with a time stamp if it is open
 =================
 */
-void QDECL G_SecurityLogPrintf(const char* fmt, ...)
+void G_VSecurityLogPrintln(fmt::string_view fmt, fmt::format_args args)
 {
-    va_list argptr;
     char string[1024] = {0};
     time_t rawtime;
     int timeLen = 0;
@@ -1470,12 +1467,11 @@ void QDECL G_SecurityLogPrintf(const char* fmt, ...)
     strftime(string, sizeof(string), "[%Y-%m-%d] [%H:%M:%S] ", gmtime(&rawtime));
     timeLen = strlen(string);
 
-    va_start(argptr, fmt);
-    Q_vsnprintf(string + timeLen, sizeof(string) - timeLen, fmt, argptr);
-    va_end(argptr);
+    Q_VFormatToCut(std::span(string + timeLen, sizeof(string) - timeLen), fmt, args);
+    Q_strcat(string, sizeof(string), "\n");
 
     if (dedicated.integer)
-        Com_Printf("%s", string + timeLen);
+        Q_Print("{}", string + timeLen);
 
     if (!level.security.log)
         return;
@@ -1495,7 +1491,7 @@ void LogExit(const char* string)
     int i, numSorted;
     gclient_t* cl;
     //	bool		won = true;
-    G_LogPrintf("Exit: %s\n", string);
+    G_LogPrintln("Exit: {}", string);
 
     level.intermissionQueued = level.time;
 
@@ -1510,7 +1506,7 @@ void LogExit(const char* string)
     }
 
     if (level.gametype >= gametype_t::GT_TEAM) {
-        G_LogPrintf("red:%i  blue:%i\n", level.teamScores[team_t::TEAM_RED], level.teamScores[team_t::TEAM_BLUE]);
+        G_LogPrintln("red:{}  blue:{}", level.teamScores[team_t::TEAM_RED], level.teamScores[team_t::TEAM_BLUE]);
     }
 
     for (i = 0; i < numSorted; i++) {
@@ -1528,12 +1524,12 @@ void LogExit(const char* string)
         ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 
         if (level.gametype >= gametype_t::GT_TEAM) {
-            G_LogPrintf("(%s) score: %i  ping: %i  client: [%s] %i \"%s^7\"\n", TeamName(PS_Team(cl->ps)), cl->ps.persistant[persEnum_t::PERS_SCORE], ping,
-                        cl->pers.guid, level.sortedClients[i], cl->pers.netname);
+            G_LogPrintln("({}) score: {}  ping: {}  client: [{}] {} \"{}^7\"", TeamName(PS_Team(cl->ps)), cl->ps.persistant[persEnum_t::PERS_SCORE], ping,
+                         cl->pers.guid, level.sortedClients[i], cl->pers.netname);
         }
         else {
-            G_LogPrintf("score: %i  ping: %i  client: [%s] %i \"%s^7\"\n", cl->ps.persistant[persEnum_t::PERS_SCORE], ping, cl->pers.guid,
-                        level.sortedClients[i], cl->pers.netname);
+            G_LogPrintln("score: {}  ping: {}  client: [{}] {} \"{}^7\"", cl->ps.persistant[persEnum_t::PERS_SCORE], ping, cl->pers.guid,
+                         level.sortedClients[i], cl->pers.netname);
         }
         //		if (g_singlePlayer.integer && (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)) {
         //			if (Any( g_entities[cl - level.clients].r.svFlags & svFlags_t::SVF_BOT ) && cl->ps.persistant[persEnum_t::PERS_RANK] == 0) {
@@ -1601,14 +1597,14 @@ void CheckIntermissionExit(void)
         gDidDuelStuff = true;
 
         if (g_austrian.integer && level.gametype != gametype_t::GT_POWERDUEL) {
-            G_LogPrintf("Duel Results:\n");
-            // G_LogPrintf("Duel Time: %d\n", level.time );
-            G_LogPrintf("winner: %s, score: %d, wins/losses: %d/%d\n", level.clients[level.sortedClients[0]].pers.netname,
-                        level.clients[level.sortedClients[0]].ps.persistant[persEnum_t::PERS_SCORE], level.clients[level.sortedClients[0]].sess.wins,
-                        level.clients[level.sortedClients[0]].sess.losses);
-            G_LogPrintf("loser: %s, score: %d, wins/losses: %d/%d\n", level.clients[level.sortedClients[1]].pers.netname,
-                        level.clients[level.sortedClients[1]].ps.persistant[persEnum_t::PERS_SCORE], level.clients[level.sortedClients[1]].sess.wins,
-                        level.clients[level.sortedClients[1]].sess.losses);
+            G_LogPrintln("Duel Results:");
+            // G_LogPrintln("Duel Time: {}", level.time);
+            G_LogPrintln("winner: {}, score: {}, wins/losses: {}/{}", level.clients[level.sortedClients[0]].pers.netname,
+                         level.clients[level.sortedClients[0]].ps.persistant[persEnum_t::PERS_SCORE], level.clients[level.sortedClients[0]].sess.wins,
+                         level.clients[level.sortedClients[0]].sess.losses);
+            G_LogPrintln("loser: {}, score: {}, wins/losses: {}/{}", level.clients[level.sortedClients[1]].pers.netname,
+                         level.clients[level.sortedClients[1]].ps.persistant[persEnum_t::PERS_SCORE], level.clients[level.sortedClients[1]].sess.wins,
+                         level.clients[level.sortedClients[1]].sess.losses);
         }
         // if we are running a tournament map, kick the loser to spectator status,
         // which will automatically grab the next spectator and restart
@@ -1632,29 +1628,30 @@ void CheckIntermissionExit(void)
 
             if (g_austrian.integer) {
                 if (level.gametype == gametype_t::GT_POWERDUEL) {
-                    G_LogPrintf("Power Duel Initiated: %s %d/%d vs %s %d/%d and %s %d/%d, kill limit: %d\n", level.clients[level.sortedClients[0]].pers.netname,
-                                level.clients[level.sortedClients[0]].sess.wins, level.clients[level.sortedClients[0]].sess.losses,
-                                level.clients[level.sortedClients[1]].pers.netname, level.clients[level.sortedClients[1]].sess.wins,
-                                level.clients[level.sortedClients[1]].sess.losses, level.clients[level.sortedClients[2]].pers.netname,
-                                level.clients[level.sortedClients[2]].sess.wins, level.clients[level.sortedClients[2]].sess.losses, fraglimit.integer);
+                    G_LogPrintln("Power Duel Initiated: {} {}/{} vs {} {}/{} and {} {}/{}, kill limit: {}", level.clients[level.sortedClients[0]].pers.netname,
+                                 level.clients[level.sortedClients[0]].sess.wins, level.clients[level.sortedClients[0]].sess.losses,
+                                 level.clients[level.sortedClients[1]].pers.netname, level.clients[level.sortedClients[1]].sess.wins,
+                                 level.clients[level.sortedClients[1]].sess.losses, level.clients[level.sortedClients[2]].pers.netname,
+                                 level.clients[level.sortedClients[2]].sess.wins, level.clients[level.sortedClients[2]].sess.losses, fraglimit.integer);
                 }
                 else {
-                    G_LogPrintf("Duel Initiated: %s %d/%d vs %s %d/%d, kill limit: %d\n", level.clients[level.sortedClients[0]].pers.netname,
-                                level.clients[level.sortedClients[0]].sess.wins, level.clients[level.sortedClients[0]].sess.losses,
-                                level.clients[level.sortedClients[1]].pers.netname, level.clients[level.sortedClients[1]].sess.wins,
-                                level.clients[level.sortedClients[1]].sess.losses, fraglimit.integer);
+                    G_LogPrintln("Duel Initiated: {} {}/{} vs {} {}/{}, kill limit: {}", level.clients[level.sortedClients[0]].pers.netname,
+                                 level.clients[level.sortedClients[0]].sess.wins, level.clients[level.sortedClients[0]].sess.losses,
+                                 level.clients[level.sortedClients[1]].pers.netname, level.clients[level.sortedClients[1]].sess.wins,
+                                 level.clients[level.sortedClients[1]].sess.losses, fraglimit.integer);
                 }
             }
 
             if (level.gametype == gametype_t::GT_POWERDUEL) {
                 if (level.numPlayingClients >= 3 && level.numNonSpectatorClients >= 3) {
-                    trap->SetConfigstring(CS_CLIENT_DUELISTS, va("%i|%i|%i", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2]));
+                    trap->SetConfigstring(CS_CLIENT_DUELISTS,
+                                          Q_Format("{}|{}|{}", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2]).c_str());
                     trap->SetConfigstring(CS_CLIENT_DUELWINNER, "-1");
                 }
             }
             else {
                 if (level.numPlayingClients >= 2) {
-                    trap->SetConfigstring(CS_CLIENT_DUELISTS, va("%i|%i", level.sortedClients[0], level.sortedClients[1]));
+                    trap->SetConfigstring(CS_CLIENT_DUELISTS, Q_Format("{}|{}", level.sortedClients[0], level.sortedClients[1]).c_str());
                     trap->SetConfigstring(CS_CLIENT_DUELWINNER, "-1");
                 }
             }
@@ -1663,8 +1660,8 @@ void CheckIntermissionExit(void)
         }
 
         if (g_austrian.integer && level.gametype != gametype_t::GT_POWERDUEL) {
-            G_LogPrintf("Duel Tournament Winner: %s wins/losses: %d/%d\n", level.clients[level.sortedClients[0]].pers.netname,
-                        level.clients[level.sortedClients[0]].sess.wins, level.clients[level.sortedClients[0]].sess.losses);
+            G_LogPrintln("Duel Tournament Winner: {} wins/losses: {}/{}", level.clients[level.sortedClients[0]].pers.netname,
+                         level.clients[level.sortedClients[0]].sess.wins, level.clients[level.sortedClients[0]].sess.losses);
         }
 
         if (level.gametype == gametype_t::GT_POWERDUEL) {
@@ -1672,7 +1669,7 @@ void CheckIntermissionExit(void)
             AddPowerDuelPlayers();
 
             if (level.numPlayingClients >= 3 && level.numNonSpectatorClients >= 3) {
-                trap->SetConfigstring(CS_CLIENT_DUELISTS, va("%i|%i|%i", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2]));
+                trap->SetConfigstring(CS_CLIENT_DUELISTS, Q_Format("{}|{}|{}", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2]).c_str());
                 trap->SetConfigstring(CS_CLIENT_DUELWINNER, "-1");
             }
         }
@@ -1693,7 +1690,7 @@ void CheckIntermissionExit(void)
             AddTournamentPlayer();
 
             if (level.numPlayingClients >= 2) {
-                trap->SetConfigstring(CS_CLIENT_DUELISTS, va("%i|%i", level.sortedClients[0], level.sortedClients[1]));
+                trap->SetConfigstring(CS_CLIENT_DUELISTS, Q_Format("{}|{}", level.sortedClients[0], level.sortedClients[1]).c_str());
                 trap->SetConfigstring(CS_CLIENT_DUELWINNER, "-1");
             }
         }
@@ -1856,7 +1853,7 @@ void CheckExitRules(void)
             {
                 if (d_powerDuelPrint.integer)
                 {
-                    Com_Printf("POWERDUEL WIN CONDITION: Duel forfeit (1)\n");
+                    Q_Println("POWERDUEL WIN CONDITION: Duel forfeit (1)");
                 }
                 LogExit("Duel forfeit.");
                 return;
@@ -1880,10 +1877,10 @@ void CheckExitRules(void)
     if (level.gametype != gametype_t::GT_SIEGE) {
         if (timelimit.value > 0.0f && !level.warmupTime) {
             if (level.time - level.startTime >= timelimit.value * 60000) {
-                //				trap->SendServerCommand( -1, "print \"Timelimit hit.\n\"");
-                trap->SendServerCommand(-1, va("print \"%s.\n\"", G_GetStringEdString("MP_SVGAME", "TIMELIMIT_HIT")));
+                //				trap->SendServerCommand(-1, "print \"Timelimit hit.\n\"");
+                trap->SendServerCommand(-1, Q_Format("print \"{}.\n\"", G_GetStringEdString("MP_SVGAME", "TIMELIMIT_HIT")).c_str());
                 if (d_powerDuelPrint.integer) {
-                    Com_Printf("POWERDUEL WIN CONDITION: Timelimit hit (1)\n");
+                    Q_Println("POWERDUEL WIN CONDITION: Timelimit hit (1)");
                 }
                 LogExit("Timelimit hit.");
                 return;
@@ -1949,11 +1946,11 @@ void CheckExitRules(void)
                 }
 
                 //Will want to parse indecies for two out at some point probably
-                trap->SetConfigstring ( CS_CLIENT_DUELWINNER, va("%i", duelists[1] ) );
+                trap->SetConfigstring ( CS_CLIENT_DUELWINNER, Q_Format("{}", duelists[1]).c_str() );
 
                 if (d_powerDuelPrint.integer)
                 {
-                    Com_Printf("POWERDUEL WIN CONDITION: Coupled duelists won (1)\n");
+                    Q_Println("POWERDUEL WIN CONDITION: Coupled duelists won (1)");
                 }
                 LogExit( "Coupled duelists won." );
                 gDuelExit = false;
@@ -1989,11 +1986,11 @@ void CheckExitRules(void)
                     ClientUserinfoChanged(duelists[0]);
                 }
 
-                trap->SetConfigstring ( CS_CLIENT_DUELWINNER, va("%i", duelists[0] ) );
+                trap->SetConfigstring ( CS_CLIENT_DUELWINNER, Q_Format("{}", duelists[0]).c_str() );
 
                 if (d_powerDuelPrint.integer)
                 {
-                    Com_Printf("POWERDUEL WIN CONDITION: Lone duelist won (1)\n");
+                    Q_Println("POWERDUEL WIN CONDITION: Lone duelist won (1)");
                 }
                 LogExit( "Lone duelist won." );
                 gDuelExit = false;
@@ -2021,18 +2018,18 @@ void CheckExitRules(void)
     }
     if (level.gametype < gametype_t::GT_SIEGE && fraglimit.integer) {
         if (level.teamScores[team_t::TEAM_RED] >= fraglimit.integer) {
-            trap->SendServerCommand(-1, va("print \"Red %s\n\"", G_GetStringEdString("MP_SVGAME", "HIT_THE_KILL_LIMIT")));
+            trap->SendServerCommand(-1, Q_Format("print \"Red {}\n\"", G_GetStringEdString("MP_SVGAME", "HIT_THE_KILL_LIMIT")).c_str());
             if (d_powerDuelPrint.integer) {
-                Com_Printf("POWERDUEL WIN CONDITION: Kill limit (1)\n");
+                Q_Println("POWERDUEL WIN CONDITION: Kill limit (1)");
             }
             LogExit(sKillLimit);
             return;
         }
 
         if (level.teamScores[team_t::TEAM_BLUE] >= fraglimit.integer) {
-            trap->SendServerCommand(-1, va("print \"Blue %s\n\"", G_GetStringEdString("MP_SVGAME", "HIT_THE_KILL_LIMIT")));
+            trap->SendServerCommand(-1, Q_Format("print \"Blue {}\n\"", G_GetStringEdString("MP_SVGAME", "HIT_THE_KILL_LIMIT")).c_str());
             if (d_powerDuelPrint.integer) {
-                Com_Printf("POWERDUEL WIN CONDITION: Kill limit (2)\n");
+                Q_Println("POWERDUEL WIN CONDITION: Kill limit (2)");
             }
             LogExit(sKillLimit);
             return;
@@ -2050,23 +2047,23 @@ void CheckExitRules(void)
             if ((level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL) && duel_fraglimit.integer &&
                 cl->sess.wins >= duel_fraglimit.integer) {
                 if (d_powerDuelPrint.integer) {
-                    Com_Printf("POWERDUEL WIN CONDITION: Duel limit hit (1)\n");
+                    Q_Println("POWERDUEL WIN CONDITION: Duel limit hit (1)");
                 }
                 LogExit("Duel limit hit.");
                 gDuelExit = true;
-                trap->SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " hit the win limit.\n\"", cl->pers.netname));
+                trap->SendServerCommand(-1, Q_Format("print \"{}" S_COLOR_WHITE " hit the win limit.\n\"", cl->pers.netname).c_str());
                 return;
             }
 
             if (cl->ps.persistant[persEnum_t::PERS_SCORE] >= fraglimit.integer) {
                 if (d_powerDuelPrint.integer) {
-                    Com_Printf("POWERDUEL WIN CONDITION: Kill limit (3)\n");
+                    Q_Println("POWERDUEL WIN CONDITION: Kill limit (3)");
                 }
                 LogExit(sKillLimit);
                 gDuelExit = false;
                 if (printLimit) {
                     trap->SendServerCommand(
-                        -1, va("print \"%s" S_COLOR_WHITE " %s.\n\"", cl->pers.netname, G_GetStringEdString("MP_SVGAME", "HIT_THE_KILL_LIMIT")));
+                        -1, Q_Format("print \"{}" S_COLOR_WHITE " {}.\n\"", cl->pers.netname, G_GetStringEdString("MP_SVGAME", "HIT_THE_KILL_LIMIT")).c_str());
                 }
                 return;
             }
@@ -2076,15 +2073,15 @@ void CheckExitRules(void)
     if (level.gametype >= gametype_t::GT_CTF && capturelimit.integer) {
 
         if (level.teamScores[team_t::TEAM_RED] >= capturelimit.integer) {
-            trap->SendServerCommand(-1, va("print \"%s \"", G_GetStringEdString("MP_SVGAME", "PRINTREDTEAM")));
-            trap->SendServerCommand(-1, va("print \"%s.\n\"", G_GetStringEdString("MP_SVGAME", "HIT_CAPTURE_LIMIT")));
+            trap->SendServerCommand(-1, Q_Format("print \"{} \"", G_GetStringEdString("MP_SVGAME", "PRINTREDTEAM")).c_str());
+            trap->SendServerCommand(-1, Q_Format("print \"{}.\n\"", G_GetStringEdString("MP_SVGAME", "HIT_CAPTURE_LIMIT")).c_str());
             LogExit("Capturelimit hit.");
             return;
         }
 
         if (level.teamScores[team_t::TEAM_BLUE] >= capturelimit.integer) {
-            trap->SendServerCommand(-1, va("print \"%s \"", G_GetStringEdString("MP_SVGAME", "PRINTBLUETEAM")));
-            trap->SendServerCommand(-1, va("print \"%s.\n\"", G_GetStringEdString("MP_SVGAME", "HIT_CAPTURE_LIMIT")));
+            trap->SendServerCommand(-1, Q_Format("print \"{} \"", G_GetStringEdString("MP_SVGAME", "PRINTBLUETEAM")).c_str());
+            trap->SendServerCommand(-1, Q_Format("print \"{}.\n\"", G_GetStringEdString("MP_SVGAME", "HIT_CAPTURE_LIMIT")).c_str());
             LogExit("Capturelimit hit.");
             return;
         }
@@ -2131,12 +2128,12 @@ void CheckTournament(void)
 
     if (level.gametype == gametype_t::GT_POWERDUEL) {
         if (level.numPlayingClients >= 3 && level.numNonSpectatorClients >= 3) {
-            trap->SetConfigstring(CS_CLIENT_DUELISTS, va("%i|%i|%i", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2]));
+            trap->SetConfigstring(CS_CLIENT_DUELISTS, Q_Format("{}|{}|{}", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2]).c_str());
         }
     }
     else {
         if (level.numPlayingClients >= 2) {
-            trap->SetConfigstring(CS_CLIENT_DUELISTS, va("%i|%i", level.sortedClients[0], level.sortedClients[1]));
+            trap->SetConfigstring(CS_CLIENT_DUELISTS, Q_Format("{}|{}", level.sortedClients[0], level.sortedClients[1]).c_str());
         }
     }
 
@@ -2146,7 +2143,7 @@ void CheckTournament(void)
             AddTournamentPlayer();
 
             if (level.numPlayingClients >= 2) {
-                trap->SetConfigstring(CS_CLIENT_DUELISTS, va("%i|%i", level.sortedClients[0], level.sortedClients[1]));
+                trap->SetConfigstring(CS_CLIENT_DUELISTS, Q_Format("{}|{}", level.sortedClients[0], level.sortedClients[1]).c_str());
             }
         }
 
@@ -2156,7 +2153,8 @@ void CheckTournament(void)
                 playerState_t *ps1, *ps2;
                 ps1 = &level.clients[level.sortedClients[0]].ps;
                 ps2 = &level.clients[level.sortedClients[1]].ps;
-                trap->SetConfigstring(CS_CLIENT_DUELHEALTHS, va("%i|%i|!", ps1->stats[statIndex_t::STAT_HEALTH], ps2->stats[statIndex_t::STAT_HEALTH]));
+                trap->SetConfigstring(CS_CLIENT_DUELHEALTHS,
+                                      Q_Format("{}|{}|!", ps1->stats[statIndex_t::STAT_HEALTH], ps2->stats[statIndex_t::STAT_HEALTH]).c_str());
             }
         }
 
@@ -2171,8 +2169,8 @@ void CheckTournament(void)
 		if ( level.numPlayingClients != 2 ) {
 			if ( level.warmupTime != -1 ) {
 				level.warmupTime = -1;
-				trap->SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
-				G_LogPrintf( "Warmup:\n" );
+				trap->SetConfigstring( CS_WARMUP, Q_Format("{}", level.warmupTime).c_str() );
+				G_LogPrintln("Warmup:");
 			}
 			return;
 		}
@@ -2197,7 +2195,7 @@ void CheckTournament(void)
 				{ //rww - this is an unpleasent hack to keep the level from resetting completely on the client (this happens when two map_restarts are issued rapidly)
 					level.warmupTime = level.time + 3000;
 				}
-				trap->SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+				trap->SetConfigstring( CS_WARMUP, Q_Format("{}", level.warmupTime).c_str() );
 			}
 			return;
 		}
@@ -2252,7 +2250,7 @@ void CheckTournament(void)
                 te->s.otherEntityNum2 = level.sortedClients[1];
                 te->s.groundEntityNum = level.sortedClients[2];
 
-                trap->SetConfigstring(CS_CLIENT_DUELISTS, va("%i|%i|%i", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2]));
+                trap->SetConfigstring(CS_CLIENT_DUELISTS, Q_Format("{}|{}|{}", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2]).c_str());
                 G_ResetDuelists();
 
                 g_dontFrickinCheck = true;
@@ -2263,10 +2261,10 @@ void CheckTournament(void)
 
                     G_PowerDuelCount(&lone, &dbl, true);
                     if (lone < 1) {
-                        trap->SendServerCommand(-1, va("cp \"%s\n\"", G_GetStringEdString("MP_SVGAME", "DUELMORESINGLE")));
+                        trap->SendServerCommand(-1, Q_Format("cp \"{}\n\"", G_GetStringEdString("MP_SVGAME", "DUELMORESINGLE")).c_str());
                     }
                     else {
-                        trap->SendServerCommand(-1, va("cp \"%s\n\"", G_GetStringEdString("MP_SVGAME", "DUELMOREPAIRED")));
+                        trap->SendServerCommand(-1, Q_Format("cp \"{}\n\"", G_GetStringEdString("MP_SVGAME", "DUELMOREPAIRED")).c_str());
                     }
                     g_duelPrintTimer = level.time + 10000;
                 }
@@ -2281,14 +2279,15 @@ void CheckTournament(void)
                     te->s.otherEntityNum2 = level.sortedClients[1];
                     te->s.groundEntityNum = level.sortedClients[2];
 
-                    trap->SetConfigstring(CS_CLIENT_DUELISTS, va("%i|%i|%i", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2]));
+                    trap->SetConfigstring(CS_CLIENT_DUELISTS,
+                                          Q_Format("{}|{}|{}", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2]).c_str());
 
                     if (g_austrian.integer) {
-                        G_LogPrintf("Duel Initiated: %s %d/%d vs %s %d/%d and %s %d/%d, kill limit: %d\n", level.clients[level.sortedClients[0]].pers.netname,
-                                    level.clients[level.sortedClients[0]].sess.wins, level.clients[level.sortedClients[0]].sess.losses,
-                                    level.clients[level.sortedClients[1]].pers.netname, level.clients[level.sortedClients[1]].sess.wins,
-                                    level.clients[level.sortedClients[1]].sess.losses, level.clients[level.sortedClients[2]].pers.netname,
-                                    level.clients[level.sortedClients[2]].sess.wins, level.clients[level.sortedClients[2]].sess.losses, fraglimit.integer);
+                        G_LogPrintln("Duel Initiated: {} {}/{} vs {} {}/{} and {} {}/{}, kill limit: {}", level.clients[level.sortedClients[0]].pers.netname,
+                                     level.clients[level.sortedClients[0]].sess.wins, level.clients[level.sortedClients[0]].sess.losses,
+                                     level.clients[level.sortedClients[1]].pers.netname, level.clients[level.sortedClients[1]].sess.wins,
+                                     level.clients[level.sortedClients[1]].sess.losses, level.clients[level.sortedClients[2]].pers.netname,
+                                     level.clients[level.sortedClients[2]].sess.wins, level.clients[level.sortedClients[2]].sess.losses, fraglimit.integer);
                     }
                     // trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, "map_restart 0\n" );
                     // FIXME: This seems to cause problems. But we'd like to reset things whenever a new opponent is set.
@@ -2321,8 +2320,8 @@ void CheckTournament(void)
         if (notEnough) {
             if (level.warmupTime != -1) {
                 level.warmupTime = -1;
-                trap->SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
-                G_LogPrintf("Warmup:\n");
+                trap->SetConfigstring(CS_WARMUP, Q_Format("{}", level.warmupTime).c_str());
+                G_LogPrintln("Warmup:");
             }
             return; // still waiting for team members
         }
@@ -2348,7 +2347,7 @@ void CheckTournament(void)
             else {
                 level.warmupTime = 0;
             }
-            trap->SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
+            trap->SetConfigstring(CS_WARMUP, Q_Format("{}", level.warmupTime).c_str());
             return;
         }
 
@@ -2377,7 +2376,7 @@ void G_KickAllBots(void)
         if (!Any(g_entities[i].r.svFlags & svFlags_t::SVF_BOT)) {
             continue;
         }
-        trap->SendConsoleCommand(cbufExec_t::EXEC_INSERT, va("clientkick %d\n", i));
+        trap->SendConsoleCommand(cbufExec_t::EXEC_INSERT, Q_Format("clientkick {}\n", i).c_str());
     }
 }
 
@@ -2390,7 +2389,7 @@ void CheckVote(void)
 {
     if (level.voteExecuteTime && level.voteExecuteTime < level.time) {
         level.voteExecuteTime = 0;
-        trap->SendConsoleCommand(cbufExec_t::EXEC_APPEND, va("%s\n", level.voteString));
+        trap->SendConsoleCommand(cbufExec_t::EXEC_APPEND, Q_Format("{}\n", level.voteString).c_str());
 
         if (level.votingGametype) {
             if (level.gametype != level.votingGametypeTo) { // If we're voting to a different game type, be sure to refresh all the map stuff
@@ -2403,7 +2402,7 @@ void CheckVote(void)
                 }
 
                 if (nextMap && nextMap[0]) {
-                    trap->SendConsoleCommand(cbufExec_t::EXEC_APPEND, va("map %s\n", nextMap));
+                    trap->SendConsoleCommand(cbufExec_t::EXEC_APPEND, Q_Format("map {}\n", nextMap).c_str());
                 }
             }
             else { // otherwise, just leave the map until a restart
@@ -2440,18 +2439,18 @@ void CheckVote(void)
         return;
     }
     if (level.time - level.voteTime >= VOTE_TIME || level.voteYes + level.voteNo == 0) {
-        trap->SendServerCommand(-1, va("print \"%s (%s)\n\"", G_GetStringEdString("MP_SVGAME", "VOTEFAILED"), level.voteStringClean));
+        trap->SendServerCommand(-1, Q_Format("print \"{} ({})\n\"", G_GetStringEdString("MP_SVGAME", "VOTEFAILED"), level.voteStringClean).c_str());
     }
     else {
         if (level.voteYes > level.numVotingClients / 2) {
             // execute the command, then remove the vote
-            trap->SendServerCommand(-1, va("print \"%s (%s)\n\"", G_GetStringEdString("MP_SVGAME", "VOTEPASSED"), level.voteStringClean));
+            trap->SendServerCommand(-1, Q_Format("print \"{} ({})\n\"", G_GetStringEdString("MP_SVGAME", "VOTEPASSED"), level.voteStringClean).c_str());
             level.voteExecuteTime = level.time + level.voteExecuteDelay;
         }
 
         // same behavior as a timeout
         else if (level.voteNo >= (level.numVotingClients + 1) / 2)
-            trap->SendServerCommand(-1, va("print \"%s (%s)\n\"", G_GetStringEdString("MP_SVGAME", "VOTEFAILED"), level.voteStringClean));
+            trap->SendServerCommand(-1, Q_Format("print \"{} ({})\n\"", G_GetStringEdString("MP_SVGAME", "VOTEFAILED"), level.voteStringClean).c_str());
 
         else // still waiting for a majority
             return;
@@ -2465,7 +2464,7 @@ void CheckVote(void)
 PrintTeam
 ==================
 */
-void PrintTeam(team_t team, char* message)
+void PrintTeam(team_t team, const char* message)
 {
     int i;
 
@@ -2486,11 +2485,11 @@ void SetLeader(team_t team, int client)
     int i;
 
     if (level.clients[client].pers.connected == clientConnected_t::CON_DISCONNECTED) {
-        PrintTeam(team, va("print \"%s is not connected\n\"", level.clients[client].pers.netname));
+        PrintTeam(team, Q_Format("print \"{} is not connected\n\"", level.clients[client].pers.netname).c_str());
         return;
     }
     if (level.clients[client].sess.sessionTeam != team) {
-        PrintTeam(team, va("print \"%s is not on the team anymore\n\"", level.clients[client].pers.netname));
+        PrintTeam(team, Q_Format("print \"{} is not on the team anymore\n\"", level.clients[client].pers.netname).c_str());
         return;
     }
     for (i = 0; i < level.maxclients; i++) {
@@ -2503,7 +2502,7 @@ void SetLeader(team_t team, int client)
     }
     level.clients[client].sess.teamLeader = true;
     ClientUserinfoChanged(client);
-    PrintTeam(team, va("print \"%s %s\n\"", level.clients[client].pers.netname, G_GetStringEdString("MP_SVGAME", "NEWTEAMLEADER")));
+    PrintTeam(team, Q_Format("print \"{} {}\n\"", level.clients[client].pers.netname, G_GetStringEdString("MP_SVGAME", "NEWTEAMLEADER")).c_str());
 }
 
 /*
@@ -2564,7 +2563,7 @@ void CheckTeamVote(team_t team)
             SetLeader(team, atoi(level.teamVoteString[cs_offset] + 7));
         }
         else {
-            trap->SendConsoleCommand(cbufExec_t::EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset]));
+            trap->SendConsoleCommand(cbufExec_t::EXEC_APPEND, Q_Format("{}\n", level.teamVoteString[cs_offset]).c_str());
         }
     }
 
@@ -2573,18 +2572,21 @@ void CheckTeamVote(team_t team)
     }
 
     if (level.time - level.teamVoteTime[cs_offset] >= VOTE_TIME || level.teamVoteYes[cs_offset] + level.teamVoteNo[cs_offset] == 0) {
-        trap->SendServerCommand(-1, va("print \"%s (%s)\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEFAILED"), level.teamVoteStringClean[cs_offset]));
+        trap->SendServerCommand(
+            -1, Q_Format("print \"{} ({})\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEFAILED"), level.teamVoteStringClean[cs_offset]).c_str());
     }
     else {
         if (level.teamVoteYes[cs_offset] > level.numteamVotingClients[cs_offset] / 2) {
             // execute the command, then remove the vote
-            trap->SendServerCommand(-1, va("print \"%s (%s)\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEPASSED"), level.teamVoteStringClean[cs_offset]));
+            trap->SendServerCommand(
+                -1, Q_Format("print \"{} ({})\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEPASSED"), level.teamVoteStringClean[cs_offset]).c_str());
             level.voteExecuteTime = level.time + 3000;
         }
 
         // same behavior as a timeout
         else if (level.teamVoteNo[cs_offset] >= (level.numteamVotingClients[cs_offset] + 1) / 2)
-            trap->SendServerCommand(-1, va("print \"%s (%s)\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEFAILED"), level.teamVoteStringClean[cs_offset]));
+            trap->SendServerCommand(
+                -1, Q_Format("print \"{} ({})\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEFAILED"), level.teamVoteStringClean[cs_offset]).c_str());
 
         else // still waiting for a majority
             return;
@@ -2649,7 +2651,7 @@ void G_RunThink(gentity_t* ent)
 
     ent->nextthink = 0;
     if (!ent->think) {
-        // Com_Error( errorParm_t::ERR_DROP, "NULL ent->think");
+        // Q_Error(errorParm_t::ERR_DROP, "NULL ent->think");
         goto runicarus;
     }
     ent->think(ent);
@@ -2689,12 +2691,12 @@ void NAV_CheckCalcPaths(void)
 
 #ifndef FINAL_BUILD
         if (fatalErrors) {
-            Com_Printf(S_COLOR_RED "Not saving .nav file due to fatal nav errors\n");
+            Q_Println(S_COLOR_RED "Not saving .nav file due to fatal nav errors");
         }
         else
 #endif
             if (trap->Nav_Save(mapname.string, ckSum.integer) == false) {
-            Com_Printf("Unable to save navigations data for map \"%s\" (checksum:%d)\n", mapname.string, ckSum.integer);
+            Q_Println("Unable to save navigations data for map \"{}\" (checksum:{})", mapname.string, ckSum.integer);
         }
         navCalcPathTime = 0;
     }
@@ -2784,7 +2786,7 @@ void G_RunFrame(int levelTime)
                 if (useDif > 1.0f) {
                     useDif = 1.0f;
                 }
-                trap->Cvar_Set("timescale", va("%f", useDif));
+                trap->Cvar_Set("timescale", Q_Format("{:f}", useDif).c_str());
             }
             else {
                 char buf[128];
@@ -2970,7 +2972,7 @@ void G_RunFrame(int levelTime)
 
                                 if (ent->health > 0) { // did that last one kill them?
                                     // play the choking sound
-                                    G_EntitySound(ent, soundChannel_t::CHAN_VOICE, G_SoundIndex(va("*choke%d.wav", Q_irand(1, 3))));
+                                    G_EntitySound(ent, soundChannel_t::CHAN_VOICE, G_SoundIndex(Q_Format("*choke{}.wav", Q_irand(1, 3)).c_str()));
 
                                     // make them grasp their throat
                                     ent->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_CHOKE;
@@ -3189,8 +3191,8 @@ void G_RunFrame(int levelTime)
 #endif
 
 #ifdef _G_FRAME_PERFANAL
-    Com_Printf("---------------\nItemRun: %i\nROFF: %i\nClientEndframe: %i\nGameChecks: %i\nQueues: %i\n---------------\n", iTimer_ItemRun, iTimer_ROFF,
-               iTimer_ClientEndframe, iTimer_GameChecks, iTimer_Queues);
+    Q_Println("---------------\nItemRun: {}\nROFF: {}\nClientEndframe: {}\nGameChecks: {}\nQueues: {}\n---------------", iTimer_ItemRun, iTimer_ROFF,
+              iTimer_ClientEndframe, iTimer_GameChecks, iTimer_Queues);
 #endif
 }
 
@@ -3198,7 +3200,7 @@ const char* G_GetStringEdString(const char* refSection, const char* refName)
 {
     /*
     static char text[1024]={0};
-    trap->SP_GetStringTextString(va("%s_%s", refSection, refName), text, sizeof(text));
+    trap->SP_GetStringTextString(Q_Format("{}_{}", refSection, refName).c_str(), text, sizeof(text));
     return text;
     */
 
@@ -3208,7 +3210,7 @@ const char* G_GetStringEdString(const char* refSection, const char* refName)
     // to print it will get scanned for the stringed reference indication and dealt with
     // properly.
     static char text[1024] = {0};
-    Com_sprintf(text, sizeof(text), "@@@%s", refName);
+    Q_FormatTo(text, "@@@{}", refName);
     return text;
 }
 
@@ -3337,12 +3339,12 @@ GetModuleAPI
 gameImport_t* trap = nullptr;
 
 // the module's messages and errors, formatted by the engine (q_fmt.h)
-void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
+void Q_VPrint(printLevel_t level, lineEnd_t end, fmt::string_view fmt, fmt::format_args args)
 {
-    trap->Print(level, fmt, args);
+    trap->Print(level, end, fmt, args);
 }
 
-void Com_VError(errorParm_t code, const char* fmt, va_list args)
+void Q_VError(errorParm_t code, fmt::string_view fmt, fmt::format_args args)
 {
     trap->Error(code, fmt, args);
 }
@@ -3357,7 +3359,7 @@ extern "C" Q_EXPORT gameExport_t* QDECL GetModuleAPI(int apiVersion, gameImport_
     memset(&ge, 0, sizeof(ge));
 
     if (apiVersion != GAME_API_VERSION) {
-        Com_Printf("Mismatched GAME_API_VERSION: expected %i, got %i\n", GAME_API_VERSION, apiVersion);
+        Q_Println("Mismatched GAME_API_VERSION: expected {}, got {}", GAME_API_VERSION, apiVersion);
         return nullptr;
     }
 

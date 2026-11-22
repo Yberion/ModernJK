@@ -26,8 +26,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_local.h"
 #include "g_functions.h"
 #include "g_icarus.h"
+
+void Q3_VDebugPrintln(WL_e level, fmt::string_view format, fmt::format_args args);
+template <typename... T> void Q3_DebugPrintln(WL_e level, fmt::format_string<T...> format, T&&... args)
+{
+    Q3_VDebugPrintln(level, format.get(), Q_FormatArgs(args...));
+}
 // #include "Q3_Interface.h"
-extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 extern void G_SetEnemy(gentity_t* self, gentity_t* enemy);
 
 //==========================================================
@@ -137,7 +142,7 @@ void Use_Target_Print(gentity_t* ent, gentity_t* other, gentity_t* activator)
     G_ActivateBehavior(ent, bSet_t::BSET_USE);
 
     if (activator->client) {
-        gi.SendServerCommand(activator - g_entities, "cp \"%s\"", ent->message);
+        gi.SendServerCommand(activator - g_entities, "cp \"{}\"", ent->message);
     }
 }
 
@@ -172,7 +177,9 @@ void Use_Target_Speaker(gentity_t* ent, gentity_t* other, gentity_t* activator)
     G_ActivateBehavior(ent, bSet_t::BSET_USE);
 
     if (ent->sounds) {
-        ent->noise_index = G_SoundIndex(va(ent->paintarget, Q_irand(1, ent->sounds)));
+        char noise[MAX_QPATH * 2];
+        Q_FormatFromPrintf(noise, ent->paintarget, "a target_speaker's noise");
+        ent->noise_index = G_SoundIndex(Q_Format(fmt::runtime(noise), Q_irand(1, ent->sounds)).c_str());
     }
 
     if (ent->spawnflags & 3) { // looping sound toggles
@@ -222,7 +229,7 @@ void SP_target_speaker(gentity_t* ent)
 
     if (!ent->sounds) {
         if (!G_SpawnString("noise", "*NOSOUND*", &s)) {
-            Com_Error(errorParm_t::ERR_DROP, "target_speaker without a noise key at %s", vtos(ent->s.origin));
+            Q_Error(errorParm_t::ERR_DROP, "target_speaker without a noise key at {}", vtos(ent->s.origin));
         }
 
         Q_strncpyz(buffer, s, sizeof(buffer));
@@ -230,8 +237,10 @@ void SP_target_speaker(gentity_t* ent)
         ent->noise_index = G_SoundIndex(buffer);
     }
     else { // Precache all possible sounds
+        char noise[MAX_QPATH * 2];
+        Q_FormatFromPrintf(noise, ent->paintarget, "a target_speaker's noise");
         for (i = 0; i < ent->sounds; i++) {
-            ent->noise_index = G_SoundIndex(va(ent->paintarget, i + 1));
+            ent->noise_index = G_SoundIndex(Q_Format(fmt::runtime(noise), i + 1).c_str());
         }
     }
 
@@ -331,7 +340,7 @@ void target_laser_start(gentity_t* self)
     if (self->target) {
         ent = G_Find(nullptr, FOFS(targetname), self->target);
         if (!ent) {
-            Com_Printf("%s at %s: %s is a bad target\n", self->classname, vtos(self->s.origin), self->target);
+            Q_Println("{} at {}: {} is a bad target", self->classname, vtos(self->s.origin), self->target);
         }
         G_SetEnemy(self, ent);
     }
@@ -372,7 +381,7 @@ void target_teleporter_use(gentity_t* self, gentity_t* other, gentity_t* activat
 
     dest = G_PickTarget(self->target);
     if (!dest) {
-        Com_Printf("Couldn't find teleporter destination\n");
+        Q_Println("Couldn't find teleporter destination");
         return;
     }
 
@@ -385,7 +394,7 @@ The activator will be teleported away.
 void SP_target_teleporter(gentity_t* self)
 {
     if (!self->targetname)
-        Com_Printf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
+        Q_Println("untargeted {} at {}", self->classname, vtos(self->s.origin));
 
     self->e_UseFunc = useFunc_t::useF_target_teleporter_use;
 }
@@ -570,17 +579,17 @@ void target_counter_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         return;
     }
 
-    // Com_Printf("target_counter %s used by %s, entnum %d\n", self->targetname, activator->targetname, activator->s.number );
+    // Q_Println("target_counter {} used by {}, entnum {}", self->targetname, activator->targetname, activator->s.number);
     self->count--;
 
     if (activator) {
-        Q3_DebugPrint(WL_e::WL_VERBOSE, "target_counter %s used by %s (%d/%d)\n", self->targetname, activator->targetname, (self->max_health - self->count),
-                      self->max_health);
+        Q3_DebugPrintln(WL_e::WL_VERBOSE, "target_counter {} used by {} ({}/{})", self->targetname, activator->targetname, (self->max_health - self->count),
+                        self->max_health);
     }
 
     if (self->count) {
         if (self->target2) {
-            // Com_Printf("target_counter %s firing target2 from %s, entnum %d\n", self->targetname, activator->targetname, activator->s.number );
+            // Q_Println("target_counter {} firing target2 from {}, entnum {}", self->targetname, activator->targetname, activator->s.number);
             G_UseTargets2(self, activator, self->target2);
         }
         return;
@@ -631,7 +640,7 @@ void target_random_use(gentity_t* self, gentity_t* other, gentity_t* activator)
     int t_count = 0, pick;
     gentity_t* t = nullptr;
 
-    // Com_Printf("target_random %s used by %s (entnum %d)\n", self->targetname, activator->targetname, activator->s.number );
+    // Q_Println("target_random {} used by {} (entnum {})", self->targetname, activator->targetname, activator->s.number);
     G_ActivateBehavior(self, bSet_t::BSET_USE);
 
     if (self->spawnflags & 1) {
@@ -665,7 +674,7 @@ void target_random_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         }
 
         if (t == self) {
-            //				Com_Warning("Entity used itself.\n");
+            //				Q_PrintlnWarning("Entity used itself.");
         }
         else if (t_count == pick) {
             if (t->e_UseFunc != useFunc_t::useF_NULL) // check can be omitted
@@ -676,7 +685,7 @@ void target_random_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         }
 
         if (!self->inuse) {
-            Com_Printf("entity was removed while using targets\n");
+            Q_Println("entity was removed while using targets");
             return;
         }
     }
@@ -695,7 +704,7 @@ void scriptrunner_run(gentity_t* self)
     {
         char	newname[MAX_FILENAME_LENGTH];
 
-        sprintf((char *) &newname, "%s/%s", Q3_SCRIPT_DIR, self->behaviorSet[bSet_t::BSET_USE] );
+        Q_FormatTo((char *) &newname, "{}/{}", Q3_SCRIPT_DIR, self->behaviorSet[bSet_t::BSET_USE]);
 
         ICARUS_RunScript( self, newname );
     }
@@ -715,32 +724,32 @@ void scriptrunner_run(gentity_t* self)
     if (self->behaviorSet[bSet_t::BSET_USE]) {
         if (self->spawnflags & 1) {
             if (!self->activator) {
-                Q3_DebugPrint(WL_e::WL_ERROR, "target_scriptrunner tried to run on invalid entity!\n");
+                Q3_DebugPrintln(WL_e::WL_ERROR, "target_scriptrunner tried to run on invalid entity!");
                 return;
             }
 
             if (!self->activator->sequencer || !self->activator->taskManager) { // Need to be initialized through ICARUS
                 if (!self->activator->script_targetname || !self->activator->script_targetname[0]) {
                     // We don't have a script_targetname, so create a new one
-                    self->activator->script_targetname = va("newICARUSEnt%d", numNewICARUSEnts++);
+                    self->activator->script_targetname = G_NewString(Q_Format("newICARUSEnt{}", numNewICARUSEnts++).c_str());
                 }
 
                 if (ICARUS_ValidEnt(self->activator)) {
                     ICARUS_InitEnt(self->activator);
                 }
                 else {
-                    Q3_DebugPrint(WL_e::WL_ERROR, "target_scriptrunner tried to run on invalid ICARUS activator!\n");
+                    Q3_DebugPrintln(WL_e::WL_ERROR, "target_scriptrunner tried to run on invalid ICARUS activator!");
                     return;
                 }
             }
 
-            Q3_DebugPrint(WL_e::WL_VERBOSE, "target_scriptrunner running %s on activator %s\n", self->behaviorSet[bSet_t::BSET_USE],
-                          self->activator->targetname);
-            ICARUS_RunScript(self->activator, va("%s/%s", Q3_SCRIPT_DIR, self->behaviorSet[bSet_t::BSET_USE]));
+            Q3_DebugPrintln(WL_e::WL_VERBOSE, "target_scriptrunner running {} on activator {}", self->behaviorSet[bSet_t::BSET_USE],
+                            self->activator->targetname);
+            ICARUS_RunScript(self->activator, Q_Format("{}/{}", Q3_SCRIPT_DIR, self->behaviorSet[bSet_t::BSET_USE]).c_str());
         }
         else {
             if (self->activator) {
-                Q3_DebugPrint(WL_e::WL_VERBOSE, "target_scriptrunner %s used by %s\n", self->targetname, self->activator->targetname);
+                Q3_DebugPrintln(WL_e::WL_VERBOSE, "target_scriptrunner {} used by {}", self->targetname, self->activator->targetname);
             }
             G_ActivateBehavior(self, bSet_t::BSET_USE);
         }
@@ -812,14 +821,14 @@ void target_gravity_change_use(gentity_t* self, gentity_t* other, gentity_t* act
     G_ActivateBehavior(self, bSet_t::BSET_USE);
 
     if (self->spawnflags & 1) {
-        gi.cvar_set("g_gravity", va("%f", self->speed));
+        gi.cvar_set("g_gravity", Q_Format("{:f}", self->speed).c_str());
     }
     else if (activator->client) {
         int grav = Q_floorf(self->speed);
         /*
         if ( activator->client->ps.gravity != grav )
         {
-            Com_Printf("%s gravity changed to %d\n", activator->targetname, grav );
+            Q_Println("{} gravity changed to {}", activator->targetname, grav);
         }
         */
         activator->client->ps.gravity = grav;
@@ -846,7 +855,7 @@ void target_friction_change_use(gentity_t* self, gentity_t* other, gentity_t* ac
     G_ActivateBehavior(self, bSet_t::BSET_USE);
 
     if (self->spawnflags & 1) { // FIXME - make a global?
-                                // gi.Cvar_Set("g_friction", va("%d", self->health));
+                                // gi.Cvar_Set("g_friction", Q_Format("{}", self->health).c_str());
     }
     else if (activator->client) {
         activator->client->ps.friction = self->health;
@@ -892,7 +901,7 @@ HUB - Will save the current map's status and load the next map with any saved st
 void SP_target_level_change(gentity_t* self)
 {
     if (!self->message) {
-        Com_Error(errorParm_t::ERR_DROP, "target_level_change with no mapname!");
+        Q_Error(errorParm_t::ERR_DROP, "target_level_change with no mapname!");
         return;
     }
     G_SetOrigin(self, self->s.origin);
@@ -966,7 +975,7 @@ void SP_target_play_music(gentity_t* self)
     char* s;
     G_SetOrigin(self, self->s.origin);
     if (!G_SpawnString("music", "", &s)) {
-        Com_Error(errorParm_t::ERR_DROP, "target_play_music without a music key at %s", vtos(self->s.origin));
+        Q_Error(errorParm_t::ERR_DROP, "target_play_music without a music key at {}", vtos(self->s.origin));
     }
     self->message = G_NewString(s);
     self->e_UseFunc = useFunc_t::useF_target_play_music_use;
@@ -989,7 +998,7 @@ void SP_target_play_music(gentity_t* self)
 void target_autosave_use(gentity_t* self, gentity_t* other, gentity_t* activator)
 {
     G_ActivateBehavior(self, bSet_t::BSET_USE);
-    // gi.SendServerCommand( 0, "cp @INGAME_CHECKPOINT" );
+    // gi.SendServerCommand(0, "cp @INGAME_CHECKPOINT");
     CG_CenterPrint("@INGAME_CHECKPOINT", SCREEN_HEIGHT * 0.25); // jump the network
 
     //	if (self->spawnflags & 1)
@@ -1032,6 +1041,6 @@ void SP_target_secret(gentity_t* self)
     self->e_UseFunc = useFunc_t::useF_target_secret_use;
     self->noise_index = G_SoundIndex("sound/interface/secret_area");
     if (self->count) {
-        gi.cvar_set("newTotalSecrets", va("%i", self->count));
+        gi.cvar_set("newTotalSecrets", Q_Format("{}", self->count).c_str());
     }
 }

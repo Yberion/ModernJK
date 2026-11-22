@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Usage: netcodec_train_client <jka_client_tables.inc> <client_train.bin> ...
 #include <client_trace.h>
 #include <contexts.h>
+#include <fmt/base.h>
 #include "write_tables.h"
 
 #include <cstdio>
@@ -34,7 +35,7 @@ using namespace netcodec;
 int main(int argc, char** argv)
 {
     if (argc < 3) {
-        std::fprintf(stderr, "usage: %s jka_client_tables.inc client_train.bin ...\n", argv[0]);
+        fmt::println(stderr, "usage: {} jka_client_tables.inc client_train.bin ...", argv[0]);
         return 2;
     }
     SymbolCounts counts = NewSymbolCounts();
@@ -53,9 +54,9 @@ int main(int argc, char** argv)
                 if (!CountClientPacket(t.packet, t.hasBase ? &base : nullptr, counts))
                     refused++;
             }
-        std::printf("%s: %zu streams\n", argv[a], streams.size());
+        fmt::println("{}: {} streams", argv[a], streams.size());
     }
-    std::printf("%zu packets counted, %zu refused\n", packets, refused);
+    fmt::println("{} packets counted, {} refused", packets, refused);
     if (refused != 0)
         return 1;
     const tools::TablesFile file{

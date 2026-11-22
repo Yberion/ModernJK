@@ -21,6 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Reader of the message-codec golden trace written by docs/modernization/tools/python/export_codec_trace.py.
 #pragma once
 
+#include <fmt/base.h>
 #include <netcodec/codec.h>
 #include "storage.h"
 
@@ -195,7 +196,7 @@ inline bool LoadCodecTrace(const char* path, std::vector<CodecStream>& streams)
 {
     const std::unique_ptr<FILE, int (*)(FILE*)> file(fopen(path, "rb"), &fclose);
     if (!file) {
-        fprintf(stderr, "cannot open %s\n", path);
+        fmt::println(stderr, "cannot open {}", path);
         return false;
     }
     Reader r(file.get());
@@ -220,7 +221,7 @@ inline bool LoadCodecTrace(const char* path, std::vector<CodecStream>& streams)
         }
     }
     if (!ok)
-        fprintf(stderr, "bad trace file %s\n", path);
+        fmt::println(stderr, "bad trace file {}", path);
     return ok;
 }
 

@@ -284,7 +284,7 @@ void teleporter_touch(gentity_t* self, gentity_t* other, trace_t* trace)
         return;
     dest = G_PickTarget(self->target);
     if (!dest) {
-        Com_Printf("Couldn't find teleporter destination\n");
+        Q_Println("Couldn't find teleporter destination");
         return;
     }
 
@@ -299,7 +299,7 @@ void SP_misc_teleporter(gentity_t* ent)
     gentity_t* trig;
 
     if (!ent->target) {
-        Com_Printf("teleporter without a target.\n");
+        Q_Println("teleporter without a target.");
         G_FreeEntity(ent);
         return;
     }
@@ -394,7 +394,7 @@ void cycleCamera(gentity_t* self)
         // for now assume reached end of list and are cycling
         self->owner = G_Find(self->owner, FOFS(targetname), self->target);
         if (self->owner == nullptr) { // still didn't find one
-            Com_Printf("Couldn't find target for misc_portal_surface\n");
+            Q_Println("Couldn't find target for misc_portal_surface");
             G_FreeEntity(self);
             return;
         }
@@ -421,7 +421,7 @@ void locateCamera(gentity_t* ent)
 
     ent->owner = G_Find(nullptr, FOFS(targetname), ent->target);
     if (!ent->owner) {
-        Com_Printf("Couldn't find target for misc_portal_surface\n");
+        Q_Println("Couldn't find target for misc_portal_surface");
         G_FreeEntity(ent);
         return;
     }
@@ -804,7 +804,7 @@ void SP_object_cargo_barrel1(gentity_t* ent)
     else {
         // FIXME: make an index into an external string table for localization
         ent->fullName = "Federation Cargo Barrel";
-        ent->s.modelindex = G_ModelIndex(va("/models/mapobjects/cargo/barrel%i.md3", Q_irand(0, 2)));
+        ent->s.modelindex = G_ModelIndex(Q_Format("/models/mapobjects/cargo/barrel{}.md3", Q_irand(0, 2)).c_str());
         //		ent->sounds = G_SoundIndex("sound/weapons/explosions/explode1.wav");
     }
 
@@ -1540,12 +1540,12 @@ void SP_misc_trip_mine(gentity_t* self)
     gi.trace(&trace, self->s.origin, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0);
 
     if (trace.allsolid || trace.startsolid) {
-        Com_Error(errorParm_t::ERR_DROP, "misc_trip_mine at %s in solid\n", vtos(self->s.origin));
+        Q_Error(errorParm_t::ERR_DROP, "misc_trip_mine at {} in solid", vtos(self->s.origin));
         G_FreeEntity(self);
         return;
     }
     if (trace.fraction == 1.0) {
-        Com_Error(errorParm_t::ERR_DROP, "misc_trip_mine at %s pointed at no surface\n", vtos(self->s.origin));
+        Q_Error(errorParm_t::ERR_DROP, "misc_trip_mine at {} pointed at no surface", vtos(self->s.origin));
         G_FreeEntity(self);
         return;
     }
@@ -1632,7 +1632,7 @@ void maglock_link(gentity_t* self)
     gi.trace(&trace, start, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0);
 
     if (trace.allsolid || trace.startsolid) {
-        Com_Error(errorParm_t::ERR_DROP, "misc_maglock at %s in solid\n", vtos(self->s.origin));
+        Q_Error(errorParm_t::ERR_DROP, "misc_maglock at {} in solid", vtos(self->s.origin));
         G_FreeEntity(self);
         return;
     }
@@ -1640,7 +1640,7 @@ void maglock_link(gentity_t* self)
         self->e_ThinkFunc = thinkFunc_t::thinkF_maglock_link;
         self->nextthink = level.time + 100;
         /*
-        Com_Error( errorParm_t::ERR_DROP,"misc_maglock at %s pointed at no surface\n", vtos(self->s.origin) );
+        Q_Error(errorParm_t::ERR_DROP, "misc_maglock at {} pointed at no surface", vtos(self->s.origin));
         G_FreeEntity( self );
         */
         return;
@@ -1649,7 +1649,7 @@ void maglock_link(gentity_t* self)
     if (trace.entityNum >= ENTITYNUM_WORLD || !traceEnt || Q_stricmp("func_door", traceEnt->classname)) {
         self->e_ThinkFunc = thinkFunc_t::thinkF_maglock_link;
         self->nextthink = level.time + 100;
-        // Com_Error( errorParm_t::ERR_DROP,"misc_maglock at %s not pointed at a door\n", vtos(self->s.origin) );
+        // Q_Error(errorParm_t::ERR_DROP, "misc_maglock at {} not pointed at a door", vtos(self->s.origin));
         // G_FreeEntity( self );
         return;
     }

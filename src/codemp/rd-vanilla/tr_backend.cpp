@@ -58,7 +58,7 @@ void GL_Bind(image_t* image)
     int texnum;
 
     if (!image) {
-        Com_Printf(S_COLOR_YELLOW "GL_Bind: NULL image\n");
+        Q_Println(S_COLOR_YELLOW "GL_Bind: NULL image");
         texnum = tr.defaultImage->texnum;
     }
     else {
@@ -110,7 +110,7 @@ void GL_SelectTexture(int unit)
         GLimp_LogComment("glClientActiveTextureARB( GL_TEXTURE3_ARB )\n");
     }
     else {
-        Com_Error(errorParm_t::ERR_DROP, "GL_SelectTexture: unit = %i", unit);
+        Q_Error(errorParm_t::ERR_DROP, "GL_SelectTexture: unit = {}", unit);
     }
 
     glState.currenttmu = unit;
@@ -179,7 +179,7 @@ void GL_TexEnv(int env)
         qglTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
         break;
     default:
-        Com_Error(errorParm_t::ERR_DROP, "GL_TexEnv: invalid env '%d' passed\n", env);
+        Q_Error(errorParm_t::ERR_DROP, "GL_TexEnv: invalid env '{}' passed", env);
         break;
     }
 }
@@ -247,7 +247,7 @@ void GL_State(glStateBits_t stateBits)
                 break;
             default:
                 srcFactor = GL_ONE; // to get warning to shut up
-                Com_Error(errorParm_t::ERR_DROP, "GL_State: invalid src blend state bits\n");
+                Q_Error(errorParm_t::ERR_DROP, "GL_State: invalid src blend state bits");
                 break;
             }
 
@@ -278,7 +278,7 @@ void GL_State(glStateBits_t stateBits)
                 break;
             default:
                 dstFactor = GL_ONE; // to get warning to shut up
-                Com_Error(errorParm_t::ERR_DROP, "GL_State: invalid dst blend state bits\n");
+                Q_Error(errorParm_t::ERR_DROP, "GL_State: invalid dst blend state bits");
                 break;
             }
 
@@ -1162,7 +1162,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* d
 
     // make sure rows and cols are powers of 2
     if ((cols & (cols - 1)) || (rows & (rows - 1))) {
-        Com_Error(errorParm_t::ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i", cols, rows);
+        Q_Error(errorParm_t::ERR_DROP, "Draw_StretchRaw: size not a power of 2: {} by {}", cols, rows);
     }
 
     GL_Bind(tr.scratchImage[client]);
@@ -1187,7 +1187,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* d
 
     if (r_speeds->integer) {
         end = ri.Milliseconds() * ri.Cvar_VariableValue("timescale");
-        Com_Printf("qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start);
+        Q_Println("qglTexSubImage2D {}, {}: {} msec", cols, rows, end - start);
     }
 
     RB_SetGL2D();
@@ -1740,7 +1740,7 @@ void RB_ShowImages(void)
     qglFinish();
 
     //	end = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
-    //	Com_Printf("%i msec to draw all images\n", end - start );
+    //	Q_Println("{} msec to draw all images", end - start);
 }
 
 static void RB_GammaCorrectRender()

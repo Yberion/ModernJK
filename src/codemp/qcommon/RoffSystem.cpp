@@ -286,13 +286,13 @@ void CROFFSystem::FixBadAngles(CROFF* obj)
     for (index = 0; index < obj->mROFFEntries; index++) {
         for (t = 0; t < 3; t++) {
             if (obj->mMoveRotateList[index].mRotateOffset[t] > 180.0f) { // found a bad angle
-                                                                         //	Com_Printf( S_COLOR_YELLOW"Fixing bad roff angle\n <%6.2f> changed to <%6.2f>.\n",
-                                                                         //				roff_data[i].mRotateOffset[t], roff_data[i].mRotateOffset[t] - 360.0f );
+                                                                         //	Q_Println(S_COLOR_YELLOW"Fixing bad roff angle\n <{:6.2f}> changed to <{:6.2f}>.",
+                                                                         // roff_data[i].mRotateOffset[t], roff_data[i].mRotateOffset[t] - 360.0f);
                 obj->mMoveRotateList[index].mRotateOffset[t] -= 360.0f;
             }
             else if (obj->mMoveRotateList[index].mRotateOffset[t] < -180.0f) { // found a bad angle
-                //	Com_Printf( S_COLOR_YELLOW"Fixing bad roff angle\n <%6.2f> changed to <%6.2f>.\n",
-                //				roff_data[i].mRotateOffset[t], roff_data[i].mRotateOffset[t] + 360.0f );
+                //	Q_Println(S_COLOR_YELLOW"Fixing bad roff angle\n <{:6.2f}> changed to <{:6.2f}>.", roff_data[i].mRotateOffset[t],
+                // roff_data[i].mRotateOffset[t] + 360.0f);
                 obj->mMoveRotateList[index].mRotateOffset[t] += 360.0f;
             }
         }
@@ -321,7 +321,7 @@ int CROFFSystem::Cache(const char* file, bool isClient)
 
     if (id) {
 #ifdef _DEBUG
-        Com_Printf(S_COLOR_YELLOW "Ignoring. File '%s' already cached.\n", file);
+        Q_Println(S_COLOR_YELLOW "Ignoring. File '{}' already cached.", file);
 #endif
     }
     else { // Read the file in one fell swoop
@@ -330,16 +330,16 @@ int CROFFSystem::Cache(const char* file, bool isClient)
         if (len <= 0) {
             char otherPath[1024];
             COM_StripExtension(file, otherPath, sizeof(otherPath));
-            len = FS_ReadFile(va("scripts/%s.rof", otherPath), (void**)&data);
+            len = FS_ReadFile(Q_Format("scripts/{}.rof", otherPath).c_str(), (void**)&data);
             if (len <= 0) {
-                Com_Printf(S_COLOR_RED "Could not open .ROF file '%s'\n", file);
+                Q_Println(S_COLOR_RED "Could not open .ROF file '{}'", file);
                 return 0;
             }
         }
 
         // Make sure that the file is roff
         if (!IsROFF(data)) {
-            Com_Printf(S_COLOR_RED "cache failed: roff <%s> does not exist or is not a valid roff\n", file);
+            Q_Println(S_COLOR_RED "cache failed: roff <{}> does not exist or is not a valid roff", file);
             FS_FreeFile(data);
 
             return 0;
@@ -420,7 +420,7 @@ bool CROFFSystem::Unload(int id)
         mROFFList.erase(itr++);
 
 #ifdef _DEBUG
-        Com_Printf(S_COLOR_GREEN "roff unloaded\n");
+        Q_Println(S_COLOR_GREEN "roff unloaded");
 #endif
 
         return true;
@@ -428,7 +428,7 @@ bool CROFFSystem::Unload(int id)
     else { // not found
 
 #ifdef _DEBUG
-        Com_Printf(S_COLOR_RED "unload failed: roff <%i> does not exist\n", id);
+        Q_Println(S_COLOR_RED "unload failed: roff <{}> does not exist", id);
 #endif
         return false;
     }
@@ -516,14 +516,14 @@ void CROFFSystem::List()
 {
     TROFFList::iterator itr;
 
-    Com_Printf(S_COLOR_GREEN "\n--Cached ROFF files--\n");
-    Com_Printf(S_COLOR_GREEN "ID   FILE\n");
+    Q_Println(S_COLOR_GREEN "\n--Cached ROFF files--");
+    Q_Println(S_COLOR_GREEN "ID   FILE");
 
     for (itr = mROFFList.begin(); itr != mROFFList.end(); ++itr) {
-        Com_Printf(S_COLOR_GREEN "%2i - %s\n", (*itr).first, ((CROFF*)((*itr).second))->mROFFFilePath);
+        Q_Println(S_COLOR_GREEN "{:2} - {}", (*itr).first, ((CROFF*)((*itr).second))->mROFFFilePath);
     }
 
-    Com_Printf(S_COLOR_GREEN "\nFiles: %zu\n", mROFFList.size());
+    Q_Println(S_COLOR_GREEN "\nFiles: {}", mROFFList.size());
 }
 
 //---------------------------------------------------------------------------
@@ -546,21 +546,21 @@ bool CROFFSystem::List(int id)
         CROFF* obj = ((CROFF*)((*itr).second));
         TROFF2Entry* dat = obj->mMoveRotateList;
 
-        Com_Printf(S_COLOR_GREEN "File: %s\n", obj->mROFFFilePath);
-        Com_Printf(S_COLOR_GREEN "ID: %i\n", id);
-        Com_Printf(S_COLOR_GREEN "Entries: %i\n\n", obj->mROFFEntries);
+        Q_Println(S_COLOR_GREEN "File: {}", obj->mROFFFilePath);
+        Q_Println(S_COLOR_GREEN "ID: {}", id);
+        Q_Println(S_COLOR_GREEN "Entries: {}\n", obj->mROFFEntries);
 
-        Com_Printf(S_COLOR_GREEN "MOVE                 ROTATE\n");
+        Q_Println(S_COLOR_GREEN "MOVE                 ROTATE");
 
         for (int i = 0; i < obj->mROFFEntries; i++) {
-            Com_Printf(S_COLOR_GREEN "%6.2f %6.2f %6.2f   %6.2f %6.2f %6.2f\n", dat[i].mOriginOffset[0], dat[i].mOriginOffset[1], dat[i].mOriginOffset[2],
-                       dat[i].mRotateOffset[0], dat[i].mRotateOffset[1], dat[i].mRotateOffset[2]);
+            Q_Println(S_COLOR_GREEN "{:6.2f} {:6.2f} {:6.2f}   {:6.2f} {:6.2f} {:6.2f}", dat[i].mOriginOffset[0], dat[i].mOriginOffset[1],
+                      dat[i].mOriginOffset[2], dat[i].mRotateOffset[0], dat[i].mRotateOffset[1], dat[i].mRotateOffset[2]);
         }
 
         return true;
     }
 
-    Com_Printf(S_COLOR_YELLOW "ROFF not found: id <%d>\n", id);
+    Q_Println(S_COLOR_YELLOW "ROFF not found: id <{}>", id);
 
     return false;
 }
@@ -632,8 +632,8 @@ void CROFFSystem::ListEnts()
         TROFFEntList::iterator itr = mROFFEntList.begin();
         TROFFList::iterator itrRoff;
 
-        Com_Printf( S_COLOR_GREEN"\n--ROFFing Entities--\n" );
-        Com_Printf( S_COLOR_GREEN"EntID EntName       RoffFile\n" );
+        Q_Println(S_COLOR_GREEN"\n--ROFFing Entities--");
+        Q_Println(S_COLOR_GREEN"EntID EntName       RoffFile");
 
         // display everything in the end list
         for ( itr = mROFFEntList.begin(); itr != mROFFEntList.end(); ++itr )
@@ -654,10 +654,10 @@ void CROFFSystem::ListEnts()
                 file = "Error:  Unknown";
             }
 
-            Com_Printf( S_COLOR_GREEN"%3i  %s    %s\n", id, name, file );
+            Q_Println(S_COLOR_GREEN"{:3}  {}    {}", id, name, file);
         }
 
-        Com_Printf( S_COLOR_GREEN"\nEntities: %i\n", mROFFEntList.size() );*/
+        Q_Println(S_COLOR_GREEN"\nEntities: {}", mROFFEntList.size());*/
 }
 
 //---------------------------------------------------------------------------
@@ -686,7 +686,7 @@ bool CROFFSystem::PurgeEnt(int entID, bool isClient)
         }
     }
 
-    Com_Printf(S_COLOR_RED "Purge failed:  Entity <%i> not found\n", entID);
+    Q_Println(S_COLOR_RED "Purge failed:  Entity <{}> not found", entID);
 
     return false;
 }
@@ -711,7 +711,7 @@ bool CROFFSystem::PurgeEnt(char* name)
         }
         else
         {
-            Com_Printf( S_COLOR_RED"Entity <%s> not found or not in use\n", name );
+            Q_Println(S_COLOR_RED"Entity <{}> not found or not in use", name);
             return false;
         }*/
 
@@ -748,9 +748,8 @@ void CROFFSystem::UpdateEntities(bool isClient)
             }
         }
         else { // roff not found == bad, dump an error message and purge this ent
-            Com_Printf(S_COLOR_RED "ROFF System Error:\n");
-            //			Com_Printf( S_COLOR_RED" -ROFF not found for entity <%s>\n",
-            //					entitySystem->GetEntityFromID(((SROFFEntity *)(*itr))->mEntID)->GetName() );
+            Q_Println(S_COLOR_RED "ROFF System Error:");
+            //			Q_Println(S_COLOR_RED" -ROFF not found for entity <{}>", entitySystem->GetEntityFromID(((SROFFEntity *)(*itr))->mEntID)->GetName());
 
             ((SROFFEntity*)(*itr))->mKill = true;
 

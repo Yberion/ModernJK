@@ -67,7 +67,8 @@ const char* BuildShaderStateConfig(void)
 
     memset(buff, 0, MAX_STRING_CHARS);
     for (i = 0; i < remapCount; i++) {
-        Com_sprintf(out, (MAX_QPATH * 2) + 5, "%s=%s:%5.2f@", remappedShaders[i].oldShader, remappedShaders[i].newShader, remappedShaders[i].timeOffset);
+        Q_FormatTo(std::span(out, (MAX_QPATH * 2) + 5), "{}={}:{:5.2f}@", remappedShaders[i].oldShader, remappedShaders[i].newShader,
+                   remappedShaders[i].timeOffset);
         Q_strcat(buff, sizeof(buff), out);
     }
     return buff;
@@ -111,7 +112,7 @@ static int G_FindConfigstringIndex(const char* name, int start, int max, bool cr
     }
 
     if (i == max) {
-        Com_Error(errorParm_t::ERR_DROP, "G_FindConfigstringIndex: overflow");
+        Q_Error(errorParm_t::ERR_DROP, "G_FindConfigstringIndex: overflow");
     }
 
     trap->SetConfigstring(start + i, name);
@@ -140,9 +141,9 @@ int G_ModelIndex(const char* name)
 
     trap->FS_Open(name, &fh, fsMode_t::FS_READ);
     if (!fh) { // try models/ then, this is assumed for registering models
-        trap->FS_Open(va("models/%s", name), &fh, fsMode_t::FS_READ);
+        trap->FS_Open(Q_Format("models/{}", name).c_str(), &fh, fsMode_t::FS_READ);
         if (!fh) {
-            Com_PrintError("Server tried to modelindex %s but it doesn't exist.\n", name);
+            Q_PrintlnError("Server tried to modelindex {} but it doesn't exist.", name);
         }
     }
 
@@ -218,14 +219,14 @@ G_TeamCommand
 Broadcasts a command to only a specific team
 ================
 */
-void G_TeamCommand(team_t team, char* cmd)
+void G_TeamCommand(team_t team, const char* cmd)
 {
     int i;
 
     for (i = 0; i < level.maxclients; i++) {
         if (level.clients[i].pers.connected == clientConnected_t::CON_CONNECTED) {
             if (level.clients[i].sess.sessionTeam == team) {
-                trap->SendServerCommand(i, va("%s", cmd));
+                trap->SendServerCommand(i, Q_Format("{}", cmd).c_str());
             }
         }
     }
@@ -409,7 +410,7 @@ void G_AllocateVehicleObject(Vehicle_t** pVeh)
         }
         i++;
     }
-    Com_Error(errorParm_t::ERR_DROP, "Ran out of vehicle pool slots.");
+    Q_Error(errorParm_t::ERR_DROP, "Ran out of vehicle pool slots.");
 }
 
 // free the pointer, sort of a lame method
@@ -509,7 +510,7 @@ gentity_t* G_PickTarget(char* targetname)
     gentity_t* choice[MAXCHOICES];
 
     if (!targetname) {
-        Com_Printf("G_PickTarget called with NULL targetname\n");
+        Q_Println("G_PickTarget called with NULL targetname");
         return nullptr;
     }
 
@@ -523,7 +524,7 @@ gentity_t* G_PickTarget(char* targetname)
     }
 
     if (!num_choices) {
-        Com_Printf("G_PickTarget: target %s not found\n", targetname);
+        Q_Println("G_PickTarget: target {} not found", targetname);
         return nullptr;
     }
 
@@ -563,7 +564,7 @@ void G_UseTargets2(gentity_t* ent, gentity_t* activator, const char* string)
     t = nullptr;
     while ((t = G_Find(t, FOFS(targetname), string)) != nullptr) {
         if (t == ent) {
-            Com_Warning("Entity used itself.\n");
+            Q_PrintlnWarning("Entity used itself.");
         }
         else {
             if (t->use) {
@@ -571,7 +572,7 @@ void G_UseTargets2(gentity_t* ent, gentity_t* activator, const char* string)
             }
         }
         if (!ent->inuse) {
-            Com_Printf("entity was removed while using targets\n");
+            Q_Println("entity was removed while using targets");
             return;
         }
     }
@@ -639,7 +640,7 @@ char* vtos(const vec3_t v)
     s = str[index];
     index = (index + 1) & 7;
 
-    Com_sprintf(s, 32, "(%i %i %i)", (int)v[0], (int)v[1], (int)v[2]);
+    Q_FormatTo(std::span(s, 32), "({} {} {})", (int)v[0], (int)v[1], (int)v[2]);
 
     return s;
 }
@@ -694,7 +695,8 @@ static void G_SpewEntList(void)
     int numTempEntST = 0;
     char className[MAX_STRING_CHARS];
     gentity_t* ent;
-    char* str;
+    const char* str;
+    formatText_t strText; // holds the text str points into
 
 #ifdef _DEBUG
     fileHandle_t fh;
@@ -716,8 +718,8 @@ static void G_SpewEntList(void)
                     numTempEntST++;
                 }
 
-                str = va("TEMPENT %4i: EV %i\n", ent->s.number, BG_EventEntityEvent(ent->s.eType));
-                Com_Printf("%s", str);
+                str = (strText = Q_Format("TEMPENT {:4}: EV {}\n", ent->s.number, BG_EventEntityEvent(ent->s.eType))).c_str();
+                Q_Print("{}", str);
 #ifdef _DEBUG
                 if (fh) {
                     trap->FS_Write(str, strlen(str), fh);
@@ -731,8 +733,8 @@ static void G_SpewEntList(void)
             else {
                 strcpy(className, "Unknown");
             }
-            str = va("ENT %4i: Classname %s\n", ent->s.number, className);
-            Com_Printf("%s", str);
+            str = (strText = Q_Format("ENT {:4}: Classname {}\n", ent->s.number, className)).c_str();
+            Q_Print("{}", str);
 #ifdef _DEBUG
             if (fh) {
                 trap->FS_Write(str, strlen(str), fh);
@@ -743,8 +745,9 @@ static void G_SpewEntList(void)
         i++;
     }
 
-    str = va("TempEnt count: %i\nTempEnt ST: %i\nNPC count: %i\nProjectile count: %i\n", numTempEnt, numTempEntST, numNPC, numProjectile);
-    Com_Printf("%s", str);
+    str = (strText = Q_Format("TempEnt count: {}\nTempEnt ST: {}\nNPC count: {}\nProjectile count: {}\n", numTempEnt, numTempEntST, numNPC, numProjectile))
+              .c_str();
+    Q_Print("{}", str);
 #ifdef _DEBUG
     if (fh) {
         trap->FS_Write(str, strlen(str), fh);
@@ -801,11 +804,11 @@ gentity_t* G_Spawn(void)
     if (i == ENTITYNUM_MAX_NORMAL) {
         /*
         for (i = 0; i < MAX_GENTITIES; i++) {
-            Com_Printf("%4i: %s\n", i, g_entities[i].classname);
+            Q_Println("{:4}: {}", i, g_entities[i].classname);
         }
         */
         G_SpewEntList();
-        Com_Error(errorParm_t::ERR_DROP, "G_Spawn: no free entities");
+        Q_Error(errorParm_t::ERR_DROP, "G_Spawn: no free entities");
     }
 
     // open up a new slot
@@ -853,10 +856,10 @@ void G_SendG2KillQueue(void)
         return;
     }
 
-    Com_sprintf(g2KillString, 1024, "kg2");
+    Q_FormatTo(std::span(g2KillString, 1024), "kg2");
 
     while (i < gG2KillNum && i < 64) { // send 64 at once, max...
-        Q_strcat(g2KillString, 1024, va(" %i", gG2KillIndex[i]));
+        Q_strcat(g2KillString, 1024, Q_Format(" {}", gG2KillIndex[i]).c_str());
         i++;
     }
 
@@ -874,10 +877,10 @@ void G_KillG2Queue(int entNum)
 {
     if (gG2KillNum >= MAX_G2_KILL_QUEUE) { // This would be considered a Bad Thing.
 #ifdef _DEBUG
-        Com_Warning("Exceeded the MAX_G2_KILL_QUEUE count for this frame!\n");
+        Q_PrintlnWarning("Exceeded the MAX_G2_KILL_QUEUE count for this frame!");
 #endif
         // Since we're out of queue slots, just send it now as a seperate command (eats more bandwidth, but we have no choice)
-        trap->SendServerCommand(-1, va("kg2 %i", entNum));
+        trap->SendServerCommand(-1, Q_Format("kg2 {}", entNum).c_str());
         return;
     }
 
@@ -898,7 +901,7 @@ void G_FreeEntity(gentity_t* ed)
 
     if (ed->isSaberEntity) {
 #ifdef _DEBUG
-        Com_Printf("Tried to remove JM saber!\n");
+        Q_Println("Tried to remove JM saber!");
 #endif
         return;
     }
@@ -982,7 +985,7 @@ void G_FreeEntity(gentity_t* ed)
         }
 
         // make sure clientside loop sounds are killed on the tracker and client
-        trap->SendServerCommand(-1, va("kls %i %i", ed->s.trickedentindex, ed->s.number));
+        trap->SendServerCommand(-1, Q_Format("kls {} {}", ed->s.trickedentindex, ed->s.number).c_str());
     }
 
     memset(ed, 0, sizeof(*ed));
@@ -1165,7 +1168,7 @@ void G_AddEvent(gentity_t* ent, entity_event_t event, int eventParm)
     int bits;
 
     if (event == entity_event_t::EV_NONE) {
-        Com_Printf("G_AddEvent: zero event added for entity %i\n", ent->s.number);
+        Q_Println("G_AddEvent: zero event added for entity {}", ent->s.number);
         return;
     }
 

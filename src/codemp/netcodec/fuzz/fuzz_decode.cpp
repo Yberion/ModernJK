@@ -28,6 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // against the state, then exits; fuzz from them, then -merge=1 into an emptied fuzz/corpus).
 // Run: netcodec_fuzz_decode -max_len=65536 -timeout=10 -rss_limit_mb=2048 -max_total_time=<s> <work dir> fuzz/corpus
 // (new inputs go to the first directory, so keep the committed corpus second)
+#include <fmt/base.h>
 #include <synthetic.h>
 
 #include <cstdio>
@@ -57,13 +58,13 @@ void WriteSeeds(const char* dir)
         const std::string path = std::string(dir) + "/seed_" + std::to_string(k);
         FILE* f = std::fopen(path.c_str(), "wb");
         if (f == nullptr || std::fwrite(out.data(), 1, out.size(), f) != out.size()) {
-            std::fprintf(stderr, "cannot write %s\n", path.c_str());
+            fmt::println(stderr, "cannot write {}", path);
             std::exit(1);
         }
         std::fclose(f);
         written++;
     }
-    std::printf("%zu seeds written to %s\n", written, dir);
+    fmt::println("{} seeds written to {}", written, dir);
 }
 
 } // namespace
@@ -98,13 +99,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     if (!g_stream->DecodeAsClient(std::span<const uint8_t>(data, size), dm1, d1, r1))
         return 0;
     if (!g_stream->EncodeFromClient(dm1, d1, again)) {
-        std::fprintf(stderr, "the encoder refuses a decoded message\n");
+        fmt::println(stderr, "the encoder refuses a decoded message");
         std::abort();
     }
     const bool same = g_stream->DecodeAsClient(again, dm2, d2, r2, 1) && d2 == d1 && trace::SameMessage(dm2, dm1) && r2.ack == r1.ack && r2.time == r1.time &&
                       r2.cmdSeq == r1.cmdSeq;
     if (!same) {
-        std::fprintf(stderr, "decode(encode(decode(x))) differs from decode(x)\n");
+        fmt::println(stderr, "decode(encode(decode(x))) differs from decode(x)");
         std::abort();
     }
     return 0;

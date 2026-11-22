@@ -66,7 +66,7 @@ void* B_Alloc(int size)
         i++;
     }
 
-    Com_Printf("Allocations used: %i\nFree allocation slots: %i\n", used, free);
+    Q_Println("Allocations used: {}\nFree allocation slots: {}", used, free);
 
     i = 0;
 #endif
@@ -84,7 +84,7 @@ void* B_Alloc(int size)
     if (i == MAX_BALLOC) {
         // If this happens we'll have to rely on this chunk being freed manually with B_Free, which it hopefully will be
 #ifdef DEBUG
-        Com_Warning("MAXIMUM B_ALLOC ALLOCATIONS EXCEEDED\n");
+        Q_PrintlnWarning("MAXIMUM B_ALLOC ALLOCATIONS EXCEEDED");
 #endif
     }
 
@@ -116,7 +116,7 @@ void B_Free(void* ptr)
         i++;
     }
 
-    Com_Printf("Allocations used: %i\nFree allocation slots: %i\n", used, free);
+    Q_Println("Allocations used: {}\nFree allocation slots: {}", used, free);
 
     i = 0;
 #endif
@@ -133,7 +133,7 @@ void B_Free(void* ptr)
     if (i == MAX_BALLOC) {
         // Likely because the limit was exceeded and we're now freeing the chunk manually as we hoped would happen
 #ifdef DEBUG
-        Com_Warning("Freeing allocation which is not in the allocation structure\n");
+        Q_PrintlnWarning("Freeing allocation which is not in the allocation structure");
 #endif
     }
 
@@ -531,7 +531,7 @@ int ReadChatGroups(bot_state_t* bs, char* buf)
     }
 
     if (strlen(cgroupbegin) >= MAX_CHAT_BUFFER_SIZE) {
-        Com_PrintError("Personality chat section exceeds max size\n");
+        Q_PrintlnError("Personality chat section exceeds max size");
         return 0;
     }
 
@@ -569,13 +569,13 @@ void BotUtilizePersonality(bot_state_t* bs)
     failed = 0;
 
     if (!f) {
-        Com_PrintError("Specified personality not found\n");
+        Q_PrintlnError("Specified personality not found");
         B_TempFree(131072); // buf
         return;
     }
 
     if (len >= 131072) {
-        Com_Printf(S_COLOR_RED "Personality file exceeds maximum length\n");
+        Q_Println(S_COLOR_RED "Personality file exceeds maximum length");
         B_TempFree(131072); // buf
         trap->FS_Close(f);
         return;
@@ -596,7 +596,7 @@ void BotUtilizePersonality(bot_state_t* bs)
     group = (char*)B_TempAlloc(65536);
 
     if (!GetValueGroup(buf, "GeneralBotInfo", group)) {
-        Com_Printf(S_COLOR_RED "Personality file contains no GeneralBotInfo group\n");
+        Q_Println(S_COLOR_RED "Personality file contains no GeneralBotInfo group");
         failed = 1; // set failed so we know to set everything to default values
     }
 
@@ -678,10 +678,10 @@ void BotUtilizePersonality(bot_state_t* bs)
     }
 
     if (!failed && GetPairedValue(group, "forceinfo", readbuf)) {
-        Com_sprintf(bs->forceinfo, sizeof(bs->forceinfo), "%s", readbuf);
+        Q_FormatTo(bs->forceinfo, "{}", readbuf);
     }
     else {
-        Com_sprintf(bs->forceinfo, sizeof(bs->forceinfo), "%s", DEFAULT_FORCEPOWERS);
+        Q_FormatTo(bs->forceinfo, "{}", DEFAULT_FORCEPOWERS);
     }
 
     i = 0;

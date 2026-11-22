@@ -855,8 +855,8 @@ void NPC_Begin(gentity_t* ent)
         else if (SpotWouldTelefrag(ent, team_t::TEAM_FREE)) //(team_t)(ent->client->playerTeam)
         {
             if (ent->wait < 0) { // remove yourself
-                Quake3Game()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "NPC %s could not spawn, firing target3 (%s) and removing self\n",
-                                         ent->targetname, ent->target3);
+                Quake3Game()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "NPC {} could not spawn, firing target3 ({}) and removing self",
+                                           ent->targetname, ent->target3);
                 // Fire off our target3
                 G_UseTargets2(ent, ent, ent->target3);
 
@@ -865,9 +865,9 @@ void NPC_Begin(gentity_t* ent)
                 ent->nextthink = level.time + 100;
             }
             else {
-                Quake3Game()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR,
-                                         "NPC %s at (%5.0f %5.0f %5.0f) couldn't spawn, waiting %4.2f secs to try again\n", ent->targetname, ent->s.origin[0],
-                                         ent->s.origin[1], ent->s.origin[2], ent->wait / 1000.0f);
+                Quake3Game()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR,
+                                           "NPC {} at ({:5.0f} {:5.0f} {:5.0f}) couldn't spawn, waiting {:4.2f} secs to try again", ent->targetname,
+                                           ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], ent->wait / 1000.0f);
                 ent->e_ThinkFunc = thinkFunc_t::thinkF_NPC_Begin;
                 ent->nextthink = level.time + ent->wait; // try again in half a second
             }
@@ -1294,7 +1294,7 @@ gentity_t* NPC_Spawn_Do(gentity_t* ent, bool fullSpawnNow)
     newent = G_Spawn();
 
     if (newent == nullptr) {
-        Com_PrintError("NPC G_Spawn failed\n");
+        Q_PrintlnError("NPC G_Spawn failed");
 
         if (ent->spawnflags & NSF_DROP_TO_FLOOR) {
             G_SetOrigin(ent, saveOrg);
@@ -1345,7 +1345,7 @@ gentity_t* NPC_Spawn_Do(gentity_t* ent, bool fullSpawnNow)
         int iVehIndex = BG_VehicleGetIndex(newent->NPC_type);
 
         if (iVehIndex == -1) {
-            Com_PrintError("Attempting to Spawn an unrecognized Vehicle! - %s\n", newent->NPC_type);
+            Q_PrintlnError("Attempting to Spawn an unrecognized Vehicle! - {}", newent->NPC_type);
             G_FreeEntity(newent);
             if (ent->spawnflags & NSF_DROP_TO_FLOOR) {
                 G_SetOrigin(ent, saveOrg);
@@ -1379,7 +1379,7 @@ gentity_t* NPC_Spawn_Do(gentity_t* ent, bool fullSpawnNow)
             break;
 
         default:
-            Com_PrintError("Attempting to Spawn an unrecognized Vehicle Type! - %s\n", newent->NPC_type);
+            Q_PrintlnError("Attempting to Spawn an unrecognized Vehicle Type! - {}", newent->NPC_type);
             G_FreeEntity(newent);
             if (ent->spawnflags & NSF_DROP_TO_FLOOR) {
                 G_SetOrigin(ent, saveOrg);
@@ -1432,7 +1432,7 @@ gentity_t* NPC_Spawn_Do(gentity_t* ent, bool fullSpawnNow)
     G_SetOrigin(newent, ent->s.origin); // just to be sure!
     // NOTE: on vehicles, anything in the .npc file will STOMP data on the NPC that's set by the vehicle
     if (!NPC_ParseParms(ent->NPC_type, newent)) {
-        Com_PrintError("Couldn't spawn NPC %s\n", ent->NPC_type);
+        Q_PrintlnError("Couldn't spawn NPC {}", ent->NPC_type);
         G_FreeEntity(newent);
         if (ent->spawnflags & NSF_DROP_TO_FLOOR) {
             G_SetOrigin(ent, saveOrg);
@@ -3667,7 +3667,7 @@ static void NPC_Spawn_f(void)
     bool isVehicle = false;
 
     if (!NPCspawner) {
-        Com_Printf(S_COLOR_RED "NPC_Spawn Error: Out of entities!\n");
+        Q_Println(S_COLOR_RED "NPC_Spawn Error: Out of entities!");
         return;
     }
 
@@ -3676,7 +3676,7 @@ static void NPC_Spawn_f(void)
 
     const char* npc_type = gi.argv(2);
     if (!npc_type || !npc_type[0]) {
-        Com_Printf(S_COLOR_RED "Error, expected:\n NPC spawn [NPC type (from NCPCs.cfg)]\n");
+        Q_Println(S_COLOR_RED "Error, expected:\n NPC spawn [NPC type (from NCPCs.cfg)]");
         return;
     }
 
@@ -3684,7 +3684,7 @@ static void NPC_Spawn_f(void)
         isVehicle = true;
         npc_type = gi.argv(3);
         if (!npc_type || !npc_type[0]) {
-            Com_Printf(S_COLOR_RED "Error, expected:\n NPC spawn vehicle [NPC type (from NCPCs.cfg)]\n");
+            Q_Println(S_COLOR_RED "Error, expected:\n NPC spawn vehicle [NPC type (from NCPCs.cfg)]");
             return;
         }
     }
@@ -3762,12 +3762,12 @@ void NPC_Kill_f(void)
     name = gi.argv(2);
 
     if (!*name || !name[0]) {
-        Com_Printf(S_COLOR_RED "Error, Expected:\n");
-        Com_Printf(S_COLOR_RED "NPC kill '[NPC targetname]' - kills NPCs with certain targetname\n");
-        Com_Printf(S_COLOR_RED "or\n");
-        Com_Printf(S_COLOR_RED "NPC kill 'all' - kills all NPCs\n");
-        Com_Printf(S_COLOR_RED "or\n");
-        Com_Printf(S_COLOR_RED "NPC team '[teamname]' - kills all NPCs of a certain team ('nonally' is all but your allies)\n");
+        Q_Println(S_COLOR_RED "Error, Expected:");
+        Q_Println(S_COLOR_RED "NPC kill '[NPC targetname]' - kills NPCs with certain targetname");
+        Q_Println(S_COLOR_RED "or");
+        Q_Println(S_COLOR_RED "NPC kill 'all' - kills all NPCs");
+        Q_Println(S_COLOR_RED "or");
+        Q_Println(S_COLOR_RED "NPC team '[teamname]' - kills all NPCs of a certain team ('nonally' is all but your allies)");
         return;
     }
 
@@ -3775,12 +3775,12 @@ void NPC_Kill_f(void)
         name = gi.argv(3);
 
         if (!*name || !name[0]) {
-            Com_Printf(S_COLOR_RED "NPC_Kill Error: 'npc kill team' requires a team name!\n");
-            Com_Printf(S_COLOR_RED "Valid team names are:\n");
+            Q_Println(S_COLOR_RED "NPC_Kill Error: 'npc kill team' requires a team name!");
+            Q_Println(S_COLOR_RED "Valid team names are:");
             for (team_t t = team_t::TEAM_FREE + 1; t < team_t::TEAM_NUM_TEAMS; t++) {
-                Com_Printf(S_COLOR_RED "%s\n", GetStringForID(TeamTable, to_underlying(t)));
+                Q_Println(S_COLOR_RED "{}", GetStringForID(TeamTable, to_underlying(t)));
             }
-            Com_Printf(S_COLOR_RED "nonally - kills all but your teammates\n");
+            Q_Println(S_COLOR_RED "nonally - kills all but your teammates");
             return;
         }
 
@@ -3791,12 +3791,12 @@ void NPC_Kill_f(void)
             const int id = GetIDForString(TeamTable, name);
 
             if (id == -1) {
-                Com_Printf(S_COLOR_RED "NPC_Kill Error: team '%s' not recognized\n", name);
-                Com_Printf(S_COLOR_RED "Valid team names are:\n");
+                Q_Println(S_COLOR_RED "NPC_Kill Error: team '{}' not recognized", name);
+                Q_Println(S_COLOR_RED "Valid team names are:");
                 for (team_t t = team_t::TEAM_FREE + 1; t < team_t::TEAM_NUM_TEAMS; t++) {
-                    Com_Printf(S_COLOR_RED "%s\n", GetStringForID(TeamTable, to_underlying(t)));
+                    Q_Println(S_COLOR_RED "{}", GetStringForID(TeamTable, to_underlying(t)));
                 }
-                Com_Printf(S_COLOR_RED "nonally - kills all but your teammates\n");
+                Q_Println(S_COLOR_RED "nonally - kills all but your teammates");
                 return;
             }
             killTeam = static_cast<team_t>(id);
@@ -3812,7 +3812,7 @@ void NPC_Kill_f(void)
             if (player) {
                 if (player->client) {
                     if (player->client->playerTeam != team_t::TEAM_PLAYER) {
-                        Com_Printf(S_COLOR_GREEN "Killing NPC %s named %s\n", player->NPC_type, player->targetname);
+                        Q_Println(S_COLOR_GREEN "Killing NPC {} named {}", player->NPC_type, player->targetname);
                         /*
                         if ( Any( player->flags & gentityFlags_t::FL_UNDYING ) )
                         {
@@ -3828,7 +3828,7 @@ void NPC_Kill_f(void)
                 }
                 else if (player->NPC_type && player->classname && player->classname[0] &&
                          Q_stricmp("NPC_starfleet", player->classname) != 0) { // A spawner, remove it
-                    Com_Printf(S_COLOR_GREEN "Removing NPC spawner %s with NPC named %s\n", player->NPC_type, player->NPC_targetname);
+                    Q_Println(S_COLOR_GREEN "Removing NPC spawner {} with NPC named {}", player->NPC_type, player->NPC_targetname);
                     G_FreeEntity(player);
                     // FIXME: G_UseTargets2(player, player, player->NPC_target & player->target);?
                 }
@@ -3837,7 +3837,7 @@ void NPC_Kill_f(void)
         else if (player && player->NPC && player->client) {
             if (killTeam != team_t::TEAM_FREE) {
                 if (player->client->playerTeam == killTeam) {
-                    Com_Printf(S_COLOR_GREEN "Killing NPC %s named %s\n", player->NPC_type, player->targetname);
+                    Q_Println(S_COLOR_GREEN "Killing NPC {} named {}", player->NPC_type, player->targetname);
                     /*
                     if ( Any( player->flags & gentityFlags_t::FL_UNDYING ) )
                     {
@@ -3852,7 +3852,7 @@ void NPC_Kill_f(void)
                 }
             }
             else if ((player->targetname && Q_stricmp(name, player->targetname) == 0) || Q_stricmp(name, "all") == 0) {
-                Com_Printf(S_COLOR_GREEN "Killing NPC %s named %s\n", player->NPC_type, player->targetname);
+                Q_Println(S_COLOR_GREEN "Killing NPC {} named {}", player->NPC_type, player->targetname);
                 player->client->ps.stats[statIndex_t::STAT_HEALTH] = 0;
                 /*
                 if ( Any( player->flags & gentityFlags_t::FL_UNDYING ) )
@@ -3869,7 +3869,7 @@ void NPC_Kill_f(void)
         }
         else if (player && Any(player->svFlags & svFlags_t::SVF_NPC_PRECACHE)) { // a spawner
             if ((player->targetname && Q_stricmp(name, player->targetname) == 0) || Q_stricmp(name, "all") == 0) {
-                Com_Printf(S_COLOR_GREEN "Removing NPC spawner %s named %s\n", player->NPC_type, player->targetname);
+                Q_Println(S_COLOR_GREEN "Removing NPC spawner {} named {}", player->NPC_type, player->targetname);
                 G_FreeEntity(player);
             }
         }
@@ -3878,7 +3878,7 @@ void NPC_Kill_f(void)
 
 void NPC_PrintScore(gentity_t* ent)
 {
-    Com_Printf("%s: %d\n", ent->targetname, ent->client->ps.persistant[persEnum_t::PERS_SCORE]);
+    Q_Println("{}: {}", ent->targetname, ent->client->ps.persistant[persEnum_t::PERS_SCORE]);
 }
 
 /*
@@ -3894,12 +3894,12 @@ void Svcmd_NPC_f(void)
     cmd = gi.argv(1);
 
     if (!*cmd) {
-        Com_Printf("Valid NPC commands are:\n");
-        Com_Printf(" spawn [NPC type (from *.npc files)]\n");
-        Com_Printf(" spawn vehicle [NPC type (from *.npc files, only for NPCs that are CLASS_VEHICLE and have a .veh file)]\n");
-        Com_Printf(" kill [NPC targetname] or [all(kills all NPCs)] or 'team [teamname]'\n");
-        Com_Printf(" showbounds (draws exact bounding boxes of NPCs)\n");
-        Com_Printf(" score [NPC targetname] (prints number of kills per NPC)\n");
+        Q_Println("Valid NPC commands are:");
+        Q_Println(" spawn [NPC type (from *.npc files)]");
+        Q_Println(" spawn vehicle [NPC type (from *.npc files, only for NPCs that are CLASS_VEHICLE and have a .veh file)]");
+        Q_Println(" kill [NPC targetname] or [all(kills all NPCs)] or 'team [teamname]'");
+        Q_Println(" showbounds (draws exact bounding boxes of NPCs)");
+        Q_Println(" score [NPC targetname] (prints number of kills per NPC)");
     }
     else if (Q_stricmp(cmd, "spawn") == 0) {
         NPC_Spawn_f();
@@ -3915,7 +3915,7 @@ void Svcmd_NPC_f(void)
         gentity_t* ent = nullptr;
 
         if (!cmd2 || !cmd2[0]) { // Show the score for all NPCs
-            Com_Printf("SCORE LIST:\n");
+            Q_Println("SCORE LIST:");
             for (int i = 0; i < ENTITYNUM_WORLD; i++) {
                 ent = &g_entities[i];
                 if (!ent || !ent->client) {
@@ -3929,7 +3929,7 @@ void Svcmd_NPC_f(void)
                 NPC_PrintScore(ent);
             }
             else {
-                Com_PrintError("NPC score - no such NPC %s\n", cmd2);
+                Q_PrintlnError("NPC score - no such NPC {}", cmd2);
             }
         }
     }

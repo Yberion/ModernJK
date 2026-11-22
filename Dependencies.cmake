@@ -62,6 +62,17 @@ function(modernjk_setup_dependencies)
 	target_include_directories(vendored_stb SYSTEM INTERFACE "${libs}/stb")
 	add_library(vendored::stb ALIAS vendored_stb)
 
+	# {fmt}, the formatting behind src/shared/qcommon/q_fmt.h and netcodec's tools, as a static library. Without the
+	# locale (the L specifier), which nothing uses; FMT_UNICODE 0 since MSVC does not compile the project with /utf-8,
+	# which {fmt} asserts otherwise (in this release FMT_UNICODE changes nothing else). Every target that includes its
+	# headers gets the same definitions, so that the arguments a module packs are read the same way by the engine.
+	add_library(vendored_fmt STATIC "${libs}/fmt/src/format.cc")
+	target_include_directories(vendored_fmt SYSTEM PUBLIC "${libs}/fmt/include")
+	target_compile_definitions(vendored_fmt PUBLIC FMT_USE_LOCALE=0 FMT_UNICODE=0)
+	target_compile_features(vendored_fmt PRIVATE cxx_std_23)
+	set_target_properties(vendored_fmt PROPERTIES POSITION_INDEPENDENT_CODE ON)
+	add_library(vendored::fmt ALIAS vendored_fmt)
+
 	# the engines that open a window
 	if(modernjk_BUILD_MP_CLIENT OR modernjk_BUILD_SP OR modernjk_BUILD_JK2)
 		find_package(OpenGL REQUIRED)

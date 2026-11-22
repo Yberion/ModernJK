@@ -201,7 +201,7 @@ void SV_UnlinkEntity(gentity_t* gEnt)
         }
     }
 
-    Com_Warning("SV_UnlinkEntity: not found in worldSector\n");
+    Q_PrintlnWarning("SV_UnlinkEntity: not found in worldSector");
 }
 
 /*
@@ -318,7 +318,7 @@ void SV_LinkEntity(gentity_t* gEnt)
             // but nothing should evern need more than that
             if (ent->areanum != -1 && ent->areanum != area) {
                 if (ent->areanum2 != -1 && ent->areanum2 != area && sv.state == serverState_t::SS_LOADING) {
-                    Com_DPrintf("Object %i touching 3 areas at %f %f %f\n", gEnt->s.number, gEnt->absmin[0], gEnt->absmin[1], gEnt->absmin[2]);
+                    Q_DPrintln("Object {} touching 3 areas at {:f} {:f} {:f}", gEnt->s.number, gEnt->absmin[0], gEnt->absmin[1], gEnt->absmin[2]);
                 }
                 ent->areanum2 = area;
             }
@@ -405,7 +405,7 @@ void SV_AreaEntities_r(worldSector_t* node, areaParms_t* ap)
         }
 
         if (ap->count == ap->maxcount) {
-            Com_DPrintf("SV_AreaEntities: reached maxcount (%d)\n", ap->maxcount);
+            Q_DPrintln("SV_AreaEntities: reached maxcount ({})", ap->maxcount);
             return;
         }
 
@@ -466,7 +466,7 @@ void SV_SectorList_f(void)
         for (ent = sec->entities; ent; ent = ent->nextEntityInWorldSector) {
             c++;
         }
-        Com_Printf("sector %i: %i entities\n", i, c);
+        Q_Println("sector {}: {} entities", i, c);
     }
 }
 
@@ -533,15 +533,16 @@ void SV_SectorList_f(void)
     char mess[1000];
     multimap<int, pair<int, list<CBBox>>>::iterator j;
     for (j = entStats.begin(); j != entStats.end(); j++) {
-        sprintf(mess, "**************************************************\n");
+        Q_FormatTo(mess, "**************************************************\n");
         Sleep(5);
         OutputDebugString(mess);
-        sprintf(mess, "level=%i, count=%i\n", (*j).first, (*j).second.first);
+        Q_FormatTo(mess, "level={}, count={}\n", (*j).first, (*j).second.first);
         Sleep(5);
         OutputDebugString(mess);
         list<CBBox>::iterator k;
         for (k = (*j).second.second.begin(); k != (*j).second.second.end(); k++) {
-            sprintf(mess, "mins=%f %f %f, maxs=%f %f %f\n", (*k).mMins[0], (*k).mMins[1], (*k).mMins[2], (*k).mMaxs[0], (*k).mMaxs[1], (*k).mMaxs[2]);
+            Q_FormatTo(mess, "mins={:f} {:f} {:f}, maxs={:f} {:f} {:f}\n", (*k).mMins[0], (*k).mMins[1], (*k).mMins[2], (*k).mMaxs[0], (*k).mMaxs[1],
+                       (*k).mMaxs[2]);
             OutputDebugString(mess);
         }
     }

@@ -63,7 +63,7 @@ set_target_properties(qlibm PROPERTIES POSITION_INDEPENDENT_CODE ON)
 add_library(modernjk_shared_common INTERFACE)
 target_sources(modernjk_shared_common INTERFACE qcommon/q_color.cpp qcommon/q_fmt.cpp qcommon/q_math.cpp
 	qcommon/q_rand.cpp qcommon/q_string.cpp)
-target_link_libraries(modernjk_shared_common INTERFACE qlibm)
+target_link_libraries(modernjk_shared_common INTERFACE qlibm vendored::fmt)
 
 # The file system and its pk3 reader: in every engine
 if(TARGET zlib-ng::zlib)

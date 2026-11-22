@@ -25,6 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "codec_trace.h"
 
+#include <fmt/base.h>
+
 #include <cstdio>
 #include <cstring>
 #include <map>
@@ -63,7 +65,7 @@ public:
         uint32_t version = 0;
         ok_ = file_ && std::fread(magic, 1, 4, file_.get()) == 4 && std::memcmp(magic, "NCDT", 4) == 0 && r_.U32(version) && version == 1 && r_.U32(streams_);
         if (!ok_)
-            std::fprintf(stderr, "cannot read %s\n", path);
+            fmt::println(stderr, "cannot read {}", path);
     }
 
     [[nodiscard]] bool Ok() const noexcept { return ok_; }
@@ -100,7 +102,7 @@ public:
             ok_ = ok_ && r_.U32(m.engineBytes);
         }
         if (!ok_)
-            std::fprintf(stderr, "malformed trace file\n");
+            fmt::println(stderr, "malformed trace file");
         read_++;
         return ok_;
     }

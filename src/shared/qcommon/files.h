@@ -149,7 +149,11 @@ const char* FS_GetCurrentGameDir(bool emptybase = false);
 bool FS_LoadMachOBundle(const char* name);
 #endif
 
-void QDECL FS_Printf(fileHandle_t f, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
+void FS_VPrint(fileHandle_t f, fmt::string_view fmt, fmt::format_args args);
+template <typename... T> void FS_Print(fileHandle_t f, fmt::format_string<T...> fmt, T&&... args)
+{
+    FS_VPrint(f, fmt.get(), Q_FormatArgs(args...));
+}
 // like fprintf
 
 int FS_FOpenFileByMode(const char* qpath, fileHandle_t* f, fsMode_t mode);

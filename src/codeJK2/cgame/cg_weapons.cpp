@@ -78,7 +78,7 @@ void CG_RegisterWeapon(weapon_t weaponNum)
     }
     // if we couldn't find which weapon this is, give us an error
     if (!item->classname) {
-        Com_Error(errorParm_t::ERR_DROP, "Couldn't find item for weapon %s\nNeed to update Items.dat!", weaponData[weaponNum].classname);
+        Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for weapon {}\nNeed to update Items.dat!", weaponData[weaponNum].classname);
     }
     CG_RegisterItemVisuals(ITEM_INDEX(item));
 
@@ -100,7 +100,7 @@ void CG_RegisterWeapon(weapon_t weaponNum)
     }
 
     if (weaponInfo->weaponModel == NULL_HANDLE) {
-        Com_Error(errorParm_t::ERR_DROP, "Couldn't find weapon model %s\n", weaponData[weaponNum].classname);
+        Q_Error(errorParm_t::ERR_DROP, "Couldn't find weapon model {}", weaponData[weaponNum].classname);
         return;
     }
 
@@ -113,7 +113,7 @@ void CG_RegisterWeapon(weapon_t weaponNum)
     // setup the shader we will use for the icon
     if (weaponData[weaponNum].weaponIcon[0]) {
         weaponInfo->weaponIcon = cgi_R_RegisterShaderNoMip(weaponData[weaponNum].weaponIcon);
-        weaponInfo->weaponIconNoAmmo = cgi_R_RegisterShaderNoMip(va("%s_na", weaponData[weaponNum].weaponIcon));
+        weaponInfo->weaponIconNoAmmo = cgi_R_RegisterShaderNoMip(Q_Format("{}_na", weaponData[weaponNum].weaponIcon).c_str());
     }
 
     for (ammo = bg_itemlist.data() + 1; ammo->classname; ammo++) {
@@ -131,9 +131,9 @@ void CG_RegisterWeapon(weapon_t weaponNum)
         COM_StripExtension(path, path, sizeof(path));
         if (i) {
             // char	crap[50];
-            // Com_sprintf(crap, sizeof(crap), "_barrel%d.md3", i+1 );
+            // Q_FormatTo(crap, "_barrel{}.md3", i+1);
             // strcat ( path, crap );
-            Q_strcat(path, sizeof(path), va("_barrel%d.md3", i + 1));
+            Q_strcat(path, sizeof(path), Q_Format("_barrel{}.md3", i + 1).c_str());
         }
         else
             Q_strcat(path, sizeof(path), "_barrel.md3");
@@ -243,34 +243,34 @@ void CG_RegisterWeapon(weapon_t weaponNum)
         cgi_S_RegisterSound("sound/weapons/saber/saberspinoff.wav");
         cgi_S_RegisterSound("sound/weapons/saber/saberoffquick.wav");
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(va("sound/weapons/saber/saberbounce%d.wav", i));
+            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberbounce{}.wav", i).c_str());
         }
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(va("sound/weapons/saber/saberhit%d.wav", i));
+            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberhit{}.wav", i).c_str());
         }
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(va("sound/weapons/saber/saberhitwall%d.wav", i));
+            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberhitwall{}.wav", i).c_str());
         }
         for (i = 1; i < 10; i++) {
-            cgi_S_RegisterSound(va("sound/weapons/saber/saberblock%d.wav", i));
+            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberblock{}.wav", i).c_str());
         }
         for (i = 1; i < 6; i++) {
-            cgi_S_RegisterSound(va("sound/weapons/saber/saberhum%d.wav", i));
+            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberhum{}.wav", i).c_str());
         }
         for (i = 1; i < 10; i++) {
-            cgi_S_RegisterSound(va("sound/weapons/saber/saberhup%d.wav", i));
+            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberhup{}.wav", i).c_str());
         }
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(va("sound/weapons/saber/saberspin%d.wav", i));
+            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberspin{}.wav", i).c_str());
         }
         cgi_S_RegisterSound("sound/weapons/saber/saber_catch.wav");
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(va("sound/weapons/saber/bounce%d.wav", i));
+            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/bounce{}.wav", i).c_str());
         }
         cgi_S_RegisterSound("sound/weapons/saber/hitwater.wav");
         cgi_S_RegisterSound("sound/weapons/saber/boiling.wav");
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(va("sound/weapons/saber/rainfizz%d.wav", i));
+            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/rainfizz{}.wav", i).c_str());
         }
 
         // force sounds
@@ -278,12 +278,12 @@ void CG_RegisterWeapon(weapon_t weaponNum)
         cgi_S_RegisterSound("sound/weapons/force/speed.mp3");
         cgi_S_RegisterSound("sound/weapons/force/speedloop.mp3");
         for (i = 1; i < 5; i++) {
-            cgi_S_RegisterSound(va("sound/weapons/force/heal%d.mp3", i));
+            cgi_S_RegisterSound(Q_Format("sound/weapons/force/heal{}.mp3", i).c_str());
         }
         cgi_S_RegisterSound("sound/weapons/force/lightning.wav");
         cgi_S_RegisterSound("sound/weapons/force/lightning2.wav");
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(va("sound/weapons/force/lightninghit%d.wav", i));
+            cgi_S_RegisterSound(Q_Format("sound/weapons/force/lightninghit{}.wav", i).c_str());
         }
         cgi_S_RegisterSound("sound/weapons/force/push.wav");
         cgi_S_RegisterSound("sound/weapons/force/pull.wav");
@@ -602,7 +602,7 @@ void CG_RegisterItemVisuals(itemNum_t itemNum)
 
         case inventory_t::INV_BACTA_CANISTER:
             for (int i = 1; i < 5; i++) {
-                cgi_S_RegisterSound(va("sound/weapons/force/heal%d.mp3", i));
+                cgi_S_RegisterSound(Q_Format("sound/weapons/force/heal{}.mp3", i).c_str());
             }
             break;
         default:
@@ -1010,7 +1010,7 @@ void CG_AddViewWeapon(playerState_t* ps)
                                                   Any(cent->currentState.eFlags & entityFlags_t::EF_FIRING));
             hand.backlerp = 1.0f - (currentFrame - Q_floorf(currentFrame));
             if (cg_debugAnim.integer == 1 && cent->currentState.clientNum == 0) {
-                Com_Printf("Torso frame %d to %d makes Weapon frame %d to %d\n", cent->pe.torso.oldFrame, cent->pe.torso.frame, hand.oldframe, hand.frame);
+                Q_Println("Torso frame {} to {} makes Weapon frame {} to {}", cent->pe.torso.oldFrame, cent->pe.torso.frame, hand.oldframe, hand.frame);
             }
         }
         else {
@@ -1086,7 +1086,7 @@ void CG_AddViewWeapon(playerState_t* ps)
             CG_PositionRotatedEntityOnTag(&barrel, &hand, weapon->handsModel, "tag_barrel", nullptr);
         }
         else {
-            CG_PositionRotatedEntityOnTag(&barrel, &hand, weapon->handsModel, va("tag_barrel%d", i + 1), nullptr);
+            CG_PositionRotatedEntityOnTag(&barrel, &hand, weapon->handsModel, Q_Format("tag_barrel{}", i + 1).c_str(), nullptr);
         }
 
         cgi_R_AddRefEntityToScene(&barrel);
@@ -1460,7 +1460,7 @@ void CG_DrawDataPadWeaponSelect(void)
     cgi_R_SetColor(nullptr);
 
     //	char buffer[256];
-    //	cgi_UI_GetItemText("datapadWeaponsMenu",va("weapondesc%d",to_underlying( cg.DataPadWeaponSelect )+1),buffer);
+    //	cgi_UI_GetItemText("datapadWeaponsMenu",Q_Format("weapondesc{}", to_underlying( cg.DataPadWeaponSelect )+1).c_str(),buffer);
 
     if (weaponData[cg.DataPadWeaponSelect].weaponIcon[0]) {
         weaponInfo_t* weaponInfo;
@@ -1517,7 +1517,7 @@ void CG_DrawDataPadWeaponSelect(void)
     x = 40;
     y = 70;
 
-    cgi_SP_GetStringTextString(va("INGAME_%s", weaponDesc[cg.DataPadWeaponSelect - FIRST_WEAPON]), text, sizeof(text));
+    cgi_SP_GetStringTextString(Q_Format("INGAME_{}", weaponDesc[cg.DataPadWeaponSelect - FIRST_WEAPON]).c_str(), text, sizeof(text));
 
     if (text[0]) {
         CG_DisplayBoxedText(70, 50, 500, 300, text, cgs.media.qhFontSmall, 0.7f, textColor);
@@ -1852,7 +1852,7 @@ void CG_DrawWeaponSelect(void)
     if (item && item->classname && item->classname[0]) {
         char text[1024];
 
-        if (cgi_SP_GetStringTextString(va("INGAME_%s", item->classname), text, sizeof(text))) {
+        if (cgi_SP_GetStringTextString(Q_Format("INGAME_{}", item->classname).c_str(), text, sizeof(text))) {
             int w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 1.0f);
             int x = (SCREEN_WIDTH - w) / 2;
             cgi_R_Font_DrawString(x, (SCREEN_HEIGHT - 24), text, textColor, cgs.media.qhFontSmall, -1, 1.0f);
@@ -1873,7 +1873,7 @@ bool CG_WeaponSelectable(weapon_t i, weapon_t original, bool dpMode)
 
     if (i > MAX_PLAYER_WEAPONS) {
 #ifndef FINAL_BUILD
-        Com_Printf("CG_WeaponSelectable() passed illegal index of %d!\n", to_underlying(i));
+        Q_Println("CG_WeaponSelectable() passed illegal index of {}!", to_underlying(i));
 #endif
         return false;
     }
@@ -1928,14 +1928,14 @@ void CG_PlayerLockedWeaponSpeech(int jumping)
             if (!Q3_TaskIDPending(&g_entities[0], taskID_t::TID_CHAN_VOICE)) { // not waiting on a scripted sound to finish
                 if (!jumping) {
                     if (Q_flrand(0.0f, 1.0f) > 0.5) {
-                        G_SoundOnEnt(player, soundChannel_t::CHAN_VOICE, va("sound/chars/kyle/09kyk015.wav"));
+                        G_SoundOnEnt(player, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/kyle/09kyk015.wav").c_str());
                     }
                     else {
-                        G_SoundOnEnt(player, soundChannel_t::CHAN_VOICE, va("sound/chars/kyle/09kyk016.wav"));
+                        G_SoundOnEnt(player, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/kyle/09kyk016.wav").c_str());
                     }
                 }
                 else {
-                    G_SoundOnEnt(player, soundChannel_t::CHAN_VOICE, va("sound/chars/kyle/16kyk007.wav"));
+                    G_SoundOnEnt(player, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/kyle/16kyk007.wav").c_str());
                 }
                 speechDebounceTime = cg.time + 3000;
             }
@@ -2382,7 +2382,7 @@ void CG_FireWeapon(centity_t* cent, bool alt_fire)
         return;
     }
     if (ent->weapon >= weapon_t::WP_NUM_WEAPONS) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS");
+        Q_Error(errorParm_t::ERR_DROP, "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS");
         return;
     }
     // weap = &cg_weapons[ ent->weapon ];

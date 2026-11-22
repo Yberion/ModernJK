@@ -130,10 +130,10 @@ void CG_TransitionSnapshot(void)
     int i;
 
     if (!cg.snap) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap");
+        Q_Error(errorParm_t::ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap");
     }
     if (!cg.nextSnap) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap");
+        Q_Error(errorParm_t::ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap");
     }
 
     // execute any server string commands before transitioning entities
@@ -309,7 +309,7 @@ static void CG_RestartLevel(void)
     cg.processedSnapshotNum = snapshotNum;
     r = cgi_GetSnapshot(cg.processedSnapshotNum, &cg.activeSnapshots[0]);
     if (!r) {
-        Com_Error(errorParm_t::ERR_DROP, "cgi_GetSnapshot failed on restart");
+        Q_Error(errorParm_t::ERR_DROP, "cgi_GetSnapshot failed on restart");
     }
 
     CG_SetInitialSnapshot(&cg.activeSnapshots[0]);
@@ -345,7 +345,7 @@ void CG_ProcessSnapshots(void)
     if (n != cg.latestSnapshotNum) {
         if (n < cg.latestSnapshotNum) {
             // this should never happen
-            Com_Error(errorParm_t::ERR_DROP, "CG_ProcessSnapshots: n < cg.latestSnapshotNum");
+            Q_Error(errorParm_t::ERR_DROP, "CG_ProcessSnapshots: n < cg.latestSnapshotNum");
         }
         cg.latestSnapshotNum = n;
     }
@@ -401,23 +401,23 @@ void CG_ProcessSnapshots(void)
     if (cg.snap->serverTime > cg.time) {
         cg.time = cg.snap->serverTime;
 #if _DEBUG
-        Com_Printf("CG_ProcessSnapshots: cg.snap->serverTime > cg.time");
+        Q_Print("CG_ProcessSnapshots: cg.snap->serverTime > cg.time");
 #endif
     }
     if (cg.nextSnap != nullptr && cg.nextSnap->serverTime <= cg.time) {
         cg.time = cg.nextSnap->serverTime - 1;
 #if _DEBUG
-        Com_Printf("CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time");
+        Q_Print("CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time");
 #endif
     }
     // assert our valid conditions upon exiting
     if (cg.snap == nullptr) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_ProcessSnapshots: cg.snap == NULL");
+        Q_Error(errorParm_t::ERR_DROP, "CG_ProcessSnapshots: cg.snap == NULL");
     }
     if (cg.snap->serverTime > cg.time) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_ProcessSnapshots: cg.snap->serverTime > cg.time");
+        Q_Error(errorParm_t::ERR_DROP, "CG_ProcessSnapshots: cg.snap->serverTime > cg.time");
     }
     if (cg.nextSnap != nullptr && cg.nextSnap->serverTime <= cg.time) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time");
+        Q_Error(errorParm_t::ERR_DROP, "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time");
     }
 }

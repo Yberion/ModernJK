@@ -112,7 +112,7 @@ void CG_TestG2Model_f(void)
         cg.testModelEntity.oldframe = 0;
     }
     if (!cg.testModelEntity.hModel) {
-        Com_Printf("Can't register model\n");
+        Q_Println("Can't register model");
         return;
     }
 
@@ -227,7 +227,7 @@ void CG_TestModel_f(void)
         cg.testModelEntity.oldframe = 0;
     }
     if (!cg.testModelEntity.hModel) {
-        Com_Printf("Can't register model\n");
+        Q_Println("Can't register model");
         return;
     }
 
@@ -258,7 +258,7 @@ void CG_TestGun_f(void)
 void CG_TestModelNextFrame_f(void)
 {
     cg.testModelEntity.frame++;
-    Com_Printf("frame %i\n", cg.testModelEntity.frame);
+    Q_Println("frame {}", cg.testModelEntity.frame);
 }
 
 void CG_TestModelPrevFrame_f(void)
@@ -267,13 +267,13 @@ void CG_TestModelPrevFrame_f(void)
     if (cg.testModelEntity.frame < 0) {
         cg.testModelEntity.frame = 0;
     }
-    Com_Printf("frame %i\n", cg.testModelEntity.frame);
+    Q_Println("frame {}", cg.testModelEntity.frame);
 }
 
 void CG_TestModelNextSkin_f(void)
 {
     cg.testModelEntity.skinNum++;
-    Com_Printf("skin %i\n", cg.testModelEntity.skinNum);
+    Q_Println("skin {}", cg.testModelEntity.skinNum);
 }
 
 void CG_TestModelPrevSkin_f(void)
@@ -282,7 +282,7 @@ void CG_TestModelPrevSkin_f(void)
     if (cg.testModelEntity.skinNum < 0) {
         cg.testModelEntity.skinNum = 0;
     }
-    Com_Printf("skin %i\n", cg.testModelEntity.skinNum);
+    Q_Println("skin {}", cg.testModelEntity.skinNum);
 }
 
 static void CG_AddTestModel(void)
@@ -292,7 +292,7 @@ static void CG_AddTestModel(void)
     // re-register the model, because the level may have changed
     /*	cg.testModelEntity.hModel = cgi_R_RegisterModel( cg.testModelName );
         if (! cg.testModelEntity.hModel ) {
-            Com_Printf("Can't register model\n");
+            Q_Println("Can't register model");
             return;
         }
     */
@@ -766,7 +766,7 @@ static void CG_OffsetThirdPersonView(void)
 
     // We must now take the angle taken from the camera target and location.
     VectorSubtract(cameraCurTarget, cameraCurLoc, diff);
-    // Com_Printf( "%s\n", vtos(diff) );
+    // Q_Println("{}", vtos(diff));
     float dist = VectorNormalize(diff);
     if (dist < 1.0f) { // must be hitting something, need some value to calc angles, so use cam forward
         VectorCopy(camerafwd, diff);
@@ -1608,7 +1608,7 @@ static bool CG_CalcViewValues(void)
     /*
     if ( in_camera )
     {
-        Com_Printf( "%s %s\n", vtos(client_camera.origin), vtos(cg.refdef.vieworg) );
+        Q_Println("{} {}", vtos(client_camera.origin), vtos(cg.refdef.vieworg));
     }
     */
 
@@ -1837,7 +1837,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView)
     // FIXME: first person crouch-uncrouch STILL FUCKS UP THE AREAMASK!!!
     // if ( !VectorCompare2( cg.refdef.vieworg, cg.snap->ps.serverViewOrg ) && !gi.inPVS( cg.refdef.vieworg, cg.snap->ps.serverViewOrg ) )
     { // actual view org and server's view org don't match and aren't same PVS, rebuild the areamask
-        // Com_Printf( S_COLOR_RED"%s != %s\n", vtos(cg.refdef.vieworg), vtos(cg.snap->ps.serverViewOrg) );
+        // Q_Println(S_COLOR_RED"{} != {}", vtos(cg.refdef.vieworg), vtos(cg.snap->ps.serverViewOrg));
         cgi_CM_SnapPVS(cg.refdef.vieworg, cg.snap->areamask);
     }
 
@@ -1891,7 +1891,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView)
     /*
     if ( in_camera && !cg_skippingcin.integer )
     {
-        Com_Printf( S_COLOR_GREEN"ang: %s\n", vtos(cg.refdefViewAngles) );
+        Q_Println(S_COLOR_GREEN"ang: {}", vtos(cg.refdefViewAngles));
     }
     */
 }

@@ -296,7 +296,7 @@ contentsFlags_t CM_PointContents(const vec3_t p, clipHandle_t model)
                     if(pointToLeaf.size()>=64)
                     {
                         pointToLeaf.clear();
-                        Com_Printf("Cleared cache\n");
+                        Q_Println("Cleared cache");
                     }
                     leafnum=CM_PointLeafnum_r(p, 0);
                     pointToLeaf[pt]=leafnum;
@@ -504,7 +504,7 @@ void CM_FloodArea_r(int areaNum, int floodnum, clipMap_t& cm)
     if (area->floodvalid == cmg.floodvalid) {
         if (area->floodnum == floodnum)
             return;
-        Com_Error(errorParm_t::ERR_DROP, "FloodArea_r: reflooded");
+        Q_Error(errorParm_t::ERR_DROP, "FloodArea_r: reflooded");
     }
 
     area->floodnum = floodnum;
@@ -556,7 +556,7 @@ void CM_AdjustAreaPortalState(int area1, int area2, bool open)
     }
 
     if (area1 >= cmg.numAreas || area2 >= cmg.numAreas) {
-        Com_Error(errorParm_t::ERR_DROP, "CM_ChangeAreaPortalState: bad area number");
+        Q_Error(errorParm_t::ERR_DROP, "CM_ChangeAreaPortalState: bad area number");
     }
 
     if (open) {
@@ -567,7 +567,7 @@ void CM_AdjustAreaPortalState(int area1, int area2, bool open)
         cmg.areaPortals[area1 * cmg.numAreas + area2]--;
         cmg.areaPortals[area2 * cmg.numAreas + area1]--;
         if (cmg.areaPortals[area2 * cmg.numAreas + area1] < 0) {
-            Com_Error(errorParm_t::ERR_DROP, "CM_AdjustAreaPortalState: negative reference count");
+            Q_Error(errorParm_t::ERR_DROP, "CM_AdjustAreaPortalState: negative reference count");
         }
     }
 
@@ -593,7 +593,7 @@ bool CM_AreasConnected(int area1, int area2)
     }
 
     if (area1 >= cmg.numAreas || area2 >= cmg.numAreas) {
-        Com_Error(errorParm_t::ERR_DROP, "area >= cmg.numAreas");
+        Q_Error(errorParm_t::ERR_DROP, "area >= cmg.numAreas");
     }
 
     if (cmg.areas[area1].floodnum == cmg.areas[area2].floodnum) {

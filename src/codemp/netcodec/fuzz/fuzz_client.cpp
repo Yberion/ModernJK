@@ -30,6 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Run: netcodec_fuzz_client -max_len=4096 -timeout=10 -rss_limit_mb=2048 -max_total_time=<s> <work dir> fuzz/corpus_client
 // (new inputs go to the first directory, so keep the committed corpus second)
 #include <client_synthetic.h>
+#include <fmt/base.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -75,13 +76,13 @@ void WriteSeeds(const char* dir)
         const std::string path = std::string(dir) + "/seed_" + std::to_string(k);
         FILE* f = std::fopen(path.c_str(), "wb");
         if (f == nullptr || std::fwrite(out.data(), 1, out.size(), f) != out.size()) {
-            std::fprintf(stderr, "cannot write %s\n", path.c_str());
+            fmt::println(stderr, "cannot write {}", path);
             std::exit(1);
         }
         std::fclose(f);
         written++;
     }
-    std::printf("%zu seeds written to %s\n", written, dir);
+    fmt::println("{} seeds written to {}", written, dir);
 }
 
 } // namespace
@@ -114,12 +115,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     const bool used = g_lookup->used;
     if (!enc.Encode(d1, used ? &g_lookup->base : nullptr, 1 << 16, again)) {
-        std::fprintf(stderr, "the encoder refuses a decoded client packet\n");
+        fmt::println(stderr, "the encoder refuses a decoded client packet");
         std::abort();
     }
     g_lookup->used = false;
     if (!DecodeClientPacket(again, kLatest, *g_lookup, d2) || g_lookup->used != used || !test::SamePacket(d2, d1)) {
-        std::fprintf(stderr, "decode(encode(decode(x))) differs from decode(x)\n");
+        fmt::println(stderr, "decode(encode(decode(x))) differs from decode(x)");
         std::abort();
     }
     return 0;

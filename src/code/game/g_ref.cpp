@@ -188,8 +188,8 @@ reference_tag_t* TAG_Add(const char* name, const char* owner, vec3_t origin, vec
     tag->flags = flags;
 
     if (VALIDSTRING(name) == false) {
-        // Com_Error("Nameless ref_tag found at (%i %i %i)", (int)origin[0], (int)origin[1], (int)origin[2]);
-        Com_PrintError("Nameless ref_tag found at (%i %i %i)\n", (int)origin[0], (int)origin[1], (int)origin[2]);
+        // Q_Error(errorParm_t::ERR_DROP, "Nameless ref_tag found at ({} {} {})", (int)origin[0], (int)origin[1], (int)origin[2]);
+        Q_PrintlnError("Nameless ref_tag found at ({} {} {})", (int)origin[0], (int)origin[1], (int)origin[2]);
         delayedShutDown = level.time + 100;
         delete tag;
         return nullptr;
@@ -202,7 +202,7 @@ reference_tag_t* TAG_Add(const char* name, const char* owner, vec3_t origin, vec
     // Make sure this tag's name isn't alread in use
     if (TAG_Find(owner, name)) {
         delayedShutDown = level.time + 100;
-        Com_PrintError("Duplicate tag name \"%s\"\n", name);
+        Q_PrintlnError("Duplicate tag name \"{}\"", name);
         delete tag;
         return nullptr;
     }
@@ -375,7 +375,7 @@ void ref_link(gentity_t* ent)
             // FIXME: Does pitch get flipped?
         }
         else {
-            Com_PrintError("ref_tag (%s) has invalid target (%s)", ent->targetname, ent->target);
+            Q_PrintlnError("ref_tag ({}) has invalid target ({})", ent->targetname, ent->target);
         }
     }
 

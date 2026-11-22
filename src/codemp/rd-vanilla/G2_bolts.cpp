@@ -175,7 +175,7 @@ int G2_Add_Bolt(CGhoul2Info* ghlInfo, boltInfo_v& bltlist, surfaceInfo_v& slist,
         // didn't find it? Error
         // assert(0&&x == mod_a->mdxa->numBones);
 #ifdef _DEBUG
-//		Com_Warning("%s not found on skeleton\n", boneName);
+//		Q_PrintlnWarning("{} not found on skeleton", boneName);
 #endif
         return -1;
     }

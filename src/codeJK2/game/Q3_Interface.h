@@ -319,7 +319,11 @@ extern void Q3_SetVelocity(int entID, vec3_t angles);
 extern void Q3_DeclareVariable(icarusToken_t type, const char* name);
 extern void Q3_FreeVariable(const char* name);
 
-extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
+void Q3_VDebugPrintln(WL_e level, fmt::string_view format, fmt::format_args args);
+template <typename... T> void Q3_DebugPrintln(WL_e level, fmt::format_string<T...> format, T&&... args)
+{
+    Q3_VDebugPrintln(level, format.get(), Q_FormatArgs(args...));
+}
 extern bool Q3_DebugLevelShown(WL_e level);
 extern setType_t Q3_SetTypeFromName(const char* name);
 

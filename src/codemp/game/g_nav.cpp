@@ -84,7 +84,7 @@ void NPC_Blocked(gentity_t* self, gentity_t* blocker)
         return;
     }
 
-    // Debug_Printf( d_npcai, aiDebugLevel_t::DEBUG_LEVEL_WARNING, "%s: Excuse me, %s %s!\n", self->targetname, blocker->classname, blocker->targetname );
+    // Debug_Println(d_npcai, aiDebugLevel_t::DEBUG_LEVEL_WARNING, "{}: Excuse me, {} {}!", self->targetname, blocker->classname, blocker->targetname);
 
     // If we're being blocked by the player, say something to them
     if ((blocker->s.number >= 0 && blocker->s.number < MAX_CLIENTS) && ((blocker->client->playerTeam == self->client->playerTeam))) {
@@ -1216,7 +1216,7 @@ void SP_waypoint(gentity_t* ent)
         if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, true)) { // if not SOLID_OK, and in solid
             ent->r.maxs[2] = CROUCH_MAXS_2;
             if (G_CheckInSolid(ent, true)) {
-                Com_PrintError("Waypoint %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+                Q_PrintlnError("Waypoint {} at {} in solid!", ent->targetname, vtos(ent->r.currentOrigin));
                 assert(0 && "Waypoint in solid!");
                 G_FreeEntity(ent);
                 return;
@@ -1255,7 +1255,7 @@ void SP_waypoint_small(gentity_t* ent)
         if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, true)) {
             ent->r.maxs[2] = CROUCH_MAXS_2;
             if (G_CheckInSolid(ent, true)) {
-                Com_PrintError("Waypoint_small %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+                Q_PrintlnError("Waypoint_small {} at {} in solid!", ent->targetname, vtos(ent->r.currentOrigin));
                 assert(0);
                 G_FreeEntity(ent);
                 return;
@@ -1295,7 +1295,7 @@ void SP_waypoint_navgoal(gentity_t* ent)
     VectorSet(ent->r.maxs, 16, 16, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        Com_PrintError("Waypoint_navgoal %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+        Q_PrintlnError("Waypoint_navgoal {} at {} in solid!", ent->targetname, vtos(ent->r.currentOrigin));
         assert(0);
     }
     TAG_Add(ent->targetname, nullptr, ent->s.origin, ent->s.angles, radius, RTF_NAVGOAL);
@@ -1325,7 +1325,7 @@ void SP_waypoint_navgoal_8(gentity_t* ent)
     VectorSet(ent->r.maxs, 8, 8, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        Com_PrintError("Waypoint_navgoal_8 %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+        Q_PrintlnError("Waypoint_navgoal_8 {} at {} in solid!", ent->targetname, vtos(ent->r.currentOrigin));
         assert(0);
     }
 
@@ -1356,7 +1356,7 @@ void SP_waypoint_navgoal_4(gentity_t* ent)
     VectorSet(ent->r.maxs, 4, 4, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        Com_PrintError("Waypoint_navgoal_4 %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+        Q_PrintlnError("Waypoint_navgoal_4 {} at {} in solid!", ent->targetname, vtos(ent->r.currentOrigin));
         assert(0);
     }
 
@@ -1387,7 +1387,7 @@ void SP_waypoint_navgoal_2(gentity_t* ent)
     VectorSet(ent->r.maxs, 2, 2, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        Com_PrintError("Waypoint_navgoal_2 %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+        Q_PrintlnError("Waypoint_navgoal_2 {} at {} in solid!", ent->targetname, vtos(ent->r.currentOrigin));
         assert(0);
     }
 
@@ -1418,7 +1418,7 @@ void SP_waypoint_navgoal_1(gentity_t* ent)
     VectorSet(ent->r.maxs, 1, 1, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        Com_PrintError("Waypoint_navgoal_1 %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+        Q_PrintlnError("Waypoint_navgoal_1 {} at {} in solid!", ent->targetname, vtos(ent->r.currentOrigin));
         assert(0);
     }
 
@@ -1482,16 +1482,16 @@ void Svcmd_Nav_f(void)
         }
     }
     else if (Q_stricmp(cmd, "totals") == 0) {
-        Com_Printf("Navigation Totals:\n");
-        Com_Printf("------------------\n");
-        Com_Printf("Total Nodes:         %d\n", trap->Nav_GetNumNodes());
-        Com_Printf("Total Combat Points: %d\n", level.numCombatPoints);
+        Q_Println("Navigation Totals:");
+        Q_Println("------------------");
+        Q_Println("Total Nodes:         {}", trap->Nav_GetNumNodes());
+        Q_Println("Total Combat Points: {}", level.numCombatPoints);
     }
     else {
         // Print the available commands
-        Com_Printf("nav - valid commands\n---\n");
-        Com_Printf("show\n - nodes\n - edges\n - testpath\n - enemypath\n - combatpoints\n - navgoals\n---\n");
-        Com_Printf("set\n - testgoal\n---\n");
+        Q_Println("nav - valid commands\n---");
+        Q_Println("show\n - nodes\n - edges\n - testpath\n - enemypath\n - combatpoints\n - navgoals\n---");
+        Q_Println("set\n - testgoal\n---");
     }
 }
 
@@ -1526,20 +1526,20 @@ bool NAV_WaypointsTooFar(gentity_t* wp1, gentity_t* wp2)
         size_t len;
         fatalErrors++;
         if (!wp1->targetname && !wp2->targetname) {
-            Com_sprintf(temp, sizeof(temp), S_COLOR_RED "Waypoint conn %s->%s > 1024\n", vtos(wp1->r.currentOrigin), vtos(wp2->r.currentOrigin));
+            Q_FormatTo(temp, S_COLOR_RED "Waypoint conn {}->{} > 1024\n", vtos(wp1->r.currentOrigin), vtos(wp2->r.currentOrigin));
         }
         else if (!wp1->targetname) {
-            Com_sprintf(temp, sizeof(temp), S_COLOR_RED "Waypoint conn %s->%s > 1024\n", vtos(wp1->r.currentOrigin), wp2->targetname);
+            Q_FormatTo(temp, S_COLOR_RED "Waypoint conn {}->{} > 1024\n", vtos(wp1->r.currentOrigin), wp2->targetname);
         }
         else if (!wp2->targetname) {
-            Com_sprintf(temp, sizeof(temp), S_COLOR_RED "Waypoint conn %s->%s > 1024\n", wp1->targetname, vtos(wp2->r.currentOrigin));
+            Q_FormatTo(temp, S_COLOR_RED "Waypoint conn {}->{} > 1024\n", wp1->targetname, vtos(wp2->r.currentOrigin));
         }
         else { // they both have valid targetnames
-            Com_sprintf(temp, sizeof(temp), S_COLOR_RED "Waypoint conn %s->%s > 1024\n", wp1->targetname, wp2->targetname);
+            Q_FormatTo(temp, S_COLOR_RED "Waypoint conn {}->{} > 1024\n", wp1->targetname, wp2->targetname);
         }
         len = strlen(temp);
         if (static_cast<size_t>(fatalErrorPointer - fatalErrorString) + len >= sizeof(fatalErrorString)) {
-            Com_Error(errorParm_t::ERR_DROP, "%s%s%dTOO MANY FATAL NAV ERRORS!!!\n", fatalErrorString, temp, fatalErrors);
+            Q_Error(errorParm_t::ERR_DROP, "{}{}{}TOO MANY FATAL NAV ERRORS!!!", fatalErrorString, temp, fatalErrors);
             return true;
         }
         strcat(fatalErrorPointer, temp);
@@ -1575,7 +1575,7 @@ void NAV_StoreWaypoint(gentity_t* ent)
     */
 
     if (numStoredWaypoints >= MAX_STORED_WAYPOINTS) {
-        // Com_Error( errorParm_t::ERR_DROP, "Too many waypoints!  (%d > %d)\n", numStoredWaypoints, MAX_STORED_WAYPOINTS );
+        // Q_Error(errorParm_t::ERR_DROP, "Too many waypoints!  ({} > {})", numStoredWaypoints, MAX_STORED_WAYPOINTS);
         // rwwFIXMEFIXME: commented this out so I can load some of the SP levels.
         return;
     }
@@ -1707,13 +1707,13 @@ void NAV_CalculatePaths(const char* filename, int checksum)
     /*
     if ( trap->Nav_Save( filename, checksum ) == false )
     {
-        Com_Printf("Unable to save navigations data for map \"%s\" (checksum:%d)\n", filename, checksum );
+        Q_Println("Unable to save navigations data for map \"{}\" (checksum:{})", filename, checksum);
     }
     */
 #ifndef FINAL_BUILD
     if (fatalErrors) {
-        // Com_Error( errorParm_t::ERR_DROP, "%s%d FATAL NAV ERRORS\n", fatalErrorString, fatalErrors );
-        Com_Printf("%s%d FATAL NAV ERRORS\n", fatalErrorString, fatalErrors);
+        // Q_Error(errorParm_t::ERR_DROP, "{}{} FATAL NAV ERRORS", fatalErrorString, fatalErrors);
+        Q_Println("{}{} FATAL NAV ERRORS", fatalErrorString, fatalErrors);
     }
 #endif
 }

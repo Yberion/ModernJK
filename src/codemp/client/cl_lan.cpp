@@ -312,23 +312,23 @@ void LAN_GetServerInfo(lanSource_t source, int n, char* buf, int buflen)
         buf[0] = '\0';
         Info_SetValueForKey(info, "hostname", server->hostName);
         Info_SetValueForKey(info, "mapname", server->mapName);
-        Info_SetValueForKey(info, "clients", va("%i", server->clients));
-        Info_SetValueForKey(info, "sv_maxclients", va("%i", server->maxClients));
-        Info_SetValueForKey(info, "ping", va("%i", server->ping));
-        Info_SetValueForKey(info, "minping", va("%i", server->minPing));
-        Info_SetValueForKey(info, "maxping", va("%i", server->maxPing));
-        Info_SetValueForKey(info, "nettype", va("%i", server->netType));
-        Info_SetValueForKey(info, "needpass", va("%i", server->needPassword));
-        Info_SetValueForKey(info, "truejedi", va("%i", server->trueJedi));
-        Info_SetValueForKey(info, "wdisable", va("%i", server->weaponDisable));
-        Info_SetValueForKey(info, "fdisable", va("%i", server->forceDisable));
+        Info_SetValueForKey(info, "clients", Q_Format("{}", server->clients).c_str());
+        Info_SetValueForKey(info, "sv_maxclients", Q_Format("{}", server->maxClients).c_str());
+        Info_SetValueForKey(info, "ping", Q_Format("{}", server->ping).c_str());
+        Info_SetValueForKey(info, "minping", Q_Format("{}", server->minPing).c_str());
+        Info_SetValueForKey(info, "maxping", Q_Format("{}", server->maxPing).c_str());
+        Info_SetValueForKey(info, "nettype", Q_Format("{}", server->netType).c_str());
+        Info_SetValueForKey(info, "needpass", Q_Format("{:d}", server->needPassword).c_str());
+        Info_SetValueForKey(info, "truejedi", Q_Format("{}", server->trueJedi).c_str());
+        Info_SetValueForKey(info, "wdisable", Q_Format("{}", server->weaponDisable).c_str());
+        Info_SetValueForKey(info, "fdisable", Q_Format("{}", server->forceDisable).c_str());
         Info_SetValueForKey(info, "game", server->game);
-        Info_SetValueForKey(info, "gametype", va("%i", server->gameType));
+        Info_SetValueForKey(info, "gametype", Q_Format("{}", server->gameType).c_str());
         Info_SetValueForKey(info, "addr", NET_AdrToString(&server->adr));
-        Info_SetValueForKey(info, "g_humanplayers", va("%i", server->humans));
-        Info_SetValueForKey(info, "bots", va("%i", server->bots));
-        //		Info_SetValueForKey( info, "sv_allowAnonymous", va("%i", server->allowAnonymous));
-        //		Info_SetValueForKey( info, "pure", va("%i", server->pure ) );
+        Info_SetValueForKey(info, "g_humanplayers", Q_Format("{}", server->humans).c_str());
+        Info_SetValueForKey(info, "bots", Q_Format("{}", server->bots).c_str());
+        //		Info_SetValueForKey( info, "sv_allowAnonymous", Q_Format("{}", server->allowAnonymous).c_str());
+        //		Info_SetValueForKey( info, "pure", Q_Format("{}", server->pure).c_str() );
         Q_strncpyz(buf, info, buflen);
     }
     else {

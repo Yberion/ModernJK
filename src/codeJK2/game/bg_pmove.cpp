@@ -1001,7 +1001,7 @@ static bool PM_CheckJump(void)
                                     NPC_SetAnim(traceEnt, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_KNOCKDOWN2,
                                                 setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
                                     G_Throw(traceEnt, oppDir, strength);
-                                    G_Sound(traceEnt, G_SoundIndex(va("sound/weapons/melee/punch%d", Q_irand(1, 4))));
+                                    G_Sound(traceEnt, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
                                 }
                             }
                         }
@@ -1241,7 +1241,7 @@ static bool PM_CheckJump(void)
 
     if (d_JediAI->integer) {
         if (pm->ps->clientNum && pm->ps->weapon == weapon_t::WP_SABER) {
-            Com_Printf("jumping\n");
+            Q_Println("jumping");
         }
     }
     // Jumping
@@ -1671,10 +1671,9 @@ static void PM_AirMove(void)
             /*
             //put on a cvar?
             float stepCrouchAdd = STEPSIZE+(DEFAULT_MAXS_2-CROUCH_MAXS_2);
-            Com_Printf( S_COLOR_RED"capping force jump height %4.2f > %4.2f (%4.2f/%4.2f)\n",
-                curHeight, maxJumpHeight,
-                forceJumpHeight[pm->ps->forcePowerLevel[forcePowers_t::FP_LEVITATION]],
-                forceJumpHeight[pm->ps->forcePowerLevel[forcePowers_t::FP_LEVITATION]]+stepCrouchAdd );
+            Q_Println(S_COLOR_RED"capping force jump height {:4.2f} > {:4.2f} ({:4.2f}/{:4.2f})", curHeight, maxJumpHeight,
+            forceJumpHeight[pm->ps->forcePowerLevel[forcePowers_t::FP_LEVITATION]],
+            forceJumpHeight[pm->ps->forcePowerLevel[forcePowers_t::FP_LEVITATION]]+stepCrouchAdd);
             */
         }
     }
@@ -1831,8 +1830,8 @@ static void PM_WalkMove(void)
 
     PM_Accelerate(wishdir, wishspeed, accelerate);
 
-    // Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
-    // Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
+    // Q_Println("velocity = {:1.1f} {:1.1f} {:1.1f}", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
+    // Q_Println("velocity1 = {:1.1f}", VectorLength(pm->ps->velocity));
 
     if (Any(pml.groundTrace.surfaceFlags & surfaceFlags_t::SURF_SLICK) || Any(pm->ps->pm_flags & pmoveFlags_t::PMF_TIME_KNOCKBACK) ||
         Any(pm->ps->pm_flags & pmoveFlags_t::PMF_TIME_NOFRICTION)) {
@@ -1872,7 +1871,7 @@ static void PM_WalkMove(void)
         PM_StepSlideMove(0);
     }
 
-    // Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
+    // Q_Println("velocity2 = {:1.1f}", VectorLength(pm->ps->velocity));
 }
 
 /*
@@ -2506,7 +2505,7 @@ PM_CorrectAllSolid
 static void PM_CorrectAllSolid(void)
 {
     if (pm->debugLevel) {
-        Com_Printf("%i:allsolid\n", c_pmove); // NOTENOTE: If this ever happens, I'd really like to see this print!
+        Q_Println("{}:allsolid", c_pmove); // NOTENOTE: If this ever happens, I'd really like to see this print!
     }
 
     // FIXME: jitter around
@@ -2742,7 +2741,7 @@ static void PM_GroundTraceMissed(void)
             if (pm->ps->groundEntityNum != ENTITYNUM_NONE) {
                 // we just transitioned into freefall
                 if (pm->debugLevel) {
-                    Com_Printf("%i:lift\n", c_pmove);
+                    Q_Println("{}:lift", c_pmove);
                 }
 
                 // if they aren't in a jumping animation and the ground is a ways away, force into it
@@ -2885,7 +2884,7 @@ static void PM_GroundTrace(void)
     if (((pm->ps->velocity[2] > 0 && Any(pm->ps->pm_flags & pmoveFlags_t::PMF_TIME_KNOCKBACK)) || pm->ps->velocity[2] > 100) &&
         DotProduct(pm->ps->velocity, trace.plane.normal) > 10) { // either thrown off ground (PMF_TIME_KNOCKBACK) or going off the ground at a large velocity
         if (pm->debugLevel) {
-            Com_Printf("%i:kickoff\n", c_pmove);
+            Q_Println("{}:kickoff", c_pmove);
         }
         // go into jump animation
         if (PM_FlippingAnim(pm->ps->legsAnim)) { // we're flipping
@@ -2909,7 +2908,7 @@ static void PM_GroundTrace(void)
     // slopes that are too steep will not be considered onground
     if (trace.plane.normal[2] < MIN_WALK_NORMAL) {
         if (pm->debugLevel) {
-            Com_Printf("%i:steep\n", c_pmove);
+            Q_Println("{}:steep", c_pmove);
         }
         // FIXME: if they can't slide down the slope, let them
         // walk (sharp crevices)
@@ -2932,7 +2931,7 @@ static void PM_GroundTrace(void)
     if (pm->ps->groundEntityNum == ENTITYNUM_NONE) {
         // just hit the ground
         if (pm->debugLevel) {
-            Com_Printf("%i:Land\n", c_pmove);
+            Q_Println("{}:Land", c_pmove);
         }
 
         // if ( !PM_ClientImpact( trace.entityNum, true ) )
@@ -3194,7 +3193,7 @@ static void PM_CheckDuck(void)
         pm->ps->pm_flags |= pmoveFlags_t::PMF_DUCKED;
         if (d_JediAI->integer) {
             if (pm->ps->clientNum && pm->ps->weapon == weapon_t::WP_SABER) {
-                Com_Printf("ducking\n");
+                Q_Println("ducking");
             }
         }
     }
@@ -3500,7 +3499,7 @@ bool PM_GettingUpFromKnockDown(float standheight, float crouchheight)
                     default:
                         break;
                     }
-                    // Com_Printf( "getupanim = %s\n", BG_AnimName( anim ) );
+                    // Q_Println("getupanim = {}", BG_AnimName( anim ));
                     if (forceGetUp) {
                         if (pm->gent && pm->gent->client && pm->gent->client->playerTeam == team_t::TEAM_ENEMY && pm->gent->NPC &&
                             pm->gent->NPC->blockedSpeechDebounceTime < level.time && !Q_irand(0, 1)) {
@@ -5145,7 +5144,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
     setAnimParts_t parts = setAnimParts_t::SETANIM_TORSO;
 
     if (cg_debugSaber.integer & 0x01 && (newMove != saberMoveName_t::LS_READY)) {
-        Com_Printf("SetSaberMove:  From '%s' to '%s'\n", saberMoveData[pm->ps->saberMove].name, saberMoveData[newMove].name);
+        Q_Println("SetSaberMove:  From '{}' to '{}'", saberMoveData[pm->ps->saberMove].name, saberMoveData[newMove].name);
     }
 
     if (newMove == saberMoveName_t::LS_READY || newMove == saberMoveName_t::LS_A_FLIP_STAB ||
@@ -5223,20 +5222,20 @@ void PM_SetSaberMove(saberMoveName_t newMove)
             if (PM_SaberInAttack(newMove) || PM_SaberInSpecialAttack(anim)) { // playing an attack
                 if (pm->ps->saberMove != newMove) {                           // wasn't playing that attack before
                     if (PM_SaberInSpecialAttack(anim)) {
-                        G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, va("sound/weapons/saber/saberhup%d.wav", Q_irand(1, 3)));
+                        G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(1, 3)).c_str());
                     }
                     else {
                         switch (pm->ps->saberAnimLevel) {
                         case forcePowerLevels_t::FORCE_LEVEL_4:
                         case forcePowerLevels_t::FORCE_LEVEL_3:
-                            G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, va("sound/weapons/saber/saberhup%d.wav", Q_irand(7, 9)));
+                            G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(7, 9)).c_str());
                             break;
                         case forcePowerLevels_t::FORCE_LEVEL_2:
-                            G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, va("sound/weapons/saber/saberhup%d.wav", Q_irand(4, 6)));
+                            G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(4, 6)).c_str());
                             break;
                         case forcePowerLevels_t::FORCE_LEVEL_5:
                         case forcePowerLevels_t::FORCE_LEVEL_1:
-                            G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, va("sound/weapons/saber/saberhup%d.wav", Q_irand(1, 3)));
+                            G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(1, 3)).c_str());
                             break;
                         default:
                             break;
@@ -5245,7 +5244,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
                 }
             }
             else if (PM_SaberInStart(newMove) && pm->ps->saberAnimLevel == forcePowerLevels_t::FORCE_LEVEL_3) {
-                G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, va("sound/weapons/saber/saberhup%d.wav", Q_irand(1, 3)));
+                G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(1, 3)).c_str());
             }
         }
 
@@ -5482,8 +5481,8 @@ animNumber_t PM_SaberLockWinAnim(saberLockResult_t result)
         /*
             default:
         #ifndef FINAL_BUILD
-                Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", pm->gent->NPC_type, to_underlying(
-        pm->ps->torsoAnim ), BG_AnimName( pm->ps->torsoAnim ) ); #endif
+                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", pm->gent->NPC_type, to_underlying(
+        pm->ps->torsoAnim ), BG_AnimName( pm->ps->torsoAnim )); #endif
         */
     case animNumber_t::BOTH_BF2LOCK:
         if (result == saberLockResult_t::LOCK_DRAW) {
@@ -5540,8 +5539,8 @@ animNumber_t PM_SaberLockLoseAnim(gentity_t* genemy, saberLockResult_t result)
         /*
             default:
         #ifndef FINAL_BUILD
-                Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", genemy->NPC_type, to_underlying(
-        genemy->client->ps.torsoAnim ), BG_AnimName( genemy->client->ps.torsoAnim ) ); #endif
+                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", genemy->NPC_type, to_underlying(
+        genemy->client->ps.torsoAnim ), BG_AnimName( genemy->client->ps.torsoAnim )); #endif
         */
     case animNumber_t::BOTH_BF2LOCK:
         if (result == saberLockResult_t::LOCK_DRAW) {
@@ -5635,8 +5634,8 @@ void PM_SaberLockBreak(gentity_t* gent, gentity_t* genemy, saberLockResult_t res
     }
 
     if (d_saberCombat->integer) {
-        Com_Printf("%s won saber lock, anim = %s!\n", gent->NPC_type, winAnim != animNumber_t::ANIM_NONE ? BG_AnimName(winAnim) : "none");
-        Com_Printf("%s lost saber lock, anim = %s!\n", genemy->NPC_type, loseAnim != animNumber_t::ANIM_NONE ? BG_AnimName(loseAnim) : "none");
+        Q_Println("{} won saber lock, anim = {}!", gent->NPC_type, winAnim != animNumber_t::ANIM_NONE ? BG_AnimName(winAnim) : "none");
+        Q_Println("{} lost saber lock, anim = {}!", genemy->NPC_type, loseAnim != animNumber_t::ANIM_NONE ? BG_AnimName(loseAnim) : "none");
     }
 
     pm->ps->saberLockTime = genemy->client->ps.saberLockTime = 0;
@@ -5804,7 +5803,7 @@ bool PM_SaberLocked(void)
                             PM_SetAnimFrame(gent, curFrame, true, true);
                             remaining = curFrame - anim->firstFrame;
                             if (d_saberCombat->integer) {
-                                Com_Printf("%s pushing in saber lock, %d frames to go!\n", gent->NPC_type, remaining);
+                                Q_Println("{} pushing in saber lock, {} frames to go!", gent->NPC_type, remaining);
                             }
                         }
                     }
@@ -5819,7 +5818,7 @@ bool PM_SaberLocked(void)
                             PM_SetAnimFrame(gent, curFrame, true, true);
                             remaining = anim->firstFrame + anim->numFrames - curFrame;
                             if (d_saberCombat->integer) {
-                                Com_Printf("%s pushing in saber lock, %d frames to go!\n", gent->NPC_type, remaining);
+                                Q_Println("{} pushing in saber lock, {} frames to go!", gent->NPC_type, remaining);
                             }
                         }
                     }
@@ -5901,7 +5900,7 @@ bool PM_SaberLocked(void)
                         {
                             if ( d_saberCombat->integer )
                             {
-                                Com_Printf( "%s losing in saber lock, %d frames to go!\n", genemy->NPC_type, (curFrame-1)-anim->firstFrame );
+                                Q_Println("{} losing in saber lock, {} frames to go!", genemy->NPC_type, (curFrame-1)-anim->firstFrame);
                             }
                             PM_SetAnimFrame( genemy, curFrame-1, true, true );
                         }
@@ -5921,7 +5920,7 @@ bool PM_SaberLocked(void)
                         {
                             if ( d_saberCombat->integer )
                             {
-                                Com_Printf( "%s losing in saber lock, %d frames to go!\n", genemy->NPC_type, anim->firstFrame+anim->numFrames-(curFrame+1) );
+                                Q_Println("{} losing in saber lock, {} frames to go!", genemy->NPC_type, anim->firstFrame+anim->numFrames-(curFrame+1));
                             }
                             PM_SetAnimFrame( genemy, curFrame+1, true, true );
                         }
@@ -6216,7 +6215,7 @@ void PM_WeaponLightsaber(void)
             // pm->ps->saberBounceMove = saberMoveName_t::LS_NONE;
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Bounce\n");
+                Q_Println("Saber Block: Bounce");
             }
             break;
         case saberBlockedType_t::BLOCKED_UPPER_RIGHT:
@@ -6230,14 +6229,14 @@ void PM_WeaponLightsaber(void)
             }
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Parry UR\n");
+                Q_Println("Saber Block: Parry UR");
             }
             break;
         case saberBlockedType_t::BLOCKED_UPPER_RIGHT_PROJ:
             PM_SetSaberMove(saberMoveName_t::LS_REFLECT_UR);
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Deflect UR\n");
+                Q_Println("Saber Block: Deflect UR");
             }
             break;
         case saberBlockedType_t::BLOCKED_UPPER_LEFT:
@@ -6251,14 +6250,14 @@ void PM_WeaponLightsaber(void)
             }
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Parry UL\n");
+                Q_Println("Saber Block: Parry UL");
             }
             break;
         case saberBlockedType_t::BLOCKED_UPPER_LEFT_PROJ:
             PM_SetSaberMove(saberMoveName_t::LS_REFLECT_UL);
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Deflect UL\n");
+                Q_Println("Saber Block: Deflect UL");
             }
             break;
         case saberBlockedType_t::BLOCKED_LOWER_RIGHT:
@@ -6272,14 +6271,14 @@ void PM_WeaponLightsaber(void)
             }
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Parry LR\n");
+                Q_Println("Saber Block: Parry LR");
             }
             break;
         case saberBlockedType_t::BLOCKED_LOWER_RIGHT_PROJ:
             PM_SetSaberMove(saberMoveName_t::LS_REFLECT_LR);
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Deflect LR\n");
+                Q_Println("Saber Block: Deflect LR");
             }
             break;
         case saberBlockedType_t::BLOCKED_LOWER_LEFT:
@@ -6293,14 +6292,14 @@ void PM_WeaponLightsaber(void)
             }
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Parry LL\n");
+                Q_Println("Saber Block: Parry LL");
             }
             break;
         case saberBlockedType_t::BLOCKED_LOWER_LEFT_PROJ:
             PM_SetSaberMove(saberMoveName_t::LS_REFLECT_LL);
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Deflect LL\n");
+                Q_Println("Saber Block: Deflect LL");
             }
             break;
         case saberBlockedType_t::BLOCKED_TOP:
@@ -6314,14 +6313,14 @@ void PM_WeaponLightsaber(void)
             }
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Parry Top\n");
+                Q_Println("Saber Block: Parry Top");
             }
             break;
         case saberBlockedType_t::BLOCKED_TOP_PROJ:
             PM_SetSaberMove(saberMoveName_t::LS_REFLECT_UP);
 
             if (cg_debugSaber.integer >= 2) {
-                Com_Printf("Saber Block: Deflect Top\n");
+                Q_Println("Saber Block: Deflect Top");
             }
             break;
         default:

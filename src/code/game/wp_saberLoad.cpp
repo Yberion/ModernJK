@@ -43,18 +43,18 @@ void Saber_SithSwordPrecache(void)
 { //*SIGH* special sounds used by the sith sword
     int i;
     for (i = 1; i < 5; i++) {
-        G_SoundIndex(va("sound/weapons/sword/stab%d.wav", i));
+        G_SoundIndex(Q_Format("sound/weapons/sword/stab{}.wav", i).c_str());
     }
     for (i = 1; i < 5; i++) {
-        G_SoundIndex(va("sound/weapons/sword/swing%d.wav", i));
+        G_SoundIndex(Q_Format("sound/weapons/sword/swing{}.wav", i).c_str());
     }
     for (i = 1; i < 7; i++) {
-        G_SoundIndex(va("sound/weapons/sword/fall%d.wav", i));
+        G_SoundIndex(Q_Format("sound/weapons/sword/fall{}.wav", i).c_str());
     }
     /*
     for ( i = 1; i < 4; i++ )
     {
-        G_SoundIndex( va( "sound/weapons/sword/spin%d.wav", i ) );
+        G_SoundIndex( Q_Format("sound/weapons/sword/spin{}.wav", i).c_str() );
     }
     */
 }
@@ -506,7 +506,7 @@ static void Saber_ParseNumBlades(saberInfo_t* saber, const char** p)
         return;
     }
     if (n < 1 || n > MAX_BLADES) {
-        Com_Error(errorParm_t::ERR_DROP, "WP_SaberParseParms: saber %s has illegal number of blades (%d) max: %d", saber->name, n, MAX_BLADES);
+        Q_Error(errorParm_t::ERR_DROP, "WP_SaberParseParms: saber {} has illegal number of blades ({}) max: {}", saber->name, n, MAX_BLADES);
         return;
     }
     saber->numBlades = n;
@@ -2085,7 +2085,7 @@ bool WP_SaberParseParms(const char* SaberName, saberInfo_t* saber, bool setColor
     while (1) {
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            Com_PrintError("unexpected EOF while parsing '%s' (WP_SaberParseParms)\n", SaberName);
+            Q_PrintlnError("unexpected EOF while parsing '{}' (WP_SaberParseParms)", SaberName);
             return false;
         }
 
@@ -2098,7 +2098,7 @@ bool WP_SaberParseParms(const char* SaberName, saberInfo_t* saber, bool setColor
             continue;
         }
 
-        Com_Warning("unknown keyword '%s' while parsing '%s'\n", token, SaberName);
+        Q_PrintlnWarning("unknown keyword '{}' while parsing '{}'", token, SaberName);
         SkipRestOfLine(&p);
     }
 
@@ -2305,7 +2305,7 @@ void WP_SaberLoadParms(void)
     char *buffer, *holdChar, *marker;
     char saberExtensionListBuf[2048]; //	The list of file names read in
 
-    // Com_Printf( "Parsing *.sab saber definitions\n" );
+    // Q_Println("Parsing *.sab saber definitions");
 
     // set where to store the first one
     totallen = 0;
@@ -2319,10 +2319,10 @@ void WP_SaberLoadParms(void)
     for (i = 0; i < fileCnt; i++, holdChar += saberExtFNLen + 1) {
         saberExtFNLen = strlen(holdChar);
 
-        len = gi.FS_ReadFile(va("ext_data/sabers/%s", holdChar), (void**)&buffer);
+        len = gi.FS_ReadFile(Q_Format("ext_data/sabers/{}", holdChar).c_str(), (void**)&buffer);
 
         if (len == -1) {
-            Com_Printf("WP_SaberLoadParms: error reading %s\n", holdChar);
+            Q_Println("WP_SaberLoadParms: error reading {}", holdChar);
         }
         else {
             if (totallen && *(marker - 1) == '}') { // don't let it end on a } because that should be a stand-alone token
@@ -2333,7 +2333,7 @@ void WP_SaberLoadParms(void)
             len = COM_Compress(buffer);
 
             if (totallen + len >= MAX_SABER_DATA_SIZE) {
-                Com_Error(errorParm_t::ERR_DROP, "WP_SaberLoadParms: ran out of space before reading %s\n(you must make the .sab files smaller)", holdChar);
+                Q_Error(errorParm_t::ERR_DROP, "WP_SaberLoadParms: ran out of space before reading {}\n(you must make the .sab files smaller)", holdChar);
             }
             strcat(marker, buffer);
             gi.FS_FreeFile(buffer);

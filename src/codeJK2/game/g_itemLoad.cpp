@@ -249,7 +249,7 @@ static void IT_Name(const char** holdBuf)
     }
     else {
         itemNum = itemNum_t::ITM_NONE;
-        Com_Warning("bad itemname in external item data '%s'\n", tokenStr);
+        Q_PrintlnWarning("bad itemname in external item data '{}'", tokenStr);
     }
 
     IT_SetDefaults();
@@ -267,7 +267,7 @@ static void IT_ClassName(const char** holdBuf)
     len = strlen(tokenStr) + 1;
     if (len > 32) {
         len = 32;
-        Com_Warning("weaponclass too long in external ITEMS.DAT '%s'\n", tokenStr);
+        Q_PrintlnWarning("weaponclass too long in external ITEMS.DAT '{}'", tokenStr);
     }
 
     bg_itemlist[itemNum].classname = G_NewString(tokenStr);
@@ -285,7 +285,7 @@ static void IT_WorldModel(const char** holdBuf)
     len = strlen(tokenStr) + 1;
     if (len > 64) {
         len = 64;
-        Com_Warning("world model too long in external ITEMS.DAT '%s'\n", tokenStr);
+        Q_PrintlnWarning("world model too long in external ITEMS.DAT '{}'", tokenStr);
     }
 
     bg_itemlist[itemNum].world_model = G_NewString(tokenStr);
@@ -464,7 +464,7 @@ static void IT_Tag(const char** holdBuf)
     }
     else {
         tag = to_underlying(weapon_t::WP_BRYAR_PISTOL);
-        Com_Warning("bad tagname in external item data '%s'\n", tokenStr);
+        Q_PrintlnWarning("bad tagname in external item data '{}'", tokenStr);
     }
 
     bg_itemlist[itemNum].giTag = tag;
@@ -505,7 +505,7 @@ static void IT_Type(const char** holdBuf)
     }
     else {
         type = itemType_t::IT_BAD;
-        Com_Warning("bad itemname in external item data '%s'\n", tokenStr);
+        Q_PrintlnWarning("bad itemname in external item data '{}'", tokenStr);
     }
 
     bg_itemlist[itemNum].giType = type;
@@ -523,7 +523,7 @@ static void IT_Icon(const char** holdBuf)
     len = strlen(tokenStr) + 1;
     if (len > 32) {
         len = 32;
-        Com_Warning("icon too long in external ITEMS.DAT '%s'\n", tokenStr);
+        Q_PrintlnWarning("icon too long in external ITEMS.DAT '{}'", tokenStr);
     }
 
     bg_itemlist[itemNum].icon = G_NewString(tokenStr);
@@ -539,7 +539,7 @@ static void IT_Count(const char** holdBuf)
     }
 
     if (tokenInt < 0 || tokenInt > 1000) {
-        Com_Warning("bad Count in external item data '%d'\n", tokenInt);
+        Q_PrintlnWarning("bad Count in external item data '{}'", tokenInt);
         return;
     }
     bg_itemlist[itemNum].quantity = tokenInt;
@@ -583,7 +583,7 @@ static void IT_PickupSound(const char** holdBuf)
     len = strlen(tokenStr) + 1;
     if (len > 32) {
         len = 32;
-        Com_Warning("Pickup Sound too long in external ITEMS.DAT '%s'\n", tokenStr);
+        Q_PrintlnWarning("Pickup Sound too long in external ITEMS.DAT '{}'", tokenStr);
     }
 
     bg_itemlist[itemNum].pickup_sound = G_NewString(tokenStr);
@@ -614,7 +614,7 @@ static void IT_ParseWeaponParms(const char** holdBuf)
             continue;
         }
 
-        Com_Warning("bad parameter in external item data '%s'\n", token);
+        Q_PrintlnWarning("bad parameter in external item data '{}'", token);
         SkipRestOfLine(holdBuf);
     }
 }

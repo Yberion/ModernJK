@@ -209,7 +209,7 @@ void CG_Credits_Init(const char* psStripReference, vec4_t* pv4Color)
     int iStrLen = cgi_SP_GetStringTextString(psStripReference, nullptr, 0);
     if (!iStrLen) {
 #ifndef FINAL_BUILD
-        Com_Warning("CG_Credits_Init(): invalid text key :'%s'\n", psStripReference);
+        Q_PrintlnWarning("CG_Credits_Init(): invalid text key :'{}'", psStripReference);
 #endif
         return;
     }
@@ -226,7 +226,7 @@ void CG_Credits_Init(const char* psStripReference, vec4_t* pv4Color)
         assert(0); // should never get here now, but wtf?
         cgi_Z_Free(psMallocText);
 #ifndef FINAL_BUILD
-        Com_Warning("CG_Credits_Init(): invalid text key :'%s'\n", psStripReference);
+        Q_PrintlnWarning("CG_Credits_Init(): invalid text key :'{}'", psStripReference);
 #endif
         return;
     }
@@ -274,7 +274,7 @@ void CG_Credits_Init(const char* psStripReference, vec4_t* pv4Color)
                         }
                         else {
 #ifndef FINAL_BUILD
-                            Com_Printf(S_COLOR_YELLOW "CG_Credits_Init(): No current support for cards after scroll!\n");
+                            Q_Println(S_COLOR_YELLOW "CG_Credits_Init(): No current support for cards after scroll!");
 #endif
                             eMode = Mode_e::eNothing;
                         }
@@ -297,7 +297,7 @@ void CG_Credits_Init(const char* psStripReference, vec4_t* pv4Color)
                     }
                     else {
 #ifndef FINAL_BUILD
-                        Com_Printf(S_COLOR_YELLOW "CG_Credits_Init(): bad keyword \"%s\"!\n", sLine);
+                        Q_Println(S_COLOR_YELLOW "CG_Credits_Init(): bad keyword \"{}\"!", sLine);
 #endif
                         eMode = Mode_e::eNothing;
                     }
@@ -313,10 +313,10 @@ void CG_Credits_Init(const char* psStripReference, vec4_t* pv4Color)
                 // must be a letter...
                 //
                 if (uiLetter > 255) {
-                    Q_strcat(sLine, sizeof(sLine), va("%c%c", uiLetter >> 8, uiLetter & 0xFF));
+                    Q_strcat(sLine, sizeof(sLine), Q_Format("{:c}{:c}", uiLetter >> 8, uiLetter & 0xFF).c_str());
                 }
                 else {
-                    Q_strcat(sLine, sizeof(sLine), va("%c", uiLetter & 0xFF));
+                    Q_strcat(sLine, sizeof(sLine), Q_Format("{:c}", uiLetter & 0xFF).c_str());
                 }
             }
         }
@@ -446,18 +446,18 @@ bool CG_Credits_Draw(void)
                 // fading up...
                 //
                 gv4Color[3] = fSecondsElapsed / fCARD_FADESECONDS;
-                //				OutputDebugString(va("fade up: %f\n",gv4Color[3]));
+                //				OutputDebugString(Q_Format("fade up: {:f}\n", gv4Color[3]).c_str());
             }
             else if (fSecondsElapsed > fCARD_FADESECONDS + fCARD_SUSTAINSECONDS) {
                 // fading down...
                 //
                 const float fFadeDownSeconds = fSecondsElapsed - (fCARD_FADESECONDS + fCARD_SUSTAINSECONDS);
                 gv4Color[3] = 1.0f - (fFadeDownSeconds / fCARD_FADESECONDS);
-                //				OutputDebugString(va("fade dw: %f\n",gv4Color[3]));
+                //				OutputDebugString(Q_Format("fade dw: {:f}\n", gv4Color[3]).c_str());
             }
             else {
                 gv4Color[3] = 1.0f;
-                //				OutputDebugString(va("normal: %f\n",gv4Color[3]));
+                //				OutputDebugString(Q_Format("normal: {:f}\n", gv4Color[3]).c_str());
             }
             if (gv4Color[3] < 0.0f)
                 gv4Color[3] = 0.0f; // ... otherwise numbers that have dipped slightly -ve flash up fullbright after fade down

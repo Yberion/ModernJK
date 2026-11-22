@@ -43,6 +43,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ASSERT_H_INC
 #endif
 
+#include <shared/qcommon/q_fmt.h>
 #include <shared/qcommon/q_libm.h>
 #include <stdio.h>
 #include <float.h>
@@ -322,16 +323,16 @@ void CBBox::FromStr(const char* s)
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void CBBox::ToStr(char* s)
+void CBBox::ToStr(std::span<char> s)
 {
-    assert(s && s[0]);
+    assert(!s.empty() && s[0]);
 
     char MinS[256];
     char MaxS[266];
 
     mMin.ToStr(MinS);
     mMax.ToStr(MaxS);
-    sprintf(s, "(%s|%s)", MinS, MaxS);
+    Q_FormatTo(s, "({}|{})", MinS, MaxS);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

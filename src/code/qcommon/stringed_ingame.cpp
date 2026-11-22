@@ -424,7 +424,7 @@ void CStringEdPackage::AddFlagReference(const char* psLocalReference, const char
     //
     // then add the reference to this flag to the currently-parsed reference...
     //
-    mapStringEntries_t::iterator itEntry = m_StringEntries.find(va("%s_%s", m_strCurrentFileRef_ParseOnly.c_str(), psLocalReference));
+    mapStringEntries_t::iterator itEntry = m_StringEntries.find(Q_Format("{}_{}", m_strCurrentFileRef_ParseOnly, psLocalReference).c_str());
     if (itEntry != m_StringEntries.end()) {
         SE_Entry_t& Entry = (*itEntry).second;
         Entry.m_iFlags |= iMask;
@@ -456,28 +456,28 @@ static char* CopeWithDumbStringData(const char* psSentence, const char* psThisLa
         !Q_stricmp(psThisLanguage, "RUSSIAN")) {
         char* p;
 
-        //	strXLS_Speech.Replace(va("%c",0x92),va("%c",0x27));	// "'"
+        //	strXLS_Speech.Replace(Q_Format("{:c}", 0x92).c_str(),Q_Format("{:c}", 0x27).c_str());	// "'"
         while ((p = strchr(psNewString, 0x92)) != nullptr) // "rich" (and illegal) apostrophe
         {
             *p = 0x27;
         }
 
-        //	strXLS_Speech.Replace(va("%c",0x93),"\"");			// smart quotes -> '"'
+        //	strXLS_Speech.Replace(Q_Format("{:c}", 0x93).c_str(),"\"");			// smart quotes -> '"'
         while ((p = strchr(psNewString, 0x93)) != nullptr) {
             *p = '"';
         }
 
-        //	strXLS_Speech.Replace(va("%c",0x94),"\"");			// smart quotes -> '"'
+        //	strXLS_Speech.Replace(Q_Format("{:c}", 0x94).c_str(),"\"");			// smart quotes -> '"'
         while ((p = strchr(psNewString, 0x94)) != nullptr) {
             *p = '"';
         }
 
-        //	strXLS_Speech.Replace(va("%c",0x0B),".");			// full stop
+        //	strXLS_Speech.Replace(Q_Format("{:c}", 0x0B).c_str(),".");			// full stop
         while ((p = strchr(psNewString, 0x0B)) != nullptr) {
             *p = '.';
         }
 
-        //	strXLS_Speech.Replace(va("%c",0x85),"...");			// "..."-char ->  3-char "..."
+        //	strXLS_Speech.Replace(Q_Format("{:c}", 0x85).c_str(),"...");			// "..."-char ->  3-char "..."
         while ((p = strchr(psNewString, 0x85)) != nullptr) // "rich" (and illegal) apostrophe
         {
             memmove(p + 2, p, strlen(p));
@@ -486,17 +486,17 @@ static char* CopeWithDumbStringData(const char* psSentence, const char* psThisLa
             *p = '.';
         }
 
-        //	strXLS_Speech.Replace(va("%c",0x91),va("%c",0x27));	// "'"
+        //	strXLS_Speech.Replace(Q_Format("{:c}", 0x91).c_str(),Q_Format("{:c}", 0x27).c_str());	// "'"
         while ((p = strchr(psNewString, 0x91)) != nullptr) {
             *p = 0x27;
         }
 
-        //	strXLS_Speech.Replace(va("%c",0x96),va("%c",0x2D));	// "-"
+        //	strXLS_Speech.Replace(Q_Format("{:c}", 0x96).c_str(),Q_Format("{:c}", 0x2D).c_str());	// "-"
         while ((p = strchr(psNewString, 0x96)) != nullptr) {
             *p = 0x2D;
         }
 
-        //	strXLS_Speech.Replace(va("%c",0x97),va("%c",0x2D));	// "-"
+        //	strXLS_Speech.Replace(Q_Format("{:c}", 0x97).c_str(),Q_Format("{:c}", 0x2D).c_str());	// "-"
         while ((p = strchr(psNewString, 0x97)) != nullptr) {
             *p = 0x2D;
         }
@@ -522,6 +522,7 @@ static char* CopeWithDumbStringData(const char* psSentence, const char* psThisLa
 const char* CStringEdPackage::ParseLine(const char* psLine)
 {
     const char* psErrorMessage = nullptr;
+    static formatText_t psErrorMessageText; // the text returned, valid until the next call
 
     if (psLine) {
         if (CheckLineForKeyword(sSE_KEYWORD_VERSION, psLine)) {
@@ -531,7 +532,7 @@ const char* CStringEdPackage::ParseLine(const char* psLine)
             int iVersionNumber = atoi(psVersionNumber);
 
             if (iVersionNumber != iSE_VERSION) {
-                psErrorMessage = va("Unexpected version number %d, expecting %d!\n", iVersionNumber, iSE_VERSION);
+                psErrorMessage = (psErrorMessageText = Q_Format("Unexpected version number {}, expecting {}!\n", iVersionNumber, iSE_VERSION)).c_str();
             }
         }
         else if (CheckLineForKeyword(sSE_KEYWORD_CONFIG, psLine) || CheckLineForKeyword(sSE_KEYWORD_FILENOTES, psLine) ||
@@ -619,7 +620,9 @@ const char* CStringEdPackage::ParseLine(const char* psLine)
                         // basically this is just checking that an .STE file override is the same language as the .STR...
                         //
                         if (Q_stricmp(m_strLoadingLanguage_ParseOnly.c_str(), sThisLanguage)) {
-                            psErrorMessage = va("Language \"%s\" found when expecting \"%s\"!\n", sThisLanguage, m_strLoadingLanguage_ParseOnly.c_str());
+                            psErrorMessage =
+                                (psErrorMessageText = Q_Format("Language \"{}\" found when expecting \"{}\"!\n", sThisLanguage, m_strLoadingLanguage_ParseOnly))
+                                    .c_str();
                         }
                     }
 
@@ -635,7 +638,7 @@ const char* CStringEdPackage::ParseLine(const char* psLine)
             }
         }
         else {
-            psErrorMessage = va("Unknown keyword at linestart: \"%s\"\n", psLine);
+            psErrorMessage = (psErrorMessageText = Q_Format("Unknown keyword at linestart: \"{}\"\n", psLine)).c_str();
         }
     }
 
@@ -656,10 +659,10 @@ void CStringEdPackage::AddEntry(const char* psLocalReference)
     // the reason I don't just assign it anyway is because the optional .STE override files don't contain flags,
     //	and therefore would wipe out the parsed flags of the .STR file...
     //
-    mapStringEntries_t::iterator itEntry = m_StringEntries.find(va("%s_%s", m_strCurrentFileRef_ParseOnly.c_str(), psLocalReference));
+    mapStringEntries_t::iterator itEntry = m_StringEntries.find(Q_Format("{}_{}", m_strCurrentFileRef_ParseOnly, psLocalReference).c_str());
     if (itEntry == m_StringEntries.end()) {
         SE_Entry_t SE_Entry;
-        m_StringEntries[va("%s_%s", m_strCurrentFileRef_ParseOnly.c_str(), psLocalReference)] = SE_Entry;
+        m_StringEntries[Q_Format("{}_{}", m_strCurrentFileRef_ParseOnly, psLocalReference).c_str()] = SE_Entry;
     }
     m_strCurrentEntryRef_ParseOnly = psLocalReference;
 }
@@ -687,7 +690,12 @@ const char* Leetify(const char* psString)
 
 void CStringEdPackage::SetString(const char* psLocalReference, const char* psNewString, SE_BOOL bEnglishDebug)
 {
-    mapStringEntries_t::iterator itEntry = m_StringEntries.find(va("%s_%s", m_strCurrentFileRef_ParseOnly.c_str(), psLocalReference));
+    // the text in {fmt}'s syntax, which the code formats the translated texts with (a doubled brace at most)
+    std::vector<char> converted(strlen(psNewString) * 2 + 1);
+    Q_FormatFromPrintf(converted, psNewString, psLocalReference);
+    psNewString = converted.data();
+
+    mapStringEntries_t::iterator itEntry = m_StringEntries.find(Q_Format("{}_{}", m_strCurrentFileRef_ParseOnly, psLocalReference).c_str());
     if (itEntry != m_StringEntries.end()) {
         SE_Entry_t& Entry = (*itEntry).second;
 
@@ -731,6 +739,7 @@ void CStringEdPackage::SetString(const char* psLocalReference, const char* psNew
 static const char* SE_Load_Actual(const char* psFileName, SE_BOOL bLoadDebug, SE_BOOL bSpeculativeLoad)
 {
     const char* psErrorMessage = nullptr;
+    static formatText_t psErrorMessageText; // the text returned, valid until the next call
 
     unsigned char* psLoadedData = SE_LoadFileData(psFileName);
     if (psLoadedData) {
@@ -753,7 +762,7 @@ static const char* SE_Load_Actual(const char* psFileName, SE_BOOL bLoadDebug, SE
         SE_FreeFileDataAfterLoad(psLoadedData);
 
         if (!psErrorMessage && !TheStringPackage.EndMarkerFoundDuringParse()) {
-            psErrorMessage = va("Truncated file, failed to find \"%s\" at file end!", sSE_KEYWORD_ENDMARKER);
+            psErrorMessage = (psErrorMessageText = Q_Format("Truncated file, failed to find \"{}\" at file end!", sSE_KEYWORD_ENDMARKER)).c_str();
         }
     }
     else {
@@ -761,7 +770,7 @@ static const char* SE_Load_Actual(const char* psFileName, SE_BOOL bLoadDebug, SE
             // then it's ok to not find the file, so do nothing...
         }
         else {
-            psErrorMessage = va("Unable to load \"%s\"!", psFileName);
+            psErrorMessage = (psErrorMessageText = Q_Format("Unable to load \"{}\"!", psFileName)).c_str();
         }
     }
 
@@ -840,10 +849,10 @@ const char* SE_Load(const char* psFileName, SE_BOOL bLoadDebug = SE_TRUE, SE_BOO
     if (psErrorMessage) {
         if (bFailIsCritical) {
             //		TheStringPackage.Clear(TRUE);	// Will we want to do this?  Any errors that arise should be fixed immediately
-            Com_Error(errorParm_t::ERR_DROP, "SE_Load(): Couldn't load \"%s\"!\n\nError: \"%s\"\n", psFileName, psErrorMessage);
+            Q_Error(errorParm_t::ERR_DROP, "SE_Load(): Couldn't load \"{}\"!\n\nError: \"{}\"", psFileName, psErrorMessage);
         }
         else {
-            Com_DPrintf(S_COLOR_YELLOW "SE_Load(): Couldn't load \"%s\"!\n", psFileName);
+            Q_DPrintln(S_COLOR_YELLOW "SE_Load(): Couldn't load \"{}\"!", psFileName);
         }
     }
 
@@ -856,7 +865,7 @@ const char* SE_GetString(const char* psPackageReference, const char* psStringRef
 {
     char sReference[256]; // will always be enough, I've never seen one more than about 30 chars long
 
-    Com_sprintf(sReference, sizeof(sReference), "%s_%s", psPackageReference, psStringReference);
+    Q_FormatTo(sReference, "{}_{}", psPackageReference, psStringReference);
 
     return SE_GetString(Q_strupr(sReference));
 }
@@ -898,7 +907,7 @@ int SE_GetFlags(const char* psPackageReference, const char* psStringReference)
 {
     char sReference[256]; // will always be enough, I've never seen one more than about 30 chars long
 
-    Com_sprintf(sReference, sizeof(sReference), "%s_%s", psPackageReference, psStringReference);
+    Q_FormatTo(sReference, "{}_{}", psPackageReference, psStringReference);
 
     return SE_GetFlags(sReference);
 }
@@ -957,7 +966,7 @@ int SE_GetNumLanguages(void)
         std::string strResults;
         /*int iFilesFound = */ SE_BuildFileList(
 #ifdef _STRINGED
-            va("C:\\Source\\Tools\\StringEd\\test_data\\%s", sSE_STRINGS_DIR)
+            Q_Format("C:\\Source\\Tools\\StringEd\\test_data\\{}", sSE_STRINGS_DIR).c_str()
 #else
             sSE_STRINGS_DIR
 #endif
@@ -1008,8 +1017,9 @@ const char* SE_GetLanguageName(int iLangIndex)
 //
 const char* SE_GetLanguageDir(int iLangIndex)
 {
+    static formatText_t text; // the text returned, valid until the next call
     if (iLangIndex < (int)gvLanguagesAvailable.size()) {
-        return va("%s/%s", sSE_STRINGS_DIR, gvLanguagesAvailable[iLangIndex].c_str());
+        return (text = Q_Format("{}/{}", sSE_STRINGS_DIR, gvLanguagesAvailable[iLangIndex])).c_str();
     }
 
     __ASSERT(0);
@@ -1045,14 +1055,14 @@ void SE_Init(void)
         int iLanguages = SE_GetNumLanguages();
         for (int iLang = 0; iLang < iLanguages; iLang++) {
             const char* psLanguage = SE_GetLanguageName(iLang); // eg "german"
-            Com_Printf("com_buildScript(2): Loading language \"%s\"...\n", psLanguage);
+            Q_Println("com_buildScript(2): Loading language \"{}\"...", psLanguage);
             SE_LoadLanguage(psLanguage);
         }
     }
 
     const char* psErrorMessage = SE_LoadLanguage(se_language->string);
     if (psErrorMessage) {
-        Com_Error(errorParm_t::ERR_DROP, "SE_Init() Unable to load language: \"%s\"!\nError: \"%s\"\n", se_language->string, psErrorMessage);
+        Q_Error(errorParm_t::ERR_DROP, "SE_Init() Unable to load language: \"{}\"!\nError: \"{}\"", se_language->string, psErrorMessage);
     }
 }
 
@@ -1075,7 +1085,7 @@ const char* SE_LoadLanguage(const char* psLanguage, SE_BOOL bLoadDebug /* = SE_T
         std::string strResults;
         /*int iFilesFound = */ SE_BuildFileList(
 #ifdef _STRINGED
-            va("C:\\Source\\Tools\\StringEd\\test_data\\%s", sSE_STRINGS_DIR)
+            Q_Format("C:\\Source\\Tools\\StringEd\\test_data\\{}", sSE_STRINGS_DIR).c_str()
 #else
             sSE_STRINGS_DIR
 #endif
@@ -1107,7 +1117,7 @@ void SE_CheckForLanguageUpdates(void)
     if (se_language && se_language->modified) {
         const char* psErrorMessage = SE_LoadLanguage(se_language->string, SE_TRUE);
         if (psErrorMessage) {
-            Com_Error(errorParm_t::ERR_DROP, "%s", psErrorMessage);
+            Q_Error(errorParm_t::ERR_DROP, "{}", psErrorMessage);
         }
         se_language->modified = SE_FALSE;
     }

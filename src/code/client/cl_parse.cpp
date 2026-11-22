@@ -36,7 +36,7 @@ const char* svc_strings[256] = {"svc_bad",
 void SHOWNET(msg_t* msg, const char* s)
 {
     if (cl_shownet->integer >= 2) {
-        Com_Printf("%3i:%s\n", msg->readcount - 1, s);
+        Q_Println("{:3}:{}", msg->readcount - 1, s);
     }
 }
 
@@ -113,13 +113,13 @@ void CL_ParsePacketEntities(msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* ne
         }
 
         if (msg->readcount > msg->cursize) {
-            Com_Error(errorParm_t::ERR_DROP, "CL_ParsePacketEntities: end of message");
+            Q_Error(errorParm_t::ERR_DROP, "CL_ParsePacketEntities: end of message");
         }
 
         while (oldnum < newnum) {
             // one or more entities from the old packet are unchanged
             if (cl_shownet->integer == 3) {
-                Com_Printf("%3i:  unchanged: %i\n", msg->readcount, oldnum);
+                Q_Println("{:3}:  unchanged: {}", msg->readcount, oldnum);
             }
             CL_DeltaEntity(msg, newframe);
 
@@ -136,7 +136,7 @@ void CL_ParsePacketEntities(msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* ne
         if (oldnum == newnum) {
             // delta from previous state
             if (cl_shownet->integer == 3) {
-                Com_Printf("%3i:  delta: %i\n", msg->readcount, newnum);
+                Q_Println("{:3}:  delta: {}", msg->readcount, newnum);
             }
             CL_DeltaEntity(msg, newframe);
 
@@ -155,7 +155,7 @@ void CL_ParsePacketEntities(msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* ne
         if (oldnum > newnum) {
             // delta from baseline
             if (cl_shownet->integer == 3) {
-                Com_Printf("%3i:  baseline: %i\n", msg->readcount, newnum);
+                Q_Println("{:3}:  baseline: {}", msg->readcount, newnum);
             }
             CL_DeltaEntity(msg, newframe);
             continue;
@@ -166,7 +166,7 @@ void CL_ParsePacketEntities(msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* ne
     while (oldnum != 99999) {
         // one or more entities from the old packet are unchanged
         if (cl_shownet->integer == 3) {
-            Com_Printf("%3i:  unchanged: %i\n", msg->readcount, oldnum);
+            Q_Println("{:3}:  unchanged: {}", msg->readcount, oldnum);
         }
         CL_DeltaEntity(msg, newframe);
 
@@ -238,15 +238,15 @@ void CL_ParseSnapshot(msg_t* msg)
         old = &cl.frames[newSnap.deltaNum & PACKET_MASK];
         if (!old->valid) {
             // should never happen
-            Com_Printf("Delta from invalid frame (not supposed to happen!).\n");
+            Q_Println("Delta from invalid frame (not supposed to happen!).");
         }
         else if (old->messageNum != newSnap.deltaNum) {
             // The frame that the server did the delta from
             // is too old, so we can't reconstruct it properly.
-            Com_Printf("Delta frame too old.\n");
+            Q_Println("Delta frame too old.");
         }
         else if (cl.parseEntitiesNum - old->parseEntitiesNum > MAX_PARSE_ENTITIES) {
-            Com_Printf("Delta parseEntitiesNum too old.\n");
+            Q_Println("Delta parseEntitiesNum too old.");
         }
         else {
             newSnap.valid = true; // valid delta parse
@@ -302,7 +302,7 @@ void CL_ParseSnapshot(msg_t* msg)
     cl.frames[cl.frame.messageNum & PACKET_MASK] = cl.frame;
 
     if (cl_shownet->integer == 3) {
-        Com_Printf("   frame:%i  delta:%i\n", cl.frame.messageNum, cl.frame.deltaNum);
+        Q_Println("   frame:{}  delta:{}", cl.frame.messageNum, cl.frame.deltaNum);
     }
 
     // actions for valid frames
@@ -391,13 +391,13 @@ void CL_ParseGamestate(msg_t* msg)
 
             i = MSG_ReadShort(msg);
             if (i < 0 || i >= MAX_CONFIGSTRINGS) {
-                Com_Error(errorParm_t::ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
+                Q_Error(errorParm_t::ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
             }
             s = MSG_ReadString(msg);
             len = strlen(s);
 
             if (len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS) {
-                Com_Error(errorParm_t::ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
+                Q_Error(errorParm_t::ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
             }
 
             // append it to the gameState string buffer
@@ -405,14 +405,14 @@ void CL_ParseGamestate(msg_t* msg)
             memcpy(cl.gameState.stringData + cl.gameState.dataCount, s, len + 1);
             cl.gameState.dataCount += len + 1;
             if (cl_shownet->integer == 3) {
-                Com_Printf("%3i:  CS# %d %s (%d)\n", msg->readcount, i, s, len);
+                Q_Println("{:3}:  CS# {} {} ({})", msg->readcount, i, s, len);
             }
         }
         else if (cmd == to_underlying(svc_ops_e::svc_baseline)) {
             assert(0);
         }
         else {
-            Com_Error(errorParm_t::ERR_DROP, "CL_ParseGamestate: bad command byte");
+            Q_Error(errorParm_t::ERR_DROP, "CL_ParseGamestate: bad command byte");
         }
     }
 
@@ -488,10 +488,10 @@ void CL_ParseServerMessage(msg_t* msg)
     int cmd;
 
     if (cl_shownet->integer == 1) {
-        Com_Printf("%i ", msg->cursize);
+        Q_Print("{} ", msg->cursize);
     }
     else if (cl_shownet->integer >= 2) {
-        Com_Printf("------------------\n");
+        Q_Println("------------------");
     }
 
     //
@@ -499,7 +499,7 @@ void CL_ParseServerMessage(msg_t* msg)
     //
     while (1) {
         if (msg->readcount > msg->cursize) {
-            Com_Error(errorParm_t::ERR_DROP, "CL_ParseServerMessage: read past end of server message");
+            Q_Error(errorParm_t::ERR_DROP, "CL_ParseServerMessage: read past end of server message");
             break;
         }
 
@@ -512,7 +512,7 @@ void CL_ParseServerMessage(msg_t* msg)
 
         if (cl_shownet->integer >= 2) {
             if (!svc_strings[cmd]) {
-                Com_Printf("%3i:BAD CMD %i\n", msg->readcount - 1, cmd);
+                Q_Println("{:3}:BAD CMD {}", msg->readcount - 1, cmd);
             }
             else {
                 SHOWNET(msg, svc_strings[cmd]);
@@ -522,7 +522,7 @@ void CL_ParseServerMessage(msg_t* msg)
         // other commands
         switch (static_cast<svc_ops_e>(cmd)) {
         default:
-            Com_Error(errorParm_t::ERR_DROP, "CL_ParseServerMessage: Illegible server message\n");
+            Q_Error(errorParm_t::ERR_DROP, "CL_ParseServerMessage: Illegible server message");
             break;
         case svc_ops_e::svc_nop:
             break;

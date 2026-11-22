@@ -57,7 +57,7 @@ void WP_FireStunBaton(gentity_t* ent, bool alt_fire)
         G_PlayEffect("stunBaton/flesh_impact", tr.endpos, tr.plane.normal);
 
         // TEMP!
-        //		G_Sound( tr_ent, G_SoundIndex( va("sound/weapons/melee/punch%d", Q_irand(1, 4)) ) );
+        //		G_Sound( tr_ent, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str() ) );
         tr_ent->client->ps.powerups[powerup_t::PW_SHOCKED] = level.time + 1500;
 
         G_Damage(tr_ent, ent, ent, forwardVec, tr.endpos, weaponData[weapon_t::WP_STUN_BATON].damage, damageFlags_t::DAMAGE_NO_KNOCKBACK,

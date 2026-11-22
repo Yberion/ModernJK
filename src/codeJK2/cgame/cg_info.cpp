@@ -232,7 +232,7 @@ static void CG_DrawForceCount( const forcePowers_t force, int x, float *y, const
     int		val, textColor;
     char	text[1024]={0};
 
-    gi.Cvar_VariableStringBuffer( va("playerfplvl%d", to_underlying( force ) ),s, sizeof(s) );
+    gi.Cvar_VariableStringBuffer( Q_Format("playerfplvl{}", to_underlying( force )).c_str(),s, sizeof(s) );
 
     sscanf( s, "%d",&val );
 
@@ -358,7 +358,7 @@ void CG_DrawInformation(void)
     if (!strcmp(s, "bespin_undercity")) // this map has no levelshot
         levelshot = cgi_R_RegisterShaderNoMip("levelshots/kejim_post");
     else
-        levelshot = cgi_R_RegisterShaderNoMip(va("levelshots/%s", s));
+        levelshot = cgi_R_RegisterShaderNoMip(Q_Format("levelshots/{}", s).c_str());
 
     if (!levelshot) {
         levelshot = cgi_R_RegisterShaderNoMip("menu/art/unknownmap");
@@ -401,7 +401,8 @@ void CG_DrawInformation(void)
         // print the current item being loaded
 
 #ifndef NDEBUG
-        cgi_R_Font_DrawString(48, 398, va("LOADING ... %s", cg.infoScreenText), colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontSmall, -1, 1.0f);
+        cgi_R_Font_DrawString(48, 398, Q_Format("LOADING ... {}", cg.infoScreenText).c_str(), colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontSmall, -1,
+                              1.0f);
 #endif
     }
 
@@ -415,10 +416,10 @@ void CG_DrawInformation(void)
         if (s[0] == '@') {
             char text[1024] = {0};
             cgi_SP_GetStringTextString(s + 1, text, sizeof(text));
-            cgi_R_Font_DrawString(15, y, va("\"%s\"", text), colorTable[ct_table_t::CT_WHITE], cgs.media.qhFontMedium, -1, 1.0f);
+            cgi_R_Font_DrawString(15, y, Q_Format("\"{}\"", text).c_str(), colorTable[ct_table_t::CT_WHITE], cgs.media.qhFontMedium, -1, 1.0f);
         }
         else {
-            cgi_R_Font_DrawString(15, y, va("\"%s\"", s), colorTable[ct_table_t::CT_WHITE], cgs.media.qhFontMedium, -1, 1.0f);
+            cgi_R_Font_DrawString(15, y, Q_Format("\"{}\"", s).c_str(), colorTable[ct_table_t::CT_WHITE], cgs.media.qhFontMedium, -1, 1.0f);
         }
         y += 20;
     }

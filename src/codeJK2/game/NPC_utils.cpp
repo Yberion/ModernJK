@@ -36,7 +36,6 @@ EnumArray<int, team_t, team_t::TEAM_NUM_TEAMS> teamCounter;
 
 constexpr float VALID_ATTACK_CONE = 2.0f; // Degrees
 void GetAnglesForDirection(const vec3_t p1, const vec3_t p2, vec3_t out);
-extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 
 /*
 void CalcEntitySpot ( gentity_t *ent, spot_t spot, vec3_t point )
@@ -469,7 +468,7 @@ bool NPC_UpdateAngles(bool doPitch, bool doYaw)
     /*
     if(doSound)
     {
-        G_Sound(NPC, G_SoundIndex(va("sound/enemies/borg/borgservo%d.wav", Q_irand(1, 8))));
+        G_Sound(NPC, G_SoundIndex(Q_Format("sound/enemies/borg/borgservo{}.wav", Q_irand(1, 8)).c_str()));
     }
     */
 
@@ -798,14 +797,14 @@ bool G_ActivateBehavior(gentity_t* self, bSet_t bset)
     else {
         /*
         char			newname[MAX_FILENAME_LENGTH];
-        sprintf((char *) &newname, "%s/%s", Q3_SCRIPT_DIR, bs_name );
+        Q_FormatTo((char *) &newname, "{}/{}", Q3_SCRIPT_DIR, bs_name);
         */
 
         // FIXME: between here and actually getting into the ICARUS_RunScript function, the stack gets blown!
         if ((ICARUS_entFilter == -1) || (ICARUS_entFilter == self->s.number)) {
-            Q3_DebugPrint(WL_e::WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID(BSETTable, to_underlying(bset)), bs_name);
+            Q3_DebugPrintln(WL_e::WL_VERBOSE, "{} attempting to run bSet {} ({})", self->targetname, GetStringForID(BSETTable, to_underlying(bset)), bs_name);
         }
-        ICARUS_RunScript(self, va("%s/%s", Q3_SCRIPT_DIR, bs_name));
+        ICARUS_RunScript(self, Q_Format("{}/{}", Q3_SCRIPT_DIR, bs_name).c_str());
     }
     return true;
 }

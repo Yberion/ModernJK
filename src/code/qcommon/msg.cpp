@@ -76,12 +76,12 @@ void* MSG_GetSpace(msg_t* buf, int length)
 
     if (buf->cursize + length > buf->maxsize) {
         if (!buf->allowoverflow) {
-            Com_Error(errorParm_t::ERR_FATAL, "MSG_GetSpace: overflow without allowoverflow set");
+            Q_Error(errorParm_t::ERR_FATAL, "MSG_GetSpace: overflow without allowoverflow set");
         }
         if (length > buf->maxsize) {
-            Com_Error(errorParm_t::ERR_FATAL, "MSG_GetSpace: %i is > full buffer size", length);
+            Q_Error(errorParm_t::ERR_FATAL, "MSG_GetSpace: {} is > full buffer size", length);
         }
-        Com_Printf("MSG_GetSpace: overflow\n");
+        Q_Println("MSG_GetSpace: overflow");
         MSG_Clear(buf);
         buf->overflowed = true;
     }
@@ -117,13 +117,13 @@ void MSG_WriteBits(msg_t* msg, int value, int bits)
     if (msg->maxsize - msg->cursize < 4) {
         msg->overflowed = true;
 #ifndef FINAL_BUILD
-        Com_Printf(S_COLOR_RED "MSG_WriteBits: buffer Full writing %d in %d bits\n", value, bits);
+        Q_Println(S_COLOR_RED "MSG_WriteBits: buffer Full writing {} in {} bits", value, bits);
 #endif
         return;
     }
 
     if (bits == 0 || bits < -31 || bits > 32) {
-        Com_Error(errorParm_t::ERR_DROP, "MSG_WriteBits: bad bits %i", bits);
+        Q_Error(errorParm_t::ERR_DROP, "MSG_WriteBits: bad bits {}", bits);
     }
 
     // check for overflows
@@ -133,7 +133,7 @@ void MSG_WriteBits(msg_t* msg, int value, int bits)
                 overflows++;
 #ifndef FINAL_BUILD
 #ifdef _DEBUG
-                Com_Printf(S_COLOR_RED "MSG_WriteBits: overflow writing %d in %d bits\n", value, bits);
+                Q_Println(S_COLOR_RED "MSG_WriteBits: overflow writing {} in {} bits", value, bits);
 #endif
 #endif
             }
@@ -147,7 +147,7 @@ void MSG_WriteBits(msg_t* msg, int value, int bits)
                 overflows++;
 #ifndef FINAL_BUILD
 #ifdef _DEBUG
-                Com_Printf(S_COLOR_RED "MSG_WriteBits: overflow writing %d in %d bits\n", value, bits);
+                Q_Println(S_COLOR_RED "MSG_WriteBits: overflow writing {} in {} bits", value, bits);
 #endif
 #endif
             }
@@ -230,7 +230,7 @@ void MSG_WriteByte(msg_t* sb, int c)
 {
 #ifdef PARANOID
     if (c < 0 || c > 255)
-        Com_Error(errorParm_t::ERR_FATAL, "MSG_WriteByte: range error");
+        Q_Error(errorParm_t::ERR_FATAL, "MSG_WriteByte: range error");
 #endif
 
     MSG_WriteBits(sb, c, 8);
@@ -240,7 +240,7 @@ void MSG_WriteShort(msg_t* sb, int c)
 {
 #ifdef PARANOID
     if (c < ((short)0x8000) || c > (short)0x7fff)
-        Com_Error(errorParm_t::ERR_FATAL, "MSG_WriteShort: range error");
+        Q_Error(errorParm_t::ERR_FATAL, "MSG_WriteShort: range error");
 #endif
 
     MSG_WriteBits(sb, c, 16);
@@ -267,7 +267,7 @@ void MSG_WriteString(msg_t* sb, const char* s)
 
         l = strlen(s);
         if (l >= MAX_STRING_CHARS) {
-            Com_Printf("MSG_WriteString: MAX_STRING_CHARS");
+            Q_Print("MSG_WriteString: MAX_STRING_CHARS");
             MSG_WriteData(sb, "", 1);
             return;
         }
@@ -422,7 +422,7 @@ extern cvar_t* cl_shownet;
 
 #define LOG(x)                                                                                                                                                 \
     if (cl_shownet->integer == 4) {                                                                                                                            \
-        Com_Printf("%s ", x);                                                                                                                                  \
+        Q_Print("{} ", x);                                                                                                                                     \
     };
 
 void MSG_WriteDelta(msg_t* msg, int oldV, int newV, int bits)
@@ -692,14 +692,14 @@ void MSG_ReadField(msg_t* msg, int* toF, const netField_t* field, int print)
                 trunc -= FLOAT_INT_BIAS;
                 *(float*)toF = trunc;
                 if (print) {
-                    Com_Printf("%s:%i ", field->name, trunc);
+                    Q_Print("{}:{} ", field->name, trunc);
                 }
             }
             else {
                 // full floating point value
                 *toF = MSG_ReadBits(msg, 32);
                 if (print) {
-                    Com_Printf("%s:%f ", field->name, *(float*)toF);
+                    Q_Print("{}:{:f} ", field->name, *(float*)toF);
                 }
             }
         }
@@ -712,7 +712,7 @@ void MSG_ReadField(msg_t* msg, int* toF, const netField_t* field, int print)
             // integer
             *toF = MSG_ReadBits(msg, field->bits);
             if (print) {
-                Com_Printf("%s:%i ", field->name, *toF);
+                Q_Print("{}:{} ", field->name, *toF);
             }
         }
     }
@@ -767,7 +767,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	}
 
 	if ( to->number < 0 || to->number >= MAX_GENTITIES ) {
-		Com_Error (errorParm_t::ERR_FATAL, "MSG_WriteDeltaEntity: Bad entity number: %i", to->number );
+		Q_Error(errorParm_t::ERR_FATAL, "MSG_WriteDeltaEntity: Bad entity number: {}", to->number);
 	}
 
 	memset(changeVector, 0, sizeof(changeVector));
@@ -879,7 +879,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, in
 	byte		expandedVector[(numFields/8) + 1];
 
 	if ( number < 0 || number >= MAX_GENTITIES) {
-		Com_Error( errorParm_t::ERR_DROP, "Bad delta entity number: %i", number );
+		Q_Error(errorParm_t::ERR_DROP, "Bad delta entity number: {}", number);
 	}
 
 	if ( msg->bit == 0 ) {
@@ -893,7 +893,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, in
 		memset( to, 0, sizeof( *to ) );
 		to->number = MAX_GENTITIES - 1;
 		if ( cl_shownet->integer >= 2 || cl_shownet->integer == -1 ) {
-			Com_Printf( "%3i: #%-3i remove\n", msg->readcount, number );
+			Q_Println("{:3}: #{:<3} remove", msg->readcount, number);
 		}
 		return;
 	}
@@ -907,7 +907,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, in
 		// just print the delta records`
 		if ( cl_shownet->integer >= 2 || cl_shownet->integer == -1 ) {
 			print = 1;
-			Com_Printf( "%3i: #%-3i ", msg->readcount, to->number );
+			Q_Print("{:3}: #{:<3} ", msg->readcount, to->number);
 		} else {
 			print = 0;
 		}
@@ -945,7 +945,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, in
 		} else {
 			endBit = ( msg->readcount - 1 ) * 8 + msg->bit - GENTITYNUM_BITS;
 		}
-		Com_Printf( " (%i bits)\n", endBit - startBit  );
+		Q_Println(" ({} bits)", endBit - startBit);
 	}
 }
 #endif
@@ -1210,7 +1210,7 @@ void MSG_ReadDeltaPlayerstate(msg_t* msg, playerState_t* from, playerState_t* to
     // just print the delta records
     if (cl_shownet->integer >= 2 || cl_shownet->integer == -2) {
         print = 1;
-        Com_Printf("%3i: playerstate ", msg->readcount);
+        Q_Print("{:3}: playerstate ", msg->readcount);
     }
     else {
         print = 0;
@@ -1294,7 +1294,7 @@ void MSG_ReadDeltaPlayerstate(msg_t* msg, playerState_t* from, playerState_t* to
         else {
             endBit = (msg->readcount - 1) * 8 + msg->bit - GENTITYNUM_BITS;
         }
-        Com_Printf(" (%i bits)\n", endBit - startBit);
+        Q_Println(" ({} bits)", endBit - startBit);
     }
 }
 

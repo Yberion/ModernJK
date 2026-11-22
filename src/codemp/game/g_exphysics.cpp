@@ -178,7 +178,7 @@ void G_RunExPhys(gentity_t* ent, float gravity, float mass, float bounce, bool a
 
     if (tr.startsolid || tr.allsolid) { // can't go anywhere from here
 #ifdef _DEBUG
-        Com_Printf("ExPhys object in solid (%i)\n", ent->s.number);
+        Q_Println("ExPhys object in solid ({})", ent->s.number);
 #endif
         if (autoKill) {
             ent->think = G_FreeEntity;

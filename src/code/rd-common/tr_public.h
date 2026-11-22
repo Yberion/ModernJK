@@ -33,12 +33,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <ghoul2/G2.h>
 #include <ghoul2/ghoul2_gore.h>
 
-inline constexpr int REF_API_VERSION = 19;
+inline constexpr int REF_API_VERSION = 20;
 
 typedef struct {
     // the renderer's messages and errors, formatted by the engine (q_fmt.h)
-    void (*Print)(printLevel_t level, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
-    NORETURN_PTR void (*Error)(errorParm_t code, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
+    void (*Print)(printLevel_t level, lineEnd_t end, fmt::string_view fmt, fmt::format_args args);
+    NORETURN_PTR void (*Error)(errorParm_t code, fmt::string_view fmt, fmt::format_args args);
 
     // milliseconds should only be used for profiling, never for anything game related. Get time from the refdef
     int (*Milliseconds)(void);

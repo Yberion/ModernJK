@@ -367,7 +367,7 @@ bool BG_LegalizedForcePowers(char* powerOut, size_t powerOutSize, forceMasteries
         Q_strncpyz(powerBuf, powerOut, sizeof(powerBuf)); // copy it as the original
 
     // first of all, print the max rank into the string as the rank
-    Q_strncpyz(powerOut, va("%i-", to_underlying(maxRank)), powerOutSize);
+    Q_strncpyz(powerOut, Q_Format("{}-", to_underlying(maxRank)).c_str(), powerOutSize);
 
     while (i < std::ssize(powerBuf) && powerBuf[i] && powerBuf[i] != '-') {
         i++;
@@ -559,11 +559,11 @@ bool BG_LegalizedForcePowers(char* powerOut, size_t powerOutSize, forceMasteries
     // We finally have all the force powers legalized and stored locally.
     // Put them all into the string and return the result. We already have
     // the rank there, so print the side and the powers now.
-    Q_strcat(powerOut, powerOutSize, va("%i-", final_Side));
+    Q_strcat(powerOut, powerOutSize, Q_Format("{}-", final_Side).c_str());
 
     i = strlen(powerOut);
     for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
-        Q_strncpyz(readBuf, va("%i", to_underlying(final_Powers[fp])), sizeof(readBuf));
+        Q_strncpyz(readBuf, Q_Format("{}", to_underlying(final_Powers[fp])).c_str(), sizeof(readBuf));
         powerOut[i] = readBuf[0];
         i++;
     }
@@ -1648,7 +1648,7 @@ gitem_t* BG_FindItemForHoldable(holdable_t pw)
         }
     }
 
-    Com_Error(errorParm_t::ERR_DROP, "HoldableItem not found");
+    Q_Error(errorParm_t::ERR_DROP, "HoldableItem not found");
 
     return nullptr;
 }
@@ -1669,7 +1669,7 @@ gitem_t* BG_FindItemForWeapon(weapon_t weapon)
         }
     }
 
-    Com_Error(errorParm_t::ERR_DROP, "Couldn't find item for weapon %i", to_underlying(weapon));
+    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for weapon {}", to_underlying(weapon));
     return nullptr;
 }
 
@@ -1716,7 +1716,7 @@ gitem_t* BG_FindItemForAmmo(ammo_t ammo)
         }
     }
 
-    Com_Error(errorParm_t::ERR_DROP, "Couldn't find item for ammo %i", to_underlying(ammo));
+    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for ammo {}", to_underlying(ammo));
     return nullptr;
 }
 
@@ -1925,7 +1925,7 @@ bool BG_CanItemBeGrabbed(gametype_t gametype, const entityState_t* ent, const pl
     gitem_t* item;
 
     if (ent->modelindex < 1 || ent->modelindex >= bg_numItems) {
-        Com_Error(errorParm_t::ERR_DROP, "BG_CanItemBeGrabbed: index out of range");
+        Q_Error(errorParm_t::ERR_DROP, "BG_CanItemBeGrabbed: index out of range");
     }
 
     item = &bg_itemlist[ent->modelindex];
@@ -2047,10 +2047,10 @@ bool BG_CanItemBeGrabbed(gametype_t gametype, const entityState_t* ent, const pl
         return true;
 
     case itemType_t::IT_BAD:
-        Com_Error(errorParm_t::ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD");
+        Q_Error(errorParm_t::ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD");
     default:
 #ifndef NDEBUG // bk0001204
-        Com_Printf("BG_CanItemBeGrabbed: unknown enum %d\n", to_underlying(item->giType));
+        Q_Println("BG_CanItemBeGrabbed: unknown enum {}", to_underlying(item->giType));
 #endif
         break;
     }
@@ -2115,9 +2115,9 @@ void BG_EvaluateTrajectory(const trajectory_t* tr, int atTime, vec3_t result)
         break;
     default:
 #ifdef _GAME
-        Com_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectory: [ GAME] unknown trType: %i", to_underlying(tr->trType));
+        Q_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectory: [ GAME] unknown trType: {}", to_underlying(tr->trType));
 #else
-        Com_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectory: [CGAME] unknown trType: %i", to_underlying(tr->trType));
+        Q_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectory: [CGAME] unknown trType: {}", to_underlying(tr->trType));
 #endif
         break;
     }
@@ -2171,9 +2171,9 @@ void BG_EvaluateTrajectoryDelta(const trajectory_t* tr, int atTime, vec3_t resul
         break;
     default:
 #ifdef _GAME
-        Com_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectoryDelta: [ GAME] unknown trType: %i", to_underlying(tr->trType));
+        Q_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectoryDelta: [ GAME] unknown trType: {}", to_underlying(tr->trType));
 #else
-        Com_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectoryDelta: [CGAME] unknown trType: %i", to_underlying(tr->trType));
+        Q_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectoryDelta: [CGAME] unknown trType: {}", to_underlying(tr->trType));
 #endif
         break;
     }
@@ -2438,11 +2438,11 @@ void BG_AddPredictableEventToPlayerstate(entity_event_t newEvent, int eventParm,
 
         if (showEvents.integer != 0) {
 #ifdef _GAME
-            Com_Printf(" game event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount /*ps->commandTime*/, ps->eventSequence, eventnames[newEvent],
-                       eventParm);
+            Q_Println(" game event svt {:5} -> {:5}: num = {:>20} parm {}", ps->pmove_framecount /*ps->commandTime*/, ps->eventSequence, eventnames[newEvent],
+                      eventParm);
 #else
-            Com_Printf("Cgame event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount /*ps->commandTime*/, ps->eventSequence, eventnames[newEvent],
-                       eventParm);
+            Q_Println("Cgame event svt {:5} -> {:5}: num = {:>20} parm {}", ps->pmove_framecount /*ps->commandTime*/, ps->eventSequence, eventnames[newEvent],
+                      eventParm);
 #endif
         }
     }
@@ -2587,7 +2587,7 @@ bool BG_ValidateSkinForTeam(const char* modelName, char* skinName, team_t team, 
                     }
                 }
                 // if file does not exist, set to "red"
-                if (!BG_FileExists(va("models/players/%s/model_%s.skin", modelName, skinName))) {
+                if (!BG_FileExists(Q_Format("models/players/{}/model_{}.skin", modelName, skinName).c_str())) {
                     Q_strncpyz(skinName, "red", MAX_QPATH);
                 }
                 return false;
@@ -2619,7 +2619,7 @@ bool BG_ValidateSkinForTeam(const char* modelName, char* skinName, team_t team, 
                     }
                 }
                 // if file does not exist, set to "blue"
-                if (!BG_FileExists(va("models/players/%s/model_%s.skin", modelName, skinName))) {
+                if (!BG_FileExists(Q_Format("models/players/{}/model_{}.skin", modelName, skinName).c_str())) {
                     Q_strncpyz(skinName, "blue", MAX_QPATH);
                 }
                 return false;
@@ -2992,7 +2992,7 @@ void* BG_Alloc(int size)
     bg_poolSize = ((bg_poolSize + 0x00000003) & 0xfffffffc);
 
     if (bg_poolSize + size > bg_poolTail) {
-        Com_Error(errorParm_t::ERR_DROP, "BG_Alloc: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
+        Q_Error(errorParm_t::ERR_DROP, "BG_Alloc: buffer exceeded tail ({} > {})", bg_poolSize + size, bg_poolTail);
         return nullptr;
     }
 
@@ -3004,7 +3004,7 @@ void* BG_Alloc(int size)
 void* BG_AllocUnaligned(int size)
 {
     if (bg_poolSize + size > bg_poolTail) {
-        Com_Error(errorParm_t::ERR_DROP, "BG_AllocUnaligned: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
+        Q_Error(errorParm_t::ERR_DROP, "BG_AllocUnaligned: buffer exceeded tail ({} > {})", bg_poolSize + size, bg_poolTail);
         return nullptr;
     }
 
@@ -3018,7 +3018,7 @@ void* BG_TempAlloc(int size)
     size = ((size + 0x00000003) & 0xfffffffc);
 
     if (bg_poolTail - size < bg_poolSize) {
-        Com_Error(errorParm_t::ERR_DROP, "BG_TempAlloc: buffer exceeded head (%d > %d)", bg_poolTail - size, bg_poolSize);
+        Q_Error(errorParm_t::ERR_DROP, "BG_TempAlloc: buffer exceeded head ({} > {})", bg_poolTail - size, bg_poolSize);
         return nullptr;
     }
 
@@ -3032,7 +3032,7 @@ void BG_TempFree(int size)
     size = ((size + 0x00000003) & 0xfffffffc);
 
     if (bg_poolTail + size > MAX_POOL_SIZE) {
-        Com_Error(errorParm_t::ERR_DROP, "BG_TempFree: tail greater than size (%d > %d)", bg_poolTail + size, MAX_POOL_SIZE);
+        Q_Error(errorParm_t::ERR_DROP, "BG_TempFree: tail greater than size ({} > {})", bg_poolTail + size, MAX_POOL_SIZE);
     }
 
     bg_poolTail += size;

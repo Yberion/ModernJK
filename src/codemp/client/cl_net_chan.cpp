@@ -90,10 +90,10 @@ bool CL_Netchan_Process(netchan_t* chan, msg_t* msg)
     //	Huff_Decompress( msg, CL_DECODE_START );
     //	for(i=CL_DECODE_START+msg->readcount;i<msg->cursize;i++) {
     //		if (msg->data[i] != chksum[i-(CL_DECODE_START+msg->readcount)]) {
-    //			Com_Error(errorParm_t::ERR_DROP,"bad %d v %d\n", msg->data[i], chksum[i-(CL_DECODE_START+msg->readcount)]);
+    //			Q_Error(errorParm_t::ERR_DROP, "bad {} v {}", msg->data[i], chksum[i-(CL_DECODE_START+msg->readcount)]);
     //		}
     //	}
     newsize += msg->cursize;
-    //	Com_Printf("saved %d to %d (%d%%)\n", (oldsize>>3), newsize, 100-(newsize*100/(oldsize>>3)));
+    //	Q_Println("saved {} to {} ({}%)", (oldsize>>3), newsize, 100-(newsize*100/(oldsize>>3)));
     return true;
 }

@@ -78,7 +78,7 @@ int ReadValue(source_t* source, float* value)
     }
 
     if (token.type != tokenType_t::TT_NUMBER) {
-        SourceError(source, "invalid return value %s", token.string);
+        SourceError(source, "invalid return value {}", token.string);
         return false;
     }
 
@@ -244,7 +244,7 @@ fuzzyseperator_t* ReadFuzzySeperators_r(source_t* source)
                 } // end if
             } // end else if
             else {
-                SourceError(source, "invalid name %s", token.string);
+                SourceError(source, "invalid name {}", token.string);
                 return nullptr;
             } // end else
             if (newindent) {
@@ -256,7 +256,7 @@ fuzzyseperator_t* ReadFuzzySeperators_r(source_t* source)
         } // end if
         else {
             FreeFuzzySeperators_r(firstfs);
-            SourceError(source, "invalid name %s", token.string);
+            SourceError(source, "invalid name {}", token.string);
             return nullptr;
         } // end else
         if (!PC_ExpectAnyToken(source, &token)) {
@@ -312,13 +312,13 @@ weightconfig_t* ReadWeightConfig(char* filename)
                 continue;
             } // end if
             if (strcmp(filename, config->filename) == 0) {
-                // Com_Printf("retained %s\n", filename );
+                // Q_Println("retained {}", filename);
                 return config;
             } // end if
         } // end for
 
         if (avail == -1) {
-            Com_PrintError("weightFileList was full trying to load %s\n", filename);
+            Q_PrintlnError("weightFileList was full trying to load {}", filename);
             return nullptr;
         } // end if
     } // end if
@@ -326,7 +326,7 @@ weightconfig_t* ReadWeightConfig(char* filename)
     PC_SetBaseFolder(BOTFILESBASEFOLDER);
     source = LoadSourceFile(filename);
     if (!source) {
-        Com_PrintError("counldn't load %s\n", filename);
+        Q_PrintlnError("counldn't load {}", filename);
         return nullptr;
     } // end if
     //
@@ -386,7 +386,7 @@ weightconfig_t* ReadWeightConfig(char* filename)
                 config->weights[config->numweights].firstseperator = fs;
             } // end else if
             else {
-                SourceError(source, "invalid name %s", token.string);
+                SourceError(source, "invalid name {}", token.string);
                 FreeWeightConfig(config);
                 FreeSource(source);
                 return nullptr;
@@ -401,7 +401,7 @@ weightconfig_t* ReadWeightConfig(char* filename)
             config->numweights++;
         } // end if
         else {
-            SourceError(source, "invalid name %s", token.string);
+            SourceError(source, "invalid name {}", token.string);
             FreeWeightConfig(config);
             FreeSource(source);
             return nullptr;
@@ -410,10 +410,10 @@ weightconfig_t* ReadWeightConfig(char* filename)
     // free the source at the end of a pass
     FreeSource(source);
     // if the file was located in a pak file
-    Com_Printf("loaded %s\n", filename);
+    Q_Println("loaded {}", filename);
 #ifdef DEBUG
     if (botDeveloper) {
-        Com_Printf("weights loaded in %d msec\n", Sys_MilliSeconds() - starttime);
+        Q_Println("weights loaded in {} msec", Sys_MilliSeconds() - starttime);
     } // end if
 #endif // DEBUG
     //
@@ -434,19 +434,19 @@ bool WriteFuzzyWeight(FILE *fp, fuzzyseperator_t *fs)
 {
 	if (fs->type == WT_BALANCE)
 	{
-		if (fprintf(fp, " return balance(") < 0) return false;
+		if (Q_FilePrint(fp, " return balance(") < 0) return false;
 		if (!WriteFloat(fp, fs->weight)) return false;
-		if (fprintf(fp, ",") < 0) return false;
+		if (Q_FilePrint(fp, ",") < 0) return false;
 		if (!WriteFloat(fp, fs->minweight)) return false;
-		if (fprintf(fp, ",") < 0) return false;
+		if (Q_FilePrint(fp, ",") < 0) return false;
 		if (!WriteFloat(fp, fs->maxweight)) return false;
-		if (fprintf(fp, ");\n") < 0) return false;
+		if (Q_FilePrintln(fp, ");") < 0) return false;
 	} //end if
 	else
 	{
-		if (fprintf(fp, " return ") < 0) return false;
+		if (Q_FilePrint(fp, " return ") < 0) return false;
 		if (!WriteFloat(fp, fs->weight)) return false;
-		if (fprintf(fp, ";\n") < 0) return false;
+		if (Q_FilePrintln(fp, ";") < 0) return false;
 	} //end else
 	return true;
 } //end of the function WriteFuzzyWeight
@@ -459,35 +459,35 @@ bool WriteFuzzyWeight(FILE *fp, fuzzyseperator_t *fs)
 bool WriteFuzzySeperators_r(FILE *fp, fuzzyseperator_t *fs, int indent)
 {
 	if (!WriteIndent(fp, indent)) return false;
-	if (fprintf(fp, "switch(%d)\n", fs->index) < 0) return false;
+	if (Q_FilePrintln(fp, "switch({})", fs->index) < 0) return false;
 	if (!WriteIndent(fp, indent)) return false;
-	if (fprintf(fp, "{\n") < 0) return false;
+	if (Q_FilePrintln(fp, "{{") < 0) return false;
 	indent++;
 	do
 	{
 		if (!WriteIndent(fp, indent)) return false;
 		if (fs->next)
 		{
-			if (fprintf(fp, "case %d:", fs->value) < 0) return false;
+			if (Q_FilePrint(fp, "case {}:", fs->value) < 0) return false;
 		} //end if
 		else
 		{
-			if (fprintf(fp, "default:") < 0) return false;
+			if (Q_FilePrint(fp, "default:") < 0) return false;
 		} //end else
 		if (fs->child)
 		{
-			if (fprintf(fp, "\n") < 0) return false;
+			if (Q_FilePrintln(fp, "") < 0) return false;
 			if (!WriteIndent(fp, indent)) return false;
-			if (fprintf(fp, "{\n") < 0) return false;
+			if (Q_FilePrintln(fp, "{{") < 0) return false;
 			if (!WriteFuzzySeperators_r(fp, fs->child, indent + 1)) return false;
 			if (!WriteIndent(fp, indent)) return false;
 			if (fs->next)
 			{
-				if (fprintf(fp, "} //end case\n") < 0) return false;
+				if (Q_FilePrintln(fp, "}} //end case") < 0) return false;
 			} //end if
 			else
 			{
-				if (fprintf(fp, "} //end default\n") < 0) return false;
+				if (Q_FilePrintln(fp, "}} //end default") < 0) return false;
 			} //end else
 		} //end if
 		else
@@ -498,7 +498,7 @@ bool WriteFuzzySeperators_r(FILE *fp, fuzzyseperator_t *fs, int indent)
 	} while(fs);
 	indent--;
 	if (!WriteIndent(fp, indent)) return false;
-	if (fprintf(fp, "} //end switch\n") < 0) return false;
+	if (Q_FilePrintln(fp, "}} //end switch") < 0) return false;
 	return true;
 } //end of the function WriteItemFuzzyWeights_r
 //===========================================================================
@@ -519,8 +519,8 @@ bool WriteWeightConfig(char *filename, weightconfig_t *config)
 	for (i = 0; i < config->numweights; i++)
 	{
 		ifw = &config->weights[i];
-		if (fprintf(fp, "\nweight \"%s\"\n", ifw->name) < 0) return false;
-		if (fprintf(fp, "{\n") < 0) return false;
+		if (Q_FilePrintln(fp, "\nweight \"{}\"", ifw->name) < 0) return false;
+		if (Q_FilePrintln(fp, "{{") < 0) return false;
 		if (ifw->firstseperator->index > 0)
 		{
 			if (!WriteFuzzySeperators_r(fp, ifw->firstseperator, 1)) return false;
@@ -530,7 +530,7 @@ bool WriteWeightConfig(char *filename, weightconfig_t *config)
 			if (!WriteIndent(fp, 1)) return false;
 			if (!WriteFuzzyWeight(fp, ifw->firstseperator)) return false;
 		} //end else
-		if (fprintf(fp, "} //end weight\n") < 0) return false;
+		if (Q_FilePrintln(fp, "}} //end weight") < 0) return false;
 	} //end for
 	fclose(fp);
 	return true;
@@ -834,7 +834,7 @@ int InterbreedFuzzySeperator_r(fuzzyseperator_t* fs1, fuzzyseperator_t* fs2, fuz
 {
     if (fs1->child) {
         if (!fs2->child || !fsout->child) {
-            Com_PrintError("cannot interbreed weight configs, unequal child\n");
+            Q_PrintlnError("cannot interbreed weight configs, unequal child");
             return false;
         } // end if
         if (!InterbreedFuzzySeperator_r(fs2->child, fs2->child, fsout->child)) {
@@ -843,7 +843,7 @@ int InterbreedFuzzySeperator_r(fuzzyseperator_t* fs1, fuzzyseperator_t* fs2, fuz
     } // end if
     else if (fs1->type == WT_BALANCE) {
         if (fs2->type != WT_BALANCE || fsout->type != WT_BALANCE) {
-            Com_PrintError("cannot interbreed weight configs, unequal balance\n");
+            Q_PrintlnError("cannot interbreed weight configs, unequal balance");
             return false;
         } // end if
         fsout->weight = (fs1->weight + fs2->weight) / 2;
@@ -854,7 +854,7 @@ int InterbreedFuzzySeperator_r(fuzzyseperator_t* fs1, fuzzyseperator_t* fs2, fuz
     } // end else if
     if (fs1->next) {
         if (!fs2->next || !fsout->next) {
-            Com_PrintError("cannot interbreed weight configs, unequal next\n");
+            Q_PrintlnError("cannot interbreed weight configs, unequal next");
             return false;
         } // end if
         if (!InterbreedFuzzySeperator_r(fs1->next, fs2->next, fsout->next)) {
@@ -875,7 +875,7 @@ void InterbreedWeightConfigs(weightconfig_t* config1, weightconfig_t* config2, w
     int i;
 
     if (config1->numweights != config2->numweights || config1->numweights != configout->numweights) {
-        Com_PrintError("cannot interbreed weight configs, unequal numweights\n");
+        Q_PrintlnError("cannot interbreed weight configs, unequal numweights");
         return;
     } // end if
     for (i = 0; i < config1->numweights; i++) {

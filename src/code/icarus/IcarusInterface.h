@@ -95,14 +95,21 @@ public:
     extern int ICARUS_GetScript( const char *name, char **buf );	//g_icarus.cpp
     static int Q3_ReadScript( const char *name, void **buf )
     {
-        return ICARUS_GetScript( va( "%s/%s", Q3_SCRIPT_DIR, name ), (char**)buf );	//get a (hopefully) cached file
+        return ICARUS_GetScript( Q_Format("{}/{}", Q3_SCRIPT_DIR, name).c_str(), (char**)buf );	//get a (hopefully) cached file
     }
     */
     virtual int GetFlavor() = 0;
 
     virtual int LoadFile(const char* name, void** buf) = 0;
-    virtual void CenterPrint(const char* format, ...) __attribute__((format(printf, 2, 3))) = 0;
-    virtual void DebugPrint(e_DebugPrintLevel, const char*, ...) __attribute__((format(printf, 3, 4))) = 0;
+    virtual void VCenterPrint(fmt::string_view format, fmt::format_args args) = 0;
+    virtual void VDebugPrintln(e_DebugPrintLevel level, fmt::string_view format, fmt::format_args args) = 0;
+    // a text centred on the screen
+    template <typename... T> void CenterPrint(fmt::format_string<T...> format, T&&... args) { VCenterPrint(format.get(), Q_FormatArgs(args...)); }
+    // a debug message of the scripts, the line ended
+    template <typename... T> void DebugPrintln(e_DebugPrintLevel level, fmt::format_string<T...> format, T&&... args)
+    {
+        VDebugPrintln(level, format.get(), Q_FormatArgs(args...));
+    }
     virtual unsigned int GetTime(void) = 0; // Gets the current time
     virtual int PlayIcarusSound(int taskID, int gameID, const char* name, const char* channel) = 0;
     virtual void Lerp2Pos(int taskID, int gameID, float origin[3], float angles[3], float duration) = 0;

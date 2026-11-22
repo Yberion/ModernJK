@@ -1168,7 +1168,7 @@ void ClientEvents(gentity_t* ent, int oldEventSequence)
         case entity_event_t::EV_FIRE_WEAPON:
 #ifndef FINAL_BUILD
             if (fired) {
-                Com_Printf("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n");
+                Q_Println("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!");
             }
             fired = true;
 #endif
@@ -1178,7 +1178,7 @@ void ClientEvents(gentity_t* ent, int oldEventSequence)
         case entity_event_t::EV_ALT_FIRE:
 #ifndef FINAL_BUILD
             if (fired) {
-                Com_Printf("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n");
+                Q_Println("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!");
             }
             fired = true;
 #endif
@@ -1653,7 +1653,7 @@ void G_StartCinematicSkip(void)
 {
 
     if (cinematicSkipScript[0]) {
-        ICARUS_RunScript(&g_entities[0], va("%s/%s", Q3_SCRIPT_DIR, cinematicSkipScript));
+        ICARUS_RunScript(&g_entities[0], Q_Format("{}/{}", Q3_SCRIPT_DIR, cinematicSkipScript).c_str());
         memset(cinematicSkipScript, 0, sizeof(cinematicSkipScript));
         gi.cvar_set("skippingCinematic", "1");
         gi.cvar_set("timescale", "100");
@@ -1862,7 +1862,7 @@ void ClientThink_real(gentity_t* ent, usercmd_t* ucmd)
 
                 if ((slide > 0 && ucmd->rightmove >= 0) ||
                     ((slide < 0 && ucmd->rightmove <= 0))) { // note: don't want these to conflict right now because that seems to feel really weird
-                    // Com_Printf( "slide %i, diff %i, yaw %i\n", slide, diff, ucmd->angles[YAW] );
+                    // Q_Println("slide {}, diff {}, yaw {}", slide, diff, ucmd->angles[YAW]);
                     ucmd->rightmove += slide;
                 }
 
@@ -2511,7 +2511,7 @@ void ClientThink_real(gentity_t* ent, usercmd_t* ucmd)
             // pressing attack or use is the normal respawn method
             if (Any(ucmd->buttons & (buttonFlags_t::BUTTON_ATTACK))) {
                 respawn(ent);
-                //				gi.SendConsoleCommand( va("disconnect;wait;wait;wait;wait;wait;wait;devmap %s\n",level.mapname) );
+                //				gi.SendConsoleCommand( Q_Format("disconnect;wait;wait;wait;wait;wait;wait;devmap {}\n", level.mapname).c_str() );
             }
         }
         if (ent && !ent->s.number && ent->enemy && ent->enemy != ent && ent->enemy->s.number < ENTITYNUM_WORLD && ent->enemy->inuse &&

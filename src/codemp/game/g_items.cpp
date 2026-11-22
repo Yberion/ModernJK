@@ -1414,7 +1414,7 @@ void EWeb_SetBoneAngles(gentity_t* ent, const char* bone, vec3_t angles)
 
     if (!thebone) {       // didn't find it, create it
         if (!firstFree) { // no free bones.. can't do a thing then.
-            Com_Warning("E-Web has no free bone indexes\n");
+            Q_PrintlnWarning("E-Web has no free bone indexes");
             return;
         }
 
@@ -2110,7 +2110,7 @@ void RespawnItem(gentity_t* ent)
         int choice;
 
         if (!ent->teammaster) {
-            Com_Error(errorParm_t::ERR_DROP, "RespawnItem: bad teammaster");
+            Q_Error(errorParm_t::ERR_DROP, "RespawnItem: bad teammaster");
         }
         master = ent->teammaster;
 
@@ -2260,7 +2260,7 @@ void Touch_Item(gentity_t* ent, gentity_t* other, trace_t* trace)
         }
     }
 
-    G_LogPrintf("Item: %i %s\n", other->s.number, ent->item->classname);
+    G_LogPrintln("Item: {} {}", other->s.number, ent->item->classname);
 
     predict = other->client->pers.predictItemPickup;
 
@@ -2670,7 +2670,7 @@ void FinishSpawningItem(gentity_t* ent)
         VectorSet(dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096);
         trap->Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
         if (tr.startsolid) {
-            Com_Printf("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
+            Q_Println("FinishSpawningItem: {} startsolid at {}", ent->classname, vtos(ent->s.origin));
             G_FreeEntity(ent);
             return;
         }
@@ -2727,11 +2727,11 @@ void G_CheckTeamItems(void)
         // check for the two flags
         item = BG_FindItem("team_CTF_redflag");
         if (!item || !itemRegistered[item - bg_itemlist]) {
-            Com_Warning("No team_CTF_redflag in map\n");
+            Q_PrintlnWarning("No team_CTF_redflag in map");
         }
         item = BG_FindItem("team_CTF_blueflag");
         if (!item || !itemRegistered[item - bg_itemlist]) {
-            Com_Warning("No team_CTF_blueflag in map\n");
+            Q_PrintlnWarning("No team_CTF_blueflag in map");
         }
     }
 }
@@ -2766,7 +2766,7 @@ The item will be added to the precache list
 void RegisterItem(gitem_t* item)
 {
     if (!item) {
-        Com_Error(errorParm_t::ERR_DROP, "RegisterItem: NULL");
+        Q_Error(errorParm_t::ERR_DROP, "RegisterItem: NULL");
     }
     itemRegistered[item - bg_itemlist] = true;
 }
@@ -2807,7 +2807,7 @@ int G_ItemDisabled(gitem_t* item)
 
     char name[128];
 
-    Com_sprintf(name, sizeof(name), "disable_%s", item->classname);
+    Q_FormatTo(name, "disable_{}", item->classname);
     return trap->Cvar_VariableIntegerValue(name);
 }
 

@@ -646,9 +646,9 @@ void InitGame(const char* mapname, const char* spawntarget, int checkSum, const 
     g_eSavedGameJustLoaded = eSavedGameJustLoaded;
     g_qbLoadTransition = qbLoadTransition;
 
-    Com_Printf("------- Game Initialization -------\n");
-    Com_Printf("gamename: %s\n", JK_VERSION);
-    Com_Printf("gamedate: %s\n", SOURCE_DATE);
+    Q_Println("------- Game Initialization -------");
+    Q_Println("gamename: {}", JK_VERSION);
+    Q_Println("gamedate: {}", SOURCE_DATE);
 
     Rand_Init(randomSeed);
 
@@ -713,7 +713,7 @@ void InitGame(const char* mapname, const char* spawntarget, int checkSum, const 
 
     //	SaveRegisteredItems();
 
-    Com_Printf("-----------------------------------\n");
+    Q_Println("-----------------------------------");
 
     Rail_Initialize();
     Troop_Initialize();
@@ -835,12 +835,12 @@ extern "C" Q_EXPORT game_export_t* QDECL GetGameAPI(game_import_t* import)
 }
 
 // the game module's messages and errors, formatted by the engine (q_fmt.h)
-void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
+void Q_VPrint(printLevel_t level, lineEnd_t end, fmt::string_view fmt, fmt::format_args args)
 {
-    gi.Print(level, fmt, args);
+    gi.Print(level, end, fmt, args);
 }
 
-void Com_VError(errorParm_t code, const char* fmt, va_list args)
+void Q_VError(errorParm_t code, fmt::string_view fmt, fmt::format_args args)
 {
     gi.Error(code, fmt, args);
 }
@@ -1138,7 +1138,7 @@ static void G_CheckEndLevelTimers(gentity_t* ent)
 class CGameRagDollUpdateParams : public CRagDollUpdateParams {
     void EffectorCollision(const SRagDollEffectorCollision& data)
     {
-        // Com_Printf("Effector Collision at (%f %f %f)\n",data.effectorPosition[0],data.effectorPosition[1],data.effectorPosition[2]);
+        // Q_Println("Effector Collision at ({:f} {:f} {:f})", data.effectorPosition[0], data.effectorPosition[1], data.effectorPosition[2]);
         vec3_t effectorPosDif;
 
         if (data.useTracePlane) {
@@ -1818,7 +1818,7 @@ void G_RunFrame(int levelTime)
         ClientEndFrame(ent);
     }
     if (g_numEntities->integer) {
-        Com_Printf(S_COLOR_WHITE "Number of Entities in use : %d\n", ents_inuse);
+        Q_Println(S_COLOR_WHITE "Number of Entities in use : {}", ents_inuse);
     }
     // DEBUG STUFF
     NAV::ShowDebugInfo(ent->currentOrigin, ent->waypoint);
@@ -1829,29 +1829,29 @@ void G_RunFrame(int levelTime)
 #if AI_TIMERS
     AITime -= navTime;
     if (AITime > 20) {
-        Com_PrintError("total AI time: %d\n", AITime);
+        Q_PrintlnError("total AI time: {}", AITime);
     }
     else if (AITime > 10) {
-        Com_Warning("total AI time: %d\n", AITime);
+        Q_PrintlnWarning("total AI time: {}", AITime);
     }
     else if (AITime > 2) {
-        Com_Printf(S_COLOR_GREEN "total AI time: %d\n", AITime);
+        Q_Println(S_COLOR_GREEN "total AI time: {}", AITime);
     }
     if (navTime > 20) {
-        Com_PrintError("total nav time: %d\n", navTime);
+        Q_PrintlnError("total nav time: {}", navTime);
     }
     else if (navTime > 10) {
-        Com_Warning("total nav time: %d\n", navTime);
+        Q_PrintlnWarning("total nav time: {}", navTime);
     }
     else if (navTime > 2) {
-        Com_Printf(S_COLOR_GREEN "total nav time: %d\n", navTime);
+        Q_Println(S_COLOR_GREEN "total nav time: {}", navTime);
     }
 #endif //	AI_TIMERS
 
     extern int delayedShutDown;
     if (g_delayedShutdown->integer && delayedShutDown != 0 && delayedShutDown < level.time) {
         assert(0);
-        Com_Error(errorParm_t::ERR_DROP, "Game Errors. Scroll up the console to read them.\n");
+        Q_Error(errorParm_t::ERR_DROP, "Game Errors. Scroll up the console to read them.");
     }
 
 #ifdef _DEBUG
@@ -1880,7 +1880,7 @@ void G_LoadSave_ReadMiscData()
 /*
 void PrintEntClassname( int gentNum )
 {
-    Com_Printf( "%d: %s in snapshot\n", gentNum, g_entities[gentNum].classname );
+    Q_Println("{}: {} in snapshot", gentNum, g_entities[gentNum].classname);
 }
 */
 IGhoul2InfoArray& TheGameGhoul2InfoArray()

@@ -48,7 +48,7 @@ SV_SetConfigstring
 void SV_SetConfigstring(int index, const char* val)
 {
     if (index < 0 || index >= MAX_CONFIGSTRINGS) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_SetConfigstring: bad index %i\n", index);
+        Q_Error(errorParm_t::ERR_DROP, "SV_SetConfigstring: bad index {}", index);
     }
 
     if (!val) {
@@ -67,7 +67,7 @@ void SV_SetConfigstring(int index, const char* val)
     // send it to all the clients if we aren't
     // spawning a new server
     if (sv.state == serverState_t::SS_GAME) {
-        SV_SendServerCommand(nullptr, "cs %i \"%s\"\n", index, val);
+        SV_SendServerCommand(nullptr, "cs {} \"{}\"\n", index, val);
     }
 }
 
@@ -80,10 +80,10 @@ SV_GetConfigstring
 void SV_GetConfigstring(int index, char* buffer, int bufferSize)
 {
     if (bufferSize < 1) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize);
+        Q_Error(errorParm_t::ERR_DROP, "SV_GetConfigstring: bufferSize == {}", bufferSize);
     }
     if (index < 0 || index >= MAX_CONFIGSTRINGS) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_GetConfigstring: bad index %i\n", index);
+        Q_Error(errorParm_t::ERR_DROP, "SV_GetConfigstring: bad index {}", index);
     }
     if (!sv.configstrings[index]) {
         buffer[0] = 0;
@@ -102,7 +102,7 @@ SV_SetUserinfo
 void SV_SetUserinfo(int index, const char* val)
 {
     if (index < 0 || index >= 1) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_SetUserinfo: bad index %i\n", index);
+        Q_Error(errorParm_t::ERR_DROP, "SV_SetUserinfo: bad index {}", index);
     }
 
     if (!val) {
@@ -121,10 +121,10 @@ SV_GetUserinfo
 void SV_GetUserinfo(int index, char* buffer, int bufferSize)
 {
     if (bufferSize < 1) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize);
+        Q_Error(errorParm_t::ERR_DROP, "SV_GetUserinfo: bufferSize == {}", bufferSize);
     }
     if (index < 0 || index >= 1) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
+        Q_Error(errorParm_t::ERR_DROP, "SV_GetUserinfo: bad index {}", index);
     }
     Q_strncpyz(buffer, svs.clients[index].userinfo, bufferSize);
 }
@@ -170,7 +170,7 @@ Called when a game is about to begin
 void SV_Startup(void)
 {
     if (svs.initialized) {
-        Com_Error(errorParm_t::ERR_FATAL, "SV_Startup: svs.initialized");
+        Q_Error(errorParm_t::ERR_FATAL, "SV_Startup: svs.initialized");
     }
 
     svs.clients = (struct client_s*)Z_Malloc(sizeof(client_t) * 1, memtag::TAG_CLIENTS, true);
@@ -204,8 +204,8 @@ void SV_SpawnServer(const char* server, ForceReload_e eForceReload, bool bAllowS
     // shut down the existing game if it is running
     SV_ShutdownGameProgs(true);
 
-    Com_Printf("------ Server Initialization ------\n%s\n", com_version->string);
-    Com_Printf("Server: %s\n", server);
+    Q_Println("------ Server Initialization ------\n{}", com_version->string);
+    Q_Println("Server: {}", server);
 
     // Moved up from below to help reduce fragmentation
     if (svs.snapshotEntities) {
@@ -269,7 +269,7 @@ void SV_SpawnServer(const char* server, ForceReload_e eForceReload, bool bAllowS
 
     // set nextmap to the same map, but it may be overriden
     // by the game startup or another console command
-    Cvar_Set("nextmap", va("map %s", server));
+    Cvar_Set("nextmap", Q_Format("map {}", server).c_str());
 
     memset(&sv, 0, sizeof(sv));
 
@@ -280,16 +280,16 @@ void SV_SpawnServer(const char* server, ForceReload_e eForceReload, bool bAllowS
     sv.time = 1000;
     re.G2API_SetTime(sv.time, G2T_SV_TIME);
 
-    CM_LoadMap(va("maps/%s.bsp", server), false, &checksum, false);
+    CM_LoadMap(Q_Format("maps/{}.bsp", server).c_str(), false, &checksum, false);
 
     // set serverinfo visible name
     Cvar_Set("mapname", server);
 
-    Cvar_Set("sv_mapChecksum", va("%i", checksum));
+    Cvar_Set("sv_mapChecksum", Q_Format("{}", checksum).c_str());
 
     // serverid should be different each time
     sv.serverId = com_frameTime;
-    Cvar_Set("sv_serverid", va("%i", sv.serverId));
+    Cvar_Set("sv_serverid", Q_Format("{}", sv.serverId).c_str());
 
     // clear physics interaction links
     SV_ClearWorld();
@@ -361,7 +361,7 @@ void SV_SpawnServer(const char* server, ForceReload_e eForceReload, bool bAllowS
     Z_Validate();
     Z_Validate();
 
-    Com_Printf("-----------------------------------\n");
+    Q_Println("-----------------------------------");
 }
 
 constexpr int G2_VERT_SPACE_SIZE = 256;
@@ -379,7 +379,7 @@ void SV_Init(void)
     SV_AddOperatorCommands();
 
     // serverinfo vars
-    Cvar_Get("protocol", va("%i", PROTOCOL_VERSION), cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM);
+    Cvar_Get("protocol", Q_Format("{}", PROTOCOL_VERSION).c_str(), cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM);
     sv_mapname = Cvar_Get("mapname", "nomap", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM);
 
     // systeminfo
@@ -422,7 +422,7 @@ void SV_FinalMessage(const char* message)
 {
     client_t* cl = svs.clients;
 
-    SV_SendServerCommand(nullptr, "print \"%s\"", message);
+    SV_SendServerCommand(nullptr, "print \"{}\"", message);
     SV_SendServerCommand(nullptr, "disconnect");
 
     // send it twice, ignoring rate
@@ -448,7 +448,7 @@ void SV_Shutdown(const char* finalmsg)
         return;
     }
 
-    // Com_Printf( "----- Server Shutdown -----\n" );
+    // Q_Println("----- Server Shutdown -----");
 
     if (svs.clients && !com_errorEntered) {
         SV_FinalMessage(finalmsg);
@@ -483,5 +483,5 @@ void SV_Shutdown(const char* finalmsg)
 
     Cvar_Set("sv_running", "0");
 
-    // Com_Printf( "---------------------------\n" );
+    // Q_Println("---------------------------");
 }

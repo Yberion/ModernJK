@@ -571,7 +571,7 @@ void DeathFX(gentity_t* ent)
         VectorCopy(ent->currentOrigin, effectPos);
         effectPos[2] -= 5;
         //		statusTextIndex = Q_irand( IGT_RESISTANCEISFUTILE, IGT_NAMEIS8OF12 );
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_AUTO, va("sound/chars/gonk/misc/death%d.wav", Q_irand(1, 3)));
+        G_SoundOnEnt(ent, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/gonk/misc/death{}.wav", Q_irand(1, 3)).c_str());
         G_PlayEffect("env/med_explode", effectPos);
         break;
 
@@ -999,7 +999,7 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, hitLocation_t
     }
 #ifdef _DEBUG
     else {
-        Com_PrintError("surface %s does not belong to any hitLocation!!!\n", surfName);
+        Q_PrintlnError("surface {} does not belong to any hitLocation!!!", surfName);
     }
 #endif //_DEBUG
 
@@ -2915,7 +2915,7 @@ void player_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int 
 
 #ifndef FINAL_BUILD
     if (d_saberCombat->integer && attacker && attacker->client) {
-        Com_Printf(S_COLOR_YELLOW "combatant %s died, killer anim = %s\n", self->targetname, BG_AnimName(attacker->client->ps.torsoAnim));
+        Q_Println(S_COLOR_YELLOW "combatant {} died, killer anim = {}", self->targetname, BG_AnimName(attacker->client->ps.torsoAnim));
     }
 #endif // FINAL_BUILD
 
@@ -3941,7 +3941,7 @@ static void G_FriendlyFireReaction(gentity_t* self, gentity_t* other, damageFlag
                     if (self->NPC->ffireDebounce < level.time) {
                         // FIXME: way something?  NEED DIALOGUE
                         self->NPC->ffireCount++;
-                        // Com_Printf( "incr: %d < %d\n", self->NPC->ffireCount, 3+((2-g_spskill->integer)*2) );
+                        // Q_Println("incr: {} < {}", self->NPC->ffireCount, 3+((2-g_spskill->integer)*2));
                         self->NPC->ffireDebounce = level.time + 500;
                     }
                 }
@@ -4350,7 +4350,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, vec3_t
     }
 
     if (g_debugDamage->integer) {
-        Com_Printf("[%d]client:%i health:%i damage:%i armor:%i hitloc:%s\n", level.time, targ->s.number, targ->health, take, asave, hitLocName[hitLoc]);
+        Q_Println("[{}]client:{} health:{} damage:{} armor:{} hitloc:{}", level.time, targ->s.number, targ->health, take, asave, hitLocName[hitLoc]);
     }
 
     // add to the damage inflicted on a player this frame

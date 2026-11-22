@@ -100,7 +100,7 @@ bool BG_GetRootSurfNameWithVariant(void* ghoul2, const char* rootSurfName, char*
     else { // check variants
         int i;
         for (i = 0; i < MAX_VARIANTS; i++) {
-            Com_sprintf(returnSurfName, returnSize, "%s%c", rootSurfName, 'a' + i);
+            Q_FormatTo(std::span(returnSurfName, returnSize), "{}{:c}", rootSurfName, 'a' + i);
             if (trap->G2API_GetSurfaceRenderStatus(ghoul2, 0, returnSurfName) == g2SurfaceFlags_t::G2SURFACEFLAG_NONE) {
                 return true;
             }

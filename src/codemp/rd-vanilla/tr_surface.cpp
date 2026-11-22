@@ -55,10 +55,10 @@ void RB_CheckOverflow(int verts, int indexes)
     RB_EndSurface();
 
     if (verts >= SHADER_MAX_VERTEXES) {
-        Com_Error(errorParm_t::ERR_DROP, "RB_CheckOverflow: verts > MAX (%d > %d)", verts, SHADER_MAX_VERTEXES);
+        Q_Error(errorParm_t::ERR_DROP, "RB_CheckOverflow: verts > MAX ({} > {})", verts, SHADER_MAX_VERTEXES);
     }
     if (indexes >= SHADER_MAX_INDEXES) {
-        Com_Error(errorParm_t::ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
+        Q_Error(errorParm_t::ERR_DROP, "RB_CheckOverflow: indices > MAX ({} > {})", indexes, SHADER_MAX_INDEXES);
     }
 
     RB_BeginSurface(tess.shader, tess.fogNum);
@@ -1569,7 +1569,7 @@ void RB_SurfaceEntity(surfaceType_t* surfType)
 
 void RB_SurfaceBad(surfaceType_t* surfType)
 {
-    Com_Printf("Bad surface tesselated.\n");
+    Q_Println("Bad surface tesselated.");
 }
 
 /*

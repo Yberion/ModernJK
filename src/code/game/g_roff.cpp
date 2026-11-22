@@ -159,7 +159,7 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
         }
 
         if (posoffsetGathered < 3) {
-            sprintf(errMsg, "Offset position argument for 'effect' type is invalid.");
+            Q_FormatTo(errMsg, "Offset position argument for 'effect' type is invalid.");
             goto functionend;
         }
 
@@ -251,13 +251,13 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
             useOrigin[1] += up[1] * parsedOffset[2];
             useOrigin[2] += up[2] * parsedOffset[2];
 
-            Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
+            Q_DPrintln(S_COLOR_GREEN "NoteTrack:  \"{}\"", notetrack);
 
             G_PlayEffect(objectID, useOrigin, useAngles);
         }
     }
     else if (strcmp(type, "sound") == 0) {
-        Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
+        Q_DPrintln(S_COLOR_GREEN "NoteTrack:  \"{}\"", notetrack);
 
         // check for eType and play the sound
         if (ent->s.eType == entityType_t::ET_MOVER) {
@@ -272,7 +272,7 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
         // try to cache the script
         Quake3Game()->PrecacheScript(argument);
 
-        Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
+        Q_DPrintln(S_COLOR_GREEN "NoteTrack:  \"{}\"", notetrack);
 
         // run the IBI script
         Quake3Game()->RunScript(ent, argument);
@@ -299,7 +299,7 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
                 VectorCopy(ent->s.angles2, ent->currentAngles);
             }
             else {
-                Com_sprintf(errMsg, sizeof(errMsg), "Invalid additional argument <%s> for type 'loop rof'", addlArg);
+                Q_FormatTo(errMsg, "Invalid additional argument <{}> for type 'loop rof'", addlArg);
                 goto functionend;
             }
 
@@ -312,7 +312,7 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
             // Re-link entity
             gi.linkentity(ent);
 
-            Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
+            Q_DPrintln(S_COLOR_GREEN "NoteTrack:  \"{}\"", notetrack);
 
             // Re-apply the ROFF
             G_Roff(ent);
@@ -334,7 +334,7 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
 
             if (r2 && strstr(teststr, "kill")) { // kill the looping sound
                 ent->s.loopSound = 0;
-                Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
+                Q_DPrintln(S_COLOR_GREEN "NoteTrack:  \"{}\"", notetrack);
             }
             else if (r2 && strstr(teststr, "sound")) { // OK... we should have a relative sound path
                 // try to register the sound and add it to the entitystate loopSound parameter
@@ -342,44 +342,44 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
                     objectID = cgi_S_RegisterSound(addlArg);
                     if (objectID) {
                         ent->s.loopSound = objectID;
-                        Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
+                        Q_DPrintln(S_COLOR_GREEN "NoteTrack:  \"{}\"", notetrack);
                     }
                     else {
                         ent->s.loopSound = 0;
-                        Com_sprintf(errMsg, sizeof(errMsg),
-                                    "cgi_S_RegisterSound(%s) failed to return a valid sfxHandle_t for additional argument. Setting 'loopSound' to 0.", addlArg);
+                        Q_FormatTo(errMsg, "cgi_S_RegisterSound({}) failed to return a valid sfxHandle_t for additional argument. Setting 'loopSound' to 0.",
+                                   addlArg);
                         goto functionend;
                     }
                 }
                 else {
                     ent->s.loopSound = G_SoundIndex(addlArg);
-                    Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
+                    Q_DPrintln(S_COLOR_GREEN "NoteTrack:  \"{}\"", notetrack);
                 }
             }
             else {
-                Com_sprintf(errMsg, sizeof(errMsg), "Invalid additional argument <%s> for type 'loop sfx'", addlArg);
+                Q_FormatTo(errMsg, "Invalid additional argument <{}> for type 'loop sfx'", addlArg);
                 goto functionend;
             }
         }
         else {
-            Com_sprintf(errMsg, sizeof(errMsg), "Invalid argument <%s> for type 'loop' notetrack.", argument);
+            Q_FormatTo(errMsg, "Invalid argument <{}> for type 'loop' notetrack.", argument);
             goto functionend;
         }
     }
     // else if ...
     else {
         if (type[0]) {
-            Com_Warning("\"%s\" is an invalid ROFF NoteTrack function\n", type);
+            Q_PrintlnWarning("\"{}\" is an invalid ROFF NoteTrack function", type);
         }
         else {
-            Com_Warning("NoteTrack is missing function and/or arguments\n");
+            Q_PrintlnWarning("NoteTrack is missing function and/or arguments");
         }
     }
 
     return;
 
 functionend:
-    Com_Printf(S_COLOR_RED "Type-specific NoteTrack error: %s\n", errMsg);
+    Q_Println(S_COLOR_RED "Type-specific NoteTrack error: {}", errMsg);
     return;
 }
 
@@ -487,7 +487,7 @@ static bool G_InitRoff(char* file, unsigned char* data)
             roffs[num_roffs].mNumNoteTracks = LittleLong(hdr->mNumNotes);
 
             if (roffs[num_roffs].mFrameTime < 50) {
-                Com_PrintError("\"%s\" has an invalid ROFF framerate (%d < 50)\n", file, roffs[num_roffs].mFrameTime);
+                Q_PrintlnError("\"{}\" has an invalid ROFF framerate ({} < 50)", file, roffs[num_roffs].mFrameTime);
             }
             assert(roffs[num_roffs].mFrameTime >= 50); // HAS to be at least 50 to be reliable
 
@@ -560,12 +560,12 @@ int G_LoadRoff(const char* fileName)
 
     // Before even bothering with all of this, make sure we have a place to store it.
     if (num_roffs >= MAX_ROFFS) {
-        Com_Printf(S_COLOR_RED "MAX_ROFFS count exceeded.  Skipping load of .ROF '%s'\n", fileName);
+        Q_Println(S_COLOR_RED "MAX_ROFFS count exceeded.  Skipping load of .ROF '{}'", fileName);
         return roff_id;
     }
 
     // The actual path
-    sprintf(file, "%s/%s.rof", Q3_SCRIPT_DIR, fileName);
+    Q_FormatTo(file, "{}/{}.rof", Q3_SCRIPT_DIR, fileName);
 
     // See if I'm already precached
     for (i = 0; i < num_roffs; i++) {
@@ -576,14 +576,14 @@ int G_LoadRoff(const char* fileName)
     }
 
 #ifdef _DEBUG
-//	Com_Printf( S_COLOR_GREEN"Caching ROF: '%s'\n", file );
+//	Q_Println(S_COLOR_GREEN"Caching ROF: '{}'", file);
 #endif
 
     // Read the file in one fell swoop
     len = gi.FS_ReadFile(file, (void**)&data);
 
     if (len <= 0) {
-        Com_Printf(S_COLOR_RED "Could not open .ROF file '%s'\n", fileName);
+        Q_Println(S_COLOR_RED "Could not open .ROF file '{}'", fileName);
         return roff_id;
     }
 
@@ -592,7 +592,7 @@ int G_LoadRoff(const char* fileName)
 
     // ..and make sure it's reasonably valid
     if (!G_ValidRoff(header)) {
-        Com_Printf(S_COLOR_RED "Invalid .ROF format '%s'\n", fileName);
+        Q_Println(S_COLOR_RED "Invalid .ROF format '{}'", fileName);
     }
     else {
         G_InitRoff(file, data);
@@ -658,7 +658,8 @@ void G_Roff(gentity_t* ent)
     }
 
 #ifdef _DEBUG
-    Com_DPrintf(S_COLOR_GREEN "ROFF dat: num: %d o:<%.2f %.2f %.2f> a:<%.2f %.2f %.2f>\n", ent->roff_ctr, org[0], org[1], org[2], ang[0], ang[1], ang[2]);
+    Q_DPrintln(S_COLOR_GREEN "ROFF dat: num: {} o:<{:.2f} {:.2f} {:.2f}> a:<{:.2f} {:.2f} {:.2f}>", ent->roff_ctr, org[0], org[1], org[2], ang[0], ang[1],
+               ang[2]);
 #endif
 
     if (ent->client) {
@@ -789,7 +790,7 @@ void G_LoadCachedRoffs()
         saved_game.read_chunk<int32_t>(INT_ID('S', 'L', 'E', 'N'), len);
 
         if (len < 0 || static_cast<size_t>(len) >= sizeof(buffer)) {
-            Com_Error(errorParm_t::ERR_DROP, "invalid length for RSTR string in save game: %d bytes\n", len);
+            Q_Error(errorParm_t::ERR_DROP, "invalid length for RSTR string in save game: {} bytes", len);
         }
 
         saved_game.read_chunk(INT_ID('R', 'S', 'T', 'R'), buffer, len);

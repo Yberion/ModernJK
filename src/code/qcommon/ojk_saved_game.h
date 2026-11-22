@@ -102,7 +102,7 @@ public:
     // Clears error flag and message.
     void clear_error() override;
 
-    // Calls Com_Error with last error message or with a generic one.
+    // Calls Q_Error with last error message or with a generic one.
     void throw_error() override;
 
     // Renames a saved game file.

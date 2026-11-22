@@ -431,7 +431,7 @@ void misc_model_breakable_gravity_init(gentity_t* ent, bool dropToFloor)
 void misc_model_breakable_init(gentity_t* ent)
 {
     if (!ent->model) {
-        Com_Error(errorParm_t::ERR_DROP, "no model set on %s at (%.1f %.1f %.1f)\n", ent->classname, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
+        Q_Error(errorParm_t::ERR_DROP, "no model set on {} at ({:.1f} {:.1f} {:.1f})", ent->classname, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
     }
 
     // Main model
@@ -482,7 +482,7 @@ void locateCamera(gentity_t* ent)
 
     owner = G_PickTarget(ent->target);
     if (!owner) {
-        Com_Printf("Couldn't find target for misc_partal_surface\n");
+        Q_Println("Couldn't find target for misc_partal_surface");
         G_FreeEntity(ent);
         return;
     }
@@ -590,12 +590,12 @@ void SP_misc_bsp(gentity_t* ent)
     G_SpawnInt("flatten", "0", &tempint);
     ent->s.time = tempint;
 
-    Com_sprintf(temp, MAX_QPATH, "#%s", out);
+    Q_FormatTo(std::span(temp, MAX_QPATH), "#{}", out);
     trap->SetBrushModel((sharedEntity_t*)ent, temp); // SV_SetBrushModel -- sets mins and maxs
     G_BSPIndex(temp);
 
     level.mNumBSPInstances++;
-    Com_sprintf(temp, MAX_QPATH, "%d-", level.mNumBSPInstances);
+    Q_FormatTo(std::span(temp, MAX_QPATH), "{}-", level.mNumBSPInstances);
     VectorCopy(ent->s.origin, level.mOriginAdjust);
     level.mRotationAdjust = ent->s.angles[1];
     level.mTargetAdjust = temp;
@@ -736,8 +736,9 @@ void SP_misc_skyportal(gentity_t* ent)
     isfog += G_SpawnInt("fognear", "0", &fogn);
     isfog += G_SpawnInt("fogfar", "300", &fogf);
 
-    trap->SetConfigstring(CS_SKYBOXORG, va("%.2f %.2f %.2f %.1f %i %.2f %.2f %.2f %i %i", ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], fov_x,
-                                           (int)isfog, fogv[0], fogv[1], fogv[2], fogn, fogf));
+    trap->SetConfigstring(CS_SKYBOXORG, Q_Format("{:.2f} {:.2f} {:.2f} {:.1f} {} {:.2f} {:.2f} {:.2f} {} {}", ent->s.origin[0], ent->s.origin[1],
+                                                 ent->s.origin[2], fov_x, (int)isfog, fogv[0], fogv[1], fogv[2], fogn, fogf)
+                                            .c_str());
 
     ent->think = G_PortalifyEntities;
     ent->nextthink = level.time + 1050; // give it some time first so that all other entities are spawned.
@@ -863,7 +864,7 @@ void HolocronTouch(gentity_t* self, gentity_t* other, trace_t* trace)
     }
 
     if (hasall) { // once we pick up this holocron we'll have all of them, so give us super special best prize!
-                  // Com_Printf("You deserve a pat on the back.\n");
+                  // Q_Println("You deserve a pat on the back.");
     }
 
     if (!(other->client->ps.fd.forcePowersActive &
@@ -920,7 +921,7 @@ void HolocronTouch(gentity_t* self, gentity_t* other, trace_t* trace)
         G_AddEvent(other, entity_event_t::EV_NOAMMO, to_underlying(forceReselect));
     }
 
-    // Com_Printf("DON'T TOUCH ME\n");
+    // Q_Println("DON'T TOUCH ME");
 }
 
 void HolocronThink(gentity_t* ent)
@@ -1030,7 +1031,7 @@ void SP_misc_holocron(gentity_t* ent)
     VectorSet(dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096);
     trap->Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
     if (tr.startsolid) {
-        Com_Printf("SP_misc_holocron: misc_holocron startsolid at %s\n", vtos(ent->s.origin));
+        Q_Println("SP_misc_holocron: misc_holocron startsolid at {}", vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -1482,7 +1483,7 @@ void SP_misc_ammo_floor_unit(gentity_t* ent)
     VectorSet(dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096);
     trap->Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
     if (tr.startsolid) {
-        Com_Printf("SP_misc_ammo_floor_unit: misc_ammo_floor_unit startsolid at %s\n", vtos(ent->s.origin));
+        Q_Println("SP_misc_ammo_floor_unit: misc_ammo_floor_unit startsolid at {}", vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -1569,7 +1570,7 @@ void SP_misc_shield_floor_unit(gentity_t* ent)
     VectorSet(dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096);
     trap->Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
     if (tr.startsolid) {
-        Com_Printf("SP_misc_shield_floor_unit: misc_shield_floor_unit startsolid at %s\n", vtos(ent->s.origin));
+        Q_Println("SP_misc_shield_floor_unit: misc_shield_floor_unit startsolid at {}", vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -2296,8 +2297,8 @@ void fx_runner_link(gentity_t* ent)
 
         if (!target) {
             // Bah, no good, dump a warning, but continue on and use the UP vector
-            Com_Printf("fx_runner_link: target specified but not found: %s\n", ent->target);
-            Com_Printf("  -assuming UP orientation.\n");
+            Q_Println("fx_runner_link: target specified but not found: {}", ent->target);
+            Q_Println("  -assuming UP orientation.");
         }
         else {
             // Our target is valid so let's override the default UP vector
@@ -2315,7 +2316,7 @@ void fx_runner_link(gentity_t* ent)
 
         if (!target) {
             // Target2 is bogus, but we can still continue
-            Com_Printf("fx_runner_link: target2 was specified but is not valid: %s\n", ent->target2);
+            Q_Println("fx_runner_link: target2 was specified but is not valid: {}", ent->target2);
         }
     }
 
@@ -2362,7 +2363,7 @@ void SP_fx_runner(gentity_t* ent)
     }
 
     if (!fxFile || !fxFile[0]) {
-        Com_PrintError("fx_runner %s at %s has no fxFile specified\n", ent->targetname, vtos(ent->s.origin));
+        Q_PrintlnError("fx_runner {} at {} has no fxFile specified", ent->targetname, vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -2419,7 +2420,7 @@ void SP_CreateWind(gentity_t* ent)
         G_SpawnFloat("speed", "500", &ent->speed);
         VectorScale(windDir, ent->speed, windDir);
 
-        Com_sprintf(temp, sizeof(temp), "*constantwind ( %f %f %f )", windDir[0], windDir[1], windDir[2]);
+        Q_FormatTo(temp, "*constantwind ( {:f} {:f} {:f} )", windDir[0], windDir[1], windDir[2]);
         G_EffectIndex(temp);
     }
 
@@ -2457,7 +2458,7 @@ This world effect will spawn space dust globally into the level.
 //----------------------------------------------------------
 void SP_CreateSpaceDust(gentity_t* ent)
 {
-    G_EffectIndex(va("*spacedust %i", ent->count));
+    G_EffectIndex(Q_Format("*spacedust {}", ent->count).c_str());
     // G_EffectIndex("*constantwind ( 10 -10 0 )");
 }
 
@@ -2645,7 +2646,7 @@ void maglock_link(gentity_t* self)
     trap->Trace(&trace, start, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
     if (trace.allsolid || trace.startsolid) {
-        Com_Error(errorParm_t::ERR_DROP, "misc_maglock at %s in solid\n", vtos(self->s.origin));
+        Q_Error(errorParm_t::ERR_DROP, "misc_maglock at {} in solid", vtos(self->s.origin));
         G_FreeEntity(self);
         return;
     }
@@ -2653,7 +2654,7 @@ void maglock_link(gentity_t* self)
         self->think = maglock_link;
         self->nextthink = level.time + 100;
         /*
-        Com_Error( errorParm_t::ERR_DROP,"misc_maglock at %s pointed at no surface\n", vtos(self->s.origin) );
+        Q_Error(errorParm_t::ERR_DROP, "misc_maglock at {} pointed at no surface", vtos(self->s.origin));
         G_FreeEntity( self );
         */
         return;
@@ -2662,7 +2663,7 @@ void maglock_link(gentity_t* self)
     if (trace.entityNum >= ENTITYNUM_WORLD || !traceEnt || Q_stricmp("func_door", traceEnt->classname)) {
         self->think = maglock_link;
         self->nextthink = level.time + 100;
-        // Com_Error( errorParm_t::ERR_DROP,"misc_maglock at %s not pointed at a door\n", vtos(self->s.origin) );
+        // Q_Error(errorParm_t::ERR_DROP, "misc_maglock at {} not pointed at a door", vtos(self->s.origin));
         // G_FreeEntity( self );
         return;
     }
@@ -2856,7 +2857,7 @@ tagOwner_t* FirstFreeTagOwner(void)
         i++;
     }
 
-    Com_Warning("MAX_TAG_OWNERS (%i) REF TAG LIMIT HIT\n", MAX_TAG_OWNERS);
+    Q_PrintlnWarning("MAX_TAG_OWNERS ({}) REF TAG LIMIT HIT", MAX_TAG_OWNERS);
     return nullptr;
 }
 
@@ -2873,7 +2874,7 @@ reference_tag_t* FirstFreeRefTag(tagOwner_t* tagOwner)
         i++;
     }
 
-    Com_Warning("MAX_TAGS (%i) REF TAG LIMIT HIT\n", MAX_TAGS);
+    Q_PrintlnWarning("MAX_TAGS ({}) REF TAG LIMIT HIT", MAX_TAGS);
     return nullptr;
 }
 
@@ -2983,7 +2984,7 @@ reference_tag_t* TAG_Add(const char* name, const char* owner, vec3_t origin, vec
 
     // Make sure this tag's name isn't alread in use
     if (TAG_Find(owner, name)) {
-        Com_Printf(S_COLOR_RED "Duplicate tag name \"%s\"\n", name);
+        Q_Println(S_COLOR_RED "Duplicate tag name \"{}\"", name);
         return nullptr;
     }
 
@@ -3021,7 +3022,7 @@ reference_tag_t* TAG_Add(const char* name, const char* owner, vec3_t origin, vec
     tag->flags = flags;
 
     if (!name || !name[0]) {
-        Com_PrintError("Nameless ref_tag found at (%i %i %i)\n", (int)origin[0], (int)origin[1], (int)origin[2]);
+        Q_PrintlnError("Nameless ref_tag found at ({} {} {})", (int)origin[0], (int)origin[1], (int)origin[2]);
         return nullptr;
     }
 
@@ -3211,7 +3212,7 @@ void ref_link(gentity_t* ent)
             // FIXME: Does pitch get flipped?
         }
         else {
-            Com_PrintError("ref_tag (%s) has invalid target (%s)\n", ent->targetname, ent->target);
+            Q_PrintlnError("ref_tag ({}) has invalid target ({})", ent->targetname, ent->target);
         }
     }
 
@@ -3290,7 +3291,7 @@ gclient_t* G_ClientForShooter(void)
         i++;
     }
 
-    Com_Error(errorParm_t::ERR_DROP, "No free shooter clients - hit MAX_SHOOTERS");
+    Q_Error(errorParm_t::ERR_DROP, "No free shooter clients - hit MAX_SHOOTERS");
     return nullptr;
 }
 

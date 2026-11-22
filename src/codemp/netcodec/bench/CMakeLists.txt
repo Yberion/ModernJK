@@ -32,10 +32,11 @@ set(legacy_engine "${netcodec_ENGINE_DIR}/src")
 add_library(netcodec_legacy OBJECT
 	"${legacy_engine}/codemp/qcommon/msg.cpp"
 	"${legacy_engine}/codemp/qcommon/huffman.cpp"
+	"${legacy_engine}/shared/qcommon/q_fmt.cpp"
 	legacy/legacy_codec.cpp
 	legacy/legacy_stubs.cpp)
 target_include_directories(netcodec_legacy PRIVATE "${legacy_engine}/codemp" "${legacy_engine}")
-target_link_libraries(netcodec_legacy PRIVATE modernjk_warnings modernjk_defines)
+target_link_libraries(netcodec_legacy PRIVATE modernjk_warnings modernjk_defines vendored::fmt)
 target_compile_features(netcodec_legacy PRIVATE cxx_std_23)
 if(MSVC)
 	target_compile_options(netcodec_legacy PRIVATE /fp:precise)
@@ -43,7 +44,7 @@ if(MSVC)
 		# MSVC's standard library refuses to link objects built with and without AddressSanitizer, or with different
 		# container annotations (cmake/Sanitizers.cmake): the legacy code instrumented there only
 		target_compile_options(netcodec_legacy PRIVATE /fsanitize=address)
-		target_compile_definitions(netcodec_legacy PRIVATE _DISABLE_VECTOR_ANNOTATION _DISABLE_STRING_ANNOTATION)
+		target_compile_definitions(netcodec_legacy PRIVATE _DISABLE_STL_ANNOTATION)
 	endif()
 else()
 	# the engines' settings (ProjectOptions.cmake), and the library's alignment: the legacy timings are the A/B

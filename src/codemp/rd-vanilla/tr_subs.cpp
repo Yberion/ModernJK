@@ -26,14 +26,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "tr_local.h"
 
 // the renderer's messages and errors, formatted by the engine (q_fmt.h)
-void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
+void Q_VPrint(printLevel_t level, lineEnd_t end, fmt::string_view fmt, fmt::format_args args)
 {
-    ri.Print(level, fmt, args);
+    ri.Print(level, end, fmt, args);
 }
 
-void Com_VError(errorParm_t code, const char* fmt, va_list args)
+void Q_VError(errorParm_t code, fmt::string_view fmt, fmt::format_args args)
 {
-    Com_Error(code, fmt, args);
+    ri.Error(code, fmt, args);
 }
 
 // HUNK

@@ -529,7 +529,11 @@ public:
         }
     }
 
-    const char* GenCachedWeatherFilename(void) { return va("maps/%s.weather", sv_mapname->string); }
+    const char* GenCachedWeatherFilename(void)
+    {
+        static formatText_t text; // the text returned, valid until the next call
+        return (text = Q_Format("maps/{}.weather", sv_mapname->string)).c_str();
+    }
 
     // weather file format...
     //
@@ -554,7 +558,7 @@ public:
             return f;
         }
         else {
-            Com_Warning("(Unable to open weather file \"%s\" for writing!)\n", GenCachedWeatherFilename());
+            Q_PrintlnWarning("(Unable to open weather file \"{}\" for writing!)", GenCachedWeatherFilename());
         }
 
         return 0;
@@ -580,11 +584,11 @@ public:
                 return f;
             }
 
-            Com_Warning("( Cached weather file \"%s\" out of date, regenerating... )\n", GenCachedWeatherFilename());
+            Q_PrintlnWarning("( Cached weather file \"{}\" out of date, regenerating... )", GenCachedWeatherFilename());
             ri.FS_FCloseFile(f);
         }
         else {
-            Com_Warning("( No cached weather file found, generating... )\n");
+            Q_PrintlnWarning("( No cached weather file found, generating... )");
         }
 
         return 0;
@@ -602,7 +606,7 @@ public:
         // Record The Extents Of The World Incase No Other Weather Zones Exist
         //---------------------------------------------------------------------
         if (!mWeatherZones.size()) {
-            Com_Warning("No Weather Zones Encountered\n");
+            Q_PrintlnWarning("No Weather Zones Encountered");
             AddWeatherZone(tr.world->bmodels[0].bounds[0], tr.world->bmodels[0].bounds[1]);
         }
 
@@ -663,7 +667,7 @@ public:
                                     }
                                     else if (SWeatherZone::mMarkedOutside != curPosOutside) {
                                         assert(0);
-                                        Com_Error(errorParm_t::ERR_DROP, "Weather Effect: Both Indoor and Outdoor brushs encountered in map.\n");
+                                        Q_Error(errorParm_t::ERR_DROP, "Weather Effect: Both Indoor and Outdoor brushs encountered in map.");
                                         return;
                                     }
 
@@ -893,7 +897,7 @@ public:
         //------------------
         mImage = R_FindImageFile(texturePath, false, false, false, GL_CLAMP);
         if (!mImage) {
-            Com_Error(errorParm_t::ERR_DROP, "CParticleCloud: Could not texture %s", texturePath);
+            Q_Error(errorParm_t::ERR_DROP, "CParticleCloud: Could not texture {}", texturePath);
         }
 
         GL_Bind(mImage);
@@ -1416,7 +1420,7 @@ void RB_RenderWorldEffects(void)
             mParticleClouds[i].Render();
         }
         if (false) {
-            Com_Printf("Weather: %d Particles Rendered\n", mParticlesRendered);
+            Q_Println("Weather: {} Particles Rendered", mParticlesRendered);
         }
     }
 }
@@ -1445,7 +1449,7 @@ bool WE_ParseVector(const char** text, int count, float* v)
     COM_BeginParseSession();
     token = COM_ParseExt(text, false);
     if (strcmp(token, "(")) {
-        Com_Warning("missing parenthesis in weather effect\n");
+        Q_PrintlnWarning("missing parenthesis in weather effect");
         COM_EndParseSession();
         return false;
     }
@@ -1453,7 +1457,7 @@ bool WE_ParseVector(const char** text, int count, float* v)
     for (i = 0; i < count; i++) {
         token = COM_ParseExt(text, false);
         if (!token[0]) {
-            Com_Warning("missing vector element in weather effect\n");
+            Q_PrintlnWarning("missing vector element in weather effect");
             COM_EndParseSession();
             return false;
         }
@@ -1463,7 +1467,7 @@ bool WE_ParseVector(const char** text, int count, float* v)
     token = COM_ParseExt(text, false);
     COM_EndParseSession();
     if (strcmp(token, ")")) {
-        Com_Warning("missing parenthesis in weather effect\n");
+        Q_PrintlnWarning("missing parenthesis in weather effect");
         return false;
     }
     return true;
@@ -1841,26 +1845,26 @@ void R_WorldEffectCommand(const char* command)
         mOutside.mOutsidePain = !mOutside.mOutsidePain;
     }
     else {
-        Com_Printf("Weather Effect: Please enter a valid command.\n");
-        Com_Printf("	clear\n");
-        Com_Printf("	freeze\n");
-        Com_Printf("	zone (mins) (maxs)\n");
-        Com_Printf("	wind\n");
-        Com_Printf("	constantwind (velocity)\n");
-        Com_Printf("	gustingwind\n");
-        Com_Printf("	windzone (mins) (maxs) (velocity)\n");
-        Com_Printf("	lightrain\n");
-        Com_Printf("	rain\n");
-        Com_Printf("	acidrain\n");
-        Com_Printf("	heavyrain\n");
-        Com_Printf("	snow\n");
-        Com_Printf("	spacedust\n");
-        Com_Printf("	sand\n");
-        Com_Printf("	fog\n");
-        Com_Printf("	heavyrainfog\n");
-        Com_Printf("	light_fog\n");
-        Com_Printf("	outsideshake\n");
-        Com_Printf("	outsidepain\n");
+        Q_Println("Weather Effect: Please enter a valid command.");
+        Q_Println("\tclear");
+        Q_Println("\tfreeze");
+        Q_Println("\tzone (mins) (maxs)");
+        Q_Println("\twind");
+        Q_Println("\tconstantwind (velocity)");
+        Q_Println("\tgustingwind");
+        Q_Println("\twindzone (mins) (maxs) (velocity)");
+        Q_Println("\tlightrain");
+        Q_Println("\train");
+        Q_Println("\tacidrain");
+        Q_Println("\theavyrain");
+        Q_Println("\tsnow");
+        Q_Println("\tspacedust");
+        Q_Println("\tsand");
+        Q_Println("\tfog");
+        Q_Println("\theavyrainfog");
+        Q_Println("\tlight_fog");
+        Q_Println("\toutsideshake");
+        Q_Println("\toutsidepain");
     }
     COM_EndParseSession();
 }

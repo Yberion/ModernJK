@@ -94,7 +94,7 @@ bool ValidClientNumber(int num, char* str)
 {
     if (num < 0 || num > botlibglobals.maxclients) {
         // weird: the disabled stuff results in a crash
-        Com_PrintError("%s: invalid client number %d, [0, %d]\n", str, num, botlibglobals.maxclients);
+        Q_PrintlnError("{}: invalid client number {}, [0, {}]", str, num, botlibglobals.maxclients);
         return false;
     } // end if
     return true;
@@ -108,7 +108,7 @@ bool ValidClientNumber(int num, char* str)
 bool ValidEntityNumber(int num, const char* str)
 {
     if (num < 0 || num > botlibglobals.maxentities) {
-        Com_PrintError("%s: invalid entity number %d, [0, %d]\n", str, num, botlibglobals.maxentities);
+        Q_PrintlnError("{}: invalid entity number {}, [0, {}]", str, num, botlibglobals.maxentities);
         return false;
     } // end if
     return true;
@@ -122,7 +122,7 @@ bool ValidEntityNumber(int num, const char* str)
 bool BotLibSetup(const char* str)
 {
     if (!botlibglobals.botlibsetup) {
-        Com_PrintError("%s: bot library used before being setup\n", str);
+        Q_PrintlnError("{}: bot library used before being setup", str);
         return false;
     } // end if
     return true;
@@ -153,23 +153,19 @@ botlibError_t Export_BotLibSetup(void)
 
         if (*homedir) {
             if (*gamedir)
-                Com_sprintf(logfilename, sizeof(logfilename), "%s%c%s%cbotlib.log", homedir, PATH_SEP, gamedir, PATH_SEP);
+                Q_FormatTo(logfilename, "{}{}{}{}botlib.log", homedir, PATH_SEP, gamedir, PATH_SEP);
             else if (*basedir)
-                Com_sprintf(logfilename, sizeof(logfilename), "%s%c%s%cbotlib.log", homedir, PATH_SEP, basedir, PATH_SEP);
+                Q_FormatTo(logfilename, "{}{}{}{}botlib.log", homedir, PATH_SEP, basedir, PATH_SEP);
             else
-                Com_sprintf(logfilename, sizeof(logfilename),
-                            "%s%c"
-                            "base"
-                            "%cbotlib.log",
-                            homedir, PATH_SEP, PATH_SEP); // fixme use BASEGAME define
+                Q_FormatTo(logfilename, "{}{}base{}botlib.log", homedir, PATH_SEP, PATH_SEP); // fixme use BASEGAME define
         }
         else
-            Com_sprintf(logfilename, sizeof(logfilename), "botlib.log");
+            Q_FormatTo(logfilename, "botlib.log");
 
         Log_Open(logfilename);
     }
     //
-    //	Com_Printf("------- BotLib Initialization -------\n");
+    //	Q_Println("------- BotLib Initialization -------");
     //
     botlibglobals.maxclients = (int)LibVarValue("maxclients", "128");
     botlibglobals.maxentities = (int)LibVarValue("maxentities", "1024");
@@ -293,7 +289,7 @@ botlibError_t Export_BotLibLoadMap(const char* mapname)
     if (!BotLibSetup("BotLoadMap"))
         return botlibError_t::BLERR_LIBRARYNOTSETUP;
     //
-    Com_Printf("------------ Map Loading ------------\n");
+    Q_Println("------------ Map Loading ------------");
     // startup AAS for the current map, model and sound index
     errnum = AAS_LoadMap(mapname);
     if (errnum != botlibError_t::BLERR_NOERROR)
@@ -302,9 +298,9 @@ botlibError_t Export_BotLibLoadMap(const char* mapname)
     BotInitLevelItems();     // be_ai_goal.h
     BotSetBrushModelTypes(); // be_ai_move.h
     //
-    Com_Printf("-------------------------------------\n");
+    Q_Println("-------------------------------------");
 #ifdef DEBUG
-    Com_Printf("map loaded in %d msec\n", Sys_MilliSeconds() - starttime);
+    Q_Println("map loaded in {} msec", Sys_MilliSeconds() - starttime);
 #endif
     //
     return botlibError_t::BLERR_NOERROR;
@@ -391,9 +387,9 @@ int BotExportTest(int parm0, char* parm1, vec3_t parm2, vec3_t parm3)
 
     //	AAS_ClearShownDebugLines();
 
-    // if (AAS_AgainstLadder(parm2)) Com_Printf("against ladder\n");
+    // if (AAS_AgainstLadder(parm2)) Q_Println("against ladder");
     // BotOnGround(parm2, presenceFlags_t::PRESENCE_NORMAL, 1, &newarea, &newarea);
-    // Com_Printf("%f %f %f\n", parm2[0], parm2[1], parm2[2]);
+    // Q_Println("{:f} {:f} {:f}", parm2[0], parm2[1], parm2[2]);
     //*
     highlightarea = LibVarGetValue("bot_highlightarea");
     if (highlightarea > 0) {
@@ -406,56 +402,55 @@ int BotExportTest(int parm0, char* parm1, vec3_t parm2, vec3_t parm3)
         newarea = BotFuzzyPointReachabilityArea(origin);
     } // end else
 
-    Com_Printf("\rtravel time to goal (%d) = %d  ", botlibglobals.goalareanum,
-               AAS_AreaTravelTimeToGoalArea(newarea, origin, botlibglobals.goalareanum, travelFlags_t::TFL_DEFAULT));
+    Q_Print("\rtravel time to goal ({}) = {}  ", botlibglobals.goalareanum,
+            AAS_AreaTravelTimeToGoalArea(newarea, origin, botlibglobals.goalareanum, travelFlags_t::TFL_DEFAULT));
     // newarea = BotReachabilityArea(origin, true);
     if (newarea != area) {
-        Com_Printf("origin = %f, %f, %f\n", origin[0], origin[1], origin[2]);
+        Q_Println("origin = {:f}, {:f}, {:f}", origin[0], origin[1], origin[2]);
         area = newarea;
-        Com_Printf("new area %d, cluster %d, presence type %d\n", area, AAS_AreaCluster(area), to_underlying(AAS_PointPresenceType(origin)));
-        Com_Printf("area contents: ");
+        Q_Println("new area {}, cluster {}, presence type {}", area, AAS_AreaCluster(area), to_underlying(AAS_PointPresenceType(origin)));
+        Q_Print("area contents: ");
         if (Any(aasworld.areasettings[area].contents & areaContentsFlags_t::AREACONTENTS_WATER)) {
-            Com_Printf("water &");
+            Q_Print("water &");
         } // end if
         if (Any(aasworld.areasettings[area].contents & areaContentsFlags_t::AREACONTENTS_LAVA)) {
-            Com_Printf("lava &");
+            Q_Print("lava &");
         } // end if
         if (Any(aasworld.areasettings[area].contents & areaContentsFlags_t::AREACONTENTS_SLIME)) {
-            Com_Printf("slime &");
+            Q_Print("slime &");
         } // end if
         if (Any(aasworld.areasettings[area].contents & areaContentsFlags_t::AREACONTENTS_JUMPPAD)) {
-            Com_Printf("jump pad &");
+            Q_Print("jump pad &");
         } // end if
         if (Any(aasworld.areasettings[area].contents & areaContentsFlags_t::AREACONTENTS_CLUSTERPORTAL)) {
-            Com_Printf("cluster portal &");
+            Q_Print("cluster portal &");
         } // end if
         if (Any(aasworld.areasettings[area].contents & areaContentsFlags_t::AREACONTENTS_VIEWPORTAL)) {
-            Com_Printf("view portal &");
+            Q_Print("view portal &");
         } // end if
         if (Any(aasworld.areasettings[area].contents & areaContentsFlags_t::AREACONTENTS_DONOTENTER)) {
-            Com_Printf("do not enter &");
+            Q_Print("do not enter &");
         } // end if
         if (Any(aasworld.areasettings[area].contents & areaContentsFlags_t::AREACONTENTS_MOVER)) {
-            Com_Printf("mover &");
+            Q_Print("mover &");
         } // end if
         if (!Any(aasworld.areasettings[area].contents)) {
-            Com_Printf("empty");
+            Q_Print("empty");
         } // end if
-        Com_Printf("\n");
-        Com_Printf("travel time to goal (%d) = %d\n", botlibglobals.goalareanum,
-                   AAS_AreaTravelTimeToGoalArea(newarea, origin, botlibglobals.goalareanum, travelFlags_t::TFL_DEFAULT | travelFlags_t::TFL_ROCKETJUMP));
+        Q_Println("");
+        Q_Println("travel time to goal ({}) = {}", botlibglobals.goalareanum,
+                  AAS_AreaTravelTimeToGoalArea(newarea, origin, botlibglobals.goalareanum, travelFlags_t::TFL_DEFAULT | travelFlags_t::TFL_ROCKETJUMP));
         /*
         VectorCopy(origin, end);
         end[2] += 5;
         numareas = AAS_TraceAreas(origin, end, areas, nullptr, 10);
         AAS_TraceClientBBox(origin, end, presenceFlags_t::PRESENCE_CROUCH, -1);
-        Com_Printf("num areas = %d, area = %d\n", numareas, areas[0]);
+        Q_Println("num areas = {}, area = {}", numareas, areas[0]);
         */
         /*
         botlibglobals.goalareanum = newarea;
         VectorCopy(parm2, botlibglobals.goalorigin);
-        Com_Printf("new goal %2.1f %2.1f %2.1f area %d\n",
-                                origin[0], origin[1], origin[2], newarea);
+        Q_Println("new goal {:2.1f} {:2.1f} {:2.1f} area {}", origin[0], origin[1], origin[2], newarea);
         */
     } // end if
     //*
@@ -469,7 +464,7 @@ int BotExportTest(int parm0, char* parm1, vec3_t parm2, vec3_t parm3)
         else {
             botlibglobals.goalareanum = newarea;
             VectorCopy(parm2, botlibglobals.goalorigin);
-            Com_Printf("new goal %2.1f %2.1f %2.1f area %d\n", origin[0], origin[1], origin[2], newarea);
+            Q_Println("new goal {:2.1f} {:2.1f} {:2.1f} area {}", origin[0], origin[1], origin[2], newarea);
         }
     } // end if*/
     if (flood)
@@ -477,8 +472,8 @@ int BotExportTest(int parm0, char* parm1, vec3_t parm2, vec3_t parm3)
     //	if (parm0 & to_underlying( buttonFlags_t::BUTTON_USE ))
     //	{
     //		botlibglobals.runai = !botlibglobals.runai;
-    //		if (botlibglobals.runai) Com_Printf("started AI\n");
-    //		else Com_Printf("stopped AI\n");
+    //		if (botlibglobals.runai) Q_Println("started AI");
+    //		else Q_Println("stopped AI");
     //* /
     /*
     goal.areanum = botlibglobals.goalareanum;
@@ -487,7 +482,7 @@ int BotExportTest(int parm0, char* parm1, vec3_t parm2, vec3_t parm3)
                                     &goal, travelFlags_t::TFL_DEFAULT);
     if (!reachnum)
     {
-        Com_Printf("goal not reachable\n");
+        Q_Println("goal not reachable");
     } //end if
     else
     {
@@ -504,9 +499,8 @@ int BotExportTest(int parm0, char* parm1, vec3_t parm2, vec3_t parm3)
             AAS_DrawCross(bottomcenter, 10, lineColor_t::LINECOLOR_GREEN);
         } //end if
     } //end else*/
-    //		Com_Printf("travel time to goal = %d\n",
-    //					AAS_AreaTravelTimeToGoalArea(area, origin, botlibglobals.goalareanum, travelFlags_t::TFL_DEFAULT));
-    //		Com_Printf("test rj from 703 to 716\n");
+    //		Q_Println("travel time to goal = {}", AAS_AreaTravelTimeToGoalArea(area, origin, botlibglobals.goalareanum, travelFlags_t::TFL_DEFAULT));
+    //		Q_Println("test rj from 703 to 716");
     //		AAS_Reachability_WeaponJump(703, 716);
     //	} //end if*/
 
@@ -572,7 +566,7 @@ int BotExportTest(int parm0, char* parm1, vec3_t parm2, vec3_t parm3)
     /*
     if (parm0 & to_underlying( buttonFlags_t::BUTTON_USE ))
     {
-        Com_Printf("test rj from 703 to 716\n");
+        Q_Println("test rj from 703 to 716");
         AAS_Reachability_WeaponJump(703, 716);
     } //end if*/
 
@@ -607,14 +601,14 @@ int BotExportTest(int parm0, char* parm1, vec3_t parm2, vec3_t parm3)
     //		AAS_TraceClientBBox(eye, end, presenceFlags_t::PRESENCE_NORMAL, 1);
         } //end for
         end_time = clock();
-        Com_Printf("me %lu clocks, %lu CLOCKS_PER_SEC\n", end_time - start_time, CLOCKS_PER_SEC);
+        Q_Println("me {} clocks, {} CLOCKS_PER_SEC", end_time - start_time, CLOCKS_PER_SEC);
         start_time = clock();
         for (i = 0; i < 2000; i++)
         {
             AAS_Trace(eye, mins, maxs, end, 1, MASK_PLAYERSOLID);
         } //end for
         end_time = clock();
-        Com_Printf("id %lu clocks, %lu CLOCKS_PER_SEC\n", end_time - start_time, CLOCKS_PER_SEC);
+        Q_Println("id {} clocks, {} CLOCKS_PER_SEC", end_time - start_time, CLOCKS_PER_SEC);
     */
 
     // TTimo: nested comments are BAD for gcc -Werror, use #if 0 instead..
@@ -871,7 +865,7 @@ botlib_export_t* GetBotLibAPI(int apiVersion, botlib_import_t* import)
     Com_Memset(&be_botlib_export, 0, sizeof(be_botlib_export));
 
     if (apiVersion != BOTLIB_API_VERSION) {
-        Com_PrintError("Mismatched BOTLIB_API_VERSION: expected %i, got %i\n", BOTLIB_API_VERSION, apiVersion);
+        Q_PrintlnError("Mismatched BOTLIB_API_VERSION: expected {}, got {}", BOTLIB_API_VERSION, apiVersion);
         return nullptr;
     }
 

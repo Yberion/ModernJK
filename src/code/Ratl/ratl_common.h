@@ -287,7 +287,8 @@ public:
     void save(hfile& file);
     void load(hfile& file);
 
-    void ProfilePrint(const char* format, ...) __attribute__((format(printf, 2, 3)));
+    void VProfilePrintln(fmt::string_view format, fmt::format_args args);
+    template <typename... T> void ProfilePrintln(fmt::format_string<T...> format, T&&... args) { VProfilePrintln(format.get(), Q_FormatArgs(args...)); }
 
 public:
     static void (*OutputPrint)(const char*);

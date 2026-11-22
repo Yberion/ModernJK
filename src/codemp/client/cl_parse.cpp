@@ -93,7 +93,7 @@ void CL_ParseSnapshot(clSnapshot_t* newSnap)
     cl.snapshots[cl.snap.messageNum & PACKET_MASK] = cl.snap;
 
     if (cl_shownet->integer == 3) {
-        Com_Printf("   snapshot:%i  delta:%i  ping:%i\n", cl.snap.messageNum, cl.snap.deltaNum, cl.snap.ping);
+        Q_Println("   snapshot:{}  delta:{}  ping:{}", cl.snap.messageNum, cl.snap.deltaNum, cl.snap.ping);
     }
 
     cl.newSnapshots = true;
@@ -116,7 +116,7 @@ void CL_ParseSetGame(const char* gameDir)
     Q_strncpyz(newGameDir, gameDir, sizeof(newGameDir));
 
     if (FS_CheckDirTraversal(newGameDir)) {
-        Com_Warning("Server sent invalid fs_game value %s\n", newGameDir);
+        Q_PrintlnWarning("Server sent invalid fs_game value {}", newGameDir);
         return;
     }
 
@@ -193,7 +193,7 @@ void CL_SystemInfoChanged(void)
         // ehw!
         if (!Q_stricmp(key, "fs_game")) {
             if (FS_CheckDirTraversal(value)) {
-                Com_Warning("Server sent invalid fs_game value %s\n", value);
+                Q_PrintlnWarning("Server sent invalid fs_game value {}", value);
                 continue;
             }
 
@@ -238,16 +238,16 @@ void CL_ParseGamestateString(int i, const char* s)
     int len;
 
     if (i < 0 || i >= MAX_CONFIGSTRINGS) {
-        Com_Error(errorParm_t::ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
+        Q_Error(errorParm_t::ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
     }
     if (cl_shownet->integer >= 2) {
-        Com_Printf("%d: %s\n", i, s);
+        Q_Println("{}: {}", i, s);
     }
 
     len = strlen(s);
 
     if (len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS) {
-        Com_Error(errorParm_t::ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
+        Q_Error(errorParm_t::ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
     }
 
     // append it to the gameState string buffer
@@ -298,7 +298,7 @@ void CL_ParseDownload(int block, int fileSize, const byte* data, int size)
     char error[MAX_STRING_CHARS];
 
     if (!*clc.downloadTempName) {
-        Com_Printf("Server sending download, but no download was requested\n");
+        Q_Println("Server sending download, but no download was requested");
         CL_AddReliableCommand("stopdl", false);
         return;
     }
@@ -318,18 +318,18 @@ void CL_ParseDownload(int block, int fileSize, const byte* data, int size)
                 error[i] = (data[i] == '%' || !data[i]) ? '.' : (char)data[i];
             }
             error[i] = 0;
-            Com_Error(errorParm_t::ERR_DROP, "%s", error);
+            Q_Error(errorParm_t::ERR_DROP, "{}", error);
             return;
         }
     }
 
     if (size < 0 || size > MAX_MSGLEN) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_ParseDownload: Invalid size %d for download chunk", size);
+        Q_Error(errorParm_t::ERR_DROP, "CL_ParseDownload: Invalid size {} for download chunk", size);
         return;
     }
 
     if ((clc.downloadBlock & 0xFFFF) != block) {
-        Com_DPrintf("CL_ParseDownload: Expected block %d, got %d\n", (clc.downloadBlock & 0xFFFF), block);
+        Q_DPrintln("CL_ParseDownload: Expected block {}, got {}", (clc.downloadBlock & 0xFFFF), block);
         return;
     }
 
@@ -338,7 +338,7 @@ void CL_ParseDownload(int block, int fileSize, const byte* data, int size)
         clc.download = FS_SV_FOpenFileWrite(clc.downloadTempName);
 
         if (!clc.download) {
-            Com_Printf("Could not create %s\n", clc.downloadTempName);
+            Q_Println("Could not create {}", clc.downloadTempName);
             CL_AddReliableCommand("stopdl", false);
             CL_NextDownload();
             return;
@@ -348,7 +348,7 @@ void CL_ParseDownload(int block, int fileSize, const byte* data, int size)
     if (size)
         FS_Write(data, size, clc.download);
 
-    CL_AddReliableCommand(va("nextdl %d", clc.downloadBlock), false);
+    CL_AddReliableCommand(Q_Format("nextdl {}", clc.downloadBlock).c_str(), false);
     clc.downloadBlock++;
 
     clc.downloadCount += size;
@@ -461,7 +461,7 @@ void CL_ParseCommandString(int seq, const char* s)
         char strEd[MAX_STRING_CHARS]; // MAX_STRINGED_SV_STRING of cl_cgame.cpp
         Cmd_TokenizeString(s);
         CL_CheckSVStringEdRef(strEd, Cmd_Argv(1));
-        Com_Error(errorParm_t::ERR_SERVERDISCONNECT, "%s: %s\n", SE_GetString("MP_SVGAME_SERVER_DISCONNECTED"), strEd);
+        Q_Error(errorParm_t::ERR_SERVERDISCONNECT, "{}: {}", SE_GetString("MP_SVGAME_SERVER_DISCONNECTED"), strEd);
     }
 }
 

@@ -334,23 +334,23 @@ public:
 #if !defined(FINAL_BUILD)
     void ProfileSpew()
     {
-        ProfilePrint("%s", "");
-        ProfilePrint("%s", "");
-        ProfilePrint("--------------------------------------------------------");
-        ProfilePrint("RAVEN STANDARD LIBRARY  -  COMPUTATIONAL GEOMETRY MODULE");
-        ProfilePrint("              Region Profile Results                    ");
-        ProfilePrint("--------------------------------------------------------");
-        ProfilePrint("%s", "");
-        ProfilePrint("REGION SIZE (Bytes): (%zu)  (KiloBytes): (%5.3f)", sizeof(*this), ((float)(sizeof(*this)) / 1024.0f));
-        ProfilePrint("REGION COUNT: (%d) Regions  (%d) Edges", mRegionCount, mEdges.size());
+        ProfilePrintln("{}", "");
+        ProfilePrintln("{}", "");
+        ProfilePrintln("--------------------------------------------------------");
+        ProfilePrintln("RAVEN STANDARD LIBRARY  -  COMPUTATIONAL GEOMETRY MODULE");
+        ProfilePrintln("              Region Profile Results                    ");
+        ProfilePrintln("--------------------------------------------------------");
+        ProfilePrintln("{}", "");
+        ProfilePrintln("REGION SIZE (Bytes): ({})  (KiloBytes): ({:5.3f})", sizeof(*this), ((float)(sizeof(*this)) / 1024.0f));
+        ProfilePrintln("REGION COUNT: ({}) Regions  ({}) Edges", mRegionCount, mEdges.size());
         if (mRegionCount) {
             int RegionEdges = 0;
             for (typename TEdges::iterator it = mEdges.begin(); it != mEdges.end(); ++it) {
                 RegionEdges += (*it).size();
             }
-            ProfilePrint("REGION COUNT: (%f) Ave Edges Size", (float)RegionEdges / (float)mRegionCount);
+            ProfilePrintln("REGION COUNT: ({:f}) Ave Edges Size", (float)RegionEdges / (float)mRegionCount);
         }
-        ProfilePrint("%s", "");
+        ProfilePrintln("{}", "");
     };
 #endif
 };

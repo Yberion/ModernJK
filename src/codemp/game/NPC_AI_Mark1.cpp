@@ -234,7 +234,7 @@ void Mark1_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int d
     }
     */
 
-    G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex(va("sound/chars/mark1/misc/death%d.wav", Q_irand(1, 2))));
+    G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/chars/mark1/misc/death{}.wav", Q_irand(1, 2)).c_str()));
 
     // Choose a death anim
     if (Q_irand(1, 10) > 5) {
@@ -261,14 +261,14 @@ void Mark1_dying(gentity_t* self)
             // Find place to generate explosion
             if (num == 1) {
                 num = Q_irand(8, 10);
-                newBolt = trap->G2API_AddBolt(self->ghoul2, 0, va("*flash%d", num));
+                newBolt = trap->G2API_AddBolt(self->ghoul2, 0, Q_Format("*flash{}", num).c_str());
                 NPC_Mark1_Part_Explode(self, newBolt);
             }
             else {
                 num = Q_irand(1, 6);
-                newBolt = trap->G2API_AddBolt(self->ghoul2, 0, va("*torso_tube%d", num));
+                newBolt = trap->G2API_AddBolt(self->ghoul2, 0, Q_Format("*torso_tube{}", num).c_str());
                 NPC_Mark1_Part_Explode(self, newBolt);
-                NPC_SetSurfaceOnOff(self, va("torso_tube%d", num), TURN_OFF);
+                NPC_SetSurfaceOnOff(self, Q_Format("torso_tube{}", num).c_str(), TURN_OFF);
             }
 
             TIMER_Set(self, "dyingExplosion", Q_irand(300, 1000));
@@ -362,11 +362,11 @@ void NPC_Mark1_Pain(gentity_t* self, gentity_t* attacker, int damage)
                 (self->locationDamage[to_underlying(hitLocation_t::HL_GENERIC1 + i)] > AMMO_POD_HEALTH)) // Blow it up?
             {
                 if (self->locationDamage[to_underlying(hitLoc)] >= AMMO_POD_HEALTH) {
-                    newBolt = trap->G2API_AddBolt(self->ghoul2, 0, va("*torso_tube%d", (i + 1)));
+                    newBolt = trap->G2API_AddBolt(self->ghoul2, 0, Q_Format("*torso_tube{}", (i + 1)).c_str());
                     if (newBolt != -1) {
                         NPC_Mark1_Part_Explode(self, newBolt);
                     }
-                    NPC_SetSurfaceOnOff(self, va("torso_tube%d", (i + 1)), TURN_OFF);
+                    NPC_SetSurfaceOnOff(self, Q_Format("torso_tube{}", (i + 1)).c_str(), TURN_OFF);
                     NPC_SetAnim(self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1,
                                 setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
                     break;
@@ -604,7 +604,7 @@ void Mark1_AttackDecision(void)
     // randomly talk
     if (TIMER_Done(NPCS.NPC, "patrolNoise")) {
         if (TIMER_Done(NPCS.NPC, "angerNoise")) {
-            //			G_Sound( NPC, G_SoundIndex(va("sound/chars/mark1/misc/talk%d.wav",	Q_irand(1, 4))));
+            //			G_Sound( NPC, G_SoundIndex(Q_Format("sound/chars/mark1/misc/talk{}.wav", Q_irand(1, 4)).c_str()));
             TIMER_Set(NPCS.NPC, "patrolNoise", Q_irand(4000, 10000));
         }
     }
@@ -686,7 +686,7 @@ void Mark1_Patrol(void)
         // randomly talk
         //		if (TIMER_Done(NPC,"patrolNoise"))
         //		{
-        //			G_Sound( NPC, G_SoundIndex(va("sound/chars/mark1/misc/talk%d.wav",	Q_irand(1, 4))));
+        //			G_Sound( NPC, G_SoundIndex(Q_Format("sound/chars/mark1/misc/talk{}.wav", Q_irand(1, 4)).c_str()));
         //
         //			TIMER_Set( NPC, "patrolNoise", Q_irand( 2000, 4000 ) );
         //		}

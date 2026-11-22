@@ -39,7 +39,7 @@ void NPC_AngerSound (void)
 //	switch((int)NPC->client->race)
 //	{
 //	case RACE_KLINGON:
-        //G_Sound(NPC, G_SoundIndex(va("sound/mgtest/klingon/talk%d.wav",	Q_irand(1, 4))));
+        //G_Sound(NPC, G_SoundIndex(Q_Format("sound/mgtest/klingon/talk{}.wav", Q_irand(1, 4)).c_str()));
 //		break;
 //	}
 }

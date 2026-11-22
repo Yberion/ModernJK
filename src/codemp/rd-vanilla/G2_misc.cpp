@@ -231,11 +231,11 @@ void G2_List_Model_Surfaces(const char* fileName)
     mdxmSurface_t* surface = (mdxmSurface_t*)((byte*)mod_m->mdxm + mod_m->mdxm->ofsLODs + sizeof(mdxmLOD_t));
 
     for (x = 0; x < mod_m->mdxm->numSurfaces; x++) {
-        Com_Printf("Surface %i Name %s\n", x, surf->name);
+        Q_Println("Surface {} Name {}", x, surf->name);
         if (r_verbose->integer) {
-            Com_Printf("Num Descendants %i\n", surf->numChildren);
+            Q_Println("Num Descendants {}", surf->numChildren);
             for (i = 0; i < surf->numChildren; i++) {
-                Com_Printf("Descendant %i\n", surf->childIndexes[i]);
+                Q_Println("Descendant {}", surf->childIndexes[i]);
             }
         }
         // find the next surface
@@ -265,15 +265,15 @@ void G2_List_Model_Bones(const char* fileName, int frame)
     // walk each bone and list it's name
     for (x = 0; x < mod_a->mdxa->numBones; x++) {
         skel = (mdxaSkel_t*)((byte*)header + sizeof(mdxaHeader_t) + offsets->offsets[x]);
-        Com_Printf("Bone %i Name %s\n", x, skel->name);
+        Q_Println("Bone {} Name {}", x, skel->name);
 
-        Com_Printf("X pos %f, Y pos %f, Z pos %f\n", skel->BasePoseMat.matrix[0][3], skel->BasePoseMat.matrix[1][3], skel->BasePoseMat.matrix[2][3]);
+        Q_Println("X pos {:f}, Y pos {:f}, Z pos {:f}", skel->BasePoseMat.matrix[0][3], skel->BasePoseMat.matrix[1][3], skel->BasePoseMat.matrix[2][3]);
 
         // if we are in verbose mode give us more details
         if (r_verbose->integer) {
-            Com_Printf("Num Descendants %i\n", skel->numChildren);
+            Q_Println("Num Descendants {}", skel->numChildren);
             for (i = 0; i < skel->numChildren; i++) {
-                Com_Printf("Num Descendants %i\n", skel->numChildren);
+                Q_Println("Num Descendants {}", skel->numChildren);
             }
         }
     }
@@ -345,7 +345,7 @@ void R_TransformEachSurface(const mdxmSurface_t* surface, vec3_t scale, IHeapAll
     TransformedVerts = (float*)G2VertSpace->MiniHeapAlloc(surface->numVerts * 5 * 4);
     TransformedVertsArray[surface->thisSurfaceIndex] = (size_t)TransformedVerts;
     if (!TransformedVerts) {
-        Com_Error(errorParm_t::ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust MiniHeapSize in SV_SpawnServer.\n");
+        Q_Error(errorParm_t::ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust MiniHeapSize in SV_SpawnServer.");
     }
 
     // whip through and actually transform each vertex
@@ -542,7 +542,7 @@ void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frameNum, vec3_t scale, 
         if (!Any(g.mFlags & ghoul2Flags_t::GHOUL2_ZONETRANSALLOC)) { // do not stomp if we're using zone space
             g.mTransformedVertsArray = (size_t*)G2VertSpace->MiniHeapAlloc(g.currentModel->mdxm->numSurfaces * sizeof(size_t));
             if (!g.mTransformedVertsArray) {
-                Com_Error(errorParm_t::ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust MiniHeapSize in SV_SpawnServer.\n");
+                Q_Error(errorParm_t::ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust MiniHeapSize in SV_SpawnServer.");
             }
         }
 
@@ -1025,7 +1025,7 @@ static bool G2_TracePolys(const mdxmSurface_t* surface, const mdxmSurfHierarchy_
                                                                     ((int)(y_pos * hitMatReg[shader->hitLocation].height) *
                        hitMatReg[shader->hitLocation].width) +
                                                                     ((int)(x_pos * hitMatReg[shader->hitLocation].width)));
-                                                Com_Printf("G2_TracePolys hit location: %d\n", newCol.mLocation);
+                                                Q_Println("G2_TracePolys hit location: {}", newCol.mLocation);
                                             }
 
                                             if (shader->hitMaterial)
@@ -1549,7 +1549,7 @@ bool G2_SaveGhoul2Models(CGhoul2Info_v& ghoul2, char** buffer, int* size)
 
     for (i = 0; i < ghoul2.size(); i++) {
         // first save out the ghoul2 details themselves
-        //		OutputDebugString(va("G2_SaveGhoul2Models(): ghoul2[%d].mModelindex = %d\n",i,ghoul2[i].mModelindex));
+        //		OutputDebugString(Q_Format("G2_SaveGhoul2Models(): ghoul2[{}].mModelindex = {}\n", i, ghoul2[i].mModelindex).c_str());
         memcpy(tempBuffer, &ghoul2[i].mModelindex, ghoul2BlockSize);
         tempBuffer += ghoul2BlockSize;
 
@@ -1620,7 +1620,7 @@ void G2_LoadGhoul2Model(CGhoul2Info_v& ghoul2, char* buffer)
         ghoul2[i].mValid = false;
         // load the ghoul2 info from the buffer
         memcpy(&ghoul2[i].mModelindex, buffer, ghoul2BlockSize);
-        //		OutputDebugString(va("G2_LoadGhoul2Model(): ghoul2[%d].mModelindex = %d\n",i,ghoul2[i].mModelindex));
+        //		OutputDebugString(Q_Format("G2_LoadGhoul2Model(): ghoul2[{}].mModelindex = {}\n", i, ghoul2[i].mModelindex).c_str());
         buffer += ghoul2BlockSize;
 
         if (ghoul2[i].mModelindex != -1 && ghoul2[i].mFileName[0]) {

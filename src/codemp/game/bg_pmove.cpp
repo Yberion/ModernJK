@@ -3075,15 +3075,15 @@ static void PM_WalkMove(void)
     if (pm->ps->clientNum >= MAX_CLIENTS)
     {
 #ifdef _GAME
-        Com_Printf("^1S: %f, %f\n", wishspeed, pm->ps->speed);
+        Q_Println("^1S: {:f}, {:f}", wishspeed, pm->ps->speed);
 #else
-        Com_Printf("^2C: %f, %f\n", wishspeed, pm->ps->speed);
+        Q_Println("^2C: {:f}, {:f}", wishspeed, pm->ps->speed);
 #endif
     }
     */
 
-    // Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
-    // Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
+    // Q_Println("velocity = {:1.1f} {:1.1f} {:1.1f}", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
+    // Q_Println("velocity1 = {:1.1f}", VectorLength(pm->ps->velocity));
 
     if (Any(pml.groundTrace.surfaceFlags & surfaceFlags_t::SURF_SLICK) || Any(pm->ps->pm_flags & pmoveFlags_t::PMF_TIME_KNOCKBACK)) {
         pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
@@ -3105,7 +3105,7 @@ static void PM_WalkMove(void)
 
     PM_StepSlideMove(false);
 
-    // Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
+    // Q_Println("velocity2 = {:1.1f}", VectorLength(pm->ps->velocity));
 }
 
 /*
@@ -3536,7 +3536,7 @@ static void PM_CrashLand(void)
                             delta_send = 8;
                         }
 
-                        // Com_Printf("Damage sub: %i\n", (int)((dmgLess*0.1)));
+                        // Q_Println("Damage sub: {}", (int)((dmgLess*0.1)));
                     }
                 }
             }
@@ -3576,7 +3576,7 @@ static int PM_CorrectAllSolid(trace_t* trace)
     vec3_t point;
 
     if (pm->debugLevel) {
-        Com_Printf("%i:allsolid\n", c_pmove);
+        Q_Println("{}:allsolid", c_pmove);
     }
 
     // jitter around
@@ -3640,7 +3640,7 @@ static void PM_GroundTraceMissed(void)
     else if (pm->ps->groundEntityNum != ENTITYNUM_NONE || (pm->ps->legsAnim) == animNumber_t::BOTH_CHOKE3) {
         // we just transitioned into freefall
         if (pm->debugLevel) {
-            Com_Printf("%i:lift\n", c_pmove);
+            Q_Println("{}:lift", c_pmove);
         }
 
         // if they aren't in a jumping animation and the ground is a ways away, force into it
@@ -3742,7 +3742,7 @@ static void PM_GroundTrace(void)
     // check if getting thrown off the ground
     if (pm->ps->velocity[2] > 0 && DotProduct(pm->ps->velocity, trace.plane.normal) > 10) {
         if (pm->debugLevel) {
-            Com_Printf("%i:kickoff\n", c_pmove);
+            Q_Println("{}:kickoff", c_pmove);
         }
         // go into jump animation
         if (pm->cmd.forwardmove >= 0) {
@@ -3763,7 +3763,7 @@ static void PM_GroundTrace(void)
     // slopes that are too steep will not be considered onground
     if (trace.plane.normal[2] < minNormal) {
         if (pm->debugLevel) {
-            Com_Printf("%i:steep\n", c_pmove);
+            Q_Println("{}:steep", c_pmove);
         }
         pm->ps->groundEntityNum = ENTITYNUM_NONE;
         pml.groundPlane = true;
@@ -3783,7 +3783,7 @@ static void PM_GroundTrace(void)
     if (pm->ps->groundEntityNum == ENTITYNUM_NONE) {
         // just hit the ground
         if (pm->debugLevel) {
-            Com_Printf("%i:Land\n", c_pmove);
+            Q_Println("{}:Land", c_pmove);
         }
 
         PM_CrashLand();
@@ -5486,7 +5486,7 @@ static bool PM_DoChargedWeapons(bool vehicleRocketLock, bgEntity_t* veh)
                 pm->ps->weaponChargeSubtractTime = pm->cmd.serverTime + weaponData[pm->ps->weapon].altChargeSubTime;
 
 #ifdef _DEBUG
-                //	Com_Printf("Starting charge\n");
+                //	Q_Println("Starting charge");
 #endif
                 assert(pm->ps->weapon > weapon_t::WP_NONE);
                 BG_AddPredictableEventToPlayerstate(entity_event_t::EV_WEAPON_CHARGE_ALT, to_underlying(pm->ps->weapon), pm->ps);
@@ -5519,7 +5519,7 @@ static bool PM_DoChargedWeapons(bool vehicleRocketLock, bgEntity_t* veh)
                 pm->ps->weaponChargeSubtractTime = pm->cmd.serverTime + weaponData[pm->ps->weapon].chargeSubTime;
 
 #ifdef _DEBUG
-                //	Com_Printf("Starting charge\n");
+                //	Q_Println("Starting charge");
 #endif
                 BG_AddPredictableEventToPlayerstate(entity_event_t::EV_WEAPON_CHARGE, to_underlying(pm->ps->weapon), pm->ps);
             }
@@ -5551,7 +5551,7 @@ rest:
     if (pm->ps->weaponstate == weaponstate_t::WEAPON_CHARGING) {
         // weapon has a charge, so let us do an attack
 #ifdef _DEBUG
-        //	Com_Printf("Firing.  Charge time=%d\n", pm->cmd.serverTime - pm->ps->weaponChargeTime);
+        //	Q_Println("Firing.  Charge time={}", pm->cmd.serverTime - pm->ps->weaponChargeTime);
 #endif
 
         // dumb, but since we shoot a charged weapon on button-up, we need to repress this button for now
@@ -5561,7 +5561,7 @@ rest:
     else if (pm->ps->weaponstate == weaponstate_t::WEAPON_CHARGING_ALT) {
         // weapon has a charge, so let us do an alt-attack
 #ifdef _DEBUG
-        //	Com_Printf("Firing.  Charge time=%d\n", pm->cmd.serverTime - pm->ps->weaponChargeTime);
+        //	Q_Println("Firing.  Charge time={}", pm->cmd.serverTime - pm->ps->weaponChargeTime);
 #endif
 
         // dumb, but since we shoot a charged weapon on button-up, we need to repress this button for now
@@ -8102,7 +8102,7 @@ void BG_G2PlayerAngles(void* ghoul2, int motionBolt, entityState_t* cent, int ti
     else {
         dir = cent->angles2[YAW];
         if (dir < 0 || dir > 7) {
-            Com_Error(errorParm_t::ERR_DROP, "Bad player movement angle (%i)", dir);
+            Q_Error(errorParm_t::ERR_DROP, "Bad player movement angle ({})", dir);
         }
     }
 
@@ -9304,9 +9304,9 @@ void PmoveSingle(pmove_t* pmove)
     if (pm->ps->clientNum >= MAX_CLIENTS)
     {
 #ifdef _GAME
-        Com_Printf( S_C0LOR_RED" SERVER N%i msec %d\n", pm->ps->clientNum, pml.msec );
+        Q_Println(S_C0LOR_RED" SERVER N{} msec {}", pm->ps->clientNum, pml.msec);
 #else
-        Com_Printf( S_COLOR_GREEN" CLIENT N%i msec %d\n", pm->ps->clientNum, pml.msec );
+        Q_Println(S_COLOR_GREEN" CLIENT N{} msec {}", pm->ps->clientNum, pml.msec);
 #endif
     }
     */

@@ -218,7 +218,7 @@ static void MakeMeshNormals(int width, int height, drawVert_t ctrl[MAX_GRID_SIZE
                 count++;
             }
             if (count == 0) {
-                // printf("bad normal\n");
+                // Q_FilePrintln(stdout, "bad normal");
                 count = 1;
             }
             VectorNormalize2(sum, dv->normal);

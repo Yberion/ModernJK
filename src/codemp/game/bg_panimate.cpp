@@ -1625,8 +1625,8 @@ void PM_DebugLegsAnim(animNumber_t anim)
 
     if (oldAnim < animNumber_t::MAX_TOTALANIMATIONS && oldAnim >= animNumber_t::BOTH_DEATH1 && newAnim < animNumber_t::MAX_TOTALANIMATIONS &&
         newAnim >= animNumber_t::BOTH_DEATH1) {
-        Com_Printf("OLD: %s\n", BG_AnimName(oldAnim));
-        Com_Printf("NEW: %s\n", BG_AnimName(newAnim));
+        Q_Println("OLD: {}", BG_AnimName(oldAnim));
+        Q_Println("NEW: {}", BG_AnimName(newAnim));
     }
 }
 
@@ -1793,7 +1793,7 @@ void ParseAnimationEvtBlock(const char* aeb_filename, animevent_t* animEvents, a
     // read information for each frame
     while (1) {
         if (lastAnimEvent >= MAX_ANIM_EVENTS) {
-            Com_Error(errorParm_t::ERR_DROP, "ParseAnimationEvtBlock: number events in animEvent file %s > MAX_ANIM_EVENTS(%i)", aeb_filename, MAX_ANIM_EVENTS);
+            Q_Error(errorParm_t::ERR_DROP, "ParseAnimationEvtBlock: number events in animEvent file {} > MAX_ANIM_EVENTS({})", aeb_filename, MAX_ANIM_EVENTS);
             return;
         }
         // Get base frame of sequence
@@ -1814,7 +1814,7 @@ void ParseAnimationEvtBlock(const char* aeb_filename, animevent_t* animEvents, a
         //	at least not much.
         const std::optional<animNumber_t> animNum = BG_AnimFromName(token);
         if (!animNum) { // Unrecognized ANIM ENUM name, or we're skipping this line, keep going till you get a good one
-            Com_Warning("Unknown token %s in animEvent file %s\n", token, aeb_filename);
+            Q_PrintlnWarning("Unknown token {} in animEvent file {}", token, aeb_filename);
             while (token[0]) {
                 token = COM_ParseExt(text_p, false); // returns empty string when next token is EOL
             }
@@ -1822,7 +1822,7 @@ void ParseAnimationEvtBlock(const char* aeb_filename, animevent_t* animEvents, a
         }
 
         if ((*animations)[*animNum].numFrames == 0) { // we don't use this anim
-            Com_Warning("%s animevents.cfg: anim %s not used by this model\n", aeb_filename, token);
+            Q_PrintlnWarning("{} animevents.cfg: anim {} not used by this model", aeb_filename, token);
             // skip this entry
             SkipRestOfLine(text_p);
             continue;
@@ -1833,7 +1833,7 @@ void ParseAnimationEvtBlock(const char* aeb_filename, animevent_t* animEvents, a
         eventType = static_cast<animEventType_t>(eventId);
         if (eventId == -1 ||
             eventType == animEventType_t::AEV_NONE) { // Unrecognized ANIM EVENT TYOE, or we're skipping this line, keep going till you get a good one
-            // Com_Warning("Unknown token %s in animEvent file %s\n", token, aeb_filename );
+            // Q_PrintlnWarning("Unknown token {} in animEvent file {}", token, aeb_filename);
             continue;
         }
 
@@ -1907,12 +1907,14 @@ void ParseAnimationEvtBlock(const char* aeb_filename, animevent_t* animEvents, a
                 if ((highestVal - lowestVal) >= MAX_RANDOM_ANIM_SOUNDS) {
                     highestVal = lowestVal + (MAX_RANDOM_ANIM_SOUNDS - 1);
                 }
+                char soundFormat[MAX_QPATH * 2];
+                Q_FormatFromPrintf(soundFormat, stringData, "an animation's sound");
                 for (n = lowestVal, num = AED_SOUNDINDEX_START; n <= highestVal && num <= AED_SOUNDINDEX_END; n++, num++) {
                     if (stringData[0] == '*') { // FIXME? Would be nice to make custom sounds work with animEvents.
                         animEvents[curAnimEvent].eventData[num] = 0;
                     }
                     else {
-                        animEvents[curAnimEvent].eventData[num] = trap->S_RegisterSound(va(stringData, n));
+                        animEvents[curAnimEvent].eventData[num] = trap->S_RegisterSound(Q_Format(fmt::runtime(soundFormat), n).c_str());
                     }
                 }
                 animEvents[curAnimEvent].eventData[AED_SOUND_NUMRANDOMSNDS] = num - 1;
@@ -1926,7 +1928,7 @@ void ParseAnimationEvtBlock(const char* aeb_filename, animevent_t* animEvents, a
                 }
 #ifndef FINAL_BUILD
                 if (!animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] && stringData[0] != '*') { // couldn't register it - file not found
-                    Com_Printf(S_COLOR_RED "ParseAnimationSndBlock: sound %s does not exist (animevents.cfg %s)!\n", stringData, aeb_filename);
+                    Q_Println(S_COLOR_RED "ParseAnimationSndBlock: sound {} does not exist (animevents.cfg {})!", stringData, aeb_filename);
                 }
 #endif
                 animEvents[curAnimEvent].eventData[AED_SOUND_NUMRANDOMSNDS] = 0;
@@ -2127,7 +2129,7 @@ int BG_ParseAnimationEvtFile(const char* as_filename, int animFileIndex, int eve
     }
 
     // Load and parse animevents.cfg file
-    Com_sprintf(sfilename, sizeof(sfilename), "%sanimevents.cfg", as_filename);
+    Q_FormatTo(sfilename, "{}animevents.cfg", as_filename);
 
     if (bg_animParseIncluding <= 0) { // should already be done if we're including
         // initialize anim event array
@@ -2158,9 +2160,9 @@ int BG_ParseAnimationEvtFile(const char* as_filename, int animFileIndex, int eve
     if (len >= std::ssize(text) - 1) {
         trap->FS_Close(f);
 #ifndef FINAL_BUILD
-        Com_Error(errorParm_t::ERR_DROP, "File %s too long\n", sfilename);
+        Q_Error(errorParm_t::ERR_DROP, "File {} too long", sfilename);
 #else
-        Com_Printf("File %s too long\n", sfilename);
+        Q_Println("File {} too long", sfilename);
 #endif
         goto fin;
     }
@@ -2189,7 +2191,7 @@ int BG_ParseAnimationEvtFile(const char* as_filename, int animFileIndex, int eve
             const char* include_filename = COM_Parse(&text_p);
             if (include_filename != nullptr) {
                 char fullIPath[MAX_QPATH];
-                strcpy(fullIPath, va("models/players/%s/", include_filename));
+                strcpy(fullIPath, Q_Format("models/players/{}/", include_filename).c_str());
                 bg_animParseIncluding++;
                 BG_ParseAnimationEvtFile(fullIPath, animFileIndex, forcedIndex);
                 bg_animParseIncluding--;
@@ -2299,7 +2301,7 @@ int BG_ParseAnimationFile(const char* filename, animSet_t* animset, bool isHuman
                 BG_AnimsetFree(animset);
             }
             if (len > 0) {
-                Com_Error(errorParm_t::ERR_DROP, "%s exceeds the allowed game-side animation buffer!", filename);
+                Q_Error(errorParm_t::ERR_DROP, "{} exceeds the allowed game-side animation buffer!", filename);
             }
             return -1;
         }
@@ -2343,7 +2345,7 @@ int BG_ParseAnimationFile(const char* filename, animSet_t* animset, bool isHuman
 // #ifndef FINAL_BUILD
 #ifdef _DEBUG
             if (strcmp(token, "ROOT")) {
-                Com_Warning("Unknown token %s in %s\n", token, filename);
+                Q_PrintlnWarning("Unknown token {} in {}", token, filename);
             }
             while (token[0]) {
                 token = COM_ParseExt((const char**)&text_p, false); // returns empty string when next token is EOL
@@ -2394,7 +2396,7 @@ int BG_ParseAnimationFile(const char* filename, animSet_t* animset, bool isHuman
         {
             if ((*animset)[anim].firstFrame <= 0 && (*animset)[anim].numFrames <=0)
             {	// This is an empty animation reference.
-                Com_Printf("***ANIMTABLE reference #%d (%s) is empty!\n", to_underlying( anim ), BG_AnimName( anim ));
+                Q_Println("***ANIMTABLE reference #{} ({}) is empty!", to_underlying( anim ), BG_AnimName( anim ));
             }
         }
     }
@@ -2480,7 +2482,7 @@ static void BG_StartLegsAnim(playerState_t* ps, animNumber_t anim)
 
     /*
     if ( pm->debugLevel ) {
-        Com_Printf("%d:  StartLegsAnim %d, on client#%d\n", pm->cmd.serverTime, anim, pm->ps->clientNum);
+        Q_Println("{}:  StartLegsAnim {}, on client#{}", pm->cmd.serverTime, anim, pm->ps->clientNum);
     }
     */
 }

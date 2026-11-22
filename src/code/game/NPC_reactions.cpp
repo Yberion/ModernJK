@@ -190,7 +190,7 @@ float NPC_GetPainChance(gentity_t* self, int damage)
         // return 0.05f;
         break;
     }
-    // Com_Printf( "%s: %4.2f\n", self->NPC_type, pain_chance );
+    // Q_Println("{}: {:4.2f}", self->NPC_type, pain_chance);
     return pain_chance;
 }
 
@@ -419,7 +419,7 @@ void NPC_Pain(gentity_t* self, gentity_t* inflictor, gentity_t* other, const vec
                     return;
                 }
                 else if (self->NPC->ffireCount < 3 + ((2 - g_spskill->integer) * 2)) { // not mad enough yet
-                    // Com_Printf( "chck: %d < %d\n", self->NPC->ffireCount, 3+((2-g_spskill->integer)*2) );
+                    // Q_Println("chck: {} < {}", self->NPC->ffireCount, 3+((2-g_spskill->integer)*2));
                     if (damage != -1) { //-1 == don't play pain anim
                         // Set our proper pain animation
                         if (Q_irand(0, 1)) {
@@ -542,7 +542,7 @@ void NPC_Touch(gentity_t* self, gentity_t* other, trace_t* trace)
                 self->client->ps.eFlags &= ~entityFlags_t::EF_FORCE_VISIBLE; // remove sight flag
                 G_Sound(player, G_SoundIndex("sound/weapons/key_pkup.wav"));
             }
-            gi.SendServerCommand(0, "%s", text);
+            gi.SendServerCommand(0, "{}", text);
         }
     }
 
@@ -808,19 +808,19 @@ void NPC_Respond(gentity_t* self, int userNum)
         }
         break;
     case class_t::CLASS_R2D2: // droid
-        G_Sound(self, G_SoundIndex(va("sound/chars/r2d2/misc/r2d2talk0%d.wav", Q_irand(1, 3))));
+        G_Sound(self, G_SoundIndex(Q_Format("sound/chars/r2d2/misc/r2d2talk0{}.wav", Q_irand(1, 3)).c_str()));
         break;
     case class_t::CLASS_R5D2: // droid
-        G_Sound(self, G_SoundIndex(va("sound/chars/r5d2/misc/r5talk%d.wav", Q_irand(1, 4))));
+        G_Sound(self, G_SoundIndex(Q_Format("sound/chars/r5d2/misc/r5talk{}.wav", Q_irand(1, 4)).c_str()));
         break;
     case class_t::CLASS_MOUSE: // droid
-        G_Sound(self, G_SoundIndex(va("sound/chars/mouse/misc/mousego%d.wav", Q_irand(1, 3))));
+        G_Sound(self, G_SoundIndex(Q_Format("sound/chars/mouse/misc/mousego{}.wav", Q_irand(1, 3)).c_str()));
         break;
     case class_t::CLASS_GONK: // droid
-        G_Sound(self, G_SoundIndex(va("sound/chars/gonk/misc/gonktalk%d.wav", Q_irand(1, 2))));
+        G_Sound(self, G_SoundIndex(Q_Format("sound/chars/gonk/misc/gonktalk{}.wav", Q_irand(1, 2)).c_str()));
         break;
     case class_t::CLASS_JAWA:
-        G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, va("sound/chars/jawa/misc/chatter%d.wav", Q_irand(1, 6)));
+        G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/jawa/misc/chatter{}.wav", Q_irand(1, 6)).c_str());
         if (self->NPC) {
             self->NPC->blockedSpeechDebounceTime = level.time + 2000;
         }

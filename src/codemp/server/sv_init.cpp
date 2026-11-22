@@ -63,7 +63,7 @@ static void SV_SendConfigstring(client_t* client, int index)
             }
             Q_strncpyz(buf, &sv.configstrings[index][sent], maxChunkSize);
 
-            SV_SendServerCommand(client, "%s %i \"%s\"\n", cmd, index, buf);
+            SV_SendServerCommand(client, "{} {} \"{}\"\n", cmd, index, buf);
 
             sent += (maxChunkSize - 1);
             remaining -= (maxChunkSize - 1);
@@ -71,7 +71,7 @@ static void SV_SendConfigstring(client_t* client, int index)
     }
     else {
         // standard cs, just send it
-        SV_SendServerCommand(client, "cs %i \"%s\"\n", index, sv.configstrings[index]);
+        SV_SendServerCommand(client, "cs {} \"{}\"\n", index, sv.configstrings[index]);
     }
 }
 
@@ -113,7 +113,7 @@ void SV_SetConfigstring(int index, const char* val)
     client_t* client;
 
     if (index < 0 || index >= MAX_CONFIGSTRINGS) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_SetConfigstring: bad index %i\n", index);
+        Q_Error(errorParm_t::ERR_DROP, "SV_SetConfigstring: bad index {}", index);
     }
 
     if (!val) {
@@ -159,10 +159,10 @@ SV_GetConfigstring
 void SV_GetConfigstring(int index, char* buffer, int bufferSize)
 {
     if (bufferSize < 1) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize);
+        Q_Error(errorParm_t::ERR_DROP, "SV_GetConfigstring: bufferSize == {}", bufferSize);
     }
     if (index < 0 || index >= MAX_CONFIGSTRINGS) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_GetConfigstring: bad index %i\n", index);
+        Q_Error(errorParm_t::ERR_DROP, "SV_GetConfigstring: bad index {}", index);
     }
     if (!sv.configstrings[index]) {
         buffer[0] = 0;
@@ -181,7 +181,7 @@ SV_SetUserinfo
 void SV_SetUserinfo(int index, const char* val)
 {
     if (index < 0 || index >= sv_maxclients->integer) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_SetUserinfo: bad index %i\n", index);
+        Q_Error(errorParm_t::ERR_DROP, "SV_SetUserinfo: bad index {}", index);
     }
 
     if (!val) {
@@ -201,10 +201,10 @@ SV_GetUserinfo
 void SV_GetUserinfo(int index, char* buffer, int bufferSize)
 {
     if (bufferSize < 1) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize);
+        Q_Error(errorParm_t::ERR_DROP, "SV_GetUserinfo: bufferSize == {}", bufferSize);
     }
     if (index < 0 || index >= sv_maxclients->integer) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
+        Q_Error(errorParm_t::ERR_DROP, "SV_GetUserinfo: bad index {}", index);
     }
     Q_strncpyz(buffer, svs.clients[index].userinfo, bufferSize);
 }
@@ -251,10 +251,10 @@ void SV_BoundMaxClients(int minimum)
     sv_maxclients->modified = false;
 
     if (sv_maxclients->integer < minimum) {
-        Cvar_Set("sv_maxclients", va("%i", minimum));
+        Cvar_Set("sv_maxclients", Q_Format("{}", minimum).c_str());
     }
     else if (sv_maxclients->integer > MAX_CLIENTS) {
-        Cvar_Set("sv_maxclients", va("%i", MAX_CLIENTS));
+        Cvar_Set("sv_maxclients", Q_Format("{}", MAX_CLIENTS).c_str());
     }
 }
 
@@ -271,7 +271,7 @@ the menu system first.
 void SV_Startup(void)
 {
     if (svs.initialized) {
-        Com_Error(errorParm_t::ERR_FATAL, "SV_Startup: svs.initialized");
+        Q_Error(errorParm_t::ERR_FATAL, "SV_Startup: svs.initialized");
     }
     SV_BoundMaxClients(1);
 
@@ -410,7 +410,7 @@ void SV_TouchCGame(void)
     fileHandle_t f;
     char filename[MAX_QPATH];
 
-    Com_sprintf(filename, sizeof(filename), "cgamex86.dll");
+    Q_FormatTo(filename, "cgamex86.dll");
 
     FS_FOpenFileRead(filename, &f, false);
     if (f) {
@@ -461,8 +461,8 @@ void SV_SpawnServer(char* server, bool killBots, ForceReload_e eForceReload)
     SV_ShutdownGameProgs();
     svs.gameStarted = false;
 
-    Com_Printf("------ Server Initialization ------\n");
-    Com_Printf("Server: %s\n", server);
+    Q_Println("------ Server Initialization ------");
+    Q_Println("Server: {}", server);
 
     /*
     Ghoul2 Insert Start
@@ -545,7 +545,7 @@ void SV_SpawnServer(char* server, bool killBots, ForceReload_e eForceReload)
     // (cleared by hand, the whole array would be: 69.7 MB at a window of 128 messages)
     svs.snapshotEntities = (entityState_t*)calloc(svs.numSnapshotEntities, sizeof(entityState_t));
     if (!svs.snapshotEntities) {
-        Com_Error(errorParm_t::ERR_FATAL, "SV_SpawnServer: no memory for the snapshot entities");
+        Q_Error(errorParm_t::ERR_FATAL, "SV_SpawnServer: no memory for the snapshot entities");
     }
 
     /*
@@ -559,7 +559,7 @@ void SV_SpawnServer(char* server, bool killBots, ForceReload_e eForceReload)
     // set nextmap to the same map, but it may be overriden
     // by the game startup or another console command
     Cvar_Set("nextmap", "map_restart 0");
-    //	Cvar_Set( "nextmap", va("map %s", server) );
+    //	Cvar_Set( "nextmap", Q_Format("map {}", server).c_str() );
 
     for (i = 0; i < sv_maxclients->integer; i++) {
         // save when the server started for each client already connected
@@ -585,19 +585,19 @@ void SV_SpawnServer(char* server, bool killBots, ForceReload_e eForceReload)
     Com_RandomBytes((byte*)&sv.checksumFeed, sizeof(sv.checksumFeed));
     FS_Restart(sv.checksumFeed);
 
-    CM_LoadMap(va("maps/%s.bsp", server), false, &checksum);
+    CM_LoadMap(Q_Format("maps/{}.bsp", server).c_str(), false, &checksum);
 
     SV_SendMapChange();
 
     // set serverinfo visible name
     Cvar_Set("mapname", server);
 
-    Cvar_Set("sv_mapChecksum", va("%i", checksum));
+    Cvar_Set("sv_mapChecksum", Q_Format("{}", checksum).c_str());
 
     // serverid should be different each time
     sv.serverId = com_frameTime;
     sv.restartedServerId = sv.serverId; // I suppose the init here is just to be safe
-    Cvar_Set("sv_serverid", va("%i", sv.serverId));
+    Cvar_Set("sv_serverid", Q_Format("{}", sv.serverId).c_str());
 
     time(&sv.realMapTimeStarted);
     sv.demosPruned = false;
@@ -696,7 +696,7 @@ void SV_SpawnServer(char* server, bool killBots, ForceReload_e eForceReload)
         p = FS_LoadedPakChecksums();
         Cvar_Set("sv_paks", p);
         if (strlen(p) == 0) {
-            Com_Warning("sv_pure set but no PK3 files loaded\n");
+            Q_PrintlnWarning("sv_pure set but no PK3 files loaded");
         }
         p = FS_LoadedPakNames();
         Cvar_Set("sv_pakNames", p);
@@ -816,13 +816,13 @@ static void SV_InitRef(void)
     static refimport_t ri;
     refexport_t* ret;
 
-    Com_Printf("----- Initializing Renderer ----\n");
+    Q_Println("----- Initializing Renderer ----");
 
     memset(&ri, 0, sizeof(ri));
 
     // set up the import table
-    ri.Print = Com_VPrintf;
-    ri.Error = Com_VError;
+    ri.Print = Q_VPrint;
+    ri.Error = Q_VError;
     ri.Milliseconds = Sys_Milliseconds2; // FIXME: unix+mac need this
     ri.Hunk_AllocateTempMemory = Hunk_AllocateTempMemory;
     ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
@@ -897,10 +897,10 @@ static void SV_InitRef(void)
 
     ret = GetRefAPI(REF_API_VERSION, &ri);
 
-    //	Com_Printf( "-------------------------------\n");
+    //	Q_Println("-------------------------------");
 
     if (!ret) {
-        Com_Error(errorParm_t::ERR_FATAL, "Couldn't initialize refresh");
+        Q_Error(errorParm_t::ERR_FATAL, "Couldn't initialize refresh");
     }
 
     re = ret;
@@ -932,7 +932,7 @@ void SV_Init(void)
     sv_gametype = Cvar_Get("g_gametype", "0", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_LATCH, "Server gametype value");
     sv_needpass = Cvar_Get("g_needpass", "0", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM, "Server needs password to join");
     Cvar_Get("sv_keywords", "", cvarFlags_t::CVAR_SERVERINFO);
-    Cvar_Get("protocol", va("%i", PROTOCOL_VERSION), cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM);
+    Cvar_Get("protocol", Q_Format("{}", PROTOCOL_VERSION).c_str(), cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM);
     sv_mapname = Cvar_Get("mapname", "nomap", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM);
     sv_privateClients = Cvar_Get("sv_privateClients", "0", cvarFlags_t::CVAR_SERVERINFO, "Number of reserved client slots available with password");
     Cvar_CheckRange(sv_privateClients, 0, MAX_CLIENTS, true);
@@ -963,7 +963,7 @@ void SV_Init(void)
     sv_master[0] = Cvar_Get("sv_master1", MASTER_SERVER_NAME, cvarFlags_t::CVAR_PROTECTED);
     sv_master[1] = Cvar_Get("sv_master2", JKHUB_MASTER_SERVER_NAME, cvarFlags_t::CVAR_PROTECTED);
     for (int index = 2; index < MAX_MASTER_SERVERS; index++)
-        sv_master[index] = Cvar_Get(va("sv_master%d", index + 1), "", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_PROTECTED);
+        sv_master[index] = Cvar_Get(Q_Format("sv_master{}", index + 1).c_str(), "", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_PROTECTED);
     sv_reconnectlimit = Cvar_Get("sv_reconnectlimit", "3", cvarFlags_t::CVAR_NONE);
     sv_showghoultraces = Cvar_Get("sv_showghoultraces", "0", cvarFlags_t::CVAR_NONE);
     sv_showloss = Cvar_Get("sv_showloss", "0", cvarFlags_t::CVAR_NONE);
@@ -1031,7 +1031,7 @@ void SV_FinalMessage(const char* message)
             if (cl->state >= clientState_t::CS_CONNECTED) {
                 // don't send a disconnect to a local client
                 if (cl->netchan.remoteAddress.type != netadrtype_t::NA_LOOPBACK) {
-                    SV_SendServerCommand(cl, "print \"%s\"", message);
+                    SV_SendServerCommand(cl, "print \"{}\"", message);
                     SV_SendServerCommand(cl, "disconnect");
                 }
                 // force a snapshot to be sent
@@ -1056,7 +1056,7 @@ void SV_Shutdown(const char* finalmsg)
         return;
     }
 
-    //	Com_Printf( "----- Server Shutdown -----\n" );
+    //	Q_Println("----- Server Shutdown -----");
 
     if (svs.clients && !com_errorEntered) {
         SV_FinalMessage(finalmsg);
@@ -1089,7 +1089,7 @@ void SV_Shutdown(const char* finalmsg)
     Cvar_Set("sv_running", "0");
     Cvar_Set("ui_singlePlayerActive", "0");
 
-    //	Com_Printf( "---------------------------\n" );
+    //	Q_Println("---------------------------");
 
     // disconnect any local clients
     if (sv_killserver->integer != 2)

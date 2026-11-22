@@ -163,7 +163,7 @@ int AAS_AlternativeRouteGoals(vec3_t start, int startareanum, vec3_t goal, int g
         midrangeareas[i].valid = true;
         midrangeareas[i].starttime = starttime;
         midrangeareas[i].goaltime = goaltime;
-        Log_Write("%d midrange area %d", nummidrangeareas, i);
+        Log_Write("{} midrange area {}", nummidrangeareas, i);
         nummidrangeareas++;
     } // end for
     //
@@ -208,7 +208,7 @@ int AAS_AlternativeRouteGoals(vec3_t start, int startareanum, vec3_t goal, int g
             break;
     } // end for
 #ifdef ALTROUTE_DEBUG
-    Com_Printf("alternative route goals in %d msec\n", Sys_MilliSeconds() - startmillisecs);
+    Q_Println("alternative route goals in {} msec", Sys_MilliSeconds() - startmillisecs);
 #endif
     return numaltroutegoals;
 #endif

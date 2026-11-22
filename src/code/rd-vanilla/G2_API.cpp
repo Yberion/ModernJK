@@ -73,20 +73,16 @@ public:
     ErrorReporter(const std::string& name) : mName(name) {}
     ~ErrorReporter()
     {
-        char mess[1000];
         int total = 0;
-        sprintf(mess, "****** %s Error Report Begin******\n", mName.c_str());
-        Com_DPrintf("%s", mess);
+        Q_DPrintln("****** {} Error Report Begin******", mName);
 
         std::map<std::string, int>::iterator i;
         for (i = mErrors.begin(); i != mErrors.end(); ++i) {
             total += (*i).second;
-            sprintf(mess, "%s (hits %d)\n", (*i).first.c_str(), (*i).second);
-            Com_DPrintf("%s", mess);
+            Q_DPrintln("{} (hits {})", (*i).first, (*i).second);
         }
 
-        sprintf(mess, "****** %s Error Report End   %d errors of %zu kinds******\n", mName.c_str(), total, mErrors.size());
-        Com_DPrintf("%s", mess);
+        Q_DPrintln("****** {} Error Report End   {} errors of {} kinds******", mName, total, mErrors.size());
     }
     int AnimTest(CGhoul2Info_v& ghoul2, const char* m, const char*, int line)
     {
@@ -206,7 +202,7 @@ public:
             full += ":ERROR  :  ";
         }
         full += m;
-        sprintf(mess, "  [line %d]", line);
+        Q_FormatTo(mess, "  [line {}]", line);
         full += mess;
 
         // assert(0);
@@ -223,10 +219,9 @@ public:
             ret *= -1; // breakpoint to find a specific occurance of an error
         }
         if ((*f).second <= MAX_ERROR_PRINTS && kind < 2) {
-            Com_Printf("%s (hit # %d)\n", full.c_str(), (*f).second);
+            Q_Println("{} (hit # {})", full, (*f).second);
             if (1) {
-                sprintf(mess, "%s (hit # %d)\n", full.c_str(), (*f).second);
-                Com_DPrintf("%s", mess);
+                Q_DPrintln("{} (hit # {})", full, (*f).second);
             }
         }
         return ret;
@@ -259,7 +254,7 @@ void G2_Bone_Not_Found(const char* boneName, const char* modName)
     G2ERROR(boneName, "NULL Bone Name");
     G2ERROR(boneName[0], "Empty Bone Name");
     if (boneName) {
-        G2NOTE(0, va("Bone Not Found (%s:%s)", boneName, modName));
+        G2NOTE(0, Q_Format("Bone Not Found ({}:{})", boneName, modName).c_str());
     }
 }
 
@@ -268,7 +263,7 @@ void G2_Bolt_Not_Found(const char* boneName, const char* modName)
     G2ERROR(boneName, "NULL Bolt/Bone Name");
     G2ERROR(boneName[0], "Empty Bolt/Bone Name");
     if (boneName) {
-        G2NOTE(0, va("Bolt/Bone Not Found (%s:%s)", boneName, modName));
+        G2NOTE(0, Q_Format("Bolt/Bone Not Found ({}:{})", boneName, modName).c_str());
     }
 }
 #endif
@@ -277,7 +272,7 @@ void G2API_SetTime(int currentTime, int clock)
 {
     assert(clock >= 0 && clock < NUM_G2T_TIME);
 #if G2_DEBUG_TIME
-    Com_Printf("Set Time: before c%6d  s%6d", G2TimeBases[1], G2TimeBases[0]);
+    Q_Print("Set Time: before c{:6}  s{:6}", G2TimeBases[1], G2TimeBases[0]);
 #endif
     G2TimeBases[clock] = currentTime;
     if (G2TimeBases[1] > G2TimeBases[0] + 200) {
@@ -285,7 +280,7 @@ void G2API_SetTime(int currentTime, int clock)
         return;
     }
 #if G2_DEBUG_TIME
-    Com_Printf(" after c%6d  s%6d\n", G2TimeBases[1], G2TimeBases[0]);
+    Q_Println(" after c{:6}  s{:6}", G2TimeBases[1], G2TimeBases[0]);
 #endif
 }
 
@@ -517,9 +512,7 @@ public:
     {
         if (mFreeIndecies.size() < MAX_G2_MODELS) {
 #if G2API_DEBUG
-            char mess[1000];
-            sprintf(mess, "************************\nLeaked %zu ghoul2info slots\n", MAX_G2_MODELS - mFreeIndecies.size());
-            Com_DPrintf("%s", mess);
+            Q_DPrintln("************************\nLeaked {} ghoul2info slots", MAX_G2_MODELS - mFreeIndecies.size());
 #endif
             int i;
             for (i = 0; i < MAX_G2_MODELS; i++) {
@@ -530,11 +523,9 @@ public:
                 }
                 if (j == mFreeIndecies.end()) {
 #if G2API_DEBUG
-                    sprintf(mess, "Leaked Info idx=%d id=%d sz=%zu\n", i, mIds[i], mInfos[i].size());
-                    Com_DPrintf("%s", mess);
+                    Q_DPrintln("Leaked Info idx={} id={} sz={}", i, mIds[i], mInfos[i].size());
                     if (mInfos[i].size()) {
-                        sprintf(mess, "%s\n", mInfos[i][0].mFileName);
-                        Com_DPrintf("%s", mess);
+                        Q_DPrintln("{}", mInfos[i][0].mFileName);
                     }
 #endif
                     DeleteLow(i);
@@ -543,7 +534,7 @@ public:
         }
 #if G2API_DEBUG
         else {
-            Com_DPrintf("No ghoul2 info slots leaked\n");
+            Q_DPrintln("No ghoul2 info slots leaked");
         }
 #endif
     }
@@ -552,7 +543,7 @@ public:
     {
         if (mFreeIndecies.empty()) {
             assert(0);
-            Com_Error(errorParm_t::ERR_FATAL, "Out of ghoul2 info slots");
+            Q_Error(errorParm_t::ERR_FATAL, "Out of ghoul2 info slots");
         }
         // gonna pull from the front, doing a
         int idx = *mFreeIndecies.begin();
@@ -686,7 +677,7 @@ void SaveGhoul2InfoArray()
     assert(written == size);
 #endif // _DEBUG
     if (!ri.PD_Store(PERSISTENT_G2DATA, data, size)) {
-        Com_PrintError("Failed to store persistent renderer data.\n");
+        Q_PrintlnError("Failed to store persistent renderer data.");
     }
 }
 
@@ -951,9 +942,9 @@ bool G2API_SetBoneAnimIndex(CGhoul2Info* ghlInfo, const int index, const int sta
             *(float*)&setFrame = 0.0f;
         }
         ghlInfo->mSkelFrameNum = 0;
-        G2ERROR(index >= 0 && index < (int)ghlInfo->mBlist.size(), va("Out of Range Bone Index (%s)", ghlInfo->mFileName));
+        G2ERROR(index >= 0 && index < (int)ghlInfo->mBlist.size(), Q_Format("Out of Range Bone Index ({})", ghlInfo->mFileName).c_str());
         if (index >= 0 && index < (int)ghlInfo->mBlist.size()) {
-            G2ERROR(ghlInfo->mBlist[index].boneNumber >= 0, va("Bone Index is not Active (%s)", ghlInfo->mFileName));
+            G2ERROR(ghlInfo->mBlist[index].boneNumber >= 0, Q_Format("Bone Index is not Active ({})", ghlInfo->mFileName).c_str());
             int currentTime = G2API_GetTime(AcurrentTime);
 #if 0
 			/*
@@ -968,7 +959,7 @@ bool G2API_SetBoneAnimIndex(CGhoul2Info* ghlInfo, const int index, const int sta
             G2ANIM(ghlInfo, "G2API_SetBoneAnimIndex");
         }
     }
-    G2WARNING(ret, va("G2API_SetBoneAnimIndex Failed (%s)", ghlInfo->mFileName));
+    G2WARNING(ret, Q_Format("G2API_SetBoneAnimIndex Failed ({})", ghlInfo->mFileName).c_str());
     return ret;
 }
 
@@ -1027,7 +1018,7 @@ bool G2API_GetBoneAnimIndex(CGhoul2Info* ghlInfo, const int iBoneIndex, const in
     bool ret = false;
     if (G2_SetupModelPointers(ghlInfo)) {
         int currentTime = G2API_GetTime(AcurrentTime);
-        G2NOTE(iBoneIndex >= 0 && iBoneIndex < (int)ghlInfo->mBlist.size(), va("Bad Bone Index (%d:%s)", iBoneIndex, ghlInfo->mFileName));
+        G2NOTE(iBoneIndex >= 0 && iBoneIndex < (int)ghlInfo->mBlist.size(), Q_Format("Bad Bone Index ({}:{})", iBoneIndex, ghlInfo->mFileName).c_str());
         if (iBoneIndex >= 0 && iBoneIndex < (int)ghlInfo->mBlist.size()) {
             G2NOTE(Any(ghlInfo->mBlist[iBoneIndex].flags & (boneFlags_t::BONE_ANIM_OVERRIDE_LOOP | boneFlags_t::BONE_ANIM_OVERRIDE)),
                    "GetBoneAnim on non-animating bone.");
@@ -1317,7 +1308,7 @@ void G2API_AnimateG2Models(CGhoul2Info_v& ghoul2, int AcurrentTime, CRagDollUpda
         }
     }
 #ifdef _DEBUG
-//	Com_Printf("Rag trace time: %i (%i STARTSOLID, %i TOTAL)\n", ragTraceTime, ragSSCount, ragTraceCount);
+//	Q_Println("Rag trace time: {} ({} STARTSOLID, {} TOTAL)", ragTraceTime, ragSSCount, ragTraceCount);
 
 //	assert(ragTraceTime < 15);
 // assert(ragTraceCount < 600);
@@ -1481,7 +1472,7 @@ int G2API_AddBolt(CGhoul2Info* ghlInfo, const char* boneName)
     G2ERROR(boneName, "NULL boneName");
     if (boneName && G2_SetupModelPointers(ghlInfo)) {
         ret = G2_Add_Bolt(ghlInfo, ghlInfo->mBltlist, ghlInfo->mSlist, boneName);
-        G2NOTE(ret >= 0, va("G2API_AddBolt Failed (%s:%s)", boneName, ghlInfo->mFileName));
+        G2NOTE(ret >= 0, Q_Format("G2API_AddBolt Failed ({}:{})", boneName, ghlInfo->mFileName).c_str());
     }
     return ret;
 }
@@ -1568,7 +1559,8 @@ bool G2API_GetBoltMatrix(CGhoul2Info_v& ghoul2, const int modelIndex, const int 
         if (matrix && modelIndex >= 0 && modelIndex < ghoul2.size()) {
             int frameNum = G2API_GetTime(AframeNum);
             CGhoul2Info* ghlInfo = &ghoul2[modelIndex];
-            G2ERROR(boltIndex >= 0 && (boltIndex < (int)ghlInfo->mBltlist.size()), va("Invalid Bolt Index (%d:%s)", boltIndex, ghlInfo->mFileName));
+            G2ERROR(boltIndex >= 0 && (boltIndex < (int)ghlInfo->mBltlist.size()),
+                    Q_Format("Invalid Bolt Index ({}:{})", boltIndex, ghlInfo->mFileName).c_str());
 
             if (boltIndex >= 0 && ghlInfo && (boltIndex < (int)ghlInfo->mBltlist.size())) {
                 mdxaBone_t bolt;
@@ -2003,20 +1995,20 @@ bool G2_TestModelPointers(CGhoul2Info* ghlInfo) // returns true if the model is 
             if (ghlInfo->currentModel->mdxm) {
                 if (ghlInfo->currentModelSize) {
                     if (ghlInfo->currentModelSize != ghlInfo->currentModel->mdxm->ofsEnd) {
-                        Com_Error(errorParm_t::ERR_DROP, "Ghoul2 model was reloaded and has changed, map must be restarted.\n");
+                        Q_Error(errorParm_t::ERR_DROP, "Ghoul2 model was reloaded and has changed, map must be restarted.");
                     }
                 }
                 ghlInfo->currentModelSize = ghlInfo->currentModel->mdxm->ofsEnd;
                 ghlInfo->animModel = R_GetModelByHandle(ghlInfo->currentModel->mdxm->animIndex + ghlInfo->animModelIndexOffset);
                 if (ghlInfo->animModel) {
                     ghlInfo->aHeader = ghlInfo->animModel->mdxa;
-                    G2ERROR(ghlInfo->aHeader, va("Model has no mdxa (gla) %s", ghlInfo->mFileName));
+                    G2ERROR(ghlInfo->aHeader, Q_Format("Model has no mdxa (gla) {}", ghlInfo->mFileName).c_str());
                     if (!ghlInfo->aHeader) {
-                        Com_Error(errorParm_t::ERR_DROP, "Ghoul2 Model has no mdxa (gla) %s", ghlInfo->mFileName);
+                        Q_Error(errorParm_t::ERR_DROP, "Ghoul2 Model has no mdxa (gla) {}", ghlInfo->mFileName);
                     }
                     if (ghlInfo->currentAnimModelSize) {
                         if (ghlInfo->currentAnimModelSize != ghlInfo->aHeader->ofsEnd) {
-                            Com_Error(errorParm_t::ERR_DROP, "Ghoul2 model was reloaded and has changed, map must be restarted.\n");
+                            Q_Error(errorParm_t::ERR_DROP, "Ghoul2 model was reloaded and has changed, map must be restarted.");
                         }
                     }
                     ghlInfo->currentAnimModelSize = ghlInfo->aHeader->ofsEnd;
@@ -2047,33 +2039,33 @@ bool G2_SetupModelPointers(CGhoul2Info* ghlInfo) // returns true if the model is
         G2ERROR(ghlInfo->mFileName[0], "empty ghlInfo->mFileName");
         ghlInfo->mModel = RE_RegisterModel(ghlInfo->mFileName);
         ghlInfo->currentModel = R_GetModelByHandle(ghlInfo->mModel);
-        G2ERROR(ghlInfo->currentModel, va("NULL Model (glm) %s", ghlInfo->mFileName));
+        G2ERROR(ghlInfo->currentModel, Q_Format("NULL Model (glm) {}", ghlInfo->mFileName).c_str());
         if (ghlInfo->currentModel) {
-            G2ERROR(ghlInfo->currentModel->mdxm, va("Model has no mdxm (glm) %s", ghlInfo->mFileName));
+            G2ERROR(ghlInfo->currentModel->mdxm, Q_Format("Model has no mdxm (glm) {}", ghlInfo->mFileName).c_str());
             if (ghlInfo->currentModel->mdxm) {
                 if (ghlInfo->currentModelSize) {
                     if (ghlInfo->currentModelSize != ghlInfo->currentModel->mdxm->ofsEnd) {
-                        Com_Error(errorParm_t::ERR_DROP, "Ghoul2 model was reloaded and has changed, map must be restarted.\n");
+                        Q_Error(errorParm_t::ERR_DROP, "Ghoul2 model was reloaded and has changed, map must be restarted.");
                     }
                 }
                 ghlInfo->currentModelSize = ghlInfo->currentModel->mdxm->ofsEnd;
-                G2ERROR(ghlInfo->currentModelSize, va("Zero sized Model? (glm) %s", ghlInfo->mFileName));
+                G2ERROR(ghlInfo->currentModelSize, Q_Format("Zero sized Model? (glm) {}", ghlInfo->mFileName).c_str());
 
                 ghlInfo->animModel = R_GetModelByHandle(ghlInfo->currentModel->mdxm->animIndex + ghlInfo->animModelIndexOffset);
-                G2ERROR(ghlInfo->animModel, va("NULL Model (gla) %s", ghlInfo->mFileName));
+                G2ERROR(ghlInfo->animModel, Q_Format("NULL Model (gla) {}", ghlInfo->mFileName).c_str());
                 if (ghlInfo->animModel) {
                     ghlInfo->aHeader = ghlInfo->animModel->mdxa;
-                    G2ERROR(ghlInfo->aHeader, va("Model has no mdxa (gla) %s", ghlInfo->mFileName));
+                    G2ERROR(ghlInfo->aHeader, Q_Format("Model has no mdxa (gla) {}", ghlInfo->mFileName).c_str());
                     if (!ghlInfo->aHeader) {
-                        Com_Error(errorParm_t::ERR_DROP, "Ghoul2 Model has no mdxa (gla) %s", ghlInfo->mFileName);
+                        Q_Error(errorParm_t::ERR_DROP, "Ghoul2 Model has no mdxa (gla) {}", ghlInfo->mFileName);
                     }
                     if (ghlInfo->currentAnimModelSize) {
                         if (ghlInfo->currentAnimModelSize != ghlInfo->aHeader->ofsEnd) {
-                            Com_Error(errorParm_t::ERR_DROP, "Ghoul2 model was reloaded and has changed, map must be restarted.\n");
+                            Q_Error(errorParm_t::ERR_DROP, "Ghoul2 model was reloaded and has changed, map must be restarted.");
                         }
                     }
                     ghlInfo->currentAnimModelSize = ghlInfo->aHeader->ofsEnd;
-                    G2ERROR(ghlInfo->currentAnimModelSize, va("Zero sized Model? (gla) %s", ghlInfo->mFileName));
+                    G2ERROR(ghlInfo->currentAnimModelSize, Q_Format("Zero sized Model? (gla) {}", ghlInfo->mFileName).c_str());
                     ghlInfo->mValid = true;
                 }
             }

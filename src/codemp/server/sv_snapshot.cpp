@@ -146,7 +146,7 @@ clientSnapshot_t* SV_SnapshotBase(client_t* client, int* lastframe_out)
     }
     else if (client->netchan.outgoingSequence - deltaMessage >= (PACKET_BACKUP - 3)) {
         // client hasn't gotten a good message through in a long time
-        Com_DPrintf("%s: Delta request from out of date packet.\n", client->name);
+        Q_DPrintln("{}: Delta request from out of date packet.", client->name);
         oldframe = nullptr;
         lastframe = 0;
     }
@@ -158,7 +158,7 @@ clientSnapshot_t* SV_SnapshotBase(client_t* client, int* lastframe_out)
 
         // the snapshot's entities may still have rolled off the buffer, though
         if (oldframe->first_entity <= svs.nextSnapshotEntities - svs.numSnapshotEntities) {
-            Com_DPrintf("%s: Delta request from out of date entities.\n", client->name);
+            Q_DPrintln("{}: Delta request from out of date entities.", client->name);
             oldframe = nullptr;
             lastframe = 0;
         }
@@ -327,7 +327,7 @@ static int QDECL SV_QsortEntityNumbers(const void* a, const void* b)
     eb = (int*)b;
 
     if (*ea == *eb) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_QsortEntityStates: duplicated entity");
+        Q_Error(errorParm_t::ERR_DROP, "SV_QsortEntityStates: duplicated entity");
     }
 
     if (*ea < *eb) {
@@ -407,7 +407,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t* fram
         }
 
         if (ent->s.number != e) {
-            Com_DPrintf("FIXING ENT->S.NUMBER!!!\n");
+            Q_DPrintln("FIXING ENT->S.NUMBER!!!");
             ent->s.number = e;
         }
 
@@ -609,7 +609,7 @@ static void SV_BuildClientSnapshot(client_t* client)
     // be regenerated from the playerstate
     clientNum = frame->ps.clientNum;
     if (clientNum < 0 || clientNum >= MAX_GENTITIES) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_SvEntityForGentity: bad gEnt");
+        Q_Error(errorParm_t::ERR_DROP, "SV_SvEntityForGentity: bad gEnt");
     }
     svEnt = &sv.svEntities[clientNum];
     svEnt->snapshotCounter = sv.snapshotCounter;
@@ -692,7 +692,7 @@ void SV_SendMessageToClient(msg_t* msg, client_t* client)
     while (client->state != clientState_t::CS_FREE && client->netchan.unsentFragments) {
         // send additional message fragments if the last message
         // was too large to send at once
-        Com_Printf("[ISM]SV_SendClientGameState() [1] for %s, writing out old fragments\n", client->name);
+        Q_Println("[ISM]SV_SendClientGameState() [1] for {}, writing out old fragments", client->name);
         SV_Netchan_TransmitNextFragment(&client->netchan);
     }
 

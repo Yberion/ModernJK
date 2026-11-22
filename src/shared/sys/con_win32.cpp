@@ -433,7 +433,7 @@ char* CON_Input(void)
 
     if (!qconsole_linelen) {
         CON_Show();
-        Com_Printf("\n");
+        Q_Println("");
         return nullptr;
     }
 
@@ -441,7 +441,7 @@ char* CON_Input(void)
     CON_Show();
 
     CON_HistAdd();
-    Com_Printf("%s\n", qconsole_line);
+    Q_Println("{}", qconsole_line);
 
     return qconsole_line;
 }

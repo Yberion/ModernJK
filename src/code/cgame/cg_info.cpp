@@ -62,7 +62,7 @@ static void ObjectivePrint_Line(const ct_table_t color, const objectiveNumber_t 
 
     int iYPixelsPerLine = cgi_R_Font_HeightPixels(cgs.media.qhFontMedium, 1.0f);
 
-    cgi_SP_GetStringTextString(va("OBJECTIVES_%s", objectiveTable[to_underlying(objectIndex)].name), finalText, sizeof(finalText));
+    cgi_SP_GetStringTextString(Q_Format("OBJECTIVES_{}", objectiveTable[to_underlying(objectIndex)].name).c_str(), finalText, sizeof(finalText));
 
     // A hack to be able to count prisoners
     if (objectIndex == objectiveNumber_t::T2_RANCOR_OBJ5) {
@@ -74,7 +74,7 @@ static void ObjectivePrint_Line(const ct_table_t color, const objectiveNumber_t 
         gi.Cvar_VariableStringBuffer("ui_prisonerobj_maxtotal", value, sizeof(value));
         minTotal = atoi(value);
 
-        Q_strncpyz(finalText, va(finalText, currTotal, minTotal), sizeof(finalText));
+        Q_strncpyz(finalText, Q_Format(fmt::runtime(finalText), currTotal, minTotal).c_str(), sizeof(finalText));
     }
 
     pixelLen = cgi_R_Font_StrLenPixels(finalText, cgs.media.qhFontMedium, 1.0f);
@@ -265,7 +265,7 @@ static void CG_DrawForceCount( const forcePowers_t force, int x, float *y, const
     int		val, textColor;
     char	text[1024]={0};
 
-    gi.Cvar_VariableStringBuffer( va("playerfplvl%d", to_underlying( force ) ),s, sizeof(s) );
+    gi.Cvar_VariableStringBuffer( Q_Format("playerfplvl{}", to_underlying( force )).c_str(),s, sizeof(s) );
 
     sscanf( s, "%d",&val );
 
@@ -625,11 +625,11 @@ static void CG_DrawLoadingScreen(qhandle_t levelshot, const char* mapName)
     int weapons = 0, forcepowers = 0;
 
     // Get mission briefing for load screen
-    if (cgi_SP_GetStringTextString(va("BRIEFINGS_%s", mapName), nullptr, 0) == 0) {
+    if (cgi_SP_GetStringTextString(Q_Format("BRIEFINGS_{}", mapName).c_str(), nullptr, 0) == 0) {
         cgi_Cvar_Set("ui_missionbriefing", "@BRIEFINGS_NONE");
     }
     else {
-        cgi_Cvar_Set("ui_missionbriefing", va("@BRIEFINGS_%s", mapName));
+        cgi_Cvar_Set("ui_missionbriefing", Q_Format("@BRIEFINGS_{}", mapName).c_str());
     }
 
     // Print background
@@ -690,10 +690,10 @@ void CG_DrawInformation(void)
                                                          //	}
                                                          //	else
     {
-        levelshot = cgi_R_RegisterShaderNoMip(va("levelshots/%s", s));
+        levelshot = cgi_R_RegisterShaderNoMip(Q_Format("levelshots/{}", s).c_str());
 #ifndef FINAL_BUILD
         if (!levelshot && !strncmp(s, "work/", 5)) {
-            levelshot = cgi_R_RegisterShaderNoMip(va("levelshots/%s", s + 5));
+            levelshot = cgi_R_RegisterShaderNoMip(Q_Format("levelshots/{}", s + 5).c_str());
         }
 #endif
         if (!levelshot) {
@@ -730,7 +730,8 @@ void CG_DrawInformation(void)
         // print the current item being loaded
 
 #ifdef _DEBUG
-        cgi_R_Font_DrawString(40, 416, va("LOADING ... %s", cg.infoScreenText), colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontSmall, -1, 1.0f);
+        cgi_R_Font_DrawString(40, 416, Q_Format("LOADING ... {}", cg.infoScreenText).c_str(), colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontSmall, -1,
+                              1.0f);
 #endif
     }
 
@@ -744,10 +745,10 @@ void CG_DrawInformation(void)
         if (s[0] == '@') {
             char text[1024] = {0};
             cgi_SP_GetStringTextString(s + 1, text, sizeof(text));
-            cgi_R_Font_DrawString(15, y, va("\"%s\"", text), colorTable[ct_table_t::CT_WHITE], cgs.media.qhFontMedium, -1, 1.0f);
+            cgi_R_Font_DrawString(15, y, Q_Format("\"{}\"", text).c_str(), colorTable[ct_table_t::CT_WHITE], cgs.media.qhFontMedium, -1, 1.0f);
         }
         else {
-            cgi_R_Font_DrawString(15, y, va("\"%s\"", s), colorTable[ct_table_t::CT_WHITE], cgs.media.qhFontMedium, -1, 1.0f);
+            cgi_R_Font_DrawString(15, y, Q_Format("\"{}\"", s).c_str(), colorTable[ct_table_t::CT_WHITE], cgs.media.qhFontMedium, -1, 1.0f);
         }
         y += 20;
     }

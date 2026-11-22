@@ -123,7 +123,7 @@ static const char* GetCustomSound_VariantCapped(const char* ppsTable[], int iEnt
 
                         int iRandom = bForceVariant1 ? 1 : (!i ? Q_irand(1, iVariantCap) : 1);
 
-                        strcat(sName, va("%d.wav", iRandom));
+                        strcat(sName, Q_Format("{}.wav", iRandom).c_str());
 
                         // does this exist in the entries before the original one?...
                         //
@@ -155,12 +155,12 @@ static void CG_RegisterCustomSounds(clientInfo_t* ci, int iSoundEntryBase, int i
             break; // fairly pointless code in original, since there are no nullptr's in the table, but wtf...
         }
 
-        sfxHandle_t hSFX = cgi_S_RegisterSound(va("sound/chars/%s/misc/%s", psDir, s + 1));
+        sfxHandle_t hSFX = cgi_S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", psDir, s + 1).c_str());
         if (hSFX == 0) {
             // hmmm... variant in table was missing, so forcibly-retry with %1 version (which we may have just tried, but wtf?)...
             //
             s = GetCustomSound_VariantCapped(ppsTable, i, true);
-            hSFX = cgi_S_RegisterSound(va("sound/chars/%s/misc/%s", psDir, s + 1));
+            hSFX = cgi_S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", psDir, s + 1).c_str());
             //
             // and fall through regardless...
             //
@@ -268,7 +268,7 @@ static sfxHandle_t CG_CustomSound(int entityNum, const char* soundName, customSo
         break;
     }
 
-    Com_Error(errorParm_t::ERR_DROP, "Unknown custom sound: %s", soundName);
+    Q_Error(errorParm_t::ERR_DROP, "Unknown custom sound: {}", soundName);
     return 0;
 }
 
@@ -439,7 +439,7 @@ PLAYER ANIMATION
 bool ValidAnimFileIndex(int index)
 {
     if (index < 0 || index >= level.numKnownAnimFileSets) {
-        Com_Printf(S_COLOR_RED "Bad animFileIndex: %d\n", index);
+        Q_Println(S_COLOR_RED "Bad animFileIndex: {}", index);
         return false;
     }
 
@@ -468,7 +468,7 @@ void ParseAnimationSndBlock(const char* asb_filename, animsounds_t* animSounds,
     // read information for each frame
     while (1) {
         if (*i >= MAX_ANIM_SOUNDS) {
-            Com_Error(errorParm_t::ERR_DROP, "ParseAnimationSndBlock:  animation number >= MAX_ANIM_SOUNDS(%i)", MAX_ANIM_SOUNDS);
+            Q_Error(errorParm_t::ERR_DROP, "ParseAnimationSndBlock:  animation number >= MAX_ANIM_SOUNDS({})", MAX_ANIM_SOUNDS);
         }
         // Get base frame of sequence
         token = COM_Parse(text_p);
@@ -488,12 +488,12 @@ void ParseAnimationSndBlock(const char* asb_filename, animsounds_t* animSounds,
         //	at least not much.
         animNum = BG_AnimFromName(token);
         if (!animNum) { // Unrecognized ANIM ENUM name, or we're skipping this line, keep going till you get a good one
-            Com_Warning("Unknown token %s in animSound file %s\n", token, asb_filename);
+            Q_PrintlnWarning("Unknown token {} in animSound file {}", token, asb_filename);
             continue;
         }
 
         if (animations[*animNum].numFrames == 0) { // we don't use this anim
-            // Com_Warning("%s animsounds.cfg: anim %s not used by this model\n", filename, token);
+            // Q_PrintlnWarning("{} animsounds.cfg: anim {} not used by this model", filename, token);
 
             // Get offset to frame within sequence
             token = COM_Parse(text_p);
@@ -544,8 +544,10 @@ void ParseAnimationSndBlock(const char* asb_filename, animsounds_t* animSounds,
         //		instead of strings, unfortunately, if these sounds were previously
         //		registered, we cannot be guaranteed sequential indices.  Thus an array
         if (lowestVal && highestVal) {
+            char soundFormat[MAX_QPATH * 2];
+            Q_FormatFromPrintf(soundFormat, soundString, "an animation's sound");
             for (n = lowestVal, num = 0; n <= highestVal && num < MAX_RANDOM_ANIMSOUNDS; n++, num++) {
-                animSounds->soundIndex[num] = G_SoundIndex(va(soundString, n)); // cgi_S_RegisterSound
+                animSounds->soundIndex[num] = G_SoundIndex(Q_Format(fmt::runtime(soundFormat), n).c_str()); // cgi_S_RegisterSound
             }
             animSounds->numRandomAnimSounds = num - 1;
         }
@@ -553,7 +555,7 @@ void ParseAnimationSndBlock(const char* asb_filename, animsounds_t* animSounds,
             animSounds->soundIndex[0] = G_SoundIndex(soundString); // cgi_S_RegisterSound
 #ifndef FINAL_BUILD
             if (!animSounds->soundIndex[0]) { // couldn't register it - file not found
-                Com_Printf(S_COLOR_RED "ParseAnimationSndBlock: sound %s does not exist (animsound.cfg %s)!\n", soundString, asb_filename);
+                Q_Println(S_COLOR_RED "ParseAnimationSndBlock: sound {} does not exist (animsound.cfg {})!", soundString, asb_filename);
             }
 #endif
             animSounds->numRandomAnimSounds = 0;
@@ -620,7 +622,7 @@ void CG_ParseAnimationSndFile(const char* as_filename, int animFileIndex)
     level.knownAnimFileSets[animFileIndex].soundsCached = true;
 
     // Load and parse animSounds.cfg file
-    Com_sprintf(sfilename, sizeof(sfilename), "models/players/%s/animsounds.cfg", as_filename);
+    Q_FormatTo(sfilename, "models/players/{}/animsounds.cfg", as_filename);
 
     // initialize anim sound array
     for (i = 0; i < MAX_ANIM_SOUNDS; i++) {
@@ -639,7 +641,7 @@ void CG_ParseAnimationSndFile(const char* as_filename, int animFileIndex)
     }
     if (len >= (int)sizeof(text) - 1) {
         cgi_FS_FCloseFile(f);
-        Com_Printf("File %s too long\n", sfilename);
+        Q_Println("File {} too long", sfilename);
         return;
     }
 
@@ -686,7 +688,7 @@ void CG_SetLerpFrameAnimation(clientInfo_t* ci, lerpFrame_t* lf, animNumber_t ne
 #ifdef FINAL_BUILD
         newAnimation = animNumber_t::BOTH_1CRUFTFORGIL;
 #else
-        Com_Error(errorParm_t::ERR_DROP, "Bad animation number: %i", to_underlying(newAnimation));
+        Q_Error(errorParm_t::ERR_DROP, "Bad animation number: {}", to_underlying(newAnimation));
 #endif
     }
 
@@ -696,7 +698,7 @@ void CG_SetLerpFrameAnimation(clientInfo_t* ci, lerpFrame_t* lf, animNumber_t ne
 #ifdef FINAL_BUILD
         ci->animFileIndex = 0;
 #else
-        Com_Error(errorParm_t::ERR_DROP, "Bad animFileIndex: %i", ci->animFileIndex);
+        Q_Error(errorParm_t::ERR_DROP, "Bad animFileIndex: {}", ci->animFileIndex);
 #endif
     }
 
@@ -4001,7 +4003,7 @@ void CG_AddSaberBlade(centity_t* cent, centity_t* scent, refEntity_t* saber, ren
                                 100) { // ugh, need to have a real sound debouncer... or do this game-side
                                 cent->gent->client->ps.saberHitWallSoundDebounceTime = cg.time;
                                 cgi_S_StartSound(cent->lerpOrigin, cent->currentState.clientNum, soundChannel_t::CHAN_ITEM,
-                                                 cgi_S_RegisterSound(va("sound/weapons/saber/saberhitwall%d.wav", Q_irand(1, 3))));
+                                                 cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberhitwall{}.wav", Q_irand(1, 3)).c_str()));
                             }
                         }
                     }
@@ -5323,6 +5325,6 @@ void CG_ResetPlayerEntity(centity_t* cent)
     cent->pe.torso.pitching = false;
 
     if (cg_debugPosition.integer) {
-        Com_Printf("%i ResetPlayerEntity yaw=%f\n", cent->currentState.number, cent->pe.torso.yawAngle);
+        Q_Println("{} ResetPlayerEntity yaw={:f}", cent->currentState.number, cent->pe.torso.yawAngle);
     }
 }

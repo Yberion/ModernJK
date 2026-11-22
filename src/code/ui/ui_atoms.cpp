@@ -153,7 +153,7 @@ static void UI_Cache_f(void)
         DC->registerSound(kyleForceStatusSounds[index], false);
     }
     for (int index = 1; index <= 18; index++) {
-        DC->registerSound(va("sound/chars/storyinfo/%d", index), false);
+        DC->registerSound(Q_Format("sound/chars/storyinfo/{}", index).c_str(), false);
     }
     trap_S_RegisterSound("sound/chars/kyle/04kyk001.mp3", false);
     trap_S_RegisterSound("sound/chars/kyle/05kyk001.mp3", false);
@@ -241,7 +241,7 @@ void UI_Init(int apiVersion, uiimport_t* uiimport, bool inGameLoad)
     ui = *uiimport;
 
     if (apiVersion != UI_API_VERSION) {
-        Com_Error(errorParm_t::ERR_FATAL, "Bad UI_API_VERSION: expected %i, got %i\n", UI_API_VERSION, apiVersion);
+        Q_Error(errorParm_t::ERR_FATAL, "Bad UI_API_VERSION: expected {}, got {}", UI_API_VERSION, apiVersion);
     }
 
     // get static data (glconfig, media)
@@ -438,7 +438,7 @@ int UI_RegisterFont(const char* fontName)
 
         if (i == registeredFontsCount) { // It's not in the list: add it
             if (registeredFontsCount >= MAX_FONTS)
-                Com_Printf("^3UI_RegisterFont: MAX_FONTS (%i) exceeded\n", MAX_FONTS);
+                Q_Println("^3UI_RegisterFont: MAX_FONTS ({}) exceeded", MAX_FONTS);
             else
                 registeredFonts[registeredFontsCount++] = iFontIndex;
         }

@@ -458,7 +458,7 @@ void G_FindTeams(void)
         }
     }
 
-    Com_Printf("%i teams with %i entities\n", c, c2);
+    Q_Println("{} teams with {} entities", c, c2);
 }
 
 /*
@@ -540,9 +540,9 @@ void InitGame(const char* mapname, const char* spawntarget, int checkSum, const 
     g_eSavedGameJustLoaded = eSavedGameJustLoaded;
     g_qbLoadTransition = qbLoadTransition;
 
-    Com_Printf("------- Game Initialization -------\n");
-    Com_Printf("gamename: %s\n", JK_VERSION);
-    Com_Printf("gamedate: %s\n", SOURCE_DATE);
+    Q_Println("------- Game Initialization -------");
+    Q_Println("gamename: {}", JK_VERSION);
+    Q_Println("gamedate: {}", SOURCE_DATE);
 
     Rand_Init(randomSeed);
 
@@ -590,13 +590,13 @@ void InitGame(const char* mapname, const char* spawntarget, int checkSum, const 
     //
     // ICARUS INIT START
 
-    Com_Printf("------ ICARUS Initialization ------\n");
-    Com_Printf("ICARUS version : %1.2f\n", ICARUS_VERSION);
+    Q_Println("------ ICARUS Initialization ------");
+    Q_Println("ICARUS version : {:1.2f}", ICARUS_VERSION);
 
     Interface_Init(&interface_export);
     ICARUS_Init();
 
-    Com_Printf("-----------------------------------\n");
+    Q_Println("-----------------------------------");
 
     // ICARUS INIT END
     //
@@ -616,7 +616,7 @@ void InitGame(const char* mapname, const char* spawntarget, int checkSum, const 
 
     //	SaveRegisteredItems();
 
-    Com_Printf("-----------------------------------\n");
+    Q_Println("-----------------------------------");
 
     if (navCalculatePaths) {                                // not loaded - need to calc paths
         navCalcPathTime = level.time + START_TIME_NAV_CALC; // make sure all ents are in and linked
@@ -654,15 +654,15 @@ ShutdownGame
 */
 void ShutdownGame(void)
 {
-    Com_Printf("==== ShutdownGame ====\n");
+    Q_Println("==== ShutdownGame ====");
 
-    Com_Printf("... ICARUS_Shutdown\n");
+    Q_Println("... ICARUS_Shutdown");
     ICARUS_Shutdown(); // Shut ICARUS down
 
-    Com_Printf("... Reference Tags Cleared\n");
+    Q_Println("... Reference Tags Cleared");
     TAG_Init(); // Clear the reference tags
 
-    Com_Printf("... Navigation Data Cleared\n");
+    Q_Println("... Navigation Data Cleared");
     NAV_Shutdown();
 
     // write all the client session data so we can get it back
@@ -671,7 +671,7 @@ void ShutdownGame(void)
     /*
     Ghoul2 Insert Start
     */
-    Com_Printf("... Ghoul2 Models Shutdown\n");
+    Q_Println("... Ghoul2 Models Shutdown");
     for (int i = 0; i < MAX_GENTITIES; i++) {
         gi.G2API_CleanGhoul2Models(g_entities[i].ghoul2);
     }
@@ -740,12 +740,12 @@ extern "C" Q_EXPORT game_export_t* QDECL GetGameAPI(game_import_t* import)
 }
 
 // the game module's messages and errors, formatted by the engine (q_fmt.h)
-void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
+void Q_VPrint(printLevel_t level, lineEnd_t end, fmt::string_view fmt, fmt::format_args args)
 {
-    gi.Print(level, fmt, args);
+    gi.Print(level, end, fmt, args);
 }
 
-void Com_VError(errorParm_t code, const char* fmt, va_list args)
+void Q_VError(errorParm_t code, fmt::string_view fmt, fmt::format_args args)
 {
     gi.Error(code, fmt, args);
 }
@@ -849,7 +849,7 @@ void G_RunThink(gentity_t* ent)
     ent->nextthink = 0;
     if (ent->e_ThinkFunc == thinkFunc_t::thinkF_NULL) // actually you don't need this if I check for it in the next function -slc
     {
-        // Com_Error( "NULL ent->think");
+        // Q_Error(errorParm_t::ERR_DROP, "NULL ent->think");
         goto runicarus;
     }
 
@@ -1071,12 +1071,12 @@ void NAV_CheckCalcPaths(void)
 
 #ifndef FINAL_BUILD
         if (fatalErrors) {
-            Com_Printf(S_COLOR_RED "Not saving .nav file due to fatal nav errors\n");
+            Q_Println(S_COLOR_RED "Not saving .nav file due to fatal nav errors");
         }
         else
 #endif
             if (navigator.Save(level.mapname, giMapChecksum) == false) {
-            Com_Printf("Unable to save navigations data for map \"%s\" (checksum:%d)\n", level.mapname, giMapChecksum);
+            Q_Println("Unable to save navigations data for map \"{}\" (checksum:{})", level.mapname, giMapChecksum);
         }
         navCalcPathTime = 0;
     }
@@ -1256,7 +1256,7 @@ void G_RunFrame(int levelTime)
         ClientEndFrame(ent);
     }
     if (g_numEntities->integer) {
-        Com_Printf(S_COLOR_WHITE "Number of Entities in use : %d\n", ents_inuse);
+        Q_Println(S_COLOR_WHITE "Number of Entities in use : {}", ents_inuse);
     }
     // DEBUG STUFF
     NAV_ShowDebugInfo();
@@ -1267,28 +1267,28 @@ void G_RunFrame(int levelTime)
 #if AI_TIMERS
     AITime -= navTime;
     if (AITime > 20) {
-        Com_PrintError("total AI time: %d\n", AITime);
+        Q_PrintlnError("total AI time: {}", AITime);
     }
     else if (AITime > 10) {
-        Com_Warning("total AI time: %d\n", AITime);
+        Q_PrintlnWarning("total AI time: {}", AITime);
     }
     else if (AITime > 2) {
-        Com_Printf(S_COLOR_GREEN "total AI time: %d\n", AITime);
+        Q_Println(S_COLOR_GREEN "total AI time: {}", AITime);
     }
     if (navTime > 20) {
-        Com_PrintError("total nav time: %d\n", navTime);
+        Q_PrintlnError("total nav time: {}", navTime);
     }
     else if (navTime > 10) {
-        Com_Warning("total nav time: %d\n", navTime);
+        Q_PrintlnWarning("total nav time: {}", navTime);
     }
     else if (navTime > 2) {
-        Com_Printf(S_COLOR_GREEN "total nav time: %d\n", navTime);
+        Q_Println(S_COLOR_GREEN "total nav time: {}", navTime);
     }
 #endif //	AI_TIMERS
 
 #ifndef FINAL_BUILD
     if (delayedShutDown != 0 && delayedShutDown < level.time) {
-        Com_Error(errorParm_t::ERR_DROP, "Game Errors. Scroll up the console to read them.");
+        Q_Error(errorParm_t::ERR_DROP, "Game Errors. Scroll up the console to read them.");
     }
 #endif
 
@@ -1317,7 +1317,7 @@ void G_LoadSave_ReadMiscData(void)
 
 void PrintEntClassname(int gentNum)
 {
-    Com_Printf("%d: %s in snapshot\n", gentNum, g_entities[gentNum].classname);
+    Q_Println("{}: {} in snapshot", gentNum, g_entities[gentNum].classname);
 }
 
 IGhoul2InfoArray& TheGameGhoul2InfoArray()

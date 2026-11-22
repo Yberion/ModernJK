@@ -53,38 +53,39 @@ IN_PrintKey
 static void IN_PrintKey(const SDL_Keysym* keysym, fakeAscii_t key, bool down)
 {
     if (down)
-        Com_Printf("+ ");
+        Q_Print("+ ");
     else
-        Com_Printf("  ");
+        Q_Print("  ");
 
-    Com_Printf("Scancode: 0x%02x(%s) Sym: 0x%02x(%s)", keysym->scancode, SDL_GetScancodeName(keysym->scancode), keysym->sym, SDL_GetKeyName(keysym->sym));
+    Q_Print("Scancode: 0x{:02x}({}) Sym: 0x{:02x}({})", static_cast<int>(keysym->scancode), SDL_GetScancodeName(keysym->scancode), keysym->sym,
+            SDL_GetKeyName(keysym->sym));
 
     if (keysym->mod & KMOD_LSHIFT)
-        Com_Printf(" KMOD_LSHIFT");
+        Q_Print(" KMOD_LSHIFT");
     if (keysym->mod & KMOD_RSHIFT)
-        Com_Printf(" KMOD_RSHIFT");
+        Q_Print(" KMOD_RSHIFT");
     if (keysym->mod & KMOD_LCTRL)
-        Com_Printf(" KMOD_LCTRL");
+        Q_Print(" KMOD_LCTRL");
     if (keysym->mod & KMOD_RCTRL)
-        Com_Printf(" KMOD_RCTRL");
+        Q_Print(" KMOD_RCTRL");
     if (keysym->mod & KMOD_LALT)
-        Com_Printf(" KMOD_LALT");
+        Q_Print(" KMOD_LALT");
     if (keysym->mod & KMOD_RALT)
-        Com_Printf(" KMOD_RALT");
+        Q_Print(" KMOD_RALT");
     if (keysym->mod & KMOD_LGUI)
-        Com_Printf(" KMOD_LGUI");
+        Q_Print(" KMOD_LGUI");
     if (keysym->mod & KMOD_RGUI)
-        Com_Printf(" KMOD_RGUI");
+        Q_Print(" KMOD_RGUI");
     if (keysym->mod & KMOD_NUM)
-        Com_Printf(" KMOD_NUM");
+        Q_Print(" KMOD_NUM");
     if (keysym->mod & KMOD_CAPS)
-        Com_Printf(" KMOD_CAPS");
+        Q_Print(" KMOD_CAPS");
     if (keysym->mod & KMOD_MODE)
-        Com_Printf(" KMOD_MODE");
+        Q_Print(" KMOD_MODE");
     if (keysym->mod & KMOD_RESERVED)
-        Com_Printf(" KMOD_RESERVED");
+        Q_Print(" KMOD_RESERVED");
 
-    Com_Printf(" Q:0x%02x(%s)\n", to_underlying(key), Key_KeynumToString(key));
+    Q_Println(" Q:0x{:02x}({})", to_underlying(key), Key_KeynumToString(key));
 }
 
 constexpr int MAX_CONSOLE_KEYS = 16;
@@ -595,7 +596,7 @@ static void IN_GobbleMotionEvents(void)
     }
 
     if (val < 0)
-        Com_Printf("IN_GobbleMotionEvents failed: %s\n", SDL_GetError());
+        Q_Println("IN_GobbleMotionEvents failed: {}", SDL_GetError());
 }
 
 /*
@@ -710,16 +711,16 @@ static void IN_InitJoystick(void)
     memset(&stick_state, '\0', sizeof(stick_state));
 
     if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
-        Com_DPrintf("Calling SDL_Init(SDL_INIT_JOYSTICK)...\n");
+        Q_DPrintln("Calling SDL_Init(SDL_INIT_JOYSTICK)...");
         if (SDL_Init(SDL_INIT_JOYSTICK) == -1) {
-            Com_DPrintf("SDL_Init(SDL_INIT_JOYSTICK) failed: %s\n", SDL_GetError());
+            Q_DPrintln("SDL_Init(SDL_INIT_JOYSTICK) failed: {}", SDL_GetError());
             return;
         }
-        Com_DPrintf("SDL_Init(SDL_INIT_JOYSTICK) passed.\n");
+        Q_DPrintln("SDL_Init(SDL_INIT_JOYSTICK) passed.");
     }
 
     total = SDL_NumJoysticks();
-    Com_DPrintf("%d possible joysticks\n", total);
+    Q_DPrintln("{} possible joysticks", total);
 
     // Print list and build cvar to allow ui to select joystick.
     for (i = 0; i < total; i++) {
@@ -730,7 +731,7 @@ static void IN_InitJoystick(void)
     Cvar_Get("in_availableJoysticks", buf, cvarFlags_t::CVAR_ROM);
 
     if (!in_joystick->integer) {
-        Com_DPrintf("Joystick is not active.\n");
+        Q_DPrintln("Joystick is not active.");
         SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
         return;
     }
@@ -746,18 +747,18 @@ static void IN_InitJoystick(void)
     stick = SDL_JoystickOpen(in_joystickNo->integer);
 
     if (stick == nullptr) {
-        Com_DPrintf("No joystick opened.\n");
+        Q_DPrintln("No joystick opened.");
         return;
     }
 
-    Com_DPrintf("Joystick %d opened\n", in_joystickNo->integer);
-    Com_DPrintf("Name:       %s\n", SDL_JoystickNameForIndex(in_joystickNo->integer));
-    Com_DPrintf("Axes:       %d\n", SDL_JoystickNumAxes(stick));
-    Com_DPrintf("Hats:       %d\n", SDL_JoystickNumHats(stick));
-    Com_DPrintf("Buttons:    %d\n", SDL_JoystickNumButtons(stick));
-    Com_DPrintf("Balls:      %d\n", SDL_JoystickNumBalls(stick));
-    Com_DPrintf("Use Analog: %s\n", in_joystickUseAnalog->integer ? "Yes" : "No");
-    Com_DPrintf("Threshold: %f\n", in_joystickThreshold->value);
+    Q_DPrintln("Joystick {} opened", in_joystickNo->integer);
+    Q_DPrintln("Name:       {}", SDL_JoystickNameForIndex(in_joystickNo->integer));
+    Q_DPrintln("Axes:       {}", SDL_JoystickNumAxes(stick));
+    Q_DPrintln("Hats:       {}", SDL_JoystickNumHats(stick));
+    Q_DPrintln("Buttons:    {}", SDL_JoystickNumButtons(stick));
+    Q_DPrintln("Balls:      {}", SDL_JoystickNumBalls(stick));
+    Q_DPrintln("Use Analog: {}", in_joystickUseAnalog->integer ? "Yes" : "No");
+    Q_DPrintln("Threshold: {:f}", in_joystickThreshold->value);
 
     SDL_JoystickEventState(SDL_QUERY);
 }
@@ -765,13 +766,13 @@ static void IN_InitJoystick(void)
 void IN_Init(void* windowData)
 {
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
-        Com_Error(errorParm_t::ERR_FATAL, "IN_Init called before SDL_Init( SDL_INIT_VIDEO )");
+        Q_Error(errorParm_t::ERR_FATAL, "IN_Init called before SDL_Init( SDL_INIT_VIDEO )");
         return;
     }
 
     SDL_window = (SDL_Window*)windowData;
 
-    Com_DPrintf("\n------- Input Initialization -------\n");
+    Q_DPrintln("\n------- Input Initialization -------");
 
     // joystick variables
     in_keyboardDebug = Cvar_Get("in_keyboardDebug", "0", cvarFlags_t::CVAR_ARCHIVE_ND);
@@ -786,11 +787,11 @@ void IN_Init(void* windowData)
 
     mouseAvailable = (in_mouse->value != 0);
     if (in_mouse->integer == 2) {
-        Com_DPrintf("Not using raw mouse input\n");
+        Q_DPrintln("Not using raw mouse input");
         SDL_SetHint("SDL_MOUSE_RELATIVE_MODE_WARP", "1");
     }
     else {
-        Com_DPrintf("Using raw mouse input\n");
+        Q_DPrintln("Using raw mouse input");
         SDL_SetHint("SDL_MOUSE_RELATIVE_MODE_WARP", "0");
     }
     IN_DeactivateMouse();
@@ -800,7 +801,7 @@ void IN_Init(void* windowData)
     Cvar_SetValue("com_minimized", (appState & SDL_WINDOW_MINIMIZED) != 0);
 
     IN_InitJoystick();
-    Com_DPrintf("------------------------------------\n");
+    Q_DPrintln("------------------------------------");
 }
 
 uint8_t ConvertUTF32ToExpectedCharset(uint32_t utf32)

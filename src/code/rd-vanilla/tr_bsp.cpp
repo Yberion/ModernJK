@@ -245,12 +245,12 @@ static void R_LoadLightmaps(lump_t* l, const char* psMapName, world_t& worldData
             }
         }
         tr.lightmaps[worldData.startLightMapIndex + i] =
-            R_CreateImage(va("$%s/lightmap%d", sMapName, worldData.startLightMapIndex + i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, GL_RGBA, false, false,
-                          (r_ext_compressed_lightmaps->integer != 0), GL_CLAMP);
+            R_CreateImage(Q_Format("${}/lightmap{}", sMapName, worldData.startLightMapIndex + i).c_str(), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, GL_RGBA, false,
+                          false, (r_ext_compressed_lightmaps->integer != 0), GL_CLAMP);
     }
 
     if (r_lightmap->integer == 2) {
-        Com_Printf("Brightest lightmap value: %d\n", (int)(maxIntensity * 255));
+        Q_Println("Brightest lightmap value: {}", (int)(maxIntensity * 255));
     }
 }
 
@@ -321,7 +321,7 @@ static shader_t* ShaderForShaderNum(int shaderNum, const int* lightmapNum, const
 
     LL(shaderNum);
     if (shaderNum < 0 || shaderNum >= worldData.numShaders) {
-        Com_Error(errorParm_t::ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum);
+        Q_Error(errorParm_t::ERR_DROP, "ShaderForShaderNum: bad num {}", shaderNum);
     }
     dsh = &worldData.shaders[shaderNum];
 
@@ -537,10 +537,10 @@ static void ParseTriSurf(dsurface_t* ds, mapVert_t* verts, msurface_t* surf, int
     numIndexes = LittleLong(ds->numIndexes);
 
     if (numVerts >= SHADER_MAX_VERTEXES) {
-        Com_Error(errorParm_t::ERR_DROP, "ParseTriSurf: verts > MAX (%d > %d) on misc_model %s", numVerts, SHADER_MAX_VERTEXES, surf->shader->name);
+        Q_Error(errorParm_t::ERR_DROP, "ParseTriSurf: verts > MAX ({} > {}) on misc_model {}", numVerts, SHADER_MAX_VERTEXES, surf->shader->name);
     }
     if (numIndexes >= SHADER_MAX_INDEXES) {
-        Com_Error(errorParm_t::ERR_DROP, "ParseTriSurf: indices > MAX (%d > %d) on misc_model %s", numIndexes, SHADER_MAX_INDEXES, surf->shader->name);
+        Q_Error(errorParm_t::ERR_DROP, "ParseTriSurf: indices > MAX ({} > {}) on misc_model {}", numIndexes, SHADER_MAX_INDEXES, surf->shader->name);
     }
 
     tri = (srfTriangles_t*)R_Malloc(sizeof(*tri) + numVerts * sizeof(tri->verts[0]) + numIndexes * sizeof(tri->indexes[0]), memtag::TAG_HUNKMISCMODELS, false);
@@ -578,7 +578,7 @@ static void ParseTriSurf(dsurface_t* ds, mapVert_t* verts, msurface_t* surf, int
     for (i = 0; i < numIndexes; i++) {
         tri->indexes[i] = LittleLong(indexes[i]);
         if (tri->indexes[i] < 0 || tri->indexes[i] >= numVerts) {
-            Com_Error(errorParm_t::ERR_DROP, "Bad index in triangle surface");
+            Q_Error(errorParm_t::ERR_DROP, "Bad index in triangle surface");
         }
     }
 }
@@ -640,16 +640,16 @@ static void R_LoadSurfaces(lump_t* surfs, lump_t* verts, lump_t* indexLump, worl
 
     in = (dsurface_t*)(fileBase + surfs->fileofs);
     if (surfs->filelen % sizeof(*in))
-        Com_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in %s", worldData.name);
+        Q_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in {}", worldData.name);
     count = surfs->filelen / sizeof(*in);
 
     dv = (mapVert_t*)(fileBase + verts->fileofs);
     if (verts->filelen % sizeof(*dv))
-        Com_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in %s", worldData.name);
+        Q_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in {}", worldData.name);
 
     indexes = (int*)(fileBase + indexLump->fileofs);
     if (indexLump->filelen % sizeof(*indexes))
-        Com_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in %s", worldData.name);
+        Q_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in {}", worldData.name);
 
     out = (struct msurface_s*)R_Hunk_Alloc(count * sizeof(*out), true);
 
@@ -703,11 +703,11 @@ static void R_LoadSurfaces(lump_t* surfs, lump_t* verts, lump_t* indexLump, worl
             numFlares++;
             break;
         default:
-            Com_Error(errorParm_t::ERR_DROP, "Bad surfaceType");
+            Q_Error(errorParm_t::ERR_DROP, "Bad surfaceType");
         }
     }
 
-    Com_Printf("...loaded %d faces, %i meshes, %i trisurfs, %i flares\n", numFaces, numMeshes, numTriSurfs, numFlares);
+    Q_Println("...loaded {} faces, {} meshes, {} trisurfs, {} flares", numFaces, numMeshes, numTriSurfs, numFlares);
 }
 
 /*
@@ -723,7 +723,7 @@ static void R_LoadSubmodels(lump_t* l, world_t& worldData, int index)
 
     in = (dmodel_t*)(fileBase + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Com_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in %s", worldData.name);
+        Q_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in {}", worldData.name);
     count = l->filelen / sizeof(*in);
 
     worldData.bmodels = out = (bmodel_t*)R_Hunk_Alloc(count * sizeof(*out), true);
@@ -735,17 +735,17 @@ static void R_LoadSubmodels(lump_t* l, world_t& worldData, int index)
 
         assert(model != nullptr); // this should never happen
         if (model == nullptr) {
-            Com_Error(errorParm_t::ERR_DROP, "R_LoadSubmodels: R_AllocModel() failed");
+            Q_Error(errorParm_t::ERR_DROP, "R_LoadSubmodels: R_AllocModel() failed");
         }
 
         model->type = modtype_t::MOD_BRUSH;
         model->bmodel = out;
         if (index) {
-            Com_sprintf(model->name, sizeof(model->name), "*%d-%d", index, i);
+            Q_FormatTo(model->name, "*{}-{}", index, i);
             model->bspInstance = true;
         }
         else {
-            Com_sprintf(model->name, sizeof(model->name), "*%d", i);
+            Q_FormatTo(model->name, "*{}", i);
         }
 
         for (j = 0; j < 3; j++) {
@@ -797,7 +797,7 @@ static void R_LoadNodesAndLeafs(lump_t* nodeLump, lump_t* leafLump, world_t& wor
 
     in = (dnode_t*)(fileBase + nodeLump->fileofs);
     if (nodeLump->filelen % sizeof(dnode_t) || leafLump->filelen % sizeof(dleaf_t)) {
-        Com_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in %s", worldData.name);
+        Q_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in {}", worldData.name);
     }
     numNodes = nodeLump->filelen / sizeof(dnode_t);
     numLeafs = leafLump->filelen / sizeof(dleaf_t);
@@ -866,7 +866,7 @@ static void R_LoadShaders(lump_t* l, world_t& worldData)
 
     in = (dshader_t*)(fileBase + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Com_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in %s", worldData.name);
+        Q_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in {}", worldData.name);
     count = l->filelen / sizeof(*in);
     out = (dshader_t*)R_Hunk_Alloc(count * sizeof(*out), false);
 
@@ -894,7 +894,7 @@ static void R_LoadMarksurfaces(lump_t* l, world_t& worldData)
 
     in = (int*)(fileBase + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Com_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in %s", worldData.name);
+        Q_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in {}", worldData.name);
     count = l->filelen / sizeof(*in);
     out = (struct msurface_s**)R_Hunk_Alloc(count * sizeof(*out), true);
 
@@ -922,7 +922,7 @@ static void R_LoadPlanes(lump_t* l, world_t& worldData)
 
     in = (dplane_t*)(fileBase + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Com_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in %s", worldData.name);
+        Q_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in {}", worldData.name);
     count = l->filelen / sizeof(*in);
     out = (struct cplane_s*)R_Hunk_Alloc(count * 2 * sizeof(*out), true);
 
@@ -967,7 +967,7 @@ static void R_LoadFogs(lump_t* l, lump_t* brushesLump, lump_t* sidesLump, world_
 
     fogs = (dfog_t*)(fileBase + l->fileofs);
     if (l->filelen % sizeof(*fogs)) {
-        Com_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in %s", worldData.name);
+        Q_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in {}", worldData.name);
     }
     count = l->filelen / sizeof(*fogs);
 
@@ -993,13 +993,13 @@ static void R_LoadFogs(lump_t* l, lump_t* brushesLump, lump_t* sidesLump, world_
 
     brushes = (dbrush_t*)(fileBase + brushesLump->fileofs);
     if (brushesLump->filelen % sizeof(*brushes)) {
-        Com_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in %s", worldData.name);
+        Q_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in {}", worldData.name);
     }
     brushesCount = brushesLump->filelen / sizeof(*brushes);
 
     sides = (dbrushside_t*)(fileBase + sidesLump->fileofs);
     if (sidesLump->filelen % sizeof(*sides)) {
-        Com_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in %s", worldData.name);
+        Q_Error(errorParm_t::ERR_DROP, "LoadMap: funny lump size in {}", worldData.name);
     }
     sidesCount = sidesLump->filelen / sizeof(*sides);
 
@@ -1007,7 +1007,7 @@ static void R_LoadFogs(lump_t* l, lump_t* brushesLump, lump_t* sidesLump, world_
         out->originalBrushNumber = LittleLong(fogs->brushNum);
         if (out->originalBrushNumber == -1) {
             if (index) {
-                Com_Error(errorParm_t::ERR_DROP, "LoadMap: global fog not allowed in bsp instances - %s", worldData.name);
+                Q_Error(errorParm_t::ERR_DROP, "LoadMap: global fog not allowed in bsp instances - {}", worldData.name);
             }
             VectorSet(out->bounds[0], MIN_WORLD_COORD, MIN_WORLD_COORD, MIN_WORLD_COORD);
             VectorSet(out->bounds[1], MAX_WORLD_COORD, MAX_WORLD_COORD, MAX_WORLD_COORD);
@@ -1015,14 +1015,14 @@ static void R_LoadFogs(lump_t* l, lump_t* brushesLump, lump_t* sidesLump, world_
         }
         else {
             if ((unsigned)out->originalBrushNumber >= (unsigned)brushesCount) {
-                Com_Error(errorParm_t::ERR_DROP, "fog brushNumber out of range");
+                Q_Error(errorParm_t::ERR_DROP, "fog brushNumber out of range");
             }
             brush = brushes + out->originalBrushNumber;
 
             firstSide = LittleLong(brush->firstSide);
 
             if ((unsigned)firstSide > (unsigned)(sidesCount - 6)) {
-                Com_Error(errorParm_t::ERR_DROP, "fog brush sideNumber out of range");
+                Q_Error(errorParm_t::ERR_DROP, "fog brush sideNumber out of range");
             }
 
             // brushes are always sorted with the axial sides first
@@ -1163,7 +1163,7 @@ void R_LoadLightGridArray(lump_t* l, world_t& worldData)
 
     if (l->filelen != (int)(w->numGridArrayElements * sizeof(*w->lightGridArray))) {
         if (l->filelen > 0) // don't warn if not even lit
-            Com_Warning("light grid array mismatch\n");
+            Q_PrintlnWarning("light grid array mismatch");
         w->lightGridData = nullptr;
         return;
     }
@@ -1231,7 +1231,7 @@ void R_LoadEntities(lump_t* l, world_t& worldData)
                 if (!Q_strncmp(keyname, s, strlen(s)) ) {
                     s = strchr(value, ';');
                     if (!s) {
-                        Com_Warning( "no semi colon in vertexshaderremap '%s'\n", value );
+                        Q_PrintlnWarning("no semi colon in vertexshaderremap '{}'", value);
                         break;
                     }
                     *s++ = 0;
@@ -1245,7 +1245,7 @@ void R_LoadEntities(lump_t* l, world_t& worldData)
                 if (!Q_strncmp(keyname, s, strlen(s)) ) {
                     s = strchr(value, ';');
                     if (!s) {
-                        Com_Warning( "no semi colon in shaderremap '%s'\n", value );
+                        Q_PrintlnWarning("no semi colon in shaderremap '{}'", value);
                         break;
                     }
                     *s++ = 0;
@@ -1298,7 +1298,7 @@ void RE_LoadWorldMap_Actual(const char* name, world_t& worldData, int index)
     bool loadedSubBSP = false;
 
     if (tr.worldMapLoaded && !index) {
-        Com_Error(errorParm_t::ERR_DROP, "ERROR: attempted to redundantly load world map\n");
+        Q_Error(errorParm_t::ERR_DROP, "ERROR: attempted to redundantly load world map");
     }
 
     // set default sun direction to be used if it isn't
@@ -1346,7 +1346,7 @@ void RE_LoadWorldMap_Actual(const char* name, world_t& worldData, int index)
         //
         ri.FS_ReadFile(name, (void**)&buffer);
         if (!buffer) {
-            Com_Error(errorParm_t::ERR_DROP, "RE_LoadWorldMap: %s not found", name);
+            Q_Error(errorParm_t::ERR_DROP, "RE_LoadWorldMap: {} not found", name);
         }
     }
 
@@ -1366,7 +1366,7 @@ void RE_LoadWorldMap_Actual(const char* name, world_t& worldData, int index)
     header->version = LittleLong(header->version);
 
     if (header->version != BSP_VERSION) {
-        Com_Error(errorParm_t::ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be %i)", name, header->version, BSP_VERSION);
+        Q_Error(errorParm_t::ERR_DROP, "RE_LoadWorldMap: {} has wrong version number ({} should be {})", name, header->version, BSP_VERSION);
     }
 
     // swap all the lumps

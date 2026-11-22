@@ -201,7 +201,7 @@ bool G_TryPushingEntity(gentity_t* check, gentity_t* pusher, vec3_t move, vec3_t
 
     // save off the old position
     if (pushed_p > &pushed[MAX_GENTITIES]) {
-        Com_Error(errorParm_t::ERR_DROP, "pushed_p > &pushed[MAX_GENTITIES]");
+        Q_Error(errorParm_t::ERR_DROP, "pushed_p > &pushed[MAX_GENTITIES]");
     }
     pushed_p->ent = check;
     VectorCopy(check->s.pos.trBase, pushed_p->origin);
@@ -706,7 +706,7 @@ void Reached_BinaryMover(gentity_t* ent)
         G_UseTargets2(ent, ent->activator, ent->closetarget);
     }
     else {
-        Com_Error(errorParm_t::ERR_DROP, "Reached_BinaryMover: bad moverState");
+        Q_Error(errorParm_t::ERR_DROP, "Reached_BinaryMover: bad moverState");
     }
 }
 
@@ -1733,7 +1733,7 @@ void Think_SetupTrainTargets(gentity_t* ent)
 
     ent->nextTrain = G_Find(nullptr, FOFS(targetname), ent->target);
     if (!ent->nextTrain) {
-        Com_Printf("func_train at %s with an unfound target\n", vtos(ent->r.absmin));
+        Q_Println("func_train at {} with an unfound target", vtos(ent->r.absmin));
         // Free me?`
         return;
     }
@@ -1796,7 +1796,7 @@ Target: next path corner and other targets to fire
 void SP_path_corner(gentity_t* self)
 {
     if (!self->targetname) {
-        Com_Printf("path_corner with no targetname at %s\n", vtos(self->s.origin));
+        Q_Println("path_corner with no targetname at {}", vtos(self->s.origin));
         G_FreeEntity(self);
         return;
     }
@@ -1834,7 +1834,7 @@ void SP_func_train(gentity_t* self)
     }
 
     if (!self->target) {
-        Com_Printf("func_train without a target at %s\n", vtos(self->r.absmin));
+        Q_Println("func_train without a target at {}", vtos(self->r.absmin));
         G_FreeEntity(self);
         return;
     }
@@ -2656,7 +2656,7 @@ void SP_func_breakable(gentity_t* self)
         self->alliedTeam = TranslateTeamName( self->team );
         if(self->alliedTeam == team_t::TEAM_FREE)
         {
-            Com_Error( errorParm_t::ERR_DROP, "team name %s not recognized\n", self->team );
+            Q_Error(errorParm_t::ERR_DROP, "team name {} not recognized", self->team);
         }
     }
     */
@@ -2665,7 +2665,7 @@ void SP_func_breakable(gentity_t* self)
     }
     self->team = nullptr;
     if (!self->model) {
-        Com_Error(errorParm_t::ERR_DROP, "func_breakable with NULL model\n");
+        Q_Error(errorParm_t::ERR_DROP, "func_breakable with NULL model");
     }
     InitBBrush(self);
 
@@ -2767,7 +2767,7 @@ void GlassDie_Old(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, in
 
 void GlassPain(gentity_t* self, gentity_t* attacker, int damage)
 {
-    // Com_Printf("Mr. Glass says: PLZ NO IT HURTS\n");
+    // Q_Println("Mr. Glass says: PLZ NO IT HURTS");
     // Make "cracking" sound?
 }
 

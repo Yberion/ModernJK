@@ -553,7 +553,7 @@ void CG_RegisterItemSounds(itemNum_t itemNum)
 
         len = s - start;
         if (len >= MAX_QPATH || len < 5) {
-            Com_Error(errorParm_t::ERR_DROP, "PrecacheItem: %s has bad precache string", item->classname);
+            Q_Error(errorParm_t::ERR_DROP, "PrecacheItem: {} has bad precache string", item->classname);
             return;
         }
         memcpy(data, start, len);
@@ -660,23 +660,23 @@ static void CG_RegisterSounds(void)
     theFxScheduler.RegisterEffect("spark_exp_nosnd");
 
     for (i = 0; i < 4; i++) {
-        Com_sprintf(name, sizeof(name), "sound/player/footsteps/stone_step%i.wav", i + 1);
+        Q_FormatTo(name, "sound/player/footsteps/stone_step{}.wav", i + 1);
         cgs.media.footsteps[footstep_t::FOOTSTEP_NORMAL][i] = cgi_S_RegisterSound(name);
 
-        Com_sprintf(name, sizeof(name), "sound/player/footsteps/metal_step%i.wav", i + 1);
+        Q_FormatTo(name, "sound/player/footsteps/metal_step{}.wav", i + 1);
         cgs.media.footsteps[footstep_t::FOOTSTEP_METAL][i] = cgi_S_RegisterSound(name);
 
-        Com_sprintf(name, sizeof(name), "sound/player/footsteps/water_run%i.wav", i + 1);
+        Q_FormatTo(name, "sound/player/footsteps/water_run{}.wav", i + 1);
         cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][i] = cgi_S_RegisterSound(name);
 
-        Com_sprintf(name, sizeof(name), "sound/player/footsteps/water_walk%i.wav", i + 1);
+        Q_FormatTo(name, "sound/player/footsteps/water_walk{}.wav", i + 1);
         cgs.media.footsteps[footstep_t::FOOTSTEP_WADE][i] = cgi_S_RegisterSound(name);
 
-        Com_sprintf(name, sizeof(name), "sound/player/footsteps/water_wade_0%i.wav", i + 1);
+        Q_FormatTo(name, "sound/player/footsteps/water_wade_0{}.wav", i + 1);
         cgs.media.footsteps[footstep_t::FOOTSTEP_SWIM][i] = cgi_S_RegisterSound(name);
 
         // should these always be registered??
-        Com_sprintf(name, sizeof(name), "sound/player/footsteps/boot%i.wav", i + 1);
+        Q_FormatTo(name, "sound/player/footsteps/boot{}.wav", i + 1);
         cgi_S_RegisterSound(name);
     }
     theFxScheduler.RegisterEffect("water_impact");
@@ -727,7 +727,7 @@ qhandle_t CG_RegisterHeadSkin(const char* headModelName, const char* headSkinNam
     char hfilename[MAX_QPATH];
     qhandle_t headSkin;
 
-    Com_sprintf(hfilename, sizeof(hfilename), "models/players/%s/head_%s.skin", headModelName, headSkinName);
+    Q_FormatTo(hfilename, "models/players/{}/head_{}.skin", headModelName, headSkinName);
     headSkin = cgi_R_RegisterSkin(hfilename);
     if (headSkin < 0) { // have extensions
         *extensions = true;
@@ -738,7 +738,7 @@ qhandle_t CG_RegisterHeadSkin(const char* headModelName, const char* headSkinNam
     }
 
     if (!headSkin) {
-        Com_Printf("Failed to load skin file: %s : %s\n", headModelName, headSkinName);
+        Q_Println("Failed to load skin file: {} : {}", headModelName, headSkinName);
     }
     return headSkin;
 }
@@ -755,26 +755,26 @@ bool CG_RegisterClientSkin(clientInfo_t* ci, const char* headModelName, const ch
     char tfilename[MAX_QPATH];
     char lfilename[MAX_QPATH];
 
-    Com_sprintf(lfilename, sizeof(lfilename), "models/players/%s/lower_%s.skin", legsModelName, legsSkinName);
+    Q_FormatTo(lfilename, "models/players/{}/lower_{}.skin", legsModelName, legsSkinName);
     ci->legsSkin = cgi_R_RegisterSkin(lfilename);
 
     if (!ci->legsSkin) {
-        //		Com_Printf( "Failed to load skin file: %s : %s\n", legsModelName, legsSkinName );
+        //		Q_Println("Failed to load skin file: {} : {}", legsModelName, legsSkinName);
         // return false;
     }
 
     if (torsoModelName && torsoSkinName && torsoModelName[0] && torsoSkinName[0]) {
-        Com_sprintf(tfilename, sizeof(tfilename), "models/players/%s/upper_%s.skin", torsoModelName, torsoSkinName);
+        Q_FormatTo(tfilename, "models/players/{}/upper_{}.skin", torsoModelName, torsoSkinName);
         ci->torsoSkin = cgi_R_RegisterSkin(tfilename);
 
         if (!ci->torsoSkin) {
-            Com_Printf("Failed to load skin file: %s : %s\n", torsoModelName, torsoSkinName);
+            Q_Println("Failed to load skin file: {} : {}", torsoModelName, torsoSkinName);
             return false;
         }
     }
 
     if (headModelName && headSkinName && headModelName[0] && headSkinName[0]) {
-        Com_sprintf(hfilename, sizeof(hfilename), "models/players/%s/head_%s.skin", headModelName, headSkinName);
+        Q_FormatTo(hfilename, "models/players/{}/head_{}.skin", headModelName, headSkinName);
         ci->headSkin = cgi_R_RegisterSkin(hfilename);
         if (ci->headSkin < 0) { // have extensions
             ci->extensions = true;
@@ -785,7 +785,7 @@ bool CG_RegisterClientSkin(clientInfo_t* ci, const char* headModelName, const ch
         }
 
         if (!ci->headSkin) {
-            Com_Printf("Failed to load skin file: %s : %s\n", headModelName, headSkinName);
+            Q_Println("Failed to load skin file: {} : {}", headModelName, headSkinName);
             return false;
         }
     }
@@ -810,25 +810,25 @@ Ghoul2 Insert Start
     if (!legsModelName || !legsModelName[0]) {
         return true;
     }
-    Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.mdr", legsModelName);
+    Q_FormatTo(filename, "models/players/{}/lower.mdr", legsModelName);
     ci->legsModel = cgi_R_RegisterModel(filename);
     if (!ci->legsModel) { // he's not skeletal, try the old way
-        Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md3", legsModelName);
+        Q_FormatTo(filename, "models/players/{}/lower.md3", legsModelName);
         ci->legsModel = cgi_R_RegisterModel(filename);
         if (!ci->legsModel) {
-            Com_Printf(S_COLOR_RED "Failed to load model file %s\n", filename);
+            Q_Println(S_COLOR_RED "Failed to load model file {}", filename);
             return false;
         }
     }
 
     if (torsoModelName && torsoModelName[0]) { // You are trying to set one
-        Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.mdr", torsoModelName);
+        Q_FormatTo(filename, "models/players/{}/upper.mdr", torsoModelName);
         ci->torsoModel = cgi_R_RegisterModel(filename);
         if (!ci->torsoModel) { // he's not skeletal, try the old way
-            Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md3", torsoModelName);
+            Q_FormatTo(filename, "models/players/{}/upper.md3", torsoModelName);
             ci->torsoModel = cgi_R_RegisterModel(filename);
             if (!ci->torsoModel) {
-                Com_Printf(S_COLOR_RED "Failed to load model file %s\n", filename);
+                Q_Println(S_COLOR_RED "Failed to load model file {}", filename);
                 return false;
             }
         }
@@ -838,10 +838,10 @@ Ghoul2 Insert Start
     }
 
     if (headModelName && headModelName[0]) { // You are trying to set one
-        Com_sprintf(filename, sizeof(filename), "models/players/%s/head.md3", headModelName);
+        Q_FormatTo(filename, "models/players/{}/head.md3", headModelName);
         ci->headModel = cgi_R_RegisterModel(filename);
         if (!ci->headModel) {
-            Com_Printf(S_COLOR_RED "Failed to load model file %s\n", filename);
+            Q_Println(S_COLOR_RED "Failed to load model file {}", filename);
             return false;
         }
     }
@@ -851,15 +851,15 @@ Ghoul2 Insert Start
 
     // if any skins failed to load, return failure
     if (!CG_RegisterClientSkin(ci, headModelName, headSkinName, torsoModelName, torsoSkinName, legsModelName, legsSkinName)) {
-        // Com_Printf( "Failed to load skin file: %s : %s/%s : %s/%s : %s\n", headModelName, headSkinName, torsoModelName, torsoSkinName, legsModelName,
-        // legsSkinName );
+        // Q_Println("Failed to load skin file: {} : {}/{} : {}/{} : {}", headModelName, headSkinName, torsoModelName, torsoSkinName, legsModelName,
+        // legsSkinName);
         return false;
     }
 
     // FIXME: for now, uses the legs model dir for anim cfg, but should we set this in some sort of NPCs.cfg?
     //  load the animation file set
     if (!G_ParseAnimFileSet(legsModelName, legsModelName, &ci->animFileIndex)) {
-        Com_Printf(S_COLOR_RED "Failed to load animation file set models/players/%s\n", legsModelName);
+        Q_Println(S_COLOR_RED "Failed to load animation file set models/players/{}", legsModelName);
         return false;
     }
 #endif
@@ -935,7 +935,7 @@ void CG_RegisterClientRenderInfo(clientInfo_t* ci, renderInfo_t* ri)
 
     if (!CG_RegisterClientModelname(ci, headModelName, headSkinName, torsoModelName, torsoSkinName, legsModelName, legsSkinName)) {
         if (!CG_RegisterClientModelname(ci, DEFAULT_HEADMODEL, "default", DEFAULT_TORSOMODEL, "default", DEFAULT_LEGSMODEL, "default")) {
-            Com_Error(errorParm_t::ERR_DROP, "DEFAULT_MODELS failed to register");
+            Q_Error(errorParm_t::ERR_DROP, "DEFAULT_MODELS failed to register");
         }
     }
 }
@@ -1119,7 +1119,7 @@ static void CG_RegisterGraphics(void)
 
     // interface
     for (i = 0; i < NUM_CROSSHAIRS; i++) {
-        cgs.media.crosshairShader[i] = cgi_R_RegisterShaderNoMip(va("gfx/2d/crosshair%c", 'a' + i));
+        cgs.media.crosshairShader[i] = cgi_R_RegisterShaderNoMip(Q_Format("gfx/2d/crosshair{:c}", 'a' + i).c_str());
     }
     cgs.media.backTileShader = cgi_R_RegisterShader("gfx/2d/backtile");
     cgs.media.noammoShader = cgi_R_RegisterShaderNoMip("gfx/hud/noammo");
@@ -1138,14 +1138,15 @@ static void CG_RegisterGraphics(void)
     // Chunk models
     // FIXME: jfm:? bother to conditionally load these if an ent has this material type?
     for (i = 0; i < NUM_CHUNK_MODELS; i++) {
-        cgs.media.chunkModels[chunkType_t::CHUNK_METAL2][i] = cgi_R_RegisterModel(va("models/chunks/metal/metal1_%i.md3", i + 1)); //_ /switched\ _
-        cgs.media.chunkModels[chunkType_t::CHUNK_METAL1][i] = cgi_R_RegisterModel(va("models/chunks/metal/metal2_%i.md3", i + 1)); //  \switched/
-        cgs.media.chunkModels[chunkType_t::CHUNK_ROCK1][i] = cgi_R_RegisterModel(va("models/chunks/rock/rock1_%i.md3", i + 1));
-        cgs.media.chunkModels[chunkType_t::CHUNK_ROCK2][i] = cgi_R_RegisterModel(va("models/chunks/rock/rock2_%i.md3", i + 1));
-        cgs.media.chunkModels[chunkType_t::CHUNK_ROCK3][i] = cgi_R_RegisterModel(va("models/chunks/rock/rock3_%i.md3", i + 1));
-        cgs.media.chunkModels[chunkType_t::CHUNK_CRATE1][i] = cgi_R_RegisterModel(va("models/chunks/crate/crate1_%i.md3", i + 1));
-        cgs.media.chunkModels[chunkType_t::CHUNK_CRATE2][i] = cgi_R_RegisterModel(va("models/chunks/crate/crate2_%i.md3", i + 1));
-        cgs.media.chunkModels[chunkType_t::CHUNK_WHITE_METAL][i] = cgi_R_RegisterModel(va("models/chunks/metal/wmetal1_%i.md3", i + 1));
+        cgs.media.chunkModels[chunkType_t::CHUNK_METAL2][i] =
+            cgi_R_RegisterModel(Q_Format("models/chunks/metal/metal1_{}.md3", i + 1).c_str()); //_ /switched\ _
+        cgs.media.chunkModels[chunkType_t::CHUNK_METAL1][i] = cgi_R_RegisterModel(Q_Format("models/chunks/metal/metal2_{}.md3", i + 1).c_str()); //  \switched/
+        cgs.media.chunkModels[chunkType_t::CHUNK_ROCK1][i] = cgi_R_RegisterModel(Q_Format("models/chunks/rock/rock1_{}.md3", i + 1).c_str());
+        cgs.media.chunkModels[chunkType_t::CHUNK_ROCK2][i] = cgi_R_RegisterModel(Q_Format("models/chunks/rock/rock2_{}.md3", i + 1).c_str());
+        cgs.media.chunkModels[chunkType_t::CHUNK_ROCK3][i] = cgi_R_RegisterModel(Q_Format("models/chunks/rock/rock3_{}.md3", i + 1).c_str());
+        cgs.media.chunkModels[chunkType_t::CHUNK_CRATE1][i] = cgi_R_RegisterModel(Q_Format("models/chunks/crate/crate1_{}.md3", i + 1).c_str());
+        cgs.media.chunkModels[chunkType_t::CHUNK_CRATE2][i] = cgi_R_RegisterModel(Q_Format("models/chunks/crate/crate2_{}.md3", i + 1).c_str());
+        cgs.media.chunkModels[chunkType_t::CHUNK_WHITE_METAL][i] = cgi_R_RegisterModel(Q_Format("models/chunks/metal/wmetal1_{}.md3", i + 1).c_str());
     }
 
     cgs.media.chunkSound = cgi_S_RegisterSound("sound/weapons/explosions/glasslcar");
@@ -1240,7 +1241,7 @@ static void CG_RegisterGraphics(void)
         vec3_t mins, maxs;
         int j;
 
-        Com_sprintf(name, sizeof(name), "*%i", i);
+        Q_FormatTo(name, "*{}", i);
         cgs.inlineDrawModel[i] = cgi_R_RegisterModel(name);
         cgi_R_ModelBounds(cgs.inlineDrawModel[i], mins, maxs);
         for (j = 0; j < 3; j++) {
@@ -1259,7 +1260,7 @@ static void CG_RegisterGraphics(void)
             break;
         }
         cgs.model_draw[i] = cgi_R_RegisterModel(modelName);
-        //		OutputDebugString(va("### CG_RegisterGraphics(): cgs.model_draw[%d] = \"%s\"\n",i,modelName));
+        //		OutputDebugString(Q_Format("### CG_RegisterGraphics(): cgs.model_draw[{}] = \"{}\"\n", i, modelName).c_str());
     }
 
     cg.loadLCARSStage = 8;
@@ -1291,7 +1292,7 @@ static void CG_RegisterGraphics(void)
             continue;
         }
 
-        // feedback( va("client %i", i ) );
+        // feedback( Q_Format("client {}", i).c_str() );
         CG_NewClientinfo(i);
     }
 
@@ -1301,7 +1302,7 @@ static void CG_RegisterGraphics(void)
                 // if(!g_entities[i].client->clientInfo.infoValid)
                 // We presume this
                 {
-                    CG_LoadingString(va("client %s", g_entities[i].client->clientInfo.name));
+                    CG_LoadingString(Q_Format("client {}", g_entities[i].client->clientInfo.name).c_str());
                     CG_RegisterClientModels(i);
                     if (i != 0) { // Client weapons already precached
                         CG_RegisterWeapon(g_entities[i].client->ps.weapon);
@@ -1312,7 +1313,7 @@ static void CG_RegisterGraphics(void)
             }
             else if (Any(g_entities[i].svFlags & svFlags_t::SVF_NPC_PRECACHE) && g_entities[i].NPC_type && g_entities[i].NPC_type[0]) { // Precache the NPC_type
                 // FIXME: make sure we didn't precache this NPC_type already
-                CG_LoadingString(va("NPC %s", g_entities[i].NPC_type));
+                CG_LoadingString(Q_Format("NPC {}", g_entities[i].NPC_type).c_str());
                 NPC_Precache(&g_entities[i]);
             }
         }
@@ -1342,7 +1343,7 @@ CG_ConfigString
 const char* CG_ConfigString(int index)
 {
     if (index < 0 || index >= MAX_CONFIGSTRINGS) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_ConfigString: bad index: %i", index);
+        Q_Error(errorParm_t::ERR_DROP, "CG_ConfigString: bad index: {}", index);
     }
     return cgs.gameState.stringData + cgs.gameState.stringOffsets[index];
 }
@@ -2008,15 +2009,15 @@ void CG_ParseMenu(const char* menuFile)
     int result;
     char *buf, *p;
 
-    Com_Printf("Parsing menu file: %s\n", menuFile);
+    Q_Println("Parsing menu file: {}", menuFile);
 
     result = cgi_UI_StartParseSession((char*)menuFile, &buf);
 
     if (!result) {
-        Com_Printf("Unable to load hud menu file: %s. Using default ui/testhud.menu.\n", menuFile);
+        Q_Println("Unable to load hud menu file: {}. Using default ui/testhud.menu.", menuFile);
         result = cgi_UI_StartParseSession("ui/testhud.menu", &buf);
         if (!result) {
-            Com_Printf("Unable to load default ui/testhud.menu.\n");
+            Q_Println("Unable to load default ui/testhud.menu.");
             return;
         }
     }
@@ -2027,7 +2028,7 @@ void CG_ParseMenu(const char* menuFile)
 
         if (!token) {
             // nullptr checking is the best kind of checking --eez
-            Com_Error(errorParm_t::ERR_FATAL, "cgi_UI_ParseExt: NULL token parameter");
+            Q_Error(errorParm_t::ERR_FATAL, "cgi_UI_ParseExt: NULL token parameter");
         }
 
         if (!*token) // All done?
@@ -2036,12 +2037,12 @@ void CG_ParseMenu(const char* menuFile)
         }
 
         // if ( Q_stricmp( token, "{" ) ) {
-        //	Com_Printf( "Missing { in menu file\n" );
+        //	Q_Println("Missing {{ in menu file");
         //	break;
         // }
 
         // if ( menuCount == MAX_MENUS ) {
-        //	Com_Printf( "Too many menus!\n" );
+        //	Q_Println("Too many menus!");
         //	break;
         // }
 
@@ -2123,17 +2124,17 @@ void CG_LoadMenus(const char* menuFile)
 
     len = cgi_FS_FOpenFile(menuFile, &f, fsMode_t::FS_READ);
     if (!f) {
-        // Com_Error( errorParm_t::ERR_DROP, S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile );	// what. this would not run
-        Com_Printf(S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile); // the rest at all.. --eez
+        // Q_Error(errorParm_t::ERR_DROP, S_COLOR_YELLOW "menu file not found: {}, using default", menuFile);	// what. this would not run
+        Q_Println(S_COLOR_YELLOW "menu file not found: {}, using default", menuFile); // the rest at all.. --eez
         len = cgi_FS_FOpenFile("ui/jk2hud.txt", &f, fsMode_t::FS_READ);
         if (!f) {
-            Com_Error(errorParm_t::ERR_DROP, S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!\n");
+            Q_Error(errorParm_t::ERR_DROP, S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!");
         }
     }
 
     if (len >= MAX_MENUDEFFILE) {
         cgi_FS_FCloseFile(f);
-        Com_Error(errorParm_t::ERR_DROP, S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", menuFile, len, MAX_MENUDEFFILE);
+        Q_Error(errorParm_t::ERR_DROP, S_COLOR_RED "menu file too large: {} is {}, max allowed is {}", menuFile, len, MAX_MENUDEFFILE);
         return;
     }
 
@@ -2169,7 +2170,7 @@ void CG_LoadMenus(const char* menuFile)
     }
     COM_EndParseSession();
 
-    Com_Printf("UI menu load time = %d milli seconds\n", cgi_Milliseconds() - start);
+    Q_Println("UI menu load time = {} milli seconds", cgi_Milliseconds() - start);
 }
 
 /*
@@ -2214,7 +2215,6 @@ void CG_LoadHudMenu(void)
         cgDC.feederItemImage = &CG_FeederItemImage;
         cgDC.feederItemText = &CG_FeederItemText;
         cgDC.feederSelection = &CG_FeederSelection;
-        cgDC.Error = &Com_Error;
         cgDC.ownerDrawWidth = &CG_OwnerDrawWidth;
         cgDC.registerSound = &trap_S_RegisterSound;
         cgDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
@@ -2609,7 +2609,7 @@ void CG_DrawInventorySelect(void)
             if (item && item->classname && item->classname[0]) {
                 char itemName[256], data[1024]; // FIXME: do these really need to be this large??  does it matter?
 
-                sprintf(itemName, "INGAME_%s", item->classname);
+                Q_FormatTo(itemName, "INGAME_{}", item->classname);
 
                 if (cgi_SP_GetStringTextString(itemName, data, sizeof(data))) {
                     int w = cgi_R_Font_StrLenPixels(data, cgs.media.qhFontSmall, 1.0f);
@@ -2721,7 +2721,7 @@ void CG_DrawDataPadInventorySelect(void)
     }
 
     //	char buffer[256];
-    //	cgi_UI_GetItemText("datapadInventoryMenu",va("invdesc%d",to_underlying( cg.DataPadInventorySelect )+1),buffer);
+    //	cgi_UI_GetItemText("datapadInventoryMenu",Q_Format("invdesc{}", to_underlying( cg.DataPadInventorySelect )+1).c_str(),buffer);
 
     i = cg.DataPadInventorySelect - 1;
     if (i < inventory_t::INV_ELECTROBINOCULARS) {
@@ -2822,7 +2822,7 @@ void CG_DrawDataPadInventorySelect(void)
     y = 70;
 
     if ((cg.DataPadInventorySelect >= inventory_t::INV_ELECTROBINOCULARS) && (to_underlying(cg.DataPadInventorySelect) < 13)) {
-        cgi_SP_GetStringTextString(va("INGAME_%s", inventoryDesc[cg.DataPadInventorySelect]), text, sizeof(text));
+        cgi_SP_GetStringTextString(Q_Format("INGAME_{}", inventoryDesc[cg.DataPadInventorySelect]).c_str(), text, sizeof(text));
 
         if (text[0]) {
             CG_DisplayBoxedText(70, 50, 500, 300, text, cgs.media.qhFontSmall, 0.7f, textColor);
@@ -3115,7 +3115,7 @@ void CG_DrawForceSelect(void)
     }
 
     // This only a temp solution.
-    if (cgi_SP_GetStringTextString(va("INGAME_%s", showPowersName[cg.forcepowerSelect]), text, sizeof(text))) {
+    if (cgi_SP_GetStringTextString(Q_Format("INGAME_{}", showPowersName[cg.forcepowerSelect]).c_str(), text, sizeof(text))) {
         int w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 1.0f);
         int x = (SCREEN_WIDTH - w) / 2;
         cgi_R_Font_DrawString(x, (SCREEN_HEIGHT - 24), text, colorTable[ct_table_t::CT_ICON_BLUE], cgs.media.qhFontSmall, -1, 1.0f);
@@ -3376,21 +3376,21 @@ void CG_DrawDataPadForceSelect(void)
         }
     }
 
-    cgi_SP_GetStringTextString(va("INGAME_%s", forcepowerDesc[cg.DataPadforcepowerSelect]), text, sizeof(text));
+    cgi_SP_GetStringTextString(Q_Format("INGAME_{}", forcepowerDesc[cg.DataPadforcepowerSelect]).c_str(), text, sizeof(text));
 
     if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]] == forcePowerLevels_t::FORCE_LEVEL_1) {
-        cgi_SP_GetStringTextString(va("INGAME_%s", forcepowerLvl1Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2));
+        cgi_SP_GetStringTextString(Q_Format("INGAME_{}", forcepowerLvl1Desc[cg.DataPadforcepowerSelect]).c_str(), text2, sizeof(text2));
     }
     else if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]] == forcePowerLevels_t::FORCE_LEVEL_2) {
-        cgi_SP_GetStringTextString(va("INGAME_%s", forcepowerLvl2Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2));
+        cgi_SP_GetStringTextString(Q_Format("INGAME_{}", forcepowerLvl2Desc[cg.DataPadforcepowerSelect]).c_str(), text2, sizeof(text2));
     }
     else {
-        cgi_SP_GetStringTextString(va("INGAME_%s", forcepowerLvl3Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2));
+        cgi_SP_GetStringTextString(Q_Format("INGAME_{}", forcepowerLvl3Desc[cg.DataPadforcepowerSelect]).c_str(), text2, sizeof(text2));
     }
 
     if (text[0]) {
 
-        CG_DisplayBoxedText(70, 50, 500, 300, va("%s%s", text, text2), cgs.media.qhFontSmall, 0.7f, colorTable[ct_table_t::CT_ICON_BLUE]);
+        CG_DisplayBoxedText(70, 50, 500, 300, Q_Format("{}{}", text, text2).c_str(), cgs.media.qhFontSmall, 0.7f, colorTable[ct_table_t::CT_ICON_BLUE]);
     }
 }
 

@@ -155,8 +155,8 @@ void fx_runner_link(gentity_t* ent)
 
         if (!target) {
             // Bah, no good, dump a warning, but continue on and use the UP vector
-            Com_Printf("fx_runner_link: target specified but not found: %s\n", ent->target);
-            Com_Printf("  -assuming UP orientation.\n");
+            Q_Println("fx_runner_link: target specified but not found: {}", ent->target);
+            Q_Println("  -assuming UP orientation.");
         }
         else {
             // Our target is valid so let's override the default UP vector
@@ -174,7 +174,7 @@ void fx_runner_link(gentity_t* ent)
 
         if (!target) {
             // Target2 is bogus, but we can still continue
-            Com_Printf("fx_runner_link: target2 was specified but is not valid: %s\n", ent->target2);
+            Q_Println("fx_runner_link: target2 was specified but is not valid: {}", ent->target2);
         }
     }
 
@@ -219,7 +219,7 @@ void SP_fx_runner(gentity_t* ent)
     }
 
     if (!ent->fxFile) {
-        Com_PrintError("fx_runner %s at %s has no fxFile specified\n", ent->targetname, vtos(ent->s.origin));
+        Q_PrintlnError("fx_runner {} at {} has no fxFile specified", ent->targetname, vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -258,7 +258,7 @@ void SP_CreateSnow(gentity_t* ent)
     cvar_t* r_weatherScale = gi.cvar("r_weatherScale", "1", cvarFlags_t::CVAR_ARCHIVE);
 
     if (r_weatherScale->value > 0.0f) {
-        sprintf(temp, "snow init %i", (int)(ent->count * r_weatherScale->value));
+        Q_FormatTo(temp, "snow init {}", (int)(ent->count * r_weatherScale->value));
 
         G_FindConfigstringIndex(temp, CS_WORLD_FX, MAX_WORLD_FX, true);
         G_FindConfigstringIndex("wind", CS_WORLD_FX, MAX_WORLD_FX, true);
@@ -282,7 +282,7 @@ void SP_CreateRain(gentity_t* ent)
     cvar_t* r_weatherScale = gi.cvar("r_weatherScale", "1", cvarFlags_t::CVAR_ARCHIVE);
 
     if (r_weatherScale->value > 0.0f) {
-        sprintf(temp, "rain init %i", (int)(ent->count * r_weatherScale->value));
+        Q_FormatTo(temp, "rain init {}", (int)(ent->count * r_weatherScale->value));
 
         G_FindConfigstringIndex(temp, CS_WORLD_FX, MAX_WORLD_FX, true);
         G_FindConfigstringIndex("wind", CS_WORLD_FX, MAX_WORLD_FX, true);
@@ -414,7 +414,7 @@ void fx_explosion_trail_link(gentity_t* ent)
         target = G_Find(target, FOFS(targetname), ent->target);
 
         if (!target) {
-            Com_PrintError("fx_explosion_trail %s could not find target %s\n", ent->targetname, ent->target);
+            Q_PrintlnError("fx_explosion_trail {} could not find target {}", ent->targetname, ent->target);
             G_FreeEntity(ent);
             return;
         }
@@ -459,7 +459,7 @@ void SP_fx_explosion_trail(gentity_t* ent)
 {
     // We have to be useable, otherwise we won't spawn in
     if (!ent->targetname) {
-        Com_PrintError("fx_explosion_trail at %s has no targetname specified\n", vtos(ent->s.origin));
+        Q_PrintlnError("fx_explosion_trail at {} has no targetname specified", vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -620,7 +620,7 @@ void fx_target_beam_link(gentity_t* ent)
     target = G_Find(target, FOFS(targetname), ent->target);
 
     if (!target) {
-        Com_Printf("bolt_link: unable to find target %s\n", ent->target);
+        Q_Println("bolt_link: unable to find target {}", ent->target);
         G_FreeEntity(ent);
         return;
     }

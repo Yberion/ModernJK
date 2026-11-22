@@ -167,7 +167,7 @@ static bool BG_ParseVehWeaponParm(vehWeaponInfo_t* vehWeapon, const char* parmNa
         _iFieldsRead = Q_ScanFloats(value, vec, 3);
         // assert(_iFieldsRead==3 );
         if (_iFieldsRead != 3) {
-            Com_Printf(S_COLOR_YELLOW "BG_ParseVehWeaponParm: VEC3 sscanf() failed to read 3 floats ('angle' key bug?)\n");
+            Q_Println(S_COLOR_YELLOW "BG_ParseVehWeaponParm: VEC3 sscanf() failed to read 3 floats ('angle' key bug?)");
             VectorClear(vec);
         }
         ((float*)(b + vehWeaponField->ofs))[0] = vec[0];
@@ -296,7 +296,7 @@ int VEH_LoadVehWeapon(const char* vehWeaponName)
         SkipRestOfLine(&p);
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            Com_PrintError("unexpected EOF while parsing Vehicle Weapon '%s'\n", vehWeaponName);
+            Q_PrintlnError("unexpected EOF while parsing Vehicle Weapon '{}'", vehWeaponName);
             return VEH_WEAPON_NONE;
         }
 
@@ -306,11 +306,11 @@ int VEH_LoadVehWeapon(const char* vehWeaponName)
         Q_strncpyz(parmName, token, sizeof(parmName));
         value = COM_ParseExt(&p, true);
         if (!value || !value[0]) {
-            Com_PrintError("Vehicle Weapon token '%s' has no value!\n", parmName);
+            Q_PrintlnError("Vehicle Weapon token '{}' has no value!", parmName);
         }
         else {
             if (!BG_ParseVehWeaponParm(vehWeapon, parmName, value)) {
-                Com_PrintError("Unknown Vehicle Weapon key/value pair '%s','%s'!\n", parmName, value);
+                Q_PrintlnError("Unknown Vehicle Weapon key/value pair '{}','{}'!", parmName, value);
             }
         }
     }
@@ -334,7 +334,7 @@ int VEH_VehWeaponIndexForName(const char* vehWeaponName)
 {
     int vw;
     if (!vehWeaponName || !vehWeaponName[0]) {
-        Com_PrintError("Trying to read Vehicle Weapon with no name!\n");
+        Q_PrintlnError("Trying to read Vehicle Weapon with no name!");
         return VEH_WEAPON_NONE;
     }
     for (vw = VEH_WEAPON_BASE; vw < numVehicleWeapons; vw++) {
@@ -344,14 +344,14 @@ int VEH_VehWeaponIndexForName(const char* vehWeaponName)
     }
     // haven't loaded it yet
     if (vw >= MAX_VEH_WEAPONS) { // no more room!
-        Com_PrintError("Too many Vehicle Weapons (max 16), aborting load on %s!\n", vehWeaponName);
+        Q_PrintlnError("Too many Vehicle Weapons (max 16), aborting load on {}!", vehWeaponName);
         return VEH_WEAPON_NONE;
     }
     // we have room for another one, load it up and return the index
     // HMM... should we not even load the .vwp file until we want to?
     vw = VEH_LoadVehWeapon(vehWeaponName);
     if (vw == VEH_WEAPON_NONE) {
-        Com_PrintError("Could not find Vehicle Weapon %s!\n", vehWeaponName);
+        Q_PrintlnError("Could not find Vehicle Weapon {}!", vehWeaponName);
     }
     return vw;
 }
@@ -776,7 +776,7 @@ static bool BG_ParseVehicleParm(vehicleInfo_t* vehicle, const char* parmName, ch
         _iFieldsRead = Q_ScanFloats(value, vec, 3);
         // assert(_iFieldsRead==3 );
         if (_iFieldsRead != 3) {
-            Com_Printf(S_COLOR_YELLOW "BG_ParseVehicleParm: VEC3 sscanf() failed to read 3 floats ('angle' key bug?)\n");
+            Q_Println(S_COLOR_YELLOW "BG_ParseVehicleParm: VEC3 sscanf() failed to read 3 floats ('angle' key bug?)");
             VectorClear(vec);
         }
         ((float*)(b + vehField->ofs))[0] = vec[0];
@@ -922,7 +922,7 @@ int VEH_LoadVehicle(const char* vehicleName)
         SkipRestOfLine(&p);
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            Com_PrintError("unexpected EOF while parsing Vehicle '%s'\n", vehicleName);
+            Q_PrintlnError("unexpected EOF while parsing Vehicle '{}'", vehicleName);
             return VEHICLE_NONE;
         }
 
@@ -932,7 +932,7 @@ int VEH_LoadVehicle(const char* vehicleName)
         Q_strncpyz(parmName, token, sizeof(parmName));
         value = COM_ParseExt(&p, true);
         if (!value || !value[0]) {
-            Com_PrintError("Vehicle token '%s' has no value!\n", parmName);
+            Q_PrintlnError("Vehicle token '{}' has no value!", parmName);
         }
         else if (Q_stricmp("weap1", parmName) ==
                  0) { // hmm, store this off because we don't want to call another one of these text parsing routines while we're in the middle of one...
@@ -985,7 +985,7 @@ int VEH_LoadVehicle(const char* vehicleName)
         else {
             if (!BG_ParseVehicleParm(vehicle, parmName, value)) {
 #ifndef FINAL_BUILD
-                Com_PrintError("Unknown Vehicle key/value pair '%s', '%s'!\n", parmName, value);
+                Q_PrintlnError("Unknown Vehicle key/value pair '{}', '{}'!", parmName, value);
 #endif
             }
         }
@@ -994,84 +994,84 @@ int VEH_LoadVehicle(const char* vehicleName)
     if (weap1[0]) {
         if (!BG_ParseVehicleParm(vehicle, "weap1", weap1)) {
 #ifndef FINAL_BUILD
-            Com_PrintError("Unknown Vehicle key/value pair 'weap1', '%s'!\n", weap1);
+            Q_PrintlnError("Unknown Vehicle key/value pair 'weap1', '{}'!", weap1);
 #endif
         }
     }
     if (weap2[0]) {
         if (!BG_ParseVehicleParm(vehicle, "weap2", weap2)) {
 #ifndef FINAL_BUILD
-            Com_PrintError("Unknown Vehicle key/value pair 'weap2', '%s'!\n", weap2);
+            Q_PrintlnError("Unknown Vehicle key/value pair 'weap2', '{}'!", weap2);
 #endif
         }
     }
     if (weapMuzzle1[0]) {
         if (!BG_ParseVehicleParm(vehicle, "weapMuzzle1", weapMuzzle1)) {
 #ifndef FINAL_BUILD
-            Com_PrintError("Unknown Vehicle key/value pair 'weapMuzzle1', '%s'!\n", weapMuzzle1);
+            Q_PrintlnError("Unknown Vehicle key/value pair 'weapMuzzle1', '{}'!", weapMuzzle1);
 #endif
         }
     }
     if (weapMuzzle2[0]) {
         if (!BG_ParseVehicleParm(vehicle, "weapMuzzle2", weapMuzzle2)) {
 #ifndef FINAL_BUILD
-            Com_PrintError("Unknown Vehicle key/value pair 'weapMuzzle2', '%s'!\n", weapMuzzle2);
+            Q_PrintlnError("Unknown Vehicle key/value pair 'weapMuzzle2', '{}'!", weapMuzzle2);
 #endif
         }
     }
     if (weapMuzzle3[0]) {
         if (!BG_ParseVehicleParm(vehicle, "weapMuzzle3", weapMuzzle3)) {
 #ifndef FINAL_BUILD
-            Com_PrintError("Unknown Vehicle key/value pair 'weapMuzzle3', '%s'!\n", weapMuzzle3);
+            Q_PrintlnError("Unknown Vehicle key/value pair 'weapMuzzle3', '{}'!", weapMuzzle3);
 #endif
         }
     }
     if (weapMuzzle4[0]) {
         if (!BG_ParseVehicleParm(vehicle, "weapMuzzle4", weapMuzzle4)) {
 #ifndef FINAL_BUILD
-            Com_PrintError("Unknown Vehicle key/value pair 'weapMuzzle4', '%s'!\n", weapMuzzle4);
+            Q_PrintlnError("Unknown Vehicle key/value pair 'weapMuzzle4', '{}'!", weapMuzzle4);
 #endif
         }
     }
     if (weapMuzzle5[0]) {
         if (!BG_ParseVehicleParm(vehicle, "weapMuzzle5", weapMuzzle5)) {
 #ifndef FINAL_BUILD
-            Com_PrintError("Unknown Vehicle key/value pair 'weapMuzzle5', '%s'!\n", weapMuzzle5);
+            Q_PrintlnError("Unknown Vehicle key/value pair 'weapMuzzle5', '{}'!", weapMuzzle5);
 #endif
         }
     }
     if (weapMuzzle6[0]) {
         if (!BG_ParseVehicleParm(vehicle, "weapMuzzle6", weapMuzzle6)) {
 #ifndef FINAL_BUILD
-            Com_PrintError("Unknown Vehicle key/value pair 'weapMuzzle6', '%s'!\n", weapMuzzle6);
+            Q_PrintlnError("Unknown Vehicle key/value pair 'weapMuzzle6', '{}'!", weapMuzzle6);
 #endif
         }
     }
     if (weapMuzzle7[0]) {
         if (!BG_ParseVehicleParm(vehicle, "weapMuzzle7", weapMuzzle7)) {
 #ifndef FINAL_BUILD
-            Com_PrintError("Unknown Vehicle key/value pair 'weapMuzzle7', '%s'!\n", weapMuzzle7);
+            Q_PrintlnError("Unknown Vehicle key/value pair 'weapMuzzle7', '{}'!", weapMuzzle7);
 #endif
         }
     }
     if (weapMuzzle8[0]) {
         if (!BG_ParseVehicleParm(vehicle, "weapMuzzle8", weapMuzzle8)) {
 #ifndef FINAL_BUILD
-            Com_PrintError("Unknown Vehicle key/value pair 'weapMuzzle8', '%s'!\n", weapMuzzle8);
+            Q_PrintlnError("Unknown Vehicle key/value pair 'weapMuzzle8', '{}'!", weapMuzzle8);
 #endif
         }
     }
     if (weapMuzzle9[0]) {
         if (!BG_ParseVehicleParm(vehicle, "weapMuzzle9", weapMuzzle9)) {
 #ifndef FINAL_BUILD
-            Com_PrintError("Unknown Vehicle key/value pair 'weapMuzzle9', '%s'!\n", weapMuzzle9);
+            Q_PrintlnError("Unknown Vehicle key/value pair 'weapMuzzle9', '{}'!", weapMuzzle9);
 #endif
         }
     }
     if (weapMuzzle10[0]) {
         if (!BG_ParseVehicleParm(vehicle, "weapMuzzle10", weapMuzzle10)) {
 #ifndef FINAL_BUILD
-            Com_PrintError("Unknown Vehicle key/value pair 'weapMuzzle10', '%s'!\n", weapMuzzle10);
+            Q_PrintlnError("Unknown Vehicle key/value pair 'weapMuzzle10', '{}'!", weapMuzzle10);
 #endif
         }
     }
@@ -1092,15 +1092,15 @@ int VEH_LoadVehicle(const char* vehicleName)
 
     if (vehicle->model) {
 #ifdef _GAME
-        vehicle->modelIndex = G_ModelIndex(va("models/players/%s/model.glm", vehicle->model));
+        vehicle->modelIndex = G_ModelIndex(Q_Format("models/players/{}/model.glm", vehicle->model).c_str());
 #else
-        vehicle->modelIndex = trap->R_RegisterModel(va("models/players/%s/model.glm", vehicle->model));
+        vehicle->modelIndex = trap->R_RegisterModel(Q_Format("models/players/{}/model.glm", vehicle->model).c_str());
 #endif
     }
 
 #if defined(_CGAME) || defined(UI_BUILD)
     if (VALIDSTRING(vehicle->skin))
-        trap->R_RegisterSkin(va("models/players/%s/model_%s.skin", vehicle->model, vehicle->skin));
+        trap->R_RegisterSkin(Q_Format("models/players/{}/model_{}.skin", vehicle->model, vehicle->skin).c_str());
 #endif
 
     // sanity check and clamp the vehicle's data
@@ -1162,7 +1162,7 @@ int VEH_VehicleIndexForName(const char* vehicleName)
 {
     int v;
     if (!vehicleName || !vehicleName[0]) {
-        Com_PrintError("Trying to read Vehicle with no name!\n");
+        Q_PrintlnError("Trying to read Vehicle with no name!");
         return VEHICLE_NONE;
     }
     for (v = VEHICLE_BASE; v < numVehicles; v++) {
@@ -1172,14 +1172,14 @@ int VEH_VehicleIndexForName(const char* vehicleName)
     }
     // haven't loaded it yet
     if (v >= MAX_VEHICLES) { // no more room!
-        Com_PrintError("Too many Vehicles (max %d), aborting load on %s!\n", MAX_VEHICLES, vehicleName);
+        Q_PrintlnError("Too many Vehicles (max {}), aborting load on {}!", MAX_VEHICLES, vehicleName);
         return VEHICLE_NONE;
     }
     // we have room for another one, load it up and return the index
     // HMM... should we not even load the .veh file until we want to?
     v = VEH_LoadVehicle(vehicleName);
     if (v == VEHICLE_NONE) {
-        Com_PrintError("Could not find Vehicle %s!\n", vehicleName);
+        Q_PrintlnError("Could not find Vehicle {}!", vehicleName);
     }
     return v;
 }
@@ -1213,12 +1213,12 @@ void BG_VehWeaponLoadParms(void)
     for (i = 0; i < fileCnt; i++, holdChar += vehExtFNLen + 1) {
         vehExtFNLen = strlen(holdChar);
 
-        //		Com_Printf( "Parsing %s\n", holdChar );
+        //		Q_Println("Parsing {}", holdChar);
 
-        len = trap->FS_Open(va("ext_data/vehicles/weapons/%s", holdChar), &f, fsMode_t::FS_READ);
+        len = trap->FS_Open(Q_Format("ext_data/vehicles/weapons/{}", holdChar).c_str(), &f, fsMode_t::FS_READ);
 
         if (len == -1) {
-            Com_Printf("error reading file\n");
+            Q_Println("error reading file");
         }
         else {
             trap->FS_Read(tempReadBuffer, len, f);
@@ -1233,7 +1233,7 @@ void BG_VehWeaponLoadParms(void)
 
             if (totallen + len >= MAX_VEH_WEAPON_DATA_SIZE) {
                 trap->FS_Close(f);
-                Com_Error(errorParm_t::ERR_DROP, "Vehicle Weapon extensions (*.vwp) are too large");
+                Q_Error(errorParm_t::ERR_DROP, "Vehicle Weapon extensions (*.vwp) are too large");
             }
             strcat(marker, tempReadBuffer);
             trap->FS_Close(f);
@@ -1276,12 +1276,12 @@ void BG_VehicleLoadParms(void)
     for (i = 0; i < fileCnt; i++, holdChar += vehExtFNLen + 1) {
         vehExtFNLen = strlen(holdChar);
 
-        //		Com_Printf( "Parsing %s\n", holdChar );
+        //		Q_Println("Parsing {}", holdChar);
 
-        len = trap->FS_Open(va("ext_data/vehicles/%s", holdChar), &f, fsMode_t::FS_READ);
+        len = trap->FS_Open(Q_Format("ext_data/vehicles/{}", holdChar).c_str(), &f, fsMode_t::FS_READ);
 
         if (len == -1) {
-            Com_Printf("error reading file\n");
+            Q_Println("error reading file");
         }
         else {
             trap->FS_Read(tempReadBuffer, len, f);
@@ -1296,7 +1296,7 @@ void BG_VehicleLoadParms(void)
 
             if (totallen + len >= MAX_VEHICLE_DATA_SIZE) {
                 trap->FS_Close(f);
-                Com_Error(errorParm_t::ERR_DROP, "Vehicle extensions (*.veh) are too large");
+                Q_Error(errorParm_t::ERR_DROP, "Vehicle extensions (*.veh) are too large");
             }
             strcat(marker, tempReadBuffer);
             trap->FS_Close(f);
@@ -1336,7 +1336,7 @@ void BG_GetVehicleModelName(char* modelName, const char* vehicleName, size_t len
     assert(vehicleName[0] == '$');
 
     if (vIndex == VEHICLE_NONE)
-        Com_Error(errorParm_t::ERR_DROP, "BG_GetVehicleModelName:  couldn't find vehicle %s", vehName);
+        Q_Error(errorParm_t::ERR_DROP, "BG_GetVehicleModelName:  couldn't find vehicle {}", vehName);
 
     Q_strncpyz(modelName, g_vehicleInfo[vIndex].model, len);
 }
@@ -1348,7 +1348,7 @@ void BG_GetVehicleSkinName(char* skinname, int len)
     assert(skinname[0] == '$');
 
     if (vIndex == VEHICLE_NONE)
-        Com_Error(errorParm_t::ERR_DROP, "BG_GetVehicleSkinName:  couldn't find vehicle %s", vehName);
+        Q_Error(errorParm_t::ERR_DROP, "BG_GetVehicleSkinName:  couldn't find vehicle {}", vehName);
 
     if (!VALIDSTRING(g_vehicleInfo[vIndex].skin))
         skinname[0] = 0;

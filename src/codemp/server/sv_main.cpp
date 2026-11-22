@@ -128,11 +128,11 @@ void SV_AddServerCommand(client_t* client, const char* cmd)
     // we check == instead of >= so a broadcast print added by SV_DropClient()
     // doesn't cause a recursive drop client
     if (client->reliableSequence - client->reliableAcknowledge == MAX_RELIABLE_COMMANDS + 1) {
-        Com_Printf("===== pending server commands =====\n");
+        Q_Println("===== pending server commands =====");
         for (i = client->reliableAcknowledge + 1; i <= client->reliableSequence; i++) {
-            Com_Printf("cmd %5d: %s\n", i, client->reliableCommands[i & (MAX_RELIABLE_COMMANDS - 1)]);
+            Q_Println("cmd {:5}: {}", i, client->reliableCommands[i & (MAX_RELIABLE_COMMANDS - 1)]);
         }
-        Com_Printf("cmd %5d: %s\n", i, cmd);
+        Q_Println("cmd {:5}: {}", i, cmd);
         SV_DropClient(client, "Server command overflow");
         return;
     }
@@ -149,16 +149,13 @@ the client game module: "cp", "print", "chat", etc
 A nullptr client will broadcast to all clients
 =================
 */
-void QDECL SV_SendServerCommand(client_t* cl, const char* fmt, ...)
+void SV_VSendServerCommand(client_t* cl, fmt::string_view fmt, fmt::format_args args)
 {
-    va_list argptr;
     byte message[MAX_MSGLEN];
     client_t* client;
     int j;
 
-    va_start(argptr, fmt);
-    Q_vsnprintf((char*)message, sizeof(message), fmt, argptr);
-    va_end(argptr);
+    Q_VFormatToCut(std::span((char*)message, sizeof(message)), fmt, args);
 
     // Fix to http://aluigi.altervista.org/adv/q3msgboom-adv.txt
     // The actual cause of the bug is probably further downstream
@@ -175,7 +172,7 @@ void QDECL SV_SendServerCommand(client_t* cl, const char* fmt, ...)
 
     // hack to echo broadcast prints to console
     if (com_dedicated->integer && !Q_strncmp((char*)message, "print", 5)) {
-        Com_Printf("broadcast: %s\n", SV_ExpandNewlines((char*)message));
+        Q_Println("broadcast: {}", SV_ExpandNewlines((char*)message));
     }
 
     // send the data to all relevent clients
@@ -255,11 +252,11 @@ void SV_MasterHeartbeat(void)
 
             g_lastResolveTime[i] = time;
 
-            Com_Printf("Resolving %s\n", sv_master[i]->string);
+            Q_Println("Resolving {}", sv_master[i]->string);
             if (!NET_StringToAdr(sv_master[i]->string, &adr[i])) {
                 // if the address failed to resolve, clear it
                 // so we don't take repeated dns hits
-                Com_Printf("Couldn't resolve address: %s\n", sv_master[i]->string);
+                Q_Println("Couldn't resolve address: {}", sv_master[i]->string);
                 Cvar_Set(sv_master[i]->name, "");
                 sv_master[i]->modified = false;
                 continue;
@@ -267,15 +264,15 @@ void SV_MasterHeartbeat(void)
             if (!strstr(":", sv_master[i]->string)) {
                 adr[i].port = BigShort(PORT_MASTER);
             }
-            Com_Printf("%s resolved to %s\n", sv_master[i]->string, NET_AdrToString(&adr[i]));
+            Q_Println("{} resolved to {}", sv_master[i]->string, NET_AdrToString(&adr[i]));
 
             SVC_WhitelistAdr(&adr[i]);
         }
 
-        Com_Printf("Sending heartbeat to %s\n", sv_master[i]->string);
+        Q_Println("Sending heartbeat to {}", sv_master[i]->string);
         // this command should be changed if the server info / status format
         // ever incompatably changes
-        NET_OutOfBandPrint(netsrc_t::NS_SERVER, &adr[i], "heartbeat %s\n", HEARTBEAT_GAME);
+        NET_OutOfBandPrint(netsrc_t::NS_SERVER, &adr[i], "heartbeat {}\n", HEARTBEAT_GAME);
     }
 }
 
@@ -452,7 +449,7 @@ void SVC_Status(const netadr_t* from)
         cl = &svs.clients[i];
         if (cl->state >= clientState_t::CS_CONNECTED) {
             ps = SV_GameClientNum(i);
-            Com_sprintf(player, sizeof(player), "%i %i \"%s\"\n", ps->persistant[persEnum_t::PERS_SCORE], cl->ping, cl->name);
+            Q_FormatTo(player, "{} {} \"{}\"\n", ps->persistant[persEnum_t::PERS_SCORE], cl->ping, cl->name);
             playerLength = strlen(player);
             if (statusLength + playerLength >= (int)sizeof(status)) {
                 break; // can't hold any more
@@ -462,7 +459,7 @@ void SVC_Status(const netadr_t* from)
         }
     }
 
-    NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status);
+    NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "statusResponse\n{}\n{}", infostring, status);
 }
 
 /*
@@ -516,38 +513,38 @@ void SVC_Info(const netadr_t* from)
     // to prevent timed spoofed reply packets that add ghost servers
     Info_SetValueForKey(infostring, "challenge", Cmd_Argv(1));
 
-    Info_SetValueForKey(infostring, "protocol", va("%i", PROTOCOL_VERSION));
+    Info_SetValueForKey(infostring, "protocol", Q_Format("{}", PROTOCOL_VERSION).c_str());
     Info_SetValueForKey(infostring, "hostname", sv_hostname->string);
     Info_SetValueForKey(infostring, "mapname", sv_mapname->string);
-    Info_SetValueForKey(infostring, "clients", va("%i", count));
-    Info_SetValueForKey(infostring, "g_humanplayers", va("%i", humans));
-    Info_SetValueForKey(infostring, "sv_maxclients", va("%i", sv_maxclients->integer - sv_privateClients->integer));
-    Info_SetValueForKey(infostring, "gametype", va("%i", sv_gametype->integer));
-    Info_SetValueForKey(infostring, "needpass", va("%i", sv_needpass->integer));
-    Info_SetValueForKey(infostring, "truejedi", va("%i", Cvar_VariableIntegerValue("g_jediVmerc")));
+    Info_SetValueForKey(infostring, "clients", Q_Format("{}", count).c_str());
+    Info_SetValueForKey(infostring, "g_humanplayers", Q_Format("{}", humans).c_str());
+    Info_SetValueForKey(infostring, "sv_maxclients", Q_Format("{}", sv_maxclients->integer - sv_privateClients->integer).c_str());
+    Info_SetValueForKey(infostring, "gametype", Q_Format("{}", sv_gametype->integer).c_str());
+    Info_SetValueForKey(infostring, "needpass", Q_Format("{}", sv_needpass->integer).c_str());
+    Info_SetValueForKey(infostring, "truejedi", Q_Format("{}", Cvar_VariableIntegerValue("g_jediVmerc")).c_str());
     if (sv_gametype->integer == to_underlying(gametype_t::GT_DUEL) || sv_gametype->integer == to_underlying(gametype_t::GT_POWERDUEL)) {
         wDisable = Cvar_VariableIntegerValue("g_duelWeaponDisable");
     }
     else {
         wDisable = Cvar_VariableIntegerValue("g_weaponDisable");
     }
-    Info_SetValueForKey(infostring, "wdisable", va("%i", wDisable));
-    Info_SetValueForKey(infostring, "fdisable", va("%i", Cvar_VariableIntegerValue("g_forcePowerDisable")));
-    // Info_SetValueForKey( infostring, "pure", va("%i", sv_pure->integer ) );
-    Info_SetValueForKey(infostring, "autodemo", va("%i", sv_autoDemo->integer));
+    Info_SetValueForKey(infostring, "wdisable", Q_Format("{}", wDisable).c_str());
+    Info_SetValueForKey(infostring, "fdisable", Q_Format("{}", Cvar_VariableIntegerValue("g_forcePowerDisable")).c_str());
+    // Info_SetValueForKey( infostring, "pure", Q_Format("{}", sv_pure->integer).c_str() );
+    Info_SetValueForKey(infostring, "autodemo", Q_Format("{}", sv_autoDemo->integer).c_str());
 
     if (sv_minPing->integer) {
-        Info_SetValueForKey(infostring, "minPing", va("%i", sv_minPing->integer));
+        Info_SetValueForKey(infostring, "minPing", Q_Format("{}", sv_minPing->integer).c_str());
     }
     if (sv_maxPing->integer) {
-        Info_SetValueForKey(infostring, "maxPing", va("%i", sv_maxPing->integer));
+        Info_SetValueForKey(infostring, "maxPing", Q_Format("{}", sv_maxPing->integer).c_str());
     }
     gamedir = Cvar_VariableString("fs_game");
     if (*gamedir) {
         Info_SetValueForKey(infostring, "game", gamedir);
     }
 
-    NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "infoResponse\n%s", infostring);
+    NET_OutOfBandPrint(netsrc_t::NS_SERVER, from, "infoResponse\n{}", infostring);
 }
 
 /*
@@ -558,7 +555,7 @@ SVC_FlushRedirect
 */
 void SV_FlushRedirect(char* outputbuf)
 {
-    NET_OutOfBandPrint(netsrc_t::NS_SERVER, &svs.redirectAddress, "print\n%s", outputbuf);
+    NET_OutOfBandPrint(netsrc_t::NS_SERVER, &svs.redirectAddress, "print\n{}", outputbuf);
 }
 
 /*
@@ -582,11 +579,11 @@ void SVC_RemoteCommand(const netadr_t* from, msg_t* msg)
 
     if (!strlen(sv_rconPassword->string) || strcmp(Cmd_Argv(1), sv_rconPassword->string)) {
         valid = false;
-        Com_Printf("Bad rcon from %s: %s\n", NET_AdrToString(from), Cmd_ArgsFrom(2));
+        Q_Println("Bad rcon from {}: {}", NET_AdrToString(from), Cmd_ArgsFrom(2));
     }
     else {
         valid = true;
-        Com_Printf("Rcon from %s: %s\n", NET_AdrToString(from), Cmd_ArgsFrom(2));
+        Q_Println("Rcon from {}: {}", NET_AdrToString(from), Cmd_ArgsFrom(2));
     }
 
     // start redirecting all print outputs to the packet
@@ -594,10 +591,10 @@ void SVC_RemoteCommand(const netadr_t* from, msg_t* msg)
     Com_BeginRedirect(sv_outputbuf, SV_OUTPUTBUF_LENGTH, SV_FlushRedirect);
 
     if (!strlen(sv_rconPassword->string)) {
-        Com_Printf("No rconpassword set.\n");
+        Q_Println("No rconpassword set.");
     }
     else if (!valid) {
-        Com_Printf("Bad rconpassword.\n");
+        Q_Println("Bad rconpassword.");
     }
     else {
         remaining[0] = 0;
@@ -668,11 +665,11 @@ void SVC_WhitelistAdr(const netadr_t* adr)
         return;
     }
 
-    Com_DPrintf("Whitelisting %s\n", NET_AdrToString(adr));
+    Q_DPrintln("Whitelisting {}", NET_AdrToString(adr));
 
     f = FS_SV_FOpenFileAppend(WHITELIST_FILE);
     if (!f) {
-        Com_Printf("Couldn't open " WHITELIST_FILE ".\n");
+        Q_Println("Couldn't open " WHITELIST_FILE ".");
         return;
     }
 
@@ -716,7 +713,7 @@ void SV_ConnectionlessPacket(const netadr_t* from, msg_t* msg)
 
         if (SVC_RateLimitAddress(from, burst, period, now)) {
             if (com_developer && com_developer->integer) {
-                Com_Printf("SV_ConnectionlessPacket: Rate limit from %s exceeded, dropping request\n", NET_AdrToString(from));
+                Q_Println("SV_ConnectionlessPacket: Rate limit from {} exceeded, dropping request", NET_AdrToString(from));
             }
             return;
         }
@@ -737,7 +734,7 @@ void SV_ConnectionlessPacket(const netadr_t* from, msg_t* msg)
     }
 
     if (dropped > 0 && lastMsg + 5000 < now) {
-        Com_Printf("SV_ConnectionlessPacket: Rate limit exceeded, dropped %d requests\n", dropped);
+        Q_Println("SV_ConnectionlessPacket: Rate limit exceeded, dropped {} requests", dropped);
         dropped = 0;
         lastMsg = now;
     }
@@ -754,7 +751,7 @@ void SV_ConnectionlessPacket(const netadr_t* from, msg_t* msg)
 
     c = Cmd_Argv(0);
     if (com_developer->integer) {
-        Com_Printf("SV packet %s : %s\n", NET_AdrToString(from), c);
+        Q_Println("SV packet {} : {}", NET_AdrToString(from), c);
     }
 
     if (!Q_stricmp(c, "getstatus")) {
@@ -782,7 +779,7 @@ void SV_ConnectionlessPacket(const netadr_t* from, msg_t* msg)
     }
     else {
         if (com_developer->integer) {
-            Com_Printf("bad connectionless packet from %s:\n%s\n", NET_AdrToString(from), s);
+            Q_Println("bad connectionless packet from {}:\n{}", NET_AdrToString(from), s);
         }
     }
 }
@@ -843,13 +840,13 @@ void SV_CostStats(void)
             humans++;
         }
     }
-    Com_Printf("server CPU over %.1f s, %d humans, %d bots:", seconds, humans, bots);
+    Q_Print("server CPU over {:.1f} s, {} humans, {} bots:", seconds, humans, bots);
     for (svCost_t i = svCost_t::SV_COST_FRAME; i < svCost_t::SV_COST_COUNT; i++) {
-        Com_Printf(" %s %d, %.1f us each, max %lld us;", names[i], s_cost.calls[i], s_cost.calls[i] ? (double)s_cost.sum[i] / s_cost.calls[i] : 0.0,
-                   s_cost.max[i]);
+        Q_Print(" {} {}, {:.1f} us each, max {} us;", names[i], s_cost.calls[i], s_cost.calls[i] ? (double)s_cost.sum[i] / s_cost.calls[i] : 0.0,
+                s_cost.max[i]);
     }
     const long long busy = s_cost.sum[svCost_t::SV_COST_FRAME] + s_cost.sum[svCost_t::SV_COST_PACKETS];
-    Com_Printf(" %d server frames longer than the interval; %.2f %% of one core\n", s_cost.framesOverInterval, seconds > 0.0 ? busy / (seconds * 1e4) : 0.0);
+    Q_Println(" {} server frames longer than the interval; {:.2f} % of one core", s_cost.framesOverInterval, seconds > 0.0 ? busy / (seconds * 1e4) : 0.0);
     Com_Memset(&s_cost, 0, sizeof(s_cost));
     s_cost.since = now;
 }
@@ -895,7 +892,7 @@ void SV_PacketEvent(const netadr_t* from, msg_t* msg)
         // some address translating routers periodically change UDP
         // port assignments
         if (cl->netchan.remoteAddress.port != from->port) {
-            Com_Printf("SV_ReadPackets: fixing up a translated port\n");
+            Q_Println("SV_ReadPackets: fixing up a translated port");
             cl->netchan.remoteAddress.port = from->port;
         }
 
@@ -1006,7 +1003,7 @@ void SV_CheckTimeouts(void)
         }
 
         if (cl->state == clientState_t::CS_ZOMBIE && cl->lastPacketTime < zombiepoint) {
-            Com_DPrintf("Going from CS_ZOMBIE to CS_FREE for %s\n", cl->name);
+            Q_DPrintln("Going from CS_ZOMBIE to CS_FREE for {}", cl->name);
             cl->state = clientState_t::CS_FREE; // can now be reused
             continue;
         }
@@ -1135,14 +1132,14 @@ void SV_Frame(int msec)
     frameMsec = TICK_MSEC * com_timescale->value;
     // don't let it scale below 1ms
     if (frameMsec < 1) {
-        Cvar_Set("timescale", va("%f", 1.0f / TICK_MSEC));
+        Cvar_Set("timescale", Q_Format("{:f}", 1.0f / TICK_MSEC).c_str());
         frameMsec = 1;
     }
 
     sv.timeResidual += msec;
     if (sv.timeResidual > SV_MAX_CATCHUP_TICKS * frameMsec) {
-        Com_Printf("Hitch: %d msec of game time dropped, at most %d ticks run at once\n", sv.timeResidual - SV_MAX_CATCHUP_TICKS * frameMsec,
-                   SV_MAX_CATCHUP_TICKS);
+        Q_Println("Hitch: {} msec of game time dropped, at most {} ticks run at once", sv.timeResidual - SV_MAX_CATCHUP_TICKS * frameMsec,
+                  SV_MAX_CATCHUP_TICKS);
         sv.timeResidual = SV_MAX_CATCHUP_TICKS * frameMsec;
     }
 
@@ -1152,7 +1149,7 @@ void SV_Frame(int msec)
     // 2giga-milliseconds = 23 days, so it won't be too often
     if (svs.time > 0x70000000) {
         SV_Shutdown("Restarting server due to time wrapping");
-        Cbuf_AddText(va("map %s\n", Cvar_VariableString("mapname")));
+        Cbuf_AddText(Q_Format("map {}\n", Cvar_VariableString("mapname")).c_str());
         return;
     }
 

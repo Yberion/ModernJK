@@ -101,11 +101,11 @@ void NPC_Mark2_Pain(gentity_t* self, gentity_t* attacker, int damage)
             (self->locationDamage[to_underlying(hitLocation_t::HL_GENERIC1 + i)] > AMMO_POD_HEALTH)) // Blow it up?
         {
             if (self->locationDamage[to_underlying(hitLoc)] >= AMMO_POD_HEALTH) {
-                newBolt = trap->G2API_AddBolt(self->ghoul2, 0, va("torso_canister%d", (i + 1)));
+                newBolt = trap->G2API_AddBolt(self->ghoul2, 0, Q_Format("torso_canister{}", (i + 1)).c_str());
                 if (newBolt != -1) {
                     NPC_Mark2_Part_Explode(self, newBolt);
                 }
-                NPC_SetSurfaceOnOff(self, va("torso_canister%d", (i + 1)), TURN_OFF);
+                NPC_SetSurfaceOnOff(self, Q_Format("torso_canister{}", (i + 1)).c_str(), TURN_OFF);
                 break;
             }
         }
@@ -312,7 +312,7 @@ void Mark2_Patrol(void)
 
         // randomly talk
         if (TIMER_Done(NPCS.NPC, "patrolNoise")) {
-            //			G_Sound( NPC, G_SoundIndex(va("sound/chars/mark1/misc/talk%d.wav",	Q_irand(1, 4))));
+            //			G_Sound( NPC, G_SoundIndex(Q_Format("sound/chars/mark1/misc/talk{}.wav", Q_irand(1, 4)).c_str()));
 
             TIMER_Set(NPCS.NPC, "patrolNoise", Q_irand(2000, 4000));
         }

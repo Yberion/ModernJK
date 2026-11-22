@@ -79,7 +79,7 @@ target_include_directories(netcodec_traces INTERFACE "${CMAKE_CURRENT_SOURCE_DIR
 # find)
 function(netcodec_add_program name)
 	add_executable(${name} ${ARGN})
-	target_link_libraries(${name} PRIVATE netcodec netcodec_options netcodec_warnings)
+	target_link_libraries(${name} PRIVATE netcodec netcodec_options netcodec_warnings vendored::fmt)
 	if(MSVC)
 		target_compile_definitions(${name} PRIVATE _CRT_SECURE_NO_WARNINGS)   # fopen
 	endif()

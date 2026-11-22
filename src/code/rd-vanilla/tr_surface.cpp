@@ -58,10 +58,10 @@ void RB_CheckOverflow(int verts, int indexes)
     RB_EndSurface();
 
     if (verts >= SHADER_MAX_VERTEXES) {
-        Com_Error(errorParm_t::ERR_DROP, "RB_CheckOverflow: verts > MAX (%d > %d)", verts, SHADER_MAX_VERTEXES);
+        Q_Error(errorParm_t::ERR_DROP, "RB_CheckOverflow: verts > MAX ({} > {})", verts, SHADER_MAX_VERTEXES);
     }
     if (indexes >= SHADER_MAX_INDEXES) {
-        Com_Error(errorParm_t::ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
+        Q_Error(errorParm_t::ERR_DROP, "RB_CheckOverflow: indices > MAX ({} > {})", indexes, SHADER_MAX_INDEXES);
     }
 
     RB_BeginSurface(tess.shader, tess.fogNum);
@@ -726,7 +726,7 @@ static void DoBoltSeg(vec3_t start, vec3_t end, vec3_t right, float radius)
 
     if (dis > 2000) // freaky long
     {
-        //		Com_Warning("DoBoltSeg: insane distance.\n" );
+        //		Q_PrintlnWarning("DoBoltSeg: insane distance.");
         dis = 2000;
     }
     MakeNormalVectors(fwd, rt, up);
@@ -1890,7 +1890,7 @@ void RB_SurfaceEntity(surfaceType_t* surfType)
 
 void RB_SurfaceBad(surfaceType_t* surfType)
 {
-    Com_Printf("Bad surface tesselated.\n");
+    Q_Println("Bad surface tesselated.");
 }
 
 /*

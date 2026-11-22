@@ -57,7 +57,7 @@ void ShaderEntryPtrs_Insert(const char* token, const char* p)
         ShaderEntryPtrs[token] = p;
     }
     else {
-        Com_DPrintf("Duplicate shader entry %s!\n", token);
+        Q_DPrintln("Duplicate shader entry {}!", token);
     }
 }
 

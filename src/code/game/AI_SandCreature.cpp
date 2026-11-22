@@ -44,7 +44,7 @@ void SandCreature_Precache(void)
     G_EffectIndex("env/sand_move_breach");
     // G_EffectIndex( "env/sand_attack_breach" );
     for (i = 1; i < 4; i++) {
-        G_SoundIndex(va("sound/chars/sand_creature/voice%d.mp3", i));
+        G_SoundIndex(Q_Format("sound/chars/sand_creature/voice{}.mp3", i).c_str());
     }
     G_SoundIndex("sound/chars/sand_creature/slither.wav");
 }
@@ -640,7 +640,7 @@ void NPC_BSSandCreature_Default(void)
             NPC->clipmask = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_MONSTERCLIP;
         }
         if (TIMER_Done(NPC, "speaking")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_VOICE, va("sound/chars/sand_creature/voice%d.mp3", Q_irand(1, 3)));
+            G_SoundOnEnt(NPC, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/sand_creature/voice{}.mp3", Q_irand(1, 3)).c_str());
             TIMER_Set(NPC, "speaking", Q_irand(3000, 10000));
         }
     }

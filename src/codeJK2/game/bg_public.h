@@ -512,7 +512,7 @@ inline constexpr int MAX_RANDOM_ANIMSOUNDS = 8;
 typedef struct animsounds_s {
     int keyFrame;                          // Frame to play sound on
     int soundIndex[MAX_RANDOM_ANIMSOUNDS]; // sound file to play - FIXME: should be an index, handle random some other way?
-    int numRandomAnimSounds;               // string variable min for va("...%d.wav", Q_irand(lowestVa, highestVa))
+    int numRandomAnimSounds;               // string variable min for Q_Format("...{}.wav", Q_irand(lowestVa, highestVa)).c_str()
     int probability;                       // chance sound will play, zero value will not run this test (0 = 100% basically)
 
     void sg_export(ojk::SavedGameHelper& saved_game) const

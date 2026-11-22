@@ -301,7 +301,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
             break;
 
         default:
-            Com_Error(errorParm_t::ERR_DROP, "Bad reward_t" );
+            Q_Error(errorParm_t::ERR_DROP, "Bad reward_t");
         }
     }
 

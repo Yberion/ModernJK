@@ -128,16 +128,15 @@ void Com_EndRedirect(void)
 
 /*
 =============
-Com_VPrintf
+Q_VPrint
 
 Both client and server can use this, and it will output
 to the apropriate place. The modules' messages come here
-through their import tables.
-
-A raw string should NEVER be passed as fmt, because of "%f" type crashers.
+through their import tables, as a format and its packed arguments,
+formatted here; the line is ended unless the message is a part of one.
 =============
 */
-void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
+void Q_VPrint(printLevel_t level, lineEnd_t end, fmt::string_view fmt, fmt::format_args args)
 {
     char msg[MAXPRINTMSG];
     const char* p;
@@ -156,7 +155,13 @@ void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
     }
     const size_t prefixLen = strlen(prefix);
     memcpy(msg, prefix, prefixLen);
-    Q_vsnprintf(msg + prefixLen, sizeof(msg) - prefixLen, fmt, args);
+    // cut to the array as before, the line's end kept in it
+    const size_t room = sizeof(msg) - prefixLen - (end == lineEnd_t::NEWLINE ? 1 : 0);
+    const size_t length = prefixLen + std::min(Q_VFormatToCut(std::span(msg + prefixLen, room), fmt, args), room - 1);
+    if (end == lineEnd_t::NEWLINE) {
+        msg[length] = '\n';
+        msg[length + 1] = '\0';
+    }
 
     if (rd_buffer) {
         if ((strlen(msg) + strlen(rd_buffer)) > (unsigned)(rd_buffersize - 1)) {
@@ -178,8 +183,8 @@ void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
         if (newLine && com_timestamps && com_timestamps->integer) {
             time_t t = time(nullptr);
             struct tm* tms = localtime(&t);
-            Com_sprintf(line, sizeof(line), "%04i-%02i-%02i %02i:%02i:%02i ", 1900 + tms->tm_year, 1 + tms->tm_mon, tms->tm_mday, tms->tm_hour, tms->tm_min,
-                        tms->tm_sec);
+            Q_FormatTo(line, "{:04}-{:02}-{:02} {:02}:{:02}:{:02} ", 1900 + tms->tm_year, 1 + tms->tm_mon, tms->tm_mday, tms->tm_hour, tms->tm_min,
+                       tms->tm_sec);
             lineLen = strlen(line);
             newLine = false;
         }
@@ -229,22 +234,22 @@ void Com_WriteCam(const char* text)
         extern cvar_t* sv_mapname;
 
         // NOTE: always saves in working dir if using one...
-        Com_sprintf(mapname, MAX_QPATH, "maps/%s_cam.map", sv_mapname->string);
+        Q_FormatTo(std::span(mapname, MAX_QPATH), "maps/{}_cam.map", sv_mapname->string);
         camerafile = FS_FOpenFileWrite(mapname);
     }
 
     if (camerafile) {
-        FS_Printf(camerafile, "%s", text);
+        FS_Print(camerafile, "{}", text);
     }
 
-    Com_Printf("%s\n", mapname);
+    Q_Println("{}", mapname);
 }
 
 void Com_FlushCamFile()
 {
     if (!camerafile) {
         // nothing to flush, right?
-        Com_Printf("No cam file available\n");
+        Q_Println("No cam file available");
         return;
     }
     FS_ForceFlush(camerafile);
@@ -253,13 +258,13 @@ void Com_FlushCamFile()
 
     static char flushedMapname[MAX_QPATH];
     extern cvar_t* sv_mapname;
-    Com_sprintf(flushedMapname, MAX_QPATH, "maps/%s_cam.map", sv_mapname->string);
-    Com_Printf("flushed all cams to %s\n", flushedMapname);
+    Q_FormatTo(std::span(flushedMapname, MAX_QPATH), "maps/{}_cam.map", sv_mapname->string);
+    Q_Println("flushed all cams to {}", flushedMapname);
 }
 
 /*
 =============
-Com_VError
+Q_VError
 
 Both client and server can use this, and it will
 do the apropriate things. The modules' errors come here
@@ -270,14 +275,14 @@ void SG_Shutdown();
 #ifdef JK2_MODE
 extern void SCR_UnprecacheScreenshot();
 #endif
-void NORETURN Com_VError(errorParm_t code, const char* fmt, va_list args)
+void NORETURN Q_VError(errorParm_t code, fmt::string_view fmt, fmt::format_args args)
 {
     static int lastErrorTime;
     static int errorCount;
     int currentTime;
 
     if (com_errorEntered) {
-        Sys_Error("recursive error after: %s", com_errorMessage);
+        Sys_Error("recursive error after: {}", com_errorMessage);
     }
     com_errorEntered = true;
 
@@ -303,7 +308,7 @@ void NORETURN Com_VError(errorParm_t code, const char* fmt, va_list args)
     SCR_UnprecacheScreenshot();
 #endif
 
-    Q_vsnprintf(com_errorMessage, sizeof(com_errorMessage), fmt, args);
+    Q_VFormatToCut(com_errorMessage, fmt, args);
 
     if (code != errorParm_t::ERR_DISCONNECT) {
         Cvar_Get("com_errorMessage", "", cvarFlags_t::CVAR_ROM); // give com_errorMessage a default so it won't come back to life after a resetDefaults
@@ -315,13 +320,13 @@ void NORETURN Com_VError(errorParm_t code, const char* fmt, va_list args)
         throw code;
     }
     else {
-        SV_Shutdown(va("Server fatal crashed: %s\n", com_errorMessage));
+        SV_Shutdown(Q_Format("Server fatal crashed: {}\n", com_errorMessage).c_str());
         CL_Shutdown();
     }
 
     Com_Shutdown();
 
-    Sys_Error("%s", com_errorMessage);
+    Sys_Error("{}", com_errorMessage);
 }
 
 /*
@@ -507,10 +512,10 @@ void Info_Print(const char* s)
         }
         else
             *o = 0;
-        Com_Printf("%s", key);
+        Q_Print("{}", key);
 
         if (!*s) {
-            Com_Printf("MISSING VALUE\n");
+            Q_Println("MISSING VALUE");
             return;
         }
 
@@ -522,7 +527,7 @@ void Info_Print(const char* s)
 
         if (*s)
             s++;
-        Com_Printf("%s\n", value);
+        Q_Println("{}", value);
     }
 }
 
@@ -781,7 +786,7 @@ void Com_PushEvent(sysEvent_t* event)
         // don't print the warning constantly, or it can give time for more...
         if (!printedWarning) {
             printedWarning = true;
-            Com_Warning("Com_PushEvent overflow\n");
+            Q_PrintlnWarning("Com_PushEvent overflow");
         }
 
         if (ev->evPtr) {
@@ -832,7 +837,7 @@ void Com_RunAndTimeServerPacket(netadr_t* evFrom, msg_t* buf)
         t2 = Sys_Milliseconds();
         msec = t2 - t1;
         if (com_speeds->integer == 3) {
-            Com_Printf("SV_PacketEvent time: %i\n", msec);
+            Q_Println("SV_PacketEvent time: {}", msec);
         }
     }
 }
@@ -875,7 +880,7 @@ int Com_EventLoop(void)
 
         switch (ev.evType) {
         default:
-            Com_Error(errorParm_t::ERR_FATAL, "Com_EventLoop: bad event type %i", to_underlying(ev.evType));
+            Q_Error(errorParm_t::ERR_FATAL, "Com_EventLoop: bad event type {}", to_underlying(ev.evType));
             break;
         case sysEventType_t::SE_NONE:
             break;
@@ -940,10 +945,10 @@ test error shutdown procedures
 static void NORETURN Com_Error_f(void)
 {
     if (Cmd_Argc() > 1) {
-        Com_Error(errorParm_t::ERR_DROP, "Testing drop error");
+        Q_Error(errorParm_t::ERR_DROP, "Testing drop error");
     }
     else {
-        Com_Error(errorParm_t::ERR_FATAL, "Testing fatal error");
+        Q_Error(errorParm_t::ERR_FATAL, "Testing fatal error");
     }
 }
 
@@ -961,7 +966,7 @@ static void Com_Freeze_f(void)
     int start, now;
 
     if (Cmd_Argc() != 2) {
-        Com_Printf("freeze <seconds>\n");
+        Q_Println("freeze <seconds>");
         return;
     }
     s = Q_atof(Cmd_Argv(1));
@@ -1013,7 +1018,7 @@ void Com_ExecuteCfg(void)
 /*
 =================
 Com_ErrorString
-Error string for the given error code (from Com_Error).
+Error string for the given error code (from Q_Error).
 =================
 */
 static const char* Com_ErrorString(errorParm_t code)
@@ -1033,7 +1038,7 @@ static const char* Com_ErrorString(errorParm_t code)
 /*
 =================
 Com_CatchError
-Handles freeing up of resources when Com_Error is called.
+Handles freeing up of resources when Q_Error is called.
 =================
 */
 void SG_WipeSavegame(const char* name); // pretty sucky, but that's how SoF did it...<g>
@@ -1049,11 +1054,8 @@ static void Com_CatchError(errorParm_t code)
         // If loading/saving caused the crash/error - delete the temp file
         SG_WipeSavegame("current"); // delete file
 
-        Com_Printf("********************\n"
-                   "ERROR: %s\n"
-                   "********************\n",
-                   com_errorMessage);
-        SV_Shutdown(va("Server crashed: %s\n", com_errorMessage));
+        Q_Println("********************\nERROR: {}\n********************", com_errorMessage);
+        SV_Shutdown(Q_Format("Server crashed: {}\n", com_errorMessage).c_str());
         CL_Disconnect();
         CL_FlushMemory();
         com_errorEntered = false;
@@ -1068,7 +1070,7 @@ Com_Init
 void Com_Init(char* commandLine)
 {
 
-    Com_Printf("%s %s %s\n", JK_VERSION, PLATFORM_STRING, SOURCE_DATE);
+    Q_Println("{} {} {}", JK_VERSION, PLATFORM_STRING, SOURCE_DATE);
 
     try {
         // initialize the weak pseudo-random number generator for use later.
@@ -1156,10 +1158,10 @@ void Com_Init(char* commandLine)
 
 #ifdef JK2_MODE
         JK2SP_Init();
-        Com_Printf("Running Jedi Outcast Mode\n");
+        Q_Println("Running Jedi Outcast Mode");
 #else
         SE_Init(); // Initialize StringEd
-        Com_Printf("Running Jedi Academy Mode\n");
+        Q_Println("Running Jedi Academy Mode");
 #endif
 
         Sys_Init(); // this also detects CPU type, so I can now do this CPU check below...
@@ -1186,7 +1188,7 @@ void Com_Init(char* commandLine)
         }
         CL_StartHunkUsers();
         com_fullyInitialized = true;
-        Com_Printf("--- Common Initialization Complete ---\n");
+        Q_Println("--- Common Initialization Complete ---");
 
         // HACKERY FOR THE DEUTSCH
         // if ( (Cvar_VariableIntegerValue("ui_iscensored") == 1) 	//if this was on before, set it again so it gets its flags
@@ -1202,7 +1204,7 @@ void Com_Init(char* commandLine)
     }
     catch (errorParm_t code) {
         Com_CatchError(code);
-        Sys_Error("Error during initialization %s", Com_ErrorString(code));
+        Sys_Error("Error during initialization {}", Com_ErrorString(code));
     }
 }
 
@@ -1214,11 +1216,11 @@ void Com_WriteConfigToFile(const char* filename)
 
     f = FS_FOpenFileWrite(filename);
     if (!f) {
-        Com_Printf("Couldn't write %s.\n", filename);
+        Q_Println("Couldn't write {}.", filename);
         return;
     }
 
-    FS_Printf(f, "// generated by ModernJK SP, do not modify\n");
+    FS_Print(f, "// generated by ModernJK SP, do not modify\n");
     Key_WriteBindings(f);
     Cvar_WriteVariables(f);
     FS_FCloseFile(f);
@@ -1259,7 +1261,7 @@ void Com_WriteConfig_f(void)
     char filename[MAX_QPATH];
 
     if (Cmd_Argc() != 2) {
-        Com_Printf("Usage: writeconfig <filename>\n");
+        Q_Println("Usage: writeconfig <filename>");
         return;
     }
 
@@ -1267,16 +1269,16 @@ void Com_WriteConfig_f(void)
     COM_DefaultExtension(filename, sizeof(filename), ".cfg");
 
     if (!COM_CompareExtension(filename, ".cfg")) {
-        Com_Printf("Com_WriteConfig_f: Only the \".cfg\" extension is supported by this command!\n");
+        Q_Println("Com_WriteConfig_f: Only the \".cfg\" extension is supported by this command!");
         return;
     }
 
     if (!FS_FilenameCompare(filename, "mpdefault.cfg") || !FS_FilenameCompare(filename, "default.cfg")) {
-        Com_Printf(S_COLOR_YELLOW "Com_WriteConfig_f: The filename \"%s\" is reserved! Please choose another name.\n", filename);
+        Q_Println(S_COLOR_YELLOW "Com_WriteConfig_f: The filename \"{}\" is reserved! Please choose another name.", filename);
         return;
     }
 
-    Com_Printf("Writing %s.\n", filename);
+    Q_Println("Writing {}.", filename);
     Com_WriteConfigToFile(filename);
 }
 
@@ -1480,8 +1482,8 @@ void Com_Frame(void)
             sv -= time_game;
             cl -= time_frontend + time_backend;
 
-            Com_Printf("fr:%i all:%3i sv:%3i ev:%3i cl:%3i gm:%3i tr:%3i pvs:%3i rf:%3i bk:%3i\n", com_frameNumber, all, sv, ev, cl, time_game, timeInTrace,
-                       timeInPVSCheck, time_frontend, time_backend);
+            Q_Println("fr:{} all:{:3} sv:{:3} ev:{:3} cl:{:3} gm:{:3} tr:{:3} pvs:{:3} rf:{:3} bk:{:3}", com_frameNumber, all, sv, ev, cl, time_game,
+                      timeInTrace, timeInPVSCheck, time_frontend, time_backend);
 
             // speedslog
             if (com_speedslog && com_speedslog->integer) {
@@ -1503,10 +1505,10 @@ void Com_Frame(void)
                         bComma = false;
                     }
                     FS_Write("{", strlen("{"), speedslog);
-                    Com_sprintf(msg, sizeof(msg), "%8.4f,%8.4f,%8.4f,%8.4f,%8.4f,%8.4f,", corg[0], corg[1], corg[2], cangles[0], cangles[1], cangles[2]);
+                    Q_FormatTo(msg, "{:8.4f},{:8.4f},{:8.4f},{:8.4f},{:8.4f},{:8.4f},", corg[0], corg[1], corg[2], cangles[0], cangles[1], cangles[2]);
                     FS_Write(msg, strlen(msg), speedslog);
-                    Com_sprintf(msg, sizeof(msg), "%i,%3i,%3i,%3i,%3i,%3i,%3i,%3i,%3i,%3i}", com_frameNumber, all, sv, ev, cl, time_game, timeInTrace,
-                                timeInPVSCheck, time_frontend, time_backend);
+                    Q_FormatTo(msg, "{},{:3},{:3},{:3},{:3},{:3},{:3},{:3},{:3},{:3}}}", com_frameNumber, all, sv, ev, cl, time_game, timeInTrace,
+                               timeInPVSCheck, time_frontend, time_backend);
                     FS_Write(msg, strlen(msg), speedslog);
                     bComma = true;
                 }
@@ -1523,11 +1525,11 @@ void Com_Frame(void)
             extern int c_pointcontents;
 
             /*
-            Com_Printf( "%4i non-sv_traces, %4i sv_traces, %4i ms, ave %4.2f ms\n", c_traces - numTraces, numTraces, timeInTrace,
-            (float)timeInTrace/(float)numTraces ); timeInTrace = numTraces = 0; c_traces = 0;
+            Q_Println("{:4} non-sv_traces, {:4} sv_traces, {:4} ms, ave {:4.2f} ms", c_traces - numTraces, numTraces, timeInTrace,
+            (float)timeInTrace/(float)numTraces); timeInTrace = numTraces = 0; c_traces = 0;
             */
 
-            Com_Printf("%4i traces  (%ib %ip) %4i points\n", c_traces, c_brush_traces, c_patch_traces, c_pointcontents);
+            Q_Println("{:4} traces  ({}b {}p) {:4} points", c_traces, c_brush_traces, c_patch_traces, c_pointcontents);
             c_traces = 0;
             c_brush_traces = 0;
             c_patch_traces = 0;
@@ -1543,7 +1545,7 @@ void Com_Frame(void)
     }
     catch (errorParm_t code) {
         Com_CatchError(code);
-        Com_Printf("%s\n", Com_ErrorString(code));
+        Q_Println("{}", Com_ErrorString(code));
         return;
     }
 
@@ -1662,7 +1664,7 @@ PrintMatches
 static void PrintMatches(const char* s)
 {
     if (!Q_stricmpn(s, shortestMatch, strlen(shortestMatch))) {
-        Com_Printf(S_COLOR_GREY "Cmd  " S_COLOR_WHITE "%s\n", s);
+        Q_Println(S_COLOR_GREY "Cmd  " S_COLOR_WHITE "{}", s);
     }
 }
 
@@ -1676,7 +1678,7 @@ PrintArgMatches
 // This is here for if ever commands with other argument completion
 static void PrintArgMatches( const char *s ) {
 	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) ) {
-		Com_Printf( S_COLOR_WHITE "  %s\n", s );
+		Q_Println(S_COLOR_WHITE "  {}", s);
 	}
 }
 #endif
@@ -1690,7 +1692,7 @@ PrintKeyMatches
 static void PrintKeyMatches(const char* s)
 {
     if (!Q_stricmpn(s, shortestMatch, strlen(shortestMatch))) {
-        Com_Printf(S_COLOR_GREY "Key  " S_COLOR_WHITE "%s\n", s);
+        Q_Println(S_COLOR_GREY "Key  " S_COLOR_WHITE "{}", s);
     }
 }
 
@@ -1703,7 +1705,7 @@ PrintFileMatches
 static void PrintFileMatches(const char* s)
 {
     if (!Q_stricmpn(s, shortestMatch, strlen(shortestMatch))) {
-        Com_Printf(S_COLOR_GREY "File " S_COLOR_WHITE "%s\n", s);
+        Q_Println(S_COLOR_GREY "File " S_COLOR_WHITE "{}", s);
     }
 }
 
@@ -1719,7 +1721,7 @@ static void PrintCvarMatches(const char* s)
 
     if (!Q_stricmpn(s, shortestMatch, (int)strlen(shortestMatch))) {
         Com_TruncateLongString(value, Cvar_VariableString(s));
-        Com_Printf(S_COLOR_GREY "Cvar " S_COLOR_WHITE "%s = " S_COLOR_GREY "\"" S_COLOR_WHITE "%s" S_COLOR_GREY "\"" S_COLOR_WHITE "\n", s, value);
+        Q_Println(S_COLOR_GREY "Cvar " S_COLOR_WHITE "{} = " S_COLOR_GREY "\"" S_COLOR_WHITE "{}" S_COLOR_GREY "\"" S_COLOR_WHITE, s, value);
     }
 }
 
@@ -1762,7 +1764,7 @@ static bool Field_Complete(void)
         return true;
     }
 
-    Com_Printf("%c%s\n", CONSOLE_PROMPT_CHAR, completionField->buffer);
+    Q_Println("{}{}", CONSOLE_PROMPT_CHAR, completionField->buffer);
 
     return false;
 }
@@ -1909,7 +1911,7 @@ uint32_t ConvertUTF8ToUTF32(char* utf8CurrentChar, char** utf8NextChar)
         utf32 |= (*c++ & 0x3F);
     }
     else {
-        Com_DPrintf("Unrecognised UTF-8 lead byte: 0x%x\n", (unsigned int)*c);
+        Q_DPrintln("Unrecognised UTF-8 lead byte: 0x{:x}", (unsigned int)*c);
         c++;
     }
 

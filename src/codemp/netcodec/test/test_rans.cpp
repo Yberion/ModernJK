@@ -23,6 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Usage: netcodec_test_rans <rans_trace.bin>
 #include "rans_trace.h"
 
+#include <fmt/base.h>
+
 #include <cstdio>
 #include <random>
 #include <vector>
@@ -45,7 +47,7 @@ static bool DecodeUnits(const std::vector<trace::Unit>& units, const std::vector
 int main(int argc, char** argv)
 {
     if (argc < 2) {
-        fprintf(stderr, "usage: %s rans_trace.bin\n", argv[0]);
+        fmt::println(stderr, "usage: {} rans_trace.bin", argv[0]);
         return 2;
     }
     trace::RansTrace t;
@@ -68,16 +70,16 @@ int main(int argc, char** argv)
         const size_t n = e.Finish(out);
         if (n != m.bytes.size() || memcmp(out.data(), m.bytes.data(), n) != 0) {
             if (encBad++ < 3)
-                fprintf(stderr, "encode mismatch: message %zu, %zu bytes, expected %zu\n", static_cast<size_t>(&m - t.messages.data()), n, m.bytes.size());
+                fmt::println(stderr, "encode mismatch: message {}, {} bytes, expected {}", static_cast<size_t>(&m - t.messages.data()), n, m.bytes.size());
         }
         if (!DecodeUnits(m.units, t.tables, m.bytes, true)) {
             if (decBad++ < 3)
-                fprintf(stderr, "decode mismatch: message %zu\n", static_cast<size_t>(&m - t.messages.data()));
+                fmt::println(stderr, "decode mismatch: message {}", static_cast<size_t>(&m - t.messages.data()));
         }
         units += m.units.size();
         bytes += m.bytes.size();
     }
-    printf("golden: %zu messages, %zu units, %zu bytes: encode mismatches %zu, decode mismatches %zu\n", t.messages.size(), units, bytes, encBad, decBad);
+    fmt::println("golden: {} messages, {} units, {} bytes: encode mismatches {}, decode mismatches {}", t.messages.size(), units, bytes, encBad, decBad);
 
     // Truncated, mutated and random inputs: the decoder must stay in bounds; results are not checked.
     std::mt19937 rng(1);
@@ -103,7 +105,7 @@ int main(int argc, char** argv)
             runs++;
         }
     }
-    printf("robustness: %zu truncated / mutated / random inputs decoded without fault\n", runs);
+    fmt::println("robustness: {} truncated / mutated / random inputs decoded without fault", runs);
 
     // Small output buffer: Finish must refuse, not overflow.
     size_t refused = 0;
@@ -120,6 +122,6 @@ int main(int argc, char** argv)
         out.assign(m.bytes.size() - 1, 0);
         refused += e.Finish(out) == 0;
     }
-    printf("small buffer: %zu of %zu encodes refused\n", refused, (t.messages.size() + 96) / 97);
+    fmt::println("small buffer: {} of {} encodes refused", refused, (t.messages.size() + 96) / 97);
     return encBad || decBad || refused != (t.messages.size() + 96) / 97 ? 1 : 0;
 }

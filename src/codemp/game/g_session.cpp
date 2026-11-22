@@ -48,6 +48,7 @@ void G_WriteClientSessionData(gclient_t* client)
 {
     char s[MAX_CVAR_VALUE_STRING] = {0}, siegeClass[64] = {0}, IP[NET_ADDRSTRMAXLEN] = {0};
     const char* var;
+    formatText_t varText; // holds the text var points into
     int i = 0;
 
     // for the strings, replace ' ' with 1
@@ -67,22 +68,22 @@ void G_WriteClientSessionData(gclient_t* client)
     }
 
     // Make sure there is no space on the last entry
-    Q_strcat(s, sizeof(s), va("%i ", to_underlying(client->sess.sessionTeam)));
-    Q_strcat(s, sizeof(s), va("%i ", client->sess.spectatorNum));
-    Q_strcat(s, sizeof(s), va("%i ", to_underlying(client->sess.spectatorState)));
-    Q_strcat(s, sizeof(s), va("%i ", client->sess.spectatorClient));
-    Q_strcat(s, sizeof(s), va("%i ", client->sess.wins));
-    Q_strcat(s, sizeof(s), va("%i ", client->sess.losses));
-    Q_strcat(s, sizeof(s), va("%i ", client->sess.teamLeader));
-    Q_strcat(s, sizeof(s), va("%i ", client->sess.setForce));
-    Q_strcat(s, sizeof(s), va("%i ", to_underlying(client->sess.saberLevel)));
-    Q_strcat(s, sizeof(s), va("%i ", to_underlying(client->sess.selectedFP)));
-    Q_strcat(s, sizeof(s), va("%i ", to_underlying(client->sess.duelTeam)));
-    Q_strcat(s, sizeof(s), va("%i ", to_underlying(client->sess.siegeDesiredTeam)));
-    Q_strcat(s, sizeof(s), va("%s ", siegeClass));
-    Q_strcat(s, sizeof(s), va("%s", IP));
+    Q_strcat(s, sizeof(s), Q_Format("{} ", to_underlying(client->sess.sessionTeam)).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.spectatorNum).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", to_underlying(client->sess.spectatorState)).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.spectatorClient).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.wins).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.losses).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{:d} ", client->sess.teamLeader).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.setForce).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", to_underlying(client->sess.saberLevel)).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", to_underlying(client->sess.selectedFP)).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", to_underlying(client->sess.duelTeam)).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", to_underlying(client->sess.siegeDesiredTeam)).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", siegeClass).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{}", IP).c_str());
 
-    var = va("session%td", client - level.clients);
+    var = (varText = Q_Format("session{}", client - level.clients)).c_str();
 
     trap->Cvar_Set(var, s);
 }
@@ -98,9 +99,10 @@ void G_ReadSessionData(gclient_t* client)
 {
     char s[MAX_CVAR_VALUE_STRING] = {0};
     const char* var;
+    formatText_t varText; // holds the text var points into
     int i = 0, tempSessionTeam = 0, tempSpectatorState, tempTeamLeader, tempDuelTeam = 0, tempSaberLevel = 0, tempSelectedFP = 0, tempSiegeDesiredTeam = 0;
 
-    var = va("session%td", client - level.clients);
+    var = (varText = Q_Format("session{}", client - level.clients)).c_str();
     trap->Cvar_VariableStringBuffer(var, s, sizeof(s));
 
     sscanf(s, "%i %i %i %i %i %i %i %i %i %i %i %i %s %s",
@@ -258,7 +260,7 @@ void G_InitWorldSession(void)
     // client sessions
     if (level.gametype != static_cast<gametype_t>(gt)) {
         level.newSession = true;
-        Com_Printf("Gametype changed, clearing session data.\n");
+        Q_Println("Gametype changed, clearing session data.");
     }
 }
 
@@ -272,7 +274,7 @@ void G_WriteSessionData(void)
 {
     int i;
 
-    trap->Cvar_Set("session", va("%i", to_underlying(level.gametype)));
+    trap->Cvar_Set("session", Q_Format("{}", to_underlying(level.gametype)).c_str());
 
     for (i = 0; i < level.maxclients; i++) {
         if (level.clients[i].pers.connected == clientConnected_t::CON_CONNECTED) {

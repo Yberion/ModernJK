@@ -74,12 +74,12 @@ bool UI_ParseLiteral(const char** data, const char* string)
 
     token = COM_ParseExt(data, true);
     if (token[0] == 0) {
-        Com_Printf("unexpected EOF\n");
+        Q_Println("unexpected EOF");
         return true;
     }
 
     if (Q_stricmp(token, string)) {
-        Com_Printf("required string '%s' missing\n", string);
+        Q_Println("required string '{}' missing", string);
         return true;
     }
 
@@ -128,7 +128,7 @@ bool UI_SaberParseParm(const char* saberName, const char* parmname, char* saberD
     while (1) {
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            Com_PrintError("unexpected EOF while parsing '%s'\n", saberName);
+            Q_PrintlnError("unexpected EOF while parsing '{}'", saberName);
             COM_EndParseSession();
             return false;
         }
@@ -224,7 +224,7 @@ float UI_SaberBladeLengthForSaber(const char* saberName, int bladeNum)
         }
     }
 
-    UI_SaberParseParm(saberName, va("saberLength%d", bladeNum + 1), lengthString);
+    UI_SaberParseParm(saberName, Q_Format("saberLength{}", bladeNum + 1).c_str(), lengthString);
     if (lengthString[0]) {
         length = Q_atof(lengthString);
         if (length < 0.0f) {
@@ -247,7 +247,7 @@ float UI_SaberBladeRadiusForSaber(const char* saberName, int bladeNum)
         }
     }
 
-    UI_SaberParseParm(saberName, va("saberRadius%d", bladeNum + 1), radiusString);
+    UI_SaberParseParm(saberName, Q_Format("saberRadius{}", bladeNum + 1).c_str(), radiusString);
     if (radiusString[0]) {
         radius = Q_atof(radiusString);
         if (radius < 0.0f) {
@@ -264,7 +264,7 @@ void UI_SaberLoadParms(void)
     char *buffer, *holdChar, *marker;
     char saberExtensionListBuf[2048]; //	The list of file names read in
 
-    // Com_Printf( "UI Parsing *.sab saber definitions\n" );
+    // Q_Println("UI Parsing *.sab saber definitions");
 
     ui_saber_parms_parsed = true;
     UI_CacheSaberGlowGraphics();
@@ -281,10 +281,10 @@ void UI_SaberLoadParms(void)
     for (i = 0; i < fileCnt; i++, holdChar += saberExtFNLen + 1) {
         saberExtFNLen = strlen(holdChar);
 
-        len = ui.FS_ReadFile(va("ext_data/sabers/%s", holdChar), (void**)&buffer);
+        len = ui.FS_ReadFile(Q_Format("ext_data/sabers/{}", holdChar).c_str(), (void**)&buffer);
 
         if (len == -1) {
-            Com_Printf("UI_SaberLoadParms: error reading %s\n", holdChar);
+            Q_Println("UI_SaberLoadParms: error reading {}", holdChar);
         }
         else {
             if (totallen && *(marker - 1) == '}') { // don't let it end on a } because that should be a stand-alone token
@@ -295,7 +295,7 @@ void UI_SaberLoadParms(void)
             len = COM_Compress(buffer);
 
             if (totallen + len >= MAX_SABER_DATA_SIZE) {
-                Com_Error(errorParm_t::ERR_FATAL, "UI_SaberLoadParms: ran out of space before reading %s\n(you must make the .npc files smaller)", holdChar);
+                Q_Error(errorParm_t::ERR_FATAL, "UI_SaberLoadParms: ran out of space before reading {}\n(you must make the .npc files smaller)", holdChar);
             }
             strcat(marker, buffer);
             ui.FS_FreeFile(buffer);
@@ -504,7 +504,8 @@ void UI_SaberDrawBlade(itemDef_t* item, char* saberName, int saberModel, saberTy
     mdxaBone_t boltMatrix;
     bool tagHack = false;
 
-    char* tagName = va("*blade%d", bladeNum + 1);
+    const formatText_t tagNameText = Q_Format("*blade{}", bladeNum + 1);
+    const char* tagName = tagNameText.c_str();
     int bolt = DC->g2_AddBolt(&item->ghoul2[saberModel], tagName);
 
     if (bolt == -1) {

@@ -951,8 +951,8 @@ std::optional<animNumber_t> PM_SaberLockWinAnim(bool victory, bool superBreak)
         /*
             default:
         #ifndef FINAL_BUILD
-                Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", pm->gent->NPC_type, to_underlying(
-        pm->ps->torsoAnim ), BG_AnimName( pm->ps->torsoAnim ) ); #endif
+                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", pm->gent->NPC_type, to_underlying(
+        pm->ps->torsoAnim ), BG_AnimName( pm->ps->torsoAnim )); #endif
         */
     case animNumber_t::BOTH_BF2LOCK:
         if (superBreak) {
@@ -1040,8 +1040,8 @@ std::optional<animNumber_t> PM_SaberLockLoseAnim(playerState_t* genemy, bool vic
         /*
             default:
         #ifndef FINAL_BUILD
-                Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", genemy->NPC_type, to_underlying(
-        genemy->client->ps.torsoAnim ), BG_AnimName( genemy->client->ps.torsoAnim ) ); #endif
+                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", genemy->NPC_type, to_underlying(
+        genemy->client->ps.torsoAnim ), BG_AnimName( genemy->client->ps.torsoAnim )); #endif
         */
     case animNumber_t::BOTH_BF2LOCK:
         if (superBreak) {

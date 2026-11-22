@@ -301,7 +301,7 @@ void teleporter_touch(gentity_t* self, gentity_t* other, trace_t* trace)
         return;
     dest = G_PickTarget(self->target);
     if (!dest) {
-        Com_Printf("Couldn't find teleporter destination\n");
+        Q_Println("Couldn't find teleporter destination");
         return;
     }
 
@@ -316,7 +316,7 @@ void SP_misc_teleporter(gentity_t* ent)
     gentity_t* trig;
 
     if (!ent->target) {
-        Com_Printf("teleporter without a target.\n");
+        Q_Println("teleporter without a target.");
         G_FreeEntity(ent);
         return;
     }
@@ -404,7 +404,7 @@ void SP_misc_model_static(gentity_t* ent)
     G_SpawnFloat("zoffset", "0", &zOff);
 
     if (!ent->model) {
-        Com_Error(errorParm_t::ERR_DROP, "misc_model_static at %s with out a MODEL!\n", vtos(ent->s.origin));
+        Q_Error(errorParm_t::ERR_DROP, "misc_model_static at {} with out a MODEL!", vtos(ent->s.origin));
     }
     // we can be horrible and cheat since this is SP!
     CG_CreateMiscEntFromGent(ent, scale, zOff);
@@ -454,7 +454,7 @@ void cycleCamera(gentity_t* self)
         // for now assume reached end of list and are cycling
         self->owner = G_Find(self->owner, FOFS(targetname), self->target);
         if (self->owner == nullptr) { // still didn't find one
-            Com_Printf("Couldn't find target for misc_portal_surface\n");
+            Q_Println("Couldn't find target for misc_portal_surface");
             G_FreeEntity(self);
             return;
         }
@@ -481,7 +481,7 @@ void locateCamera(gentity_t* ent)
 
     ent->owner = G_Find(nullptr, FOFS(targetname), ent->target);
     if (!ent->owner) {
-        Com_Printf("Couldn't find target for misc_portal_surface\n");
+        Q_Println("Couldn't find target for misc_portal_surface");
         G_FreeEntity(ent);
         return;
     }
@@ -581,12 +581,12 @@ void SP_misc_bsp(gentity_t* ent)
     G_SpawnInt("flatten", "0", &tempint);
     ent->s.time = tempint;
 
-    Com_sprintf(temp, MAX_QPATH, "#%s", out);
+    Q_FormatTo(std::span(temp, MAX_QPATH), "#{}", out);
     gi.SetBrushModel(ent, temp); // SV_SetBrushModel -- sets mins and maxs
     G_BSPIndex(temp);
 
     level.mNumBSPInstances++;
-    Com_sprintf(temp, MAX_QPATH, "%d-", level.mNumBSPInstances);
+    Q_FormatTo(std::span(temp, MAX_QPATH), "{}-", level.mNumBSPInstances);
     VectorCopy(ent->s.origin, level.mOriginAdjust);
     level.mRotationAdjust = ent->s.angles[1];
     level.mTargetAdjust = temp;
@@ -686,8 +686,9 @@ void SP_misc_skyportal(gentity_t* ent)
     isfog += G_SpawnInt("fognear", "0", &fogn);
     isfog += G_SpawnInt("fogfar", "300", &fogf);
 
-    gi.SetConfigstring(CS_SKYBOXORG, va("%.2f %.2f %.2f %i %.2f %.2f %.2f %i %i", ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], isfog, fogv[0], fogv[1],
-                                        fogv[2], fogn, fogf));
+    gi.SetConfigstring(CS_SKYBOXORG, Q_Format("{:.2f} {:.2f} {:.2f} {} {:.2f} {:.2f} {:.2f} {} {}", ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], isfog,
+                                              fogv[0], fogv[1], fogv[2], fogn, fogf)
+                                         .c_str());
 
     ent->e_ThinkFunc = thinkFunc_t::thinkF_G_PortalifyEntities;
     ent->nextthink = level.time + 1050; // give it some time first so that all other entities are spawned.
@@ -959,7 +960,7 @@ void SP_object_cargo_barrel1(gentity_t* ent)
         //		ent->sounds = G_SoundIndex("sound/weapons/explosions/explode4.wav");
     }
     else {
-        ent->s.modelindex = G_ModelIndex(va("/models/mapobjects/cargo/barrel%i.md3", Q_irand(0, 2)));
+        ent->s.modelindex = G_ModelIndex(Q_Format("/models/mapobjects/cargo/barrel{}.md3", Q_irand(0, 2)).c_str());
         //		ent->sounds = G_SoundIndex("sound/weapons/explosions/explode1.wav");
     }
 
@@ -1700,12 +1701,12 @@ void SP_misc_trip_mine(gentity_t* self)
     gi.trace(&trace, self->s.origin, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0);
 
     if (trace.allsolid || trace.startsolid) {
-        Com_Error(errorParm_t::ERR_DROP, "misc_trip_mine at %s in solid\n", vtos(self->s.origin));
+        Q_Error(errorParm_t::ERR_DROP, "misc_trip_mine at {} in solid", vtos(self->s.origin));
         G_FreeEntity(self);
         return;
     }
     if (trace.fraction == 1.0) {
-        Com_Error(errorParm_t::ERR_DROP, "misc_trip_mine at %s pointed at no surface\n", vtos(self->s.origin));
+        Q_Error(errorParm_t::ERR_DROP, "misc_trip_mine at {} pointed at no surface", vtos(self->s.origin));
         G_FreeEntity(self);
         return;
     }
@@ -1799,7 +1800,7 @@ void maglock_link(gentity_t* self)
     gi.trace(&trace, start, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0);
 
     if (trace.allsolid || trace.startsolid) {
-        Com_Error(errorParm_t::ERR_DROP, "misc_maglock at %s in solid\n", vtos(self->s.origin));
+        Q_Error(errorParm_t::ERR_DROP, "misc_maglock at {} in solid", vtos(self->s.origin));
         G_FreeEntity(self);
         return;
     }
@@ -1807,7 +1808,7 @@ void maglock_link(gentity_t* self)
         self->e_ThinkFunc = thinkFunc_t::thinkF_maglock_link;
         self->nextthink = level.time + 100;
         /*
-        Com_Error( errorParm_t::ERR_DROP,"misc_maglock at %s pointed at no surface\n", vtos(self->s.origin) );
+        Q_Error(errorParm_t::ERR_DROP, "misc_maglock at {} pointed at no surface", vtos(self->s.origin));
         G_FreeEntity( self );
         */
         return;
@@ -1816,7 +1817,7 @@ void maglock_link(gentity_t* self)
     if (trace.entityNum >= ENTITYNUM_WORLD || !traceEnt || Q_stricmp("func_door", traceEnt->classname)) {
         self->e_ThinkFunc = thinkFunc_t::thinkF_maglock_link;
         self->nextthink = level.time + 100;
-        // Com_Error( errorParm_t::ERR_DROP,"misc_maglock at %s not pointed at a door\n", vtos(self->s.origin) );
+        // Q_Error(errorParm_t::ERR_DROP, "misc_maglock at {} not pointed at a door", vtos(self->s.origin));
         // G_FreeEntity( self );
         return;
     }
@@ -2941,7 +2942,7 @@ void SP_misc_weather_zone(gentity_t* ent)
     gi.SetBrushModel(ent, ent->model);
 
     char temp[256];
-    sprintf(temp, "zone ( %f %f %f ) ( %f %f %f )", ent->mins[0], ent->mins[1], ent->mins[2], ent->maxs[0], ent->maxs[1], ent->maxs[2]);
+    Q_FormatTo(temp, "zone ( {:f} {:f} {:f} ) ( {:f} {:f} {:f} )", ent->mins[0], ent->mins[1], ent->mins[2], ent->maxs[0], ent->maxs[1], ent->maxs[2]);
 
     G_FindConfigstringIndex(temp, CS_WORLD_FX, MAX_WORLD_FX, true);
 

@@ -65,7 +65,7 @@ bool CL_GetUserCmd(int cmdNumber, usercmd_t* ucmd)
 
     // can't return anything that we haven't created yet
     if (cmdNumber > cl.cmdNumber) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_GetUserCmd: %i >= %i", cmdNumber, cl.cmdNumber);
+        Q_Error(errorParm_t::ERR_DROP, "CL_GetUserCmd: {} >= {}", cmdNumber, cl.cmdNumber);
     }
 
     // the usercmd has been overwritten in the wrapping
@@ -88,7 +88,7 @@ bool CL_GetParseEntityState(int parseEntityNumber, entityState_t* state)
 {
     // can't return anything that hasn't been parsed yet
     if (parseEntityNumber >= cl.parseEntitiesNum) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_GetParseEntityState: %i >= %i", parseEntityNumber, cl.parseEntitiesNum);
+        Q_Error(errorParm_t::ERR_DROP, "CL_GetParseEntityState: {} >= {}", parseEntityNumber, cl.parseEntitiesNum);
     }
 
     // can't return anything that has been overwritten in the circular buffer
@@ -111,7 +111,7 @@ bool CL_GetSnapshot(int snapshotNumber, snapshot_t* snapshot)
     int i, count;
 
     if (snapshotNumber > cl.snap.messageNum) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.snapshot.messageNum");
+        Q_Error(errorParm_t::ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.snapshot.messageNum");
     }
 
     // if the frame has fallen out of the circular buffer, we can't return it
@@ -143,7 +143,7 @@ bool CL_GetSnapshot(int snapshotNumber, snapshot_t* snapshot)
     snapshot->vps = clSnap->vps; // get the vehicle ps
     count = clSnap->numEntities;
     if (count > MAX_ENTITIES_IN_SNAPSHOT) {
-        Com_DPrintf("CL_GetSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT);
+        Q_DPrintln("CL_GetSnapshot: truncated {} entities to {}", count, MAX_ENTITIES_IN_SNAPSHOT);
         count = MAX_ENTITIES_IN_SNAPSHOT;
     }
     snapshot->numEntities = count;
@@ -209,7 +209,7 @@ void CL_DoAutoLODScale(void)
         finalLODScaleFactor = (gCLTotalClientNum / -8.0f);
     }
 
-    Cvar_Set("r_autolodscalevalue", va("%f", finalLODScaleFactor));
+    Cvar_Set("r_autolodscalevalue", Q_Format("{:f}", finalLODScaleFactor).c_str());
 }
 
 /*
@@ -227,7 +227,7 @@ void CL_ConfigstringModified(void)
 
     index = atoi(Cmd_Argv(1));
     if (index < 0 || index >= MAX_CONFIGSTRINGS) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_ConfigstringModified: bad index %i", index);
+        Q_Error(errorParm_t::ERR_DROP, "CL_ConfigstringModified: bad index {}", index);
     }
     // get everything after "cs <num>"
     s = Cmd_ArgsFrom(2);
@@ -259,7 +259,7 @@ void CL_ConfigstringModified(void)
         len = strlen(dup);
 
         if (len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS) {
-            Com_Error(errorParm_t::ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
+            Q_Error(errorParm_t::ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
         }
 
         // append it to the gameState string buffer
@@ -286,7 +286,7 @@ void CL_ConfigstringModified(void)
             gCLTotalClientNum = clientCount;
 
 #ifdef _DEBUG
-            Com_DPrintf("%i clients\n", gCLTotalClientNum);
+            Q_DPrintln("{} clients", gCLTotalClientNum);
 #endif
 
             CL_DoAutoLODScale();
@@ -384,23 +384,23 @@ bool CL_GetServerCommand(int serverCommandNumber)
 
         while (i < MAX_RELIABLE_COMMANDS) { // spew out the reliable command buffer
             if (clc.reliableCommands[i][0]) {
-                Com_Printf("%i: %s\n", i, clc.reliableCommands[i]);
+                Q_Println("{}: {}", i, clc.reliableCommands[i]);
             }
             i++;
         }
-        Com_Error(errorParm_t::ERR_DROP, "CL_GetServerCommand: a reliable command was cycled out");
+        Q_Error(errorParm_t::ERR_DROP, "CL_GetServerCommand: a reliable command was cycled out");
         return false;
     }
 
     if (serverCommandNumber > clc.serverCommandSequence) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_GetServerCommand: requested a command not received");
+        Q_Error(errorParm_t::ERR_DROP, "CL_GetServerCommand: requested a command not received");
         return false;
     }
 
     s = clc.serverCommands[serverCommandNumber & (MAX_RELIABLE_COMMANDS - 1)];
     clc.lastExecutedServerCommand = serverCommandNumber;
 
-    Com_DPrintf("serverCommand: %i : %s\n", serverCommandNumber, s);
+    Q_DPrintln("serverCommand: {} : {}", serverCommandNumber, s);
 
 rescan:
     Cmd_TokenizeString(s);
@@ -409,18 +409,18 @@ rescan:
     if (!strcmp(cmd, "disconnect")) {
         char strEd[MAX_STRINGED_SV_STRING];
         CL_CheckSVStringEdRef(strEd, Cmd_Argv(1));
-        Com_Error(errorParm_t::ERR_SERVERDISCONNECT, "%s: %s\n", SE_GetString("MP_SVGAME_SERVER_DISCONNECTED"), strEd);
+        Q_Error(errorParm_t::ERR_SERVERDISCONNECT, "{}: {}", SE_GetString("MP_SVGAME_SERVER_DISCONNECTED"), strEd);
     }
 
     if (!strcmp(cmd, "bcs0")) {
-        Com_sprintf(bigConfigString, BIG_INFO_STRING, "cs %s \"%s", Cmd_Argv(1), Cmd_Argv(2));
+        Q_FormatTo(std::span(bigConfigString, BIG_INFO_STRING), "cs {} \"{}", Cmd_Argv(1), Cmd_Argv(2));
         return false;
     }
 
     if (!strcmp(cmd, "bcs1")) {
         s = Cmd_Argv(2);
         if (strlen(bigConfigString) + strlen(s) >= BIG_INFO_STRING) {
-            Com_Error(errorParm_t::ERR_DROP, "bcs exceeded BIG_INFO_STRING");
+            Q_Error(errorParm_t::ERR_DROP, "bcs exceeded BIG_INFO_STRING");
         }
         strcat(bigConfigString, s);
         return false;
@@ -429,7 +429,7 @@ rescan:
     if (!strcmp(cmd, "bcs2")) {
         s = Cmd_Argv(2);
         if (strlen(bigConfigString) + strlen(s) + 1 >= BIG_INFO_STRING) {
-            Com_Error(errorParm_t::ERR_DROP, "bcs exceeded BIG_INFO_STRING");
+            Q_Error(errorParm_t::ERR_DROP, "bcs exceeded BIG_INFO_STRING");
         }
         strcat(bigConfigString, s);
         strcat(bigConfigString, "\"");
@@ -519,7 +519,7 @@ void CL_InitCGame(void)
     // find the current mapname
     info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
     mapname = Info_ValueForKey(info, "mapname");
-    Com_sprintf(cl.mapname, sizeof(cl.mapname), "maps/%s.bsp", mapname);
+    Q_FormatTo(cl.mapname, "maps/{}.bsp", mapname);
 
     // load the dll
     CL_BindCGame();
@@ -541,7 +541,7 @@ void CL_InitCGame(void)
 
     t2 = Sys_Milliseconds();
 
-    Com_Printf("CL_InitCGame: %5.2f seconds\n", (t2 - t1) / 1000.0);
+    Q_Println("CL_InitCGame: {:5.2f} seconds", (t2 - t1) / 1000.0);
 
     // have the renderer touch all its images, so they are present
     // on the card even if the driver does deferred loading
@@ -626,10 +626,9 @@ void CL_InterpStats(void)
     if (!s_interpStats.snapshots) {
         return;
     }
-    Com_Printf("interpolation: %.1f ms behind the newest snapshot when it arrives, jitter %d ms, %d of %d intervals "
-               "extrapolated%s\n",
-               s_interpStats.delaySum / s_interpStats.snapshots, s_interpStats.jitter, s_interpStats.extrapolated, s_interpStats.snapshots,
-               cl_debugInterpForce->integer ? " (delay forced by cl_debugInterpForce)" : "");
+    Q_Println("interpolation: {:.1f} ms behind the newest snapshot when it arrives, jitter {} ms, {} of {} intervals extrapolated{}",
+              s_interpStats.delaySum / s_interpStats.snapshots, s_interpStats.jitter, s_interpStats.extrapolated, s_interpStats.snapshots,
+              cl_debugInterpForce->integer ? " (delay forced by cl_debugInterpForce)" : "");
     Com_Memset(&s_interpStats, 0, sizeof(s_interpStats));
 }
 
@@ -732,9 +731,8 @@ void CL_CmdClockStats(void)
     if (!s_cmdStats.snapshots) {
         return;
     }
-    Com_Printf("command clock: %d ms ahead of the drawn time; input margin on the server: mean %.1f ms, lowest %d ms, "
-               "%d of %d after their tick\n",
-               cl.cmdTimeDelta - cl.serverTimeDelta, s_cmdStats.marginSum / s_cmdStats.snapshots, s_cmdStats.marginMin, s_cmdStats.late, s_cmdStats.snapshots);
+    Q_Println("command clock: {} ms ahead of the drawn time; input margin on the server: mean {:.1f} ms, lowest {} ms, {} of {} after their tick",
+              cl.cmdTimeDelta - cl.serverTimeDelta, s_cmdStats.marginSum / s_cmdStats.snapshots, s_cmdStats.marginMin, s_cmdStats.late, s_cmdStats.snapshots);
     Com_Memset(&s_cmdStats, 0, sizeof(s_cmdStats));
 }
 
@@ -858,7 +856,7 @@ void CL_AdjustTimeDelta(void)
             CL_CmdClockJump(jump);
             deltaDelta = abs(newDelta - cl.serverTimeDelta);
             if (cl_showTimeDelta->integer) {
-                Com_Printf("<JUMP %i> ", jump);
+                Q_Print("<JUMP {}> ", jump);
             }
         }
         cl.interpJumpPending = false;
@@ -871,7 +869,7 @@ void CL_AdjustTimeDelta(void)
             cl.serverTime = cl.snap.serverTime;
             CL_CmdClockReset();
             if (cl_showTimeDelta->integer) {
-                Com_Printf("<RESET> ");
+                Q_Print("<RESET> ");
             }
         }
         else {
@@ -909,7 +907,7 @@ void CL_AdjustTimeDelta(void)
     if (abs(target - cl.serverTimeDelta) > 100) {
         // fast adjust, cut the difference to the target in half
         if (cl_showTimeDelta->integer) {
-            Com_Printf("<FAST> ");
+            Q_Print("<FAST> ");
         }
         cl.serverTimeDelta = (cl.serverTimeDelta + target) >> 1;
     }
@@ -919,7 +917,7 @@ void CL_AdjustTimeDelta(void)
     }
 
     if (cl_showTimeDelta->integer && newSnapshots) {
-        Com_Printf("%i ", cl.serverTimeDelta);
+        Q_Print("{} ", cl.serverTimeDelta);
     }
 }
 
@@ -993,7 +991,7 @@ void CL_SetCGameTime(void)
 
     // if we have gotten to this point, cl.snap is guaranteed to be valid
     if (!cl.snap.valid) {
-        Com_Error(errorParm_t::ERR_DROP, "CL_SetCGameTime: !cl.snap.valid");
+        Q_Error(errorParm_t::ERR_DROP, "CL_SetCGameTime: !cl.snap.valid");
     }
 
     // allow pause in single player
@@ -1003,7 +1001,7 @@ void CL_SetCGameTime(void)
     }
 
     if (cl.snap.serverTime < cl.oldFrameServerTime) {
-        Com_Error(errorParm_t::ERR_DROP, "cl.snap.serverTime < cl.oldFrameServerTime");
+        Q_Error(errorParm_t::ERR_DROP, "cl.snap.serverTime < cl.oldFrameServerTime");
     }
     cl.oldFrameServerTime = cl.snap.serverTime;
 

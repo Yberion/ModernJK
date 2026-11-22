@@ -74,7 +74,7 @@ The focal point for a camera in a scene
 void SP_misc_camera_focus(gentity_t* self)
 {
     if (!self->targetname) {
-        Com_PrintError("misc_camera_focus with no targetname\n");
+        Q_PrintlnError("misc_camera_focus with no targetname");
         G_FreeEntity(self);
         return;
     }
@@ -189,7 +189,7 @@ use "path_corner"s - path it should stay on- if that path_corner has a speed val
 void SP_misc_camera_track(gentity_t* self)
 {
     if (!self->targetname || !self->targetname[0]) {
-        Com_PrintError("misc_camera_track with no targetname\n");
+        Q_PrintlnError("misc_camera_track with no targetname");
         G_FreeEntity(self);
         return;
     }
@@ -215,7 +215,7 @@ void cam_ctrl_point_link(gentity_t* ent)
         if ( !target2 )
         {
             // Bah, you fool!  Target2 not found
-            Com_Printf( "cam_point_link: target2 specified but not found: %s\n", ent->target2 );
+            Q_Println("cam_point_link: target2 specified but not found: {}", ent->target2);
             G_FreeEntity( ent );
             return;
         }
@@ -233,7 +233,7 @@ void cam_ctrl_point_link(gentity_t* ent)
             if ( !target )
             {
                 // Bah, you fool!  Target not found
-                Com_Printf( "cam_point_link: target specified but not found: %s\n", ent->target );
+                Q_Println("cam_point_link: target specified but not found: {}", ent->target);
                 G_FreeEntity( ent );
                 return;
             }
@@ -254,7 +254,7 @@ void SP_cam_point(gentity_t* ent)
     /*	if ( !ent->target2 )
         {
             // Bah, you fool!  Target2 not found so we have no idea how to make the curve
-            Com_Printf( "cam_point_link: target2 was required but not found\n" );
+            Q_Println("cam_point_link: target2 was required but not found");
             G_FreeEntity( ent );
             return;
 

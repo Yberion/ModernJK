@@ -216,7 +216,7 @@ int BG_SiegeGetValueGroup(char* buf, const char* group, char* outbuf)
                 }
 
                 if (!buf[i]) {
-                    Com_Error(errorParm_t::ERR_DROP, "Unexpected EOF while looking for group '%s'", group);
+                    Q_Error(errorParm_t::ERR_DROP, "Unexpected EOF while looking for group '{}'", group);
                 }
 
                 isGroup = false;
@@ -249,7 +249,7 @@ int BG_SiegeGetValueGroup(char* buf, const char* group, char* outbuf)
                             }
 
                             if (parseGroups < 0) { // Syntax error, I guess.
-                                Com_Error(errorParm_t::ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '%s'", group);
+                                Q_Error(errorParm_t::ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '{}'", group);
                             }
 
                             if ((buf[i] != '{' || parseGroups > 1) &&
@@ -268,7 +268,7 @@ int BG_SiegeGetValueGroup(char* buf, const char* group, char* outbuf)
 
                         // Verify that we ended up on the closing bracket.
                         if (buf[i] != '}') {
-                            Com_Error(errorParm_t::ERR_DROP, "Group '%s' is missing a closing bracket", group);
+                            Q_Error(errorParm_t::ERR_DROP, "Group '{}' is missing a closing bracket", group);
                         }
 
                         // Strip the tabs so we're friendly for value parsing.
@@ -277,8 +277,8 @@ int BG_SiegeGetValueGroup(char* buf, const char* group, char* outbuf)
                         return 1; // we got it, so return 1.
                     }
                     else {
-                        Com_Error(errorParm_t::ERR_DROP, "Error parsing group in file, unexpected EOF before opening bracket while looking for group '%s'",
-                                  group);
+                        Q_Error(errorParm_t::ERR_DROP, "Error parsing group in file, unexpected EOF before opening bracket while looking for group '{}'",
+                                group);
                     }
                 }
                 else if (!isGroup) { // if it wasn't a group, parse to the end of the line
@@ -298,7 +298,7 @@ int BG_SiegeGetValueGroup(char* buf, const char* group, char* outbuf)
                         }
 
                         if (parseGroups < 0) { // Syntax error, I guess.
-                            Com_Error(errorParm_t::ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '%s'", group);
+                            Q_Error(errorParm_t::ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '{}'", group);
                         }
 
                         if (buf[i] == '}' && !parseGroups) { // Alright, we can break out now.
@@ -309,7 +309,7 @@ int BG_SiegeGetValueGroup(char* buf, const char* group, char* outbuf)
                     }
 
                     if (buf[i] != '}') {
-                        Com_Error(errorParm_t::ERR_DROP, "Found an opening bracket without a matching closing bracket while looking for group '%s'", group);
+                        Q_Error(errorParm_t::ERR_DROP, "Found an opening bracket without a matching closing bracket while looking for group '{}'", group);
                     }
 
                     i++;
@@ -328,7 +328,7 @@ int BG_SiegeGetValueGroup(char* buf, const char* group, char* outbuf)
                 }
 
                 if (parseGroups < 0) { // Syntax error, I guess.
-                    Com_Error(errorParm_t::ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '%s'", group);
+                    Q_Error(errorParm_t::ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '{}'", group);
                 }
 
                 if (buf[i] == '}' && !parseGroups) { // Alright, we can break out now.
@@ -339,7 +339,7 @@ int BG_SiegeGetValueGroup(char* buf, const char* group, char* outbuf)
             }
 
             if (buf[i] != '}') {
-                Com_Error(errorParm_t::ERR_DROP, "Found an opening bracket without a matching closing bracket while looking for group '%s'", group);
+                Q_Error(errorParm_t::ERR_DROP, "Found an opening bracket without a matching closing bracket while looking for group '{}'", group);
             }
         }
 
@@ -398,7 +398,7 @@ int BG_SiegeGetPairedValue(char* buf, const char* key, char* outbuf)
                         }
 
                         if (openB < 0) {
-                            Com_Error(errorParm_t::ERR_DROP, "Unexpected closing bracket (too many) while parsing to end of group '%s'", checkKey);
+                            Q_Error(errorParm_t::ERR_DROP, "Unexpected closing bracket (too many) while parsing to end of group '{}'", checkKey);
                         }
 
                         if (buf[i] == '}' && !openB) { // this is the end of the group
@@ -441,12 +441,12 @@ int BG_SiegeGetPairedValue(char* buf, const char* key, char* outbuf)
 
                                     if (!buf[i]) {
                                         if (parseToQuote) {
-                                            Com_Error(errorParm_t::ERR_DROP, "Unexpected EOF while looking for endquote, error finding paired value for '%s'",
-                                                      key);
+                                            Q_Error(errorParm_t::ERR_DROP, "Unexpected EOF while looking for endquote, error finding paired value for '{}'",
+                                                    key);
                                         }
                                         else {
-                                            Com_Error(errorParm_t::ERR_DROP,
-                                                      "Unexpected EOF while looking for space or endline, error finding paired value for '%s'", key);
+                                            Q_Error(errorParm_t::ERR_DROP,
+                                                    "Unexpected EOF while looking for space or endline, error finding paired value for '{}'", key);
                                         }
                                     }
                                 }
@@ -455,7 +455,7 @@ int BG_SiegeGetPairedValue(char* buf, const char* key, char* outbuf)
                                 return 1; // we got it, so return 1.
                             }
                             else {
-                                Com_Error(errorParm_t::ERR_DROP, "Error parsing file, unexpected EOF while looking for valud '%s'", key);
+                                Q_Error(errorParm_t::ERR_DROP, "Error parsing file, unexpected EOF while looking for valud '{}'", key);
                             }
                         }
                         else { // if that wasn't the desired key, then make sure we parse to the end of the line, so we don't mistake a value for a key
@@ -465,7 +465,7 @@ int BG_SiegeGetPairedValue(char* buf, const char* key, char* outbuf)
                         }
                     }
                     else {
-                        Com_Error(errorParm_t::ERR_DROP, "Error parsing file, found comment, expected value for '%s'", key);
+                        Q_Error(errorParm_t::ERR_DROP, "Error parsing file, found comment, expected value for '{}'", key);
                     }
                 }
             }
@@ -683,7 +683,7 @@ void BG_SiegeParseClassFile(const char* filename, siegeClassDesc_t* descBuffer)
         Q_strncpyz(bgSiegeClasses[bgNumSiegeClasses].name, parseBuf, sizeof(bgSiegeClasses[0].name));
     }
     else {
-        Com_Error(errorParm_t::ERR_DROP, "Siege class without name entry");
+        Q_Error(errorParm_t::ERR_DROP, "Siege class without name entry");
     }
 
     // Parse forced model
@@ -749,7 +749,7 @@ void BG_SiegeParseClassFile(const char* filename, siegeClassDesc_t* descBuffer)
         bgSiegeClasses[bgNumSiegeClasses].weapons = BG_SiegeTranslateGenericTable(parseBuf, WPTable, true);
     }
     else {
-        Com_Error(errorParm_t::ERR_DROP, "Siege class without weapons entry");
+        Q_Error(errorParm_t::ERR_DROP, "Siege class without weapons entry");
     }
 
     if (!(bgSiegeClasses[bgNumSiegeClasses].weapons & Bit(weapon_t::WP_SABER))) { // make sure it has melee if there's no saber
@@ -836,7 +836,7 @@ void BG_SiegeParseClassFile(const char* filename, siegeClassDesc_t* descBuffer)
 #endif
     }
     else { // I guess this is an essential.. we don't want to render bad shaders or anything.
-        Com_Error(errorParm_t::ERR_DROP, "Siege class without uishader entry");
+        Q_Error(errorParm_t::ERR_DROP, "Siege class without uishader entry");
     }
 
     // Parse shader for ui to use
@@ -851,8 +851,8 @@ void BG_SiegeParseClassFile(const char* filename, siegeClassDesc_t* descBuffer)
 #endif
         assert(bgSiegeClasses[bgNumSiegeClasses].classShader);
         if (!bgSiegeClasses[bgNumSiegeClasses].classShader) {
-            // Com_Error( errorParm_t::ERR_DROP, "ERROR: could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name );
-            Com_PrintError("could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name);
+            // Q_Error(errorParm_t::ERR_DROP, "ERROR: could not find class_shader {} for class {}", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name);
+            Q_PrintlnError("could not find class_shader {} for class {}", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name);
         }
         // A very hacky way to determine class . . .
         else
@@ -886,8 +886,8 @@ void BG_SiegeParseClassFile(const char* filename, siegeClassDesc_t* descBuffer)
         }
     }
     else { // No entry!  Bad bad bad
-        // Com_Error( errorParm_t::ERR_DROP, "ERROR: no class_shader defined for class %s\n", bgSiegeClasses[bgNumSiegeClasses].name );
-        Com_PrintError("no class_shader defined for class %s\n", bgSiegeClasses[bgNumSiegeClasses].name);
+        // Q_Error(errorParm_t::ERR_DROP, "ERROR: no class_shader defined for class {}", bgSiegeClasses[bgNumSiegeClasses].name);
+        Q_PrintlnError("no class_shader defined for class {}", bgSiegeClasses[bgNumSiegeClasses].name);
     }
 
     // Parse holdable items to use
@@ -1081,7 +1081,7 @@ void BG_SiegeParseTeamFile(const char* filename)
         Q_strncpyz(bgSiegeTeams[bgNumSiegeTeams].name, parseBuf, sizeof(bgSiegeTeams[0].name));
     }
     else {
-        Com_Error(errorParm_t::ERR_DROP, "Siege team with no name definition");
+        Q_Error(errorParm_t::ERR_DROP, "Siege team with no name definition");
     }
 
 // I don't entirely like doing things this way but it's the easiest way.
@@ -1096,7 +1096,7 @@ void BG_SiegeParseTeamFile(const char* filename)
 
     if (BG_SiegeGetValueGroup(teamInfo, "Classes", teamInfo)) {
         while (success && i < MAX_SIEGE_CLASSES) { // keep checking for group values named class# up to MAX_SIEGE_CLASSES until we can't find one.
-            Q_strncpyz(lookString, va("class%i", i), sizeof(lookString));
+            Q_strncpyz(lookString, Q_Format("class{}", i).c_str(), sizeof(lookString));
 
             success = BG_SiegeGetPairedValue(teamInfo, lookString, parseBuf);
 
@@ -1107,7 +1107,7 @@ void BG_SiegeParseTeamFile(const char* filename)
             bgSiegeTeams[bgNumSiegeTeams].classes[bgSiegeTeams[bgNumSiegeTeams].numClasses] = BG_SiegeFindClassByName(parseBuf);
 
             if (!bgSiegeTeams[bgNumSiegeTeams].classes[bgSiegeTeams[bgNumSiegeTeams].numClasses]) {
-                Com_Printf("Invalid class specified: '%s'\n", parseBuf);
+                Q_Println("Invalid class specified: '{}'", parseBuf);
             }
 
             bgSiegeTeams[bgNumSiegeTeams].numClasses++;
@@ -1117,7 +1117,7 @@ void BG_SiegeParseTeamFile(const char* filename)
     }
 
     if (!bgSiegeTeams[bgNumSiegeTeams].numClasses) {
-        Com_Error(errorParm_t::ERR_DROP, "Team defined with no allowable classes\n");
+        Q_Error(errorParm_t::ERR_DROP, "Team defined with no allowable classes");
     }
 
     // If we get here then it was a success, so increment the team number

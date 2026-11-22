@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "server.h"
 #include <qcommon/md5.h>
 
-// #define DEBUG_SV_CHALLENGE // Enable for Com_DPrintf debugging output
+// #define DEBUG_SV_CHALLENGE // Enable for Q_DPrintln debugging output
 
 static const size_t SECRET_KEY_LENGTH = MD5_DIGEST_SIZE; // Key length equal to digest length is adequate
 
@@ -72,11 +72,11 @@ void SV_ChallengeInit()
     // Generate a secret key from the OS RNG
     byte secretKey[SECRET_KEY_LENGTH];
     if (!Sys_RandomBytes(secretKey, sizeof(secretKey))) {
-        Com_Error(errorParm_t::ERR_FATAL, "SV_ChallengeInit: Sys_RandomBytes failed");
+        Q_Error(errorParm_t::ERR_FATAL, "SV_ChallengeInit: Sys_RandomBytes failed");
     }
 
 #ifdef DEBUG_SV_CHALLENGE
-    Com_DPrintf("Initialize challenger: %s\n", BufferToHexString(secretKey, sizeof(secretKey)));
+    Q_DPrintln("Initialize challenger: {}", BufferToHexString(secretKey, sizeof(secretKey)));
 #endif
 
     HMAC_MD5_Init(&challenger, secretKey, sizeof(secretKey));
@@ -128,7 +128,7 @@ static int SV_CreateChallenge(int timestamp, const netadr_t* from)
 
 #ifdef DEBUG_SV_CHALLENGE
     if (com_developer->integer) {
-        Com_Printf("Generated challenge %d (timestamp = %d) for %s\n", challenge, timestamp, NET_AdrToString(from));
+        Q_Println("Generated challenge {} (timestamp = {}) for {}", challenge, timestamp, NET_AdrToString(from));
     }
 #endif
 
@@ -145,7 +145,7 @@ Create an unforgeable, temporal challenge for the given client address.
 int SV_CreateChallenge(const netadr_t* from)
 {
     if (!challengerInitialized) {
-        Com_Error(errorParm_t::ERR_FATAL, "SV_CreateChallenge: The challenge subsystem has not been initialized");
+        Q_Error(errorParm_t::ERR_FATAL, "SV_CreateChallenge: The challenge subsystem has not been initialized");
     }
 
     // The current time gets 14 bits chopped off to create a challenge timestamp that changes every 16.384 seconds
@@ -164,7 +164,7 @@ Verify a challenge received by the client matches the expected challenge.
 bool SV_VerifyChallenge(int receivedChallenge, const netadr_t* from)
 {
     if (!challengerInitialized) {
-        Com_Error(errorParm_t::ERR_FATAL, "SV_VerifyChallenge: The challenge subsystem has not been initialized");
+        Q_Error(errorParm_t::ERR_FATAL, "SV_VerifyChallenge: The challenge subsystem has not been initialized");
     }
 
     int currentTimestamp = svs.time >> 14;
@@ -178,7 +178,7 @@ bool SV_VerifyChallenge(int receivedChallenge, const netadr_t* from)
 
 #ifdef DEBUG_SV_CHALLENGE
     if (com_developer->integer) {
-        Com_Printf("Verifying challenge %d (timestamp = %d) for %s\n", receivedChallenge, challengeTimestamp, NET_AdrToString(from));
+        Q_Println("Verifying challenge {} (timestamp = {}) for {}", receivedChallenge, challengeTimestamp, NET_AdrToString(from));
     }
 #endif
 

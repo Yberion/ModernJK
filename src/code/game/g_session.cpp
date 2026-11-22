@@ -45,50 +45,55 @@ Called on game shutdown
 void G_WriteClientSessionData(gclient_t* client)
 {
     const char* s;
+    formatText_t sText; // holds the text s points into
     const char* s2;
+    formatText_t s2Text; // holds the text s2 points into
     const char* var;
+    formatText_t varText; // holds the text var points into
     weapon_t i;
 
-    s = va("%i", to_underlying(client->sess.sessionTeam));
-    var = va("session%td", client - level.clients);
+    s = (sText = Q_Format("{}", to_underlying(client->sess.sessionTeam))).c_str();
+    var = (varText = Q_Format("session{}", client - level.clients)).c_str();
     gi.cvar_set(var, s);
 
     s2 = "";
     // Throw all status info into a string
     //	for (objectiveNumber_t o = objectiveNumber_t::LIGHTSIDE_OBJ; o < objectiveNumber_t::MAX_OBJECTIVES; o++)
     //	{
-    //		s2 = va("%s %i %i",	s2, client->sess.mission_objectives[o].display,	client->sess.mission_objectives[o].status);
+    //		s2 = (s2Text = Q_Format("{} {} {}", s2, client->sess.mission_objectives[o].display, client->sess.mission_objectives[o].status)).c_str();
     //	}
 
     // We're saving only one objective
-    s2 = va("%i %i", client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].display,
-            client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].status);
+    s2 = (s2Text = Q_Format("{:d} {}", client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].display,
+                            client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].status))
+             .c_str();
 
-    var = va("sessionobj%td", client - level.clients);
+    var = (varText = Q_Format("sessionobj{}", client - level.clients)).c_str();
     gi.cvar_set(var, s2);
 
     // Throw all mission stats in to a string
-    s2 = va("%i %i %i %i %i %i %i %i %i %i %i %i", client->sess.missionStats.secretsFound, client->sess.missionStats.totalSecrets,
-            client->sess.missionStats.shotsFired, client->sess.missionStats.hits, client->sess.missionStats.enemiesSpawned,
-            client->sess.missionStats.enemiesKilled, client->sess.missionStats.saberThrownCnt, client->sess.missionStats.saberBlocksCnt,
-            client->sess.missionStats.legAttacksCnt, client->sess.missionStats.armAttacksCnt, client->sess.missionStats.torsoAttacksCnt,
-            client->sess.missionStats.otherAttacksCnt);
+    s2 = (s2Text = Q_Format("{} {} {} {} {} {} {} {} {} {} {} {}", client->sess.missionStats.secretsFound, client->sess.missionStats.totalSecrets,
+                            client->sess.missionStats.shotsFired, client->sess.missionStats.hits, client->sess.missionStats.enemiesSpawned,
+                            client->sess.missionStats.enemiesKilled, client->sess.missionStats.saberThrownCnt, client->sess.missionStats.saberBlocksCnt,
+                            client->sess.missionStats.legAttacksCnt, client->sess.missionStats.armAttacksCnt, client->sess.missionStats.torsoAttacksCnt,
+                            client->sess.missionStats.otherAttacksCnt))
+             .c_str();
 
-    var = va("missionstats%td", client - level.clients);
+    var = (varText = Q_Format("missionstats{}", client - level.clients)).c_str();
     gi.cvar_set(var, s2);
 
     s2 = "";
     for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
-        s2 = va("%s %i", s2, client->sess.missionStats.forceUsed[fp]);
+        s2 = (s2Text = Q_Format("{} {}", s2, client->sess.missionStats.forceUsed[fp])).c_str();
     }
-    var = va("sessionpowers%td", client - level.clients);
+    var = (varText = Q_Format("sessionpowers{}", client - level.clients)).c_str();
     gi.cvar_set(var, s2);
 
     s2 = "";
     for (i = weapon_t::WP_NONE; i < weapon_t::WP_NUM_WEAPONS; i++) {
-        s2 = va("%s %i", s2, client->sess.missionStats.weaponUsed[i]);
+        s2 = (s2Text = Q_Format("{} {}", s2, client->sess.missionStats.weaponUsed[i])).c_str();
     }
-    var = va("sessionweapons%td", client - level.clients);
+    var = (varText = Q_Format("sessionweapons{}", client - level.clients)).c_str();
     gi.cvar_set(var, s2);
 }
 
@@ -103,16 +108,17 @@ void G_ReadSessionData(gclient_t* client)
 {
     char s[MAX_STRING_CHARS];
     const char* var;
+    formatText_t varText; // holds the text var points into
     int i;
     int lightsideDisplay;
 
-    var = va("session%td", client - level.clients);
+    var = (varText = Q_Format("session{}", client - level.clients)).c_str();
     gi.Cvar_VariableStringBuffer(var, s, sizeof(s));
 
     sscanf(s, "%i", &i);
     client->sess.sessionTeam = (team_t)i;
 
-    var = va("sessionobj%td", client - level.clients);
+    var = (varText = Q_Format("sessionobj{}", client - level.clients)).c_str();
     gi.Cvar_VariableStringBuffer(var, s, sizeof(s));
 
     var = s;
@@ -136,7 +142,7 @@ void G_ReadSessionData(gclient_t* client)
     sscanf(var, "%i %i", &lightsideDisplay, &client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].status);
     client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].display = lightsideDisplay ? true : false;
 
-    var = va("missionstats%td", client - level.clients);
+    var = (varText = Q_Format("missionstats{}", client - level.clients)).c_str();
     gi.Cvar_VariableStringBuffer(var, s, sizeof(s));
     sscanf(s, "%i %i %i %i %i %i %i %i %i %i %i %i", &client->sess.missionStats.secretsFound, &client->sess.missionStats.totalSecrets,
            &client->sess.missionStats.shotsFired, &client->sess.missionStats.hits, &client->sess.missionStats.enemiesSpawned,
@@ -144,7 +150,7 @@ void G_ReadSessionData(gclient_t* client)
            &client->sess.missionStats.legAttacksCnt, &client->sess.missionStats.armAttacksCnt, &client->sess.missionStats.torsoAttacksCnt,
            &client->sess.missionStats.otherAttacksCnt);
 
-    var = va("sessionpowers%td", client - level.clients);
+    var = (varText = Q_Format("sessionpowers{}", client - level.clients)).c_str();
     gi.Cvar_VariableStringBuffer(var, s, sizeof(s));
 
     forcePowers_t fp = forcePowers_t::FP_FIRST;
@@ -157,7 +163,7 @@ void G_ReadSessionData(gclient_t* client)
     }
     assert(fp == forcePowers_t::NUM_FORCE_POWERS);
 
-    var = va("sessionweapons%td", client - level.clients);
+    var = (varText = Q_Format("sessionweapons{}", client - level.clients)).c_str();
     gi.Cvar_VariableStringBuffer(var, s, sizeof(s));
 
     weapon_t wp = weapon_t::WP_NONE;

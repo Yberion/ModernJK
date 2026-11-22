@@ -57,12 +57,12 @@ The 'extension' string should not begin with a period (full stop).
 bool R_ImageLoader_Add(const char* extension, ImageLoaderFn imageLoader)
 {
     if (numImageLoaders >= MAX_IMAGE_LOADERS) {
-        Com_DPrintf("R_AddImageLoader: Cannot add any more image loaders (maximum %d).\n", MAX_IMAGE_LOADERS);
+        Q_DPrintln("R_AddImageLoader: Cannot add any more image loaders (maximum {}).", MAX_IMAGE_LOADERS);
         return false;
     }
 
     if (FindImageLoader(extension) != nullptr) {
-        Com_DPrintf("R_AddImageLoader: Image loader already exists for extension \"%s\".\n", extension);
+        Q_DPrintln("R_AddImageLoader: Image loader already exists for extension \"{}\".", extension);
         return false;
     }
 
@@ -141,7 +141,8 @@ void R_LoadImage(const char* shortname, byte** pic, int* width, int* height)
             continue;
         }
 
-        const char* name = va("%s.%s", extensionlessName, tryLoader->extension);
+        const formatText_t nameText = Q_Format("{}.{}", extensionlessName, tryLoader->extension);
+        const char* name = nameText.c_str();
         tryLoader->loader(name, pic, width, height);
         if (*pic) {
             return;

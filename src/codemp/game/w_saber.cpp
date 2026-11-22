@@ -174,7 +174,7 @@ static QINLINE int G_SaberAttackPower(gentity_t* ent, bool attacking)
 
 #ifndef FINAL_BUILD
         if (g_saberDebugPrint.integer > 1) {
-            Com_Printf("Client %i: ATT STR: %i\n", ent->s.number, baseLevel);
+            Q_Println("Client {}: ATT STR: {}", ent->s.number, baseLevel);
         }
 #endif
     }
@@ -398,7 +398,7 @@ static QINLINE void SetSaberBoxSize(gentity_t* saberent)
             VectorSet(saberent->r.maxs, 0, 0, 0);
 #ifndef FINAL_BUILD
             if (g_saberDebugPrint.integer > 1) {
-                Com_Printf("Client %i in broken parry, saber box 0\n", owner->s.number);
+                Q_Println("Client {} in broken parry, saber box 0", owner->s.number);
             }
 #endif
             return;
@@ -1680,9 +1680,9 @@ static QINLINE bool WP_GetSaberDeflectionAngle(gentity_t* attacker, gentity_t* d
             attacker->client->ps.saberMove = PM_SaberBounceForAttack(attacker->client->ps.saberMove);
 #ifndef FINAL_BUILD
             if (g_saberDebugPrint.integer) {
-                Com_Printf("attack %s vs. parry %s bounced to %s\n", BG_AnimName(saberMoveData[attMove].animToUse),
-                           BG_AnimName(saberMoveData[defender->client->ps.saberMove].animToUse),
-                           BG_AnimName(saberMoveData[attacker->client->ps.saberMove].animToUse));
+                Q_Println("attack {} vs. parry {} bounced to {}", BG_AnimName(saberMoveData[attMove].animToUse),
+                          BG_AnimName(saberMoveData[defender->client->ps.saberMove].animToUse),
+                          BG_AnimName(saberMoveData[attacker->client->ps.saberMove].animToUse));
             }
 #endif
             attacker->client->ps.saberBlocked = saberBlockedType_t::BLOCKED_ATK_BOUNCE;
@@ -1723,9 +1723,9 @@ static QINLINE bool WP_GetSaberDeflectionAngle(gentity_t* attacker, gentity_t* d
                 attacker->client->ps.saberMove = PM_SaberBounceForAttack(attacker->client->ps.saberMove);
 #ifndef FINAL_BUILD
                 if (g_saberDebugPrint.integer) {
-                    Com_Printf("attack %s vs. parry %s bounced to %s\n", BG_AnimName(saberMoveData[attMove].animToUse),
-                               BG_AnimName(saberMoveData[defender->client->ps.saberMove].animToUse),
-                               BG_AnimName(saberMoveData[attacker->client->ps.saberMove].animToUse));
+                    Q_Println("attack {} vs. parry {} bounced to {}", BG_AnimName(saberMoveData[attMove].animToUse),
+                              BG_AnimName(saberMoveData[defender->client->ps.saberMove].animToUse),
+                              BG_AnimName(saberMoveData[attacker->client->ps.saberMove].animToUse));
                 }
 #endif
                 attacker->client->ps.saberBlocked = saberBlockedType_t::BLOCKED_ATK_BOUNCE;
@@ -1739,9 +1739,9 @@ static QINLINE bool WP_GetSaberDeflectionAngle(gentity_t* attacker, gentity_t* d
                 attacker->client->ps.saberMove = PM_SaberDeflectionForQuad(newQuad);
 #ifndef FINAL_BUILD
                 if (g_saberDebugPrint.integer) {
-                    Com_Printf("attack %s vs. parry %s deflected to %s\n", BG_AnimName(saberMoveData[attMove].animToUse),
-                               BG_AnimName(saberMoveData[defender->client->ps.saberMove].animToUse),
-                               BG_AnimName(saberMoveData[attacker->client->ps.saberMove].animToUse));
+                    Q_Println("attack {} vs. parry {} deflected to {}", BG_AnimName(saberMoveData[attMove].animToUse),
+                              BG_AnimName(saberMoveData[defender->client->ps.saberMove].animToUse),
+                              BG_AnimName(saberMoveData[attacker->client->ps.saberMove].animToUse));
                 }
 #endif
                 attacker->client->ps.saberBlocked = saberBlockedType_t::BLOCKED_BOUNCE_MOVE;
@@ -1895,7 +1895,7 @@ static QINLINE int G_GetAttackDamage(gentity_t* self, int minDmg, int maxDmg, fl
         totalDamage = maxDmg;
     }
 
-    // Com_Printf("%i\n", totalDamage);
+    // Q_Println("{}", totalDamage);
 
     return totalDamage;
 }
@@ -1920,7 +1920,7 @@ static QINLINE float G_GetAnimPoint(gentity_t* self)
 
     animPercentage = currentPoint / attackAnimLength;
 
-    // Com_Printf("%f\n", animPercentage);
+    // Q_Println("{:f}", animPercentage);
 
     return animPercentage;
 }
@@ -3262,7 +3262,7 @@ void WP_SaberBounceSound(gentity_t* ent, int saberNum, int bladeNum)
         G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[saberNum].block2Sound[Q_irand(0, 2)]);
     }
     else {
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(va("sound/weapons/saber/saberblock%d.wav", index)));
+        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", index).c_str()));
     }
 }
 
@@ -3449,7 +3449,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
                 {
                     bool whah = true;
                 }
-                Com_Printf( "saber trace start/all solid - ent is %d\n", tr.entityNum );
+                Q_Println("saber trace start/all solid - ent is {}", tr.entityNum);
             }
             */
             if (tr.entityNum < MAX_CLIENTS) {
@@ -3561,8 +3561,8 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
             /*
             if ( dmg )
             {
-                Com_Printf("CL %i SABER DMG: %i, anim %s, torsoTimer %i\n", self->s.number, dmg, BG_AnimName( self->client->ps.torsoAnim ),
-            self->client->ps.torsoTimer );
+                Q_Println("CL {} SABER DMG: {}, anim {}, torsoTimer {}", self->s.number, dmg, BG_AnimName( self->client->ps.torsoAnim ),
+            self->client->ps.torsoTimer);
             }
             */
             if (self->client->ps.torsoAnim == animNumber_t::BOTH_A1_SPECIAL || self->client->ps.torsoAnim == animNumber_t::BOTH_A2_SPECIAL ||
@@ -3771,7 +3771,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
 
 #ifndef FINAL_BUILD
     if (g_saberDebugPrint.integer > 2 && dmg > 1) {
-        Com_Printf("CL %i SABER DMG: %i\n", self->s.number, dmg);
+        Q_Println("CL {} SABER DMG: {}", self->s.number, dmg);
     }
 #endif
 
@@ -4146,7 +4146,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
 
 #ifndef FINAL_BUILD
                 if (g_saberDebugPrint.integer) {
-                    Com_Printf("Client %i clashed into client %i's saber, did BLOCKED_ATK_BOUNCE\n", self->s.number, otherOwner->s.number);
+                    Q_Println("Client {} clashed into client {}'s saber, did BLOCKED_ATK_BOUNCE", self->s.number, otherOwner->s.number);
                 }
 #endif
             }
@@ -4192,7 +4192,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
 
 #ifndef FINAL_BUILD
             if (g_saberDebugPrint.integer) {
-                Com_Printf("Client %i sent client %i into a reflected attack with a knockaway\n", otherOwner->s.number, self->s.number);
+                Q_Println("Client {} sent client {} into a reflected attack with a knockaway", otherOwner->s.number, self->s.number);
             }
 #endif
 
@@ -4215,7 +4215,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
 
 #ifndef FINAL_BUILD
             if (g_saberDebugPrint.integer) {
-                Com_Printf("Client %i sent client %i into a broken parry\n", self->s.number, otherOwner->s.number);
+                Q_Println("Client {} sent client {} into a broken parry", self->s.number, otherOwner->s.number);
             }
 #endif
 
@@ -4239,7 +4239,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
                                  // into a broken parry.. unless they are already in one.
 #ifndef FINAL_BUILD
             if (g_saberDebugPrint.integer) {
-                Com_Printf("Client %i bounced off of client %i's saber\n", self->s.number, otherOwner->s.number);
+                Q_Println("Client {} bounced off of client {}'s saber", self->s.number, otherOwner->s.number);
             }
 #endif
 
@@ -4269,7 +4269,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
 
 #ifndef FINAL_BUILD
                 if (g_saberDebugPrint.integer) {
-                    Com_Printf("Client %i and client %i bounced off of each other's sabers\n", self->s.number, otherOwner->s.number);
+                    Q_Println("Client {} and client {} bounced off of each other's sabers", self->s.number, otherOwner->s.number);
                 }
 #endif
 
@@ -4356,7 +4356,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
 
 #ifndef FINAL_BUILD
                     if (g_saberDebugPrint.integer) {
-                        Com_Printf("Client %i forced client %i into a broken parry with a stronger attack\n", self->s.number, otherOwner->s.number);
+                        Q_Println("Client {} forced client {} into a broken parry with a stronger attack", self->s.number, otherOwner->s.number);
                     }
 #endif
                 }
@@ -4375,7 +4375,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
                         }
 #ifndef FINAL_BUILD
                         if (g_saberDebugPrint.integer) {
-                            Com_Printf("Equal attack level bounce/deflection for clients %i and %i\n", self->s.number, otherOwner->s.number);
+                            Q_Println("Equal attack level bounce/deflection for clients {} and {}", self->s.number, otherOwner->s.number);
                         }
 #endif
 
@@ -4395,7 +4395,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
 
 #ifndef FINAL_BUILD
                         if (g_saberDebugPrint.integer) {
-                            Com_Printf("Client %i hit client %i's stronger attack, was forced into a broken parry\n", self->s.number, otherOwner->s.number);
+                            Q_Println("Client {} hit client {}'s stronger attack, was forced into a broken parry", self->s.number, otherOwner->s.number);
                         }
 #endif
 
@@ -4417,7 +4417,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
 
 #ifndef FINAL_BUILD
                     if (g_saberDebugPrint.integer) {
-                        Com_Printf("Client %i broke through %i's parry with a special or stronger attack\n", self->s.number, otherOwner->s.number);
+                        Q_Println("Client {} broke through {}'s parry with a special or stronger attack", self->s.number, otherOwner->s.number);
                     }
 #endif
                 }
@@ -6513,7 +6513,7 @@ static gentity_t* G_KickTrace(gentity_t* ent, vec3_t kickDir, float kickDist, ve
             G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/movers/objects/saber_slam"));
         }
         else {
-            G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(va("sound/weapons/melee/punch%d", Q_irand(1, 4))));
+            G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
         }
         if (hitEnt->inuse) { // we hit an entity
             // FIXME: don't hit same ent more than once per kick
@@ -7085,7 +7085,8 @@ void WP_SaberPositionUpdate(gentity_t* self, usercmd_t* ucmd)
                                 int grapplerTime = grappler->client->ps.torsoTimer;
 
                                 G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 10, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_MELEE);
-                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
+                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str()
+                                // ) );
 
                                 // it might try to put them into a pain anim or something, so override it back again
                                 if (grappler->health > 0) {
@@ -7104,7 +7105,8 @@ void WP_SaberPositionUpdate(gentity_t* self, usercmd_t* ucmd)
                                 int grapplerTime = grappler->client->ps.torsoTimer;
 
                                 G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 10, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_MELEE);
-                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
+                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str()
+                                // ) );
 
                                 // it might try to put them into a pain anim or something, so override it back again
                                 if (grappler->health > 0) {
@@ -7122,7 +7124,8 @@ void WP_SaberPositionUpdate(gentity_t* self, usercmd_t* ucmd)
                                 vec3_t tossDir;
 
                                 G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 30, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_MELEE);
-                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
+                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str()
+                                // ) );
 
                                 self->client->grappleState = 0;
 
@@ -7147,7 +7150,8 @@ void WP_SaberPositionUpdate(gentity_t* self, usercmd_t* ucmd)
                                 int grapplerTime = grappler->client->ps.torsoTimer;
 
                                 G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 20, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_MELEE);
-                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
+                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str()
+                                // ) );
 
                                 // it might try to put them into a pain anim or something, so override it back again
                                 if (grappler->health > 0) {
@@ -7165,14 +7169,16 @@ void WP_SaberPositionUpdate(gentity_t* self, usercmd_t* ucmd)
                                 // G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 10, damageFlags_t::DAMAGE_NORMAL,
                                 // meansOfDeath_t::MOD_MELEE); don't do damage on this one, it would look very freaky if they died
                                 G_EntitySound(grappler, soundChannel_t::CHAN_VOICE, G_SoundIndex("*pain100.wav"));
-                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
+                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str()
+                                // ) );
                                 self->client->grappleState++;
                             }
                         }
                         else { // and another smash
                             if (self->client->ps.torsoTimer < 1000) {
                                 G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 30, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_MELEE);
-                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
+                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str()
+                                // ) );
 
                                 // it might try to put them into a pain anim or something, so override it back again
                                 if (grappler->health > 0) {

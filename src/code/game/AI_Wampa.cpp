@@ -44,11 +44,11 @@ void NPC_Wampa_Precache(void)
     int i;
     for ( i = 1; i < 4; i ++ )
     {
-        G_SoundIndex( va("sound/chars/wampa/growl%d.wav", i) );
+        G_SoundIndex( Q_Format("sound/chars/wampa/growl{}.wav", i).c_str() );
     }
     for ( i = 1; i < 3; i ++ )
     {
-        G_SoundIndex( va("sound/chars/wampa/snort%d.wav", i) );
+        G_SoundIndex( Q_Format("sound/chars/wampa/snort{}.wav", i).c_str() );
     }
     */
     G_SoundIndex("sound/chars/rancor/swipehit.wav");
@@ -735,7 +735,7 @@ void NPC_BSWampa_Default(void)
         }
         else {
             if (TIMER_Done(NPC, "angrynoise")) {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/wampa/misc/anger%d.wav", Q_irand(1, 2)));
+                G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/wampa/misc/anger{}.wav", Q_irand(1, 2)).c_str());
 
                 TIMER_Set(NPC, "angrynoise", Q_irand(5000, 10000));
             }

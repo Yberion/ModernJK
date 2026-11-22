@@ -362,7 +362,7 @@ void eweb_use(gentity_t* self, gentity_t* other, gentity_t* activator)
     self->waypoint = NAV::GetNearestNode(self);
 #ifdef _DEBUG
     if (self->waypoint == -1) {
-        Com_PrintError("no waypoint for emplaced_gun %s at %s\n", self->targetname, vtos(self->currentOrigin));
+        Q_PrintlnError("no waypoint for emplaced_gun {} at {}", self->targetname, vtos(self->currentOrigin));
     }
 #endif
 
@@ -599,7 +599,7 @@ void emplaced_gun_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         self->waypoint = NAV::GetNearestNode(self);
 #ifdef _DEBUG
         if (self->waypoint == -1) {
-            Com_PrintError("no waypoint for emplaced_gun %s at %s\n", self->targetname, vtos(self->currentOrigin));
+            Q_PrintlnError("no waypoint for emplaced_gun {} at {}", self->targetname, vtos(self->currentOrigin));
         }
 #endif
 

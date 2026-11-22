@@ -72,59 +72,59 @@ void Svcmd_EntityList_f(void)
         if (!check->inuse) {
             continue;
         }
-        Com_Printf("%3i:", e);
+        Q_Print("{:3}:", e);
         switch (check->s.eType) {
         case entityType_t::ET_GENERAL:
-            Com_Printf("ET_GENERAL          ");
+            Q_Print("ET_GENERAL          ");
             break;
         case entityType_t::ET_PLAYER:
-            Com_Printf("ET_PLAYER           ");
+            Q_Print("ET_PLAYER           ");
             break;
         case entityType_t::ET_ITEM:
-            Com_Printf("ET_ITEM             ");
+            Q_Print("ET_ITEM             ");
             break;
         case entityType_t::ET_MISSILE:
-            Com_Printf("ET_MISSILE          ");
+            Q_Print("ET_MISSILE          ");
             break;
         case entityType_t::ET_MOVER:
-            Com_Printf("ET_MOVER            ");
+            Q_Print("ET_MOVER            ");
             break;
         case entityType_t::ET_BEAM:
-            Com_Printf("ET_BEAM             ");
+            Q_Print("ET_BEAM             ");
             break;
         case entityType_t::ET_PORTAL:
-            Com_Printf("ET_PORTAL           ");
+            Q_Print("ET_PORTAL           ");
             break;
         case entityType_t::ET_SPEAKER:
-            Com_Printf("ET_SPEAKER          ");
+            Q_Print("ET_SPEAKER          ");
             break;
         case entityType_t::ET_PUSH_TRIGGER:
-            Com_Printf("ET_PUSH_TRIGGER     ");
+            Q_Print("ET_PUSH_TRIGGER     ");
             break;
         case entityType_t::ET_TELEPORT_TRIGGER:
-            Com_Printf("ET_TELEPORT_TRIGGER ");
+            Q_Print("ET_TELEPORT_TRIGGER ");
             break;
         case entityType_t::ET_INVISIBLE:
-            Com_Printf("ET_INVISIBLE        ");
+            Q_Print("ET_INVISIBLE        ");
             break;
         case entityType_t::ET_THINKER:
-            Com_Printf("ET_THINKER          ");
+            Q_Print("ET_THINKER          ");
             break;
         case entityType_t::ET_CLOUD:
-            Com_Printf("ET_CLOUD            ");
+            Q_Print("ET_CLOUD            ");
             break;
         case entityType_t::ET_TERRAIN:
-            Com_Printf("ET_TERRAIN          ");
+            Q_Print("ET_TERRAIN          ");
             break;
         default:
-            Com_Printf("%-3i                ", to_underlying(check->s.eType));
+            Q_Print("{:<3}                ", to_underlying(check->s.eType));
             break;
         }
 
         if (check->classname) {
-            Com_Printf("%s", check->classname);
+            Q_Print("{}", check->classname);
         }
-        Com_Printf("\n");
+        Q_Println("");
     }
 }
 
@@ -179,12 +179,12 @@ static void Svcmd_Saber_f()
     char name[MAX_CVAR_VALUE_STRING] = {0};
 
     if (gi.argc() < 2) {
-        Com_Printf("Usage: saber <saber1> <saber2>\n");
+        Q_Println("Usage: saber <saber1> <saber2>");
         gi.Cvar_VariableStringBuffer("g_saber", name, sizeof(name));
-        Com_Printf("g_saber is set to %s\n", name);
+        Q_Println("g_saber is set to {}", name);
         gi.Cvar_VariableStringBuffer("g_saber2", name, sizeof(name));
         if (name[0])
-            Com_Printf("g_saber2 is set to %s\n", name);
+            Q_Println("g_saber2 is set to {}", name);
         return;
     }
 
@@ -208,7 +208,7 @@ static void Svcmd_Saber_f()
 static void Svcmd_SaberBlade_f()
 {
     if (gi.argc() < 2) {
-        Com_Printf("USAGE: saberblade <sabernum> <bladenum> [0 = off, 1 = on, no arg = toggle]\n");
+        Q_Println("USAGE: saberblade <sabernum> <bladenum> [0 = off, 1 = on, no arg = toggle]");
         return;
     }
     if (g_entities[0].client == nullptr) {
@@ -248,9 +248,9 @@ static void Svcmd_SaberColor_f()
     }
 
     if (saberNum < 1 || saberNum > 2 || gi.argc() < 3) {
-        Com_Printf("Usage:  saberColor <saberNum> <blade1 color> <blade2 color> ... <blade8 color>\n");
-        Com_Printf("valid saberNums:  1 or 2\n");
-        Com_Printf("valid colors:  red, orange, yellow, green, blue, and purple\n");
+        Q_Println("Usage:  saberColor <saberNum> <blade1 color> <blade2 color> ... <blade8 color>");
+        Q_Println("valid saberNums:  1 or 2");
+        Q_Println("valid colors:  red, orange, yellow, green, blue, and purple");
 
         return;
     }
@@ -308,8 +308,8 @@ static void Svcmd_ForceSetLevel_f(forcePowers_t forcePower)
     }
     const char* newVal = gi.argv(1);
     if (!VALIDSTRING(newVal)) {
-        Com_Printf("Current %s level is %d\n", SetForceTable[forcePower].desc, to_underlying(g_entities[0].client->ps.forcePowerLevel[forcePower]));
-        Com_Printf("Usage:  %s <level> (0 - %i)\n", SetForceTable[forcePower].cmdname, to_underlying(SetForceTable[forcePower].maxlevel));
+        Q_Println("Current {} level is {}", SetForceTable[forcePower].desc, to_underlying(g_entities[0].client->ps.forcePowerLevel[forcePower]));
+        Q_Println("Usage:  {} <level> (0 - {})", SetForceTable[forcePower].cmdname, to_underlying(SetForceTable[forcePower].maxlevel));
         return;
     }
     const forcePowerLevels_t val = static_cast<forcePowerLevels_t>(atoi(newVal));
@@ -484,37 +484,37 @@ void Svcmd_SaberAttackCycle_f(void)
 #ifndef FINAL_BUILD
     switch (saberAnimLevel) {
     case saber_styles_t::SS_FAST:
-        Com_Printf(S_COLOR_BLUE "Lightsaber Combat Style: Fast\n");
+        Q_Println(S_COLOR_BLUE "Lightsaber Combat Style: Fast");
         // LIGHTSABERCOMBATSTYLE_FAST
         break;
     case saber_styles_t::SS_MEDIUM:
-        Com_Printf(S_COLOR_YELLOW "Lightsaber Combat Style: Medium\n");
+        Q_Println(S_COLOR_YELLOW "Lightsaber Combat Style: Medium");
         // LIGHTSABERCOMBATSTYLE_MEDIUM
         break;
     case saber_styles_t::SS_STRONG:
-        Com_Printf(S_COLOR_RED "Lightsaber Combat Style: Strong\n");
+        Q_Println(S_COLOR_RED "Lightsaber Combat Style: Strong");
         // LIGHTSABERCOMBATSTYLE_STRONG
         break;
     case saber_styles_t::SS_DESANN:
-        Com_Printf(S_COLOR_CYAN "Lightsaber Combat Style: Desann\n");
+        Q_Println(S_COLOR_CYAN "Lightsaber Combat Style: Desann");
         // LIGHTSABERCOMBATSTYLE_DESANN
         break;
     case saber_styles_t::SS_TAVION:
-        Com_Printf(S_COLOR_MAGENTA "Lightsaber Combat Style: Tavion\n");
+        Q_Println(S_COLOR_MAGENTA "Lightsaber Combat Style: Tavion");
         // LIGHTSABERCOMBATSTYLE_TAVION
         break;
     case saber_styles_t::SS_DUAL:
-        Com_Printf(S_COLOR_MAGENTA "Lightsaber Combat Style: Dual\n");
+        Q_Println(S_COLOR_MAGENTA "Lightsaber Combat Style: Dual");
         // LIGHTSABERCOMBATSTYLE_TAVION
         break;
     case saber_styles_t::SS_STAFF:
-        Com_Printf(S_COLOR_MAGENTA "Lightsaber Combat Style: Staff\n");
+        Q_Println(S_COLOR_MAGENTA "Lightsaber Combat Style: Staff");
         // LIGHTSABERCOMBATSTYLE_TAVION
         break;
     default:
         break;
     }
-    // Com_Printf("\n");
+    // Q_Println("");
 #endif
 }
 
@@ -594,7 +594,7 @@ static void Svcmd_RunScript_f(void)
             }
             else {
                 // can't find cmd2
-                Com_Printf(S_COLOR_RED "runscript: can't find targetname %s\n", cmd2);
+                Q_Println(S_COLOR_RED "runscript: can't find targetname {}", cmd2);
             }
         }
         else {
@@ -602,7 +602,7 @@ static void Svcmd_RunScript_f(void)
         }
     }
     else {
-        Com_Printf(S_COLOR_RED "usage: runscript <ent targetname> scriptname\n");
+        Q_Println(S_COLOR_RED "usage: runscript <ent targetname> scriptname");
     }
 }
 
@@ -611,22 +611,22 @@ static void Svcmd_PlayerTeam_f(void)
     const char* cmd2 = gi.argv(1);
 
     if (!*cmd2 || !cmd2[0]) {
-        Com_Printf(S_COLOR_RED "'playerteam' - change player team, requires a team name!\n");
-        Com_Printf(S_COLOR_RED "Current team is: %s\n", GetStringForID(TeamTable, to_underlying(g_entities[0].client->playerTeam)));
-        Com_Printf(S_COLOR_RED "Valid team names are:\n");
+        Q_Println(S_COLOR_RED "'playerteam' - change player team, requires a team name!");
+        Q_Println(S_COLOR_RED "Current team is: {}", GetStringForID(TeamTable, to_underlying(g_entities[0].client->playerTeam)));
+        Q_Println(S_COLOR_RED "Valid team names are:");
         for (team_t n = team_t::TEAM_FREE + 1; n < team_t::TEAM_NUM_TEAMS; n++) {
-            Com_Printf(S_COLOR_RED "%s\n", GetStringForID(TeamTable, to_underlying(n)));
+            Q_Println(S_COLOR_RED "{}", GetStringForID(TeamTable, to_underlying(n)));
         }
     }
     else {
         const int id = GetIDForString(TeamTable, cmd2);
 
         if (id == -1) {
-            Com_Printf(S_COLOR_RED "'playerteam' unrecognized team name %s!\n", cmd2);
-            Com_Printf(S_COLOR_RED "Current team is: %s\n", GetStringForID(TeamTable, to_underlying(g_entities[0].client->playerTeam)));
-            Com_Printf(S_COLOR_RED "Valid team names are:\n");
+            Q_Println(S_COLOR_RED "'playerteam' unrecognized team name {}!", cmd2);
+            Q_Println(S_COLOR_RED "Current team is: {}", GetStringForID(TeamTable, to_underlying(g_entities[0].client->playerTeam)));
+            Q_Println(S_COLOR_RED "Valid team names are:");
             for (team_t n = team_t::TEAM_FREE; n < team_t::TEAM_NUM_TEAMS; n++) {
-                Com_Printf(S_COLOR_RED "%s\n", GetStringForID(TeamTable, to_underlying(n)));
+                Q_Println(S_COLOR_RED "{}", GetStringForID(TeamTable, to_underlying(n)));
             }
         }
         else {
@@ -641,7 +641,7 @@ static void Svcmd_Control_f(void)
     const char* cmd2 = gi.argv(1);
     if (!*cmd2 || !cmd2[0]) {
         if (!G_ClearViewEntity(&g_entities[0])) {
-            Com_Printf(S_COLOR_RED "control <NPC_targetname>\n");
+            Q_Println(S_COLOR_RED "control <NPC_targetname>");
         }
     }
     else {
@@ -654,7 +654,7 @@ static void Svcmd_Grab_f(void)
     const char* cmd2 = gi.argv(1);
     if (!*cmd2 || !cmd2[0]) {
         if (!G_ReleaseEntity(&g_entities[0])) {
-            Com_Printf(S_COLOR_RED "grab <NPC_targetname>\n");
+            Q_Println(S_COLOR_RED "grab <NPC_targetname>");
         }
     }
     else {
@@ -670,17 +670,17 @@ static void Svcmd_Knockdown_f(void)
 static void Svcmd_PlayerModel_f(void)
 {
     if (gi.argc() == 1) {
-        Com_Printf(S_COLOR_RED "USAGE: playerModel <NPC Name>\n       playerModel <g2model> <skinhead> <skintorso> <skinlower>\n       playerModel player "
-                               "(builds player from customized menu settings)" S_COLOR_WHITE "\n");
-        Com_Printf("playerModel = %s ",
-                   va("%s %s %s %s\n", g_char_model->string, g_char_skin_head->string, g_char_skin_torso->string, g_char_skin_legs->string));
+        Q_Println(S_COLOR_RED "USAGE: playerModel <NPC Name>\n       playerModel <g2model> <skinhead> <skintorso> <skinlower>\n       playerModel player "
+                              "(builds player from customized menu settings)" S_COLOR_WHITE);
+        Q_Print("playerModel = {} ",
+                Q_Format("{} {} {} {}\n", g_char_model->string, g_char_skin_head->string, g_char_skin_torso->string, g_char_skin_legs->string));
     }
     else if (gi.argc() == 2) {
         G_ChangePlayerModel(&g_entities[0], gi.argv(1));
     }
     else if (gi.argc() == 5) {
         // instead of setting it directly via a command, we now store it in cvars
-        // G_ChangePlayerModel( &g_entities[0], va("%s|%s|%s|%s", gi.argv(1), gi.argv(2), gi.argv(3), gi.argv(4)) );
+        // G_ChangePlayerModel( &g_entities[0], Q_Format("{}|{}|{}|{}", gi.argv(1), gi.argv(2), gi.argv(3), gi.argv(4)).c_str() );
         gi.cvar_set("g_char_model", gi.argv(1));
         gi.cvar_set("g_char_skin_head", gi.argv(2));
         gi.cvar_set("g_char_skin_torso", gi.argv(3));
@@ -700,8 +700,8 @@ static void Svcmd_PlayerTint_f(void)
         gi.cvar_set("g_char_color_blue", gi.argv(3));
     }
     else {
-        Com_Printf(S_COLOR_RED "USAGE: playerTint <red 0 - 255> <green 0 - 255> <blue 0 - 255>\n");
-        Com_Printf("playerTint = %s\n", va("%d %d %d", g_char_color_red->integer, g_char_color_green->integer, g_char_color_blue->integer));
+        Q_Println(S_COLOR_RED "USAGE: playerTint <red 0 - 255> <green 0 - 255> <blue 0 - 255>");
+        Q_Println("playerTint = {}", Q_Format("{} {} {}", g_char_color_red->integer, g_char_color_green->integer, g_char_color_blue->integer));
     }
 }
 
@@ -724,14 +724,14 @@ static void Svcmd_Secrets_f(void)
 {
     const gentity_t* pl = &g_entities[0];
     if (pl->client->sess.missionStats.totalSecrets < 1) {
-        Com_Printf("There are" S_COLOR_RED " NO " S_COLOR_WHITE "secrets on this map!\n");
+        Q_Println("There are" S_COLOR_RED " NO " S_COLOR_WHITE "secrets on this map!");
     }
     else if (pl->client->sess.missionStats.secretsFound == pl->client->sess.missionStats.totalSecrets) {
-        Com_Printf("You've found all " S_COLOR_GREEN "%i" S_COLOR_WHITE " secrets on this map!\n", pl->client->sess.missionStats.secretsFound);
+        Q_Println("You've found all " S_COLOR_GREEN "{}" S_COLOR_WHITE " secrets on this map!", pl->client->sess.missionStats.secretsFound);
     }
     else {
-        Com_Printf("You've found " S_COLOR_GREEN "%i" S_COLOR_WHITE " out of " S_COLOR_GREEN "%i" S_COLOR_WHITE " secrets!\n",
-                   pl->client->sess.missionStats.secretsFound, pl->client->sess.missionStats.totalSecrets);
+        Q_Println("You've found " S_COLOR_GREEN "{}" S_COLOR_WHITE " out of " S_COLOR_GREEN "{}" S_COLOR_WHITE " secrets!",
+                  pl->client->sess.missionStats.secretsFound, pl->client->sess.missionStats.totalSecrets);
     }
 }
 
@@ -745,28 +745,28 @@ static void Svcmd_Difficulty_f(void)
 {
     if (gi.argc() == 1) {
         if (g_spskill->integer == 0) {
-            Com_Printf(S_COLOR_GREEN "Current Difficulty: Padawan" S_COLOR_WHITE "\n");
+            Q_Println(S_COLOR_GREEN "Current Difficulty: Padawan" S_COLOR_WHITE);
         }
         else if (g_spskill->integer == 1) {
-            Com_Printf(S_COLOR_GREEN "Current Difficulty: Jedi" S_COLOR_WHITE "\n");
+            Q_Println(S_COLOR_GREEN "Current Difficulty: Jedi" S_COLOR_WHITE);
         }
         else if (g_spskill->integer == 2) {
             int crosshairHint = gi.Cvar_VariableIntegerValue("cg_crosshairForceHint");
             int handicap = gi.Cvar_VariableIntegerValue("handicap");
             if (handicap == 100 && crosshairHint == 0) {
-                Com_Printf(S_COLOR_GREEN "Current Difficulty: Jedi Knight" S_COLOR_WHITE "\n");
+                Q_Println(S_COLOR_GREEN "Current Difficulty: Jedi Knight" S_COLOR_WHITE);
             }
             else if (handicap == 50 && crosshairHint == 0) {
-                Com_Printf(S_COLOR_GREEN "Current Difficulty: Jedi Master" S_COLOR_WHITE "\n");
+                Q_Println(S_COLOR_GREEN "Current Difficulty: Jedi Master" S_COLOR_WHITE);
             }
             else {
-                Com_Printf(S_COLOR_GREEN "Current Difficulty: Jedi Knight (Custom)" S_COLOR_WHITE "\n");
-                Com_Printf(S_COLOR_GREEN "Crosshair Force Hint: %i" S_COLOR_WHITE "\n", crosshairHint != 0 ? 1 : 0);
-                Com_Printf(S_COLOR_GREEN "Handicap: %i" S_COLOR_WHITE "\n", handicap);
+                Q_Println(S_COLOR_GREEN "Current Difficulty: Jedi Knight (Custom)" S_COLOR_WHITE);
+                Q_Println(S_COLOR_GREEN "Crosshair Force Hint: {}" S_COLOR_WHITE, crosshairHint != 0 ? 1 : 0);
+                Q_Println(S_COLOR_GREEN "Handicap: {}" S_COLOR_WHITE, handicap);
             }
         }
         else {
-            Com_Printf(S_COLOR_RED "Invalid difficulty cvar set! g_spskill (%i) [0-2] is valid range only" S_COLOR_WHITE "\n", g_spskill->integer);
+            Q_Println(S_COLOR_RED "Invalid difficulty cvar set! g_spskill ({}) [0-2] is valid range only" S_COLOR_WHITE, g_spskill->integer);
         }
     }
 }
@@ -864,11 +864,11 @@ bool ConsoleCommand(void)
         return false;
 
     if (Any(command->flags & commandFlags_t::CMD_CHEAT) && !g_cheats->integer) {
-        Com_Printf("Cheats are not enabled on this server.\n");
+        Q_Println("Cheats are not enabled on this server.");
         return true;
     }
     else if (Any(command->flags & commandFlags_t::CMD_ALIVE) && (g_entities[0].health <= 0)) {
-        Com_Printf("You must be alive to use this command.\n");
+        Q_Println("You must be alive to use this command.");
         return true;
     }
     else

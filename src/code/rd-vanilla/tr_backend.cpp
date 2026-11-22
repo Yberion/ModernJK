@@ -56,7 +56,7 @@ void GL_Bind(image_t* image)
     int texnum;
 
     if (!image) {
-        Com_Warning("GL_Bind: NULL image\n");
+        Q_PrintlnWarning("GL_Bind: NULL image");
         texnum = tr.defaultImage->texnum;
     }
     else {
@@ -108,7 +108,7 @@ void GL_SelectTexture(int unit)
         GLimp_LogComment("glClientActiveTextureARB( GL_TEXTURE3_ARB )\n");
     }
     else {
-        Com_Error(errorParm_t::ERR_DROP, "GL_SelectTexture: unit = %i", unit);
+        Q_Error(errorParm_t::ERR_DROP, "GL_SelectTexture: unit = {}", unit);
     }
 
     glState.currenttmu = unit;
@@ -177,7 +177,7 @@ void GL_TexEnv(int env)
         qglTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
         break;
     default:
-        Com_Error(errorParm_t::ERR_DROP, "GL_TexEnv: invalid env '%d' passed\n", env);
+        Q_Error(errorParm_t::ERR_DROP, "GL_TexEnv: invalid env '{}' passed", env);
         break;
     }
 }
@@ -245,7 +245,7 @@ void GL_State(glStateBits_t stateBits)
                 break;
             default:
                 srcFactor = GL_ONE; // to get warning to shut up
-                Com_Error(errorParm_t::ERR_DROP, "GL_State: invalid src blend state bits\n");
+                Q_Error(errorParm_t::ERR_DROP, "GL_State: invalid src blend state bits");
                 break;
             }
 
@@ -276,7 +276,7 @@ void GL_State(glStateBits_t stateBits)
                 break;
             default:
                 dstFactor = GL_ONE; // to get warning to shut up
-                Com_Error(errorParm_t::ERR_DROP, "GL_State: invalid dst blend state bits\n");
+                Q_Error(errorParm_t::ERR_DROP, "GL_State: invalid dst blend state bits");
                 break;
             }
 
@@ -1438,7 +1438,7 @@ void RB_ShowImages(void)
     qglFinish();
 
     // end = ri.Milliseconds();
-    // Com_Printf("%i msec to draw all images\n", end - start );
+    // Q_Println("{} msec to draw all images", end - start);
 }
 
 /*

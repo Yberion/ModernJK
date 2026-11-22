@@ -714,7 +714,7 @@ void WP_DisruptorAltFire(gentity_t* ent)
             VectorCopy(tr.endpos, start);
             skip = tr.entityNum;
 #ifdef _DEBUG
-            Com_Printf("BAD! Disruptor gun shot somehow traced back and hit the owner!\n");
+            Q_Println("BAD! Disruptor gun shot somehow traced back and hit the owner!");
 #endif
             continue;
         }
@@ -2839,7 +2839,7 @@ static void WP_FireConcussionAlt(gentity_t* ent)
             VectorCopy(tr.endpos, start);
             skip = tr.entityNum;
 #ifdef _DEBUG
-            Com_Printf("BAD! Concussion gun shot somehow traced back and hit the owner!\n");
+            Q_Println("BAD! Concussion gun shot somehow traced back and hit the owner!");
 #endif
             continue;
         }
@@ -3094,7 +3094,7 @@ void WP_FireStunBaton(gentity_t* ent, bool alt_fire)
     if (tr_ent && tr_ent->takedamage) {
         G_PlayEffect(effectTypes_t::EFFECT_STUNHIT, tr.endpos, tr.plane.normal);
 
-        G_Sound(tr_ent, soundChannel_t::CHAN_WEAPON, G_SoundIndex(va("sound/weapons/melee/punch%d", Q_irand(1, 4))));
+        G_Sound(tr_ent, soundChannel_t::CHAN_WEAPON, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
         G_Damage(tr_ent, ent, ent, forward, tr.endpos, STUN_BATON_DAMAGE, (damageFlags_t::DAMAGE_NO_KNOCKBACK | damageFlags_t::DAMAGE_HALF_ABSORB),
                  meansOfDeath_t::MOD_STUN_BATON);
 
@@ -3155,7 +3155,7 @@ void WP_FireMelee(gentity_t* ent, bool alt_fire)
     if (tr.entityNum != ENTITYNUM_NONE) { // hit something
         tr_ent = &g_entities[tr.entityNum];
 
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(va("sound/weapons/melee/punch%d", Q_irand(1, 4))));
+        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
 
         if (tr_ent->takedamage && tr_ent->client) { // special duel checks
             if (tr_ent->client->ps.duelInProgress && tr_ent->client->ps.duelIndex != ent->s.number) {

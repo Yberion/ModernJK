@@ -34,6 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "demo_trace.h"
 #include "message_compare.h"
+#include <fmt/base.h>
 #include <numeric.h>
 #include <schema.h>
 #include "storage.h"
@@ -142,7 +143,7 @@ inline const FieldDesc& FieldAt(std::span<const FieldDesc> fields, uint32_t offs
     for (const FieldDesc& f : fields)
         if (f.offset == offset)
             return f;
-    std::fprintf(stderr, "no field at offset %u\n", offset);
+    fmt::println(stderr, "no field at offset {}", offset);
     std::exit(2);
 }
 

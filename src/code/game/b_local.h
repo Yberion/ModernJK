@@ -65,8 +65,16 @@ extern float NPC_GetPainChance(gentity_t* self, int damage);
 //
 // NPC_misc.cpp
 //
-extern void Debug_Printf(cvar_t* cv, aiDebugLevel_t level, const char* fmt, ...) __attribute__((format(printf, 3, 4)));
-extern void Debug_NPCPrintf(gentity_t* printNPC, cvar_t* cv, aiDebugLevel_t debugLevel, char* fmt, ...) __attribute__((format(printf, 4, 5)));
+void Debug_VPrintln(cvar_t* cv, aiDebugLevel_t level, fmt::string_view fmt, fmt::format_args args);
+template <typename... T> void Debug_Println(cvar_t* cv, aiDebugLevel_t level, fmt::format_string<T...> fmt, T&&... args)
+{
+    Debug_VPrintln(cv, level, fmt.get(), Q_FormatArgs(args...));
+}
+void Debug_VNPCPrintf(gentity_t* printNPC, cvar_t* cv, aiDebugLevel_t debugLevel, fmt::string_view fmt, fmt::format_args args);
+template <typename... T> void Debug_NPCPrintf(gentity_t* printNPC, cvar_t* cv, aiDebugLevel_t debugLevel, fmt::format_string<T...> fmt, T&&... args)
+{
+    Debug_VNPCPrintf(printNPC, cv, debugLevel, fmt.get(), Q_FormatArgs(args...));
+}
 
 // MCG - Begin============================================================
 // NPC_ai variables - shared by NPC.cpp andf the following modules

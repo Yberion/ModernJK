@@ -314,7 +314,7 @@ void PM_StepSlideMove(float gravMod)
     pm->trace(&trace, start_o, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask, EG2_Collision::G2_NOCOLLIDE, 0);
     if (trace.allsolid || trace.startsolid || trace.fraction == 0) {
         if (pm->debugLevel) {
-            Com_Printf("%i:bend can't step\n", c_pmove);
+            Q_Println("{}:bend can't step", c_pmove);
         }
         return; // can't step up
     }
@@ -370,7 +370,7 @@ void PM_StepSlideMove(float gravMod)
 		VectorCopy (down_o, pm->ps->origin);
 		VectorCopy (down_v, pm->ps->velocity);
 		if ( pm->debugLevel ) {
-			Com_Printf("%i:bend\n", c_pmove);
+			Q_Println("{}:bend", c_pmove);
 		}
 	} else
 #endif
@@ -394,7 +394,7 @@ void PM_StepSlideMove(float gravMod)
             }
         }
         if (pm->debugLevel) {
-            Com_Printf("%i:stepped\n", c_pmove);
+            Q_Println("{}:stepped", c_pmove);
         }
     }
 }

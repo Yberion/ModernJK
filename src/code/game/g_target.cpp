@@ -135,7 +135,7 @@ void Use_Target_Print(gentity_t* ent, gentity_t* other, gentity_t* activator)
     G_ActivateBehavior(ent, bSet_t::BSET_USE);
 
     if (activator->client) {
-        gi.SendServerCommand(activator - g_entities, "cp \"%s\"", ent->message);
+        gi.SendServerCommand(activator - g_entities, "cp \"{}\"", ent->message);
     }
 }
 
@@ -170,7 +170,9 @@ void Use_Target_Speaker(gentity_t* ent, gentity_t* other, gentity_t* activator)
     G_ActivateBehavior(ent, bSet_t::BSET_USE);
 
     if (ent->sounds) {
-        ent->noise_index = G_SoundIndex(va(ent->paintarget, Q_irand(1, ent->sounds)));
+        char noise[MAX_QPATH * 2];
+        Q_FormatFromPrintf(noise, ent->paintarget, "a target_speaker's noise");
+        ent->noise_index = G_SoundIndex(Q_Format(fmt::runtime(noise), Q_irand(1, ent->sounds)).c_str());
     }
 
     if (ent->spawnflags & 3) { // looping sound toggles
@@ -220,7 +222,7 @@ void SP_target_speaker(gentity_t* ent)
 
     if (!ent->sounds) {
         if (!G_SpawnString("noise", "*NOSOUND*", &s)) {
-            Com_Error(errorParm_t::ERR_DROP, "target_speaker without a noise key at %s", vtos(ent->s.origin));
+            Q_Error(errorParm_t::ERR_DROP, "target_speaker without a noise key at {}", vtos(ent->s.origin));
         }
 
         Q_strncpyz(buffer, s, sizeof(buffer));
@@ -228,8 +230,10 @@ void SP_target_speaker(gentity_t* ent)
         ent->noise_index = G_SoundIndex(buffer);
     }
     else { // Precache all possible sounds
+        char noise[MAX_QPATH * 2];
+        Q_FormatFromPrintf(noise, ent->paintarget, "a target_speaker's noise");
         for (i = 0; i < ent->sounds; i++) {
-            ent->noise_index = G_SoundIndex(va(ent->paintarget, i + 1));
+            ent->noise_index = G_SoundIndex(Q_Format(fmt::runtime(noise), i + 1).c_str());
         }
     }
 
@@ -329,7 +333,7 @@ void target_laser_start(gentity_t* self)
     if (self->target) {
         ent = G_Find(nullptr, FOFS(targetname), self->target);
         if (!ent) {
-            Com_Printf("%s at %s: %s is a bad target\n", self->classname, vtos(self->s.origin), self->target);
+            Q_Println("{} at {}: {} is a bad target", self->classname, vtos(self->s.origin), self->target);
         }
         G_SetEnemy(self, ent);
     }
@@ -370,7 +374,7 @@ void target_teleporter_use(gentity_t* self, gentity_t* other, gentity_t* activat
 
     dest = G_PickTarget(self->target);
     if (!dest) {
-        Com_Printf("Couldn't find teleporter destination\n");
+        Q_Println("Couldn't find teleporter destination");
         return;
     }
 
@@ -383,7 +387,7 @@ The activator will be teleported away.
 void SP_target_teleporter(gentity_t* self)
 {
     if (!self->targetname)
-        Com_Printf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
+        Q_Println("untargeted {} at {}", self->classname, vtos(self->s.origin));
 
     self->e_UseFunc = useFunc_t::useF_target_teleporter_use;
 }
@@ -568,17 +572,17 @@ void target_counter_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         return;
     }
 
-    // Com_Printf("target_counter %s used by %s, entnum %d\n", self->targetname, activator->targetname, activator->s.number );
+    // Q_Println("target_counter {} used by {}, entnum {}", self->targetname, activator->targetname, activator->s.number);
     self->count--;
 
     if (activator) {
-        Quake3Game()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_VERBOSE, "target_counter %s used by %s (%d/%d)\n", self->targetname,
-                                 activator->targetname, (self->max_health - self->count), self->max_health);
+        Quake3Game()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_VERBOSE, "target_counter {} used by {} ({}/{})", self->targetname,
+                                   activator->targetname, (self->max_health - self->count), self->max_health);
     }
 
     if (self->count) {
         if (self->target2) {
-            // Com_Printf("target_counter %s firing target2 from %s, entnum %d\n", self->targetname, activator->targetname, activator->s.number );
+            // Q_Println("target_counter {} firing target2 from {}, entnum {}", self->targetname, activator->targetname, activator->s.number);
             G_UseTargets2(self, activator, self->target2);
         }
         return;
@@ -629,7 +633,7 @@ void target_random_use(gentity_t* self, gentity_t* other, gentity_t* activator)
     int t_count = 0, pick;
     gentity_t* t = nullptr;
 
-    // Com_Printf("target_random %s used by %s (entnum %d)\n", self->targetname, activator->targetname, activator->s.number );
+    // Q_Println("target_random {} used by {} (entnum {})", self->targetname, activator->targetname, activator->s.number);
     G_ActivateBehavior(self, bSet_t::BSET_USE);
 
     if (self->spawnflags & 1) {
@@ -663,7 +667,7 @@ void target_random_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         }
 
         if (t == self) {
-            //				Com_Warning("Entity used itself.\n");
+            //				Q_PrintlnWarning("Entity used itself.");
         }
         else if (t_count == pick) {
             if (t->e_UseFunc != useFunc_t::useF_NULL) // check can be omitted
@@ -674,7 +678,7 @@ void target_random_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         }
 
         if (!self->inuse) {
-            Com_Printf("entity was removed while using targets\n");
+            Q_Println("entity was removed while using targets");
             return;
         }
     }
@@ -693,7 +697,7 @@ void scriptrunner_run(gentity_t* self)
     {
         char	newname[MAX_FILENAME_LENGTH];
 
-        sprintf((char *) &newname, "%s/%s", Q3_SCRIPT_DIR, self->behaviorSet[bSet_t::BSET_USE] );
+        Q_FormatTo((char *) &newname, "{}/{}", Q3_SCRIPT_DIR, self->behaviorSet[bSet_t::BSET_USE]);
 
         ICARUS_RunScript( self, newname );
     }
@@ -713,34 +717,34 @@ void scriptrunner_run(gentity_t* self)
     if (self->behaviorSet[bSet_t::BSET_USE]) {
         if (self->spawnflags & 1) {
             if (!self->activator) {
-                Quake3Game()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "target_scriptrunner tried to run on invalid entity!\n");
+                Quake3Game()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "target_scriptrunner tried to run on invalid entity!");
                 return;
             }
 
             if (self->activator->m_iIcarusID == IIcarusInterface::ICARUS_INVALID) { // Need to be initialized through ICARUS
                 if (!self->activator->script_targetname || !self->activator->script_targetname[0]) {
                     // We don't have a script_targetname, so create a new one
-                    self->activator->script_targetname = va("newICARUSEnt%d", numNewICARUSEnts++);
+                    self->activator->script_targetname = G_NewString(Q_Format("newICARUSEnt{}", numNewICARUSEnts++).c_str());
                 }
 
                 if (Quake3Game()->ValidEntity(self->activator)) {
                     Quake3Game()->InitEntity(self->activator);
                 }
                 else {
-                    Quake3Game()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "target_scriptrunner tried to run on invalid ICARUS activator!\n");
+                    Quake3Game()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "target_scriptrunner tried to run on invalid ICARUS activator!");
                     return;
                 }
             }
 
-            Quake3Game()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_VERBOSE, "target_scriptrunner running %s on activator %s\n",
-                                     self->behaviorSet[bSet_t::BSET_USE], self->activator->targetname);
+            Quake3Game()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_VERBOSE, "target_scriptrunner running {} on activator {}",
+                                       self->behaviorSet[bSet_t::BSET_USE], self->activator->targetname);
 
             Quake3Game()->RunScript(self->activator, self->behaviorSet[bSet_t::BSET_USE]);
         }
         else {
             if (self->activator) {
-                Quake3Game()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_VERBOSE, "target_scriptrunner %s used by %s\n", self->targetname,
-                                         self->activator->targetname);
+                Quake3Game()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_VERBOSE, "target_scriptrunner {} used by {}", self->targetname,
+                                           self->activator->targetname);
             }
             G_ActivateBehavior(self, bSet_t::BSET_USE);
         }
@@ -783,7 +787,7 @@ delay - how long to wait after use to run script
 void SP_target_scriptrunner(gentity_t* self)
 {
     if (!self->behaviorSet[bSet_t::BSET_USE]) {
-        Com_Printf(S_COLOR_RED "SP_target_scriptrunner %s has no USESCRIPT\n", self->targetname);
+        Q_Println(S_COLOR_RED "SP_target_scriptrunner {} has no USESCRIPT", self->targetname);
     }
     if (self->spawnflags & 128) {
         self->svFlags |= svFlags_t::SVF_INACTIVE;
@@ -815,14 +819,14 @@ void target_gravity_change_use(gentity_t* self, gentity_t* other, gentity_t* act
     G_ActivateBehavior(self, bSet_t::BSET_USE);
 
     if (self->spawnflags & 1) {
-        gi.cvar_set("g_gravity", va("%f", self->speed));
+        gi.cvar_set("g_gravity", Q_Format("{:f}", self->speed).c_str());
     }
     else if (activator->client) {
         int grav = Q_floorf(self->speed);
         /*
         if ( activator->client->ps.gravity != grav )
         {
-            Com_Printf("%s gravity changed to %d\n", activator->targetname, grav );
+            Q_Println("{} gravity changed to {}", activator->targetname, grav);
         }
         */
         activator->client->ps.gravity = grav;
@@ -849,7 +853,7 @@ void target_friction_change_use(gentity_t* self, gentity_t* other, gentity_t* ac
     G_ActivateBehavior(self, bSet_t::BSET_USE);
 
     if (self->spawnflags & 1) { // FIXME - make a global?
-                                // gi.Cvar_Set("g_friction", va("%d", self->health));
+                                // gi.Cvar_Set("g_friction", Q_Format("{}", self->health).c_str());
     }
     else if (activator->client) {
         activator->client->ps.friction = self->health;
@@ -878,12 +882,13 @@ void set_mission_stats_cvars(void)
         return;
     }
 
-    gi.cvar_set("ui_stats_enemieskilled", va("%d", client->sess.missionStats.enemiesKilled)); // pass this on to the menu
+    gi.cvar_set("ui_stats_enemieskilled", Q_Format("{}", client->sess.missionStats.enemiesKilled).c_str()); // pass this on to the menu
 
     if (cg_entities[0].gent->client->sess.missionStats.totalSecrets) {
         cgi_SP_GetStringTextString("SP_INGAME_SECRETAREAS_OF", text, sizeof(text));
-        gi.cvar_set("ui_stats_secretsfound", va("%d %s %d", cg_entities[0].gent->client->sess.missionStats.secretsFound, text,
-                                                cg_entities[0].gent->client->sess.missionStats.totalSecrets));
+        gi.cvar_set("ui_stats_secretsfound", Q_Format("{} {} {}", cg_entities[0].gent->client->sess.missionStats.secretsFound, text,
+                                                      cg_entities[0].gent->client->sess.missionStats.totalSecrets)
+                                                 .c_str());
     }
     else // Setting ui_stats_secretsfound to 0 will hide the text on screen
     {
@@ -902,44 +907,44 @@ void set_mission_stats_cvars(void)
 
     if (wpn != weapon_t::WP_NONE) {
         gitem_t* wItem = FindItemForWeapon(wpn);
-        cgi_SP_GetStringTextString(va("SP_INGAME_%s", wItem->classname), text, sizeof(text));
-        gi.cvar_set("ui_stats_fave", va("%s", text)); // pass this on to the menu
+        cgi_SP_GetStringTextString(Q_Format("SP_INGAME_{}", wItem->classname).c_str(), text, sizeof(text));
+        gi.cvar_set("ui_stats_fave", Q_Format("{}", text).c_str()); // pass this on to the menu
     }
 
-    gi.cvar_set("ui_stats_shots", va("%d", client->sess.missionStats.shotsFired)); // pass this on to the menu
+    gi.cvar_set("ui_stats_shots", Q_Format("{}", client->sess.missionStats.shotsFired).c_str()); // pass this on to the menu
 
-    gi.cvar_set("ui_stats_hits", va("%d", client->sess.missionStats.hits)); // pass this on to the menu
+    gi.cvar_set("ui_stats_hits", Q_Format("{}", client->sess.missionStats.hits).c_str()); // pass this on to the menu
 
     const float percent = cg_entities[0].gent->client->sess.missionStats.shotsFired
                               ? 100.0f * (float)cg_entities[0].gent->client->sess.missionStats.hits / cg_entities[0].gent->client->sess.missionStats.shotsFired
                               : 0;
-    gi.cvar_set("ui_stats_accuracy", va("%.2f%%", percent)); // pass this on to the menu
+    gi.cvar_set("ui_stats_accuracy", Q_Format("{:.2f}%", percent).c_str()); // pass this on to the menu
 
-    gi.cvar_set("ui_stats_thrown", va("%d", client->sess.missionStats.saberThrownCnt)); // pass this on to the menu
+    gi.cvar_set("ui_stats_thrown", Q_Format("{}", client->sess.missionStats.saberThrownCnt).c_str()); // pass this on to the menu
 
-    gi.cvar_set("ui_stats_blocks", va("%d", client->sess.missionStats.saberBlocksCnt));
-    gi.cvar_set("ui_stats_legattacks", va("%d", client->sess.missionStats.legAttacksCnt));
-    gi.cvar_set("ui_stats_armattacks", va("%d", client->sess.missionStats.armAttacksCnt));
-    gi.cvar_set("ui_stats_bodyattacks", va("%d", client->sess.missionStats.torsoAttacksCnt));
+    gi.cvar_set("ui_stats_blocks", Q_Format("{}", client->sess.missionStats.saberBlocksCnt).c_str());
+    gi.cvar_set("ui_stats_legattacks", Q_Format("{}", client->sess.missionStats.legAttacksCnt).c_str());
+    gi.cvar_set("ui_stats_armattacks", Q_Format("{}", client->sess.missionStats.armAttacksCnt).c_str());
+    gi.cvar_set("ui_stats_bodyattacks", Q_Format("{}", client->sess.missionStats.torsoAttacksCnt).c_str());
 
-    gi.cvar_set("ui_stats_absorb", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_ABSORB]));
-    gi.cvar_set("ui_stats_heal", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_HEAL]));
-    gi.cvar_set("ui_stats_mindtrick", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_TELEPATHY]));
-    gi.cvar_set("ui_stats_protect", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_PROTECT]));
+    gi.cvar_set("ui_stats_absorb", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_ABSORB]).c_str());
+    gi.cvar_set("ui_stats_heal", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_HEAL]).c_str());
+    gi.cvar_set("ui_stats_mindtrick", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_TELEPATHY]).c_str());
+    gi.cvar_set("ui_stats_protect", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_PROTECT]).c_str());
 
-    gi.cvar_set("ui_stats_jump", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_LEVITATION]));
-    gi.cvar_set("ui_stats_pull", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_PULL]));
-    gi.cvar_set("ui_stats_push", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_PUSH]));
-    gi.cvar_set("ui_stats_sense", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_SEE]));
-    gi.cvar_set("ui_stats_speed", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_SPEED]));
-    gi.cvar_set("ui_stats_defense", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_SABER_DEFENSE]));
-    gi.cvar_set("ui_stats_offense", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_SABER_OFFENSE]));
-    gi.cvar_set("ui_stats_throw", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_SABERTHROW]));
+    gi.cvar_set("ui_stats_jump", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_LEVITATION]).c_str());
+    gi.cvar_set("ui_stats_pull", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_PULL]).c_str());
+    gi.cvar_set("ui_stats_push", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_PUSH]).c_str());
+    gi.cvar_set("ui_stats_sense", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_SEE]).c_str());
+    gi.cvar_set("ui_stats_speed", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_SPEED]).c_str());
+    gi.cvar_set("ui_stats_defense", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_SABER_DEFENSE]).c_str());
+    gi.cvar_set("ui_stats_offense", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_SABER_OFFENSE]).c_str());
+    gi.cvar_set("ui_stats_throw", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_SABERTHROW]).c_str());
 
-    gi.cvar_set("ui_stats_drain", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_DRAIN]));
-    gi.cvar_set("ui_stats_grip", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_GRIP]));
-    gi.cvar_set("ui_stats_lightning", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_LIGHTNING]));
-    gi.cvar_set("ui_stats_rage", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_RAGE]));
+    gi.cvar_set("ui_stats_drain", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_DRAIN]).c_str());
+    gi.cvar_set("ui_stats_grip", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_GRIP]).c_str());
+    gi.cvar_set("ui_stats_lightning", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_LIGHTNING]).c_str());
+    gi.cvar_set("ui_stats_rage", Q_Format("{}", client->sess.missionStats.forceUsed[forcePowers_t::FP_RAGE]).c_str());
 }
 
 #include <cgame/cg_media.h>                                                      //access to cgs
@@ -955,12 +960,12 @@ void target_level_change_use(gentity_t* self, gentity_t* other, gentity_t* activ
         G_ChangeMap(self->message, self->target, ((self->spawnflags & 1) != 0));
     }
     if (self->count >= 0) {
-        gi.cvar_set("tier_storyinfo", va("%i", self->count));
+        gi.cvar_set("tier_storyinfo", Q_Format("{}", self->count).c_str());
         if (level.mapname[0] == 't' && level.mapname[2] == '_' && (level.mapname[1] == '1' || level.mapname[1] == '2' || level.mapname[1] == '3')) {
             char s[2048];
             gi.Cvar_VariableStringBuffer("tiers_complete", s, sizeof(s)); // get the current list
             if (*s) {
-                gi.cvar_set("tiers_complete", va("%s %s", s, level.mapname)); // strcat this level into the existing list
+                gi.cvar_set("tiers_complete", Q_Format("{} {}", s, level.mapname).c_str()); // strcat this level into the existing list
             }
             else {
                 gi.cvar_set("tiers_complete", level.mapname); // set this level into the list
@@ -989,21 +994,21 @@ NO_STORYSOUND - will not play storyinfo wav file, even if you '++' or set tier_s
 void SP_target_level_change(gentity_t* self)
 {
     if (!self->message) {
-        Com_Error(errorParm_t::ERR_DROP, "target_level_change with no mapname!\n");
+        Q_Error(errorParm_t::ERR_DROP, "target_level_change with no mapname!");
         return;
     }
 
     char* s;
     if (G_SpawnString("tier_storyinfo", "", &s)) {
         if (*s == '+') {
-            self->noise_index = G_SoundIndex(va("sound/chars/tiervictory/%s.mp3", level.mapname));
+            self->noise_index = G_SoundIndex(Q_Format("sound/chars/tiervictory/{}.mp3", level.mapname).c_str());
             self->count = gi.Cvar_VariableIntegerValue("tier_storyinfo") + 1;
-            G_SoundIndex(va("sound/chars/storyinfo/%d.mp3", self->count)); // cache for menu
+            G_SoundIndex(Q_Format("sound/chars/storyinfo/{}.mp3", self->count).c_str()); // cache for menu
         }
         else {
             self->count = atoi(s);
             if (!(self->spawnflags & 2)) {
-                self->noise_index = G_SoundIndex(va("sound/chars/storyinfo/%d.mp3", self->count));
+                self->noise_index = G_SoundIndex(Q_Format("sound/chars/storyinfo/{}.mp3", self->count).c_str());
             }
         }
 
@@ -1096,7 +1101,7 @@ void SP_target_play_music(gentity_t* self)
     char* s;
     G_SetOrigin(self, self->s.origin);
     if (!G_SpawnString("music", "", &s)) {
-        Com_Error(errorParm_t::ERR_DROP, "target_play_music without a music key at %s", vtos(self->s.origin));
+        Q_Error(errorParm_t::ERR_DROP, "target_play_music without a music key at {}", vtos(self->s.origin));
     }
     self->message = G_NewString(s);
     self->e_UseFunc = useFunc_t::useF_target_play_music_use;
@@ -1119,7 +1124,7 @@ void SP_target_play_music(gentity_t* self)
 void target_autosave_use(gentity_t* self, gentity_t* other, gentity_t* activator)
 {
     G_ActivateBehavior(self, bSet_t::BSET_USE);
-    // gi.SendServerCommand( nullptr, "cp @SP_INGAME_CHECKPOINT" );
+    // gi.SendServerCommand(nullptr, "cp @SP_INGAME_CHECKPOINT");
     CG_CenterPrint("@SP_INGAME_CHECKPOINT", SCREEN_HEIGHT * 0.25); // jump the network
 
     gi.SendConsoleCommand("wait 2;save auto\n");
@@ -1163,6 +1168,6 @@ void SP_target_secret(gentity_t* self)
     self->e_UseFunc = useFunc_t::useF_target_secret_use;
     self->noise_index = G_SoundIndex("sound/interface/secret_area");
     if (self->count) {
-        gi.cvar_set("newTotalSecrets", va("%i", self->count));
+        gi.cvar_set("newTotalSecrets", Q_Format("{}", self->count).c_str());
     }
 }

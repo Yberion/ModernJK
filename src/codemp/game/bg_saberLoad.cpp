@@ -134,12 +134,12 @@ bool BG_ParseLiteral(const char** data, const char* string)
 
     token = COM_ParseExt(data, true);
     if (!token[0]) {
-        Com_Printf("unexpected EOF\n");
+        Q_Println("unexpected EOF");
         return true;
     }
 
     if (Q_stricmp(token, string)) {
-        Com_Printf("required string '%s' missing\n", string);
+        Q_Println("required string '{}' missing", string);
         return true;
     }
 
@@ -338,9 +338,9 @@ bool WP_UseFirstValidSaberStyle(saberInfo_t* saber1, saberInfo_t* saber2, int sa
 
     if (!validStyles) {
         if (dualSabers)
-            Com_Warning("No valid saber styles for %s/%s", saber1->name, saber2->name);
+            Q_PrintlnWarning("No valid saber styles for {}/{}", saber1->name, saber2->name);
         else
-            Com_Warning("No valid saber styles for %s", saber1->name);
+            Q_PrintlnWarning("No valid saber styles for {}", saber1->name);
     }
 
     // using an invalid style and have at least one valid style to use, so switch to it
@@ -615,7 +615,7 @@ static void Saber_ParseNumBlades(saberInfo_t* saber, const char** p)
         return;
     }
     if (n < 1 || n > MAX_BLADES) {
-        Com_Error(errorParm_t::ERR_DROP, "WP_SaberParseParms: saber %s has illegal number of blades (%d) max: %d", saber->name, n, MAX_BLADES);
+        Q_Error(errorParm_t::ERR_DROP, "WP_SaberParseParms: saber {} has illegal number of blades ({}) max: {}", saber->name, n, MAX_BLADES);
         return;
     }
     saber->numBlades = n;
@@ -2189,7 +2189,7 @@ bool WP_SaberParseParms(const char* saberName, saberInfo_t* saber)
     while (1) {
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            Com_PrintError("unexpected EOF while parsing '%s' (WP_SaberParseParms)\n", useSaber);
+            Q_PrintlnError("unexpected EOF while parsing '{}' (WP_SaberParseParms)", useSaber);
             return false;
         }
 
@@ -2202,7 +2202,7 @@ bool WP_SaberParseParms(const char* saberName, saberInfo_t* saber)
             continue;
         }
 
-        Com_Warning("unknown keyword '%s' while parsing saber '%s'\n", token, useSaber);
+        Q_PrintlnWarning("unknown keyword '{}' while parsing saber '{}'", token, useSaber);
         SkipRestOfLine(&p);
     }
 
@@ -2250,7 +2250,7 @@ bool WP_SaberParseParm(const char* saberName, const char* parmname, char* saberD
     while (1) {
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            Com_PrintError("unexpected EOF while parsing '%s'\n", saberName);
+            Q_PrintlnError("unexpected EOF while parsing '{}'", saberName);
             return false;
         }
 
@@ -2372,19 +2372,19 @@ void WP_SaberLoadParms(void)
     for (i = 0; i < fileCnt; i++, holdChar += saberExtFNLen + 1) {
         saberExtFNLen = strlen(holdChar);
 
-        len = trap->FS_Open(va("ext_data/sabers/%s", holdChar), &f, fsMode_t::FS_READ);
+        len = trap->FS_Open(Q_Format("ext_data/sabers/{}", holdChar).c_str(), &f, fsMode_t::FS_READ);
 
         if (!f) {
-            Com_Printf("WP_SaberLoadParms: error reading file: %s\n", holdChar);
+            Q_Println("WP_SaberLoadParms: error reading file: {}", holdChar);
             continue;
         }
 
         if ((totallen + len + 1) >= MAX_SABER_DATA_SIZE) {
             trap->FS_Close(f);
 #ifdef UI_BUILD
-            Com_Error(errorParm_t::ERR_FATAL, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading %s", holdChar);
+            Q_Error(errorParm_t::ERR_FATAL, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading {}", holdChar);
 #else
-            Com_Error(errorParm_t::ERR_DROP, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading %s", holdChar);
+            Q_Error(errorParm_t::ERR_DROP, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading {}", holdChar);
 #endif
         }
 
@@ -2456,7 +2456,7 @@ void WP_SaberGetHiltInfo(const char* singleHilts[MAX_SABER_HILTS], const char* s
                 staffHilts[numStaffHilts++] = saberName;
             }
             else {
-                Com_Warning("too many two-handed sabers, ignoring saber '%s'\n", saberName);
+                Q_PrintlnWarning("too many two-handed sabers, ignoring saber '{}'", saberName);
             }
         }
         else {
@@ -2465,7 +2465,7 @@ void WP_SaberGetHiltInfo(const char* singleHilts[MAX_SABER_HILTS], const char* s
                 singleHilts[numSingleHilts++] = saberName;
             }
             else {
-                Com_Warning("too many one-handed sabers, ignoring saber '%s'\n", saberName);
+                Q_PrintlnWarning("too many one-handed sabers, ignoring saber '{}'", saberName);
             }
         }
         // skip the whole braced section and move on to the next entry

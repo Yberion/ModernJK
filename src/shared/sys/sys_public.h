@@ -94,7 +94,11 @@ void Sys_UnloadDll(void* dllHandle);
 
 const char* Sys_GetCurrentUser(void);
 
-void NORETURN QDECL Sys_Error(const char* error, ...) __attribute__((format(printf, 1, 2)));
+NORETURN void Sys_VError(fmt::string_view error, fmt::format_args args);
+template <typename... T> NORETURN void Sys_Error(fmt::format_string<T...> error, T&&... args)
+{
+    Sys_VError(error.get(), Q_FormatArgs(args...));
+}
 void NORETURN Sys_Quit(void);
 char* Sys_GetClipboardData(void); // note that this isn't journaled...
 

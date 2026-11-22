@@ -29,7 +29,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cl_mp3.h"
 
 #include <string>
-#include <inttypes.h>
 
 /*
 ===============================================================================
@@ -111,7 +110,7 @@ void DumpChunks(void)
         memcpy(str, data_p, 4);
         data_p += 4;
         iff_chunk_len = GetLittleLong();
-        Com_Printf("0x%" PRIxPTR " : %s (%d)\n", (uintptr_t)(data_p - 4), str, iff_chunk_len);
+        Q_Println("0x{:x} : {} ({})", (uintptr_t)(data_p - 4), str, iff_chunk_len);
         data_p += (iff_chunk_len + 1) & ~1;
     } while (data_p < iff_end);
 }
@@ -137,7 +136,7 @@ wavinfo_t GetWavinfo(const char* name, byte* wav, int wavlength)
     // find "RIFF" chunk
     FindChunk("RIFF");
     if (!(data_p && !strncmp((char*)data_p + 8, "WAVE", 4))) {
-        Com_Printf("Missing RIFF/WAVE chunks\n");
+        Q_Println("Missing RIFF/WAVE chunks");
         return info;
     }
 
@@ -147,7 +146,7 @@ wavinfo_t GetWavinfo(const char* name, byte* wav, int wavlength)
 
     FindChunk("fmt ");
     if (!data_p) {
-        Com_Printf("Missing fmt chunk\n");
+        Q_Println("Missing fmt chunk");
         return info;
     }
     data_p += 8;
@@ -158,14 +157,14 @@ wavinfo_t GetWavinfo(const char* name, byte* wav, int wavlength)
     info.width = GetLittleShort() / 8;
 
     if (info.format != wavFormat_t::WAV_FORMAT_PCM) {
-        Com_Printf("Microsoft PCM format only\n");
+        Q_Println("Microsoft PCM format only");
         return info;
     }
 
     // find data chunk
     FindChunk("data");
     if (!data_p) {
-        Com_Printf("Missing data chunk\n");
+        Q_Println("Missing data chunk");
         return info;
     }
 
@@ -174,7 +173,7 @@ wavinfo_t GetWavinfo(const char* name, byte* wav, int wavlength)
 
     if (info.samples) {
         if (samples < info.samples)
-            Com_Error(errorParm_t::ERR_DROP, "Sound %s has a bad loop length", name);
+            Q_Error(errorParm_t::ERR_DROP, "Sound {} has a bad loop length", name);
     }
     else
         info.samples = samples;
@@ -292,8 +291,8 @@ std::string strErrors;
 
 void R_CheckMP3s(const char* psDir)
 {
-    //	Com_Printf("Scanning Dir: %s\n",psDir);
-    Com_Printf("."); // stops useful info scrolling off screen
+    //	Q_Println("Scanning Dir: {}", psDir);
+    Q_Print("."); // stops useful info scrolling off screen
 
     char **sysFiles, **dirFiles;
     int numSysFiles, i, numdirs;
@@ -302,7 +301,7 @@ void R_CheckMP3s(const char* psDir)
     if (numdirs > 2) {
         for (i = 2; i < numdirs; i++) {
             char sDirName[MAX_QPATH];
-            sprintf(sDirName, "%s\\%s", psDir, dirFiles[i]);
+            Q_FormatTo(sDirName, "{}\\{}", psDir, dirFiles[i]);
             R_CheckMP3s(sDirName);
         }
     }
@@ -310,9 +309,9 @@ void R_CheckMP3s(const char* psDir)
     sysFiles = FS_ListFiles(psDir, ".mp3", &numSysFiles);
     for (i = 0; i < numSysFiles; i++) {
         char sFilename[MAX_QPATH];
-        sprintf(sFilename, "%s\\%s", psDir, sysFiles[i]);
+        Q_FormatTo(sFilename, "{}\\{}", psDir, sysFiles[i]);
 
-        Com_Printf("%sFound file: %s", !i ? "\n" : "", sFilename);
+        Q_Print("{}Found file: {}", !i ? "\n" : "", sFilename);
 
         iFilesFound++;
 
@@ -329,7 +328,7 @@ void R_CheckMP3s(const char* psDir)
             bool qbTagNeedsUpdating = (/* qbForceRescan || */ !MP3_ReadSpecialTagInfo(pbData, iSize, &pTAG)) ? true : false;
 
             if (pTAG == nullptr || qbTagNeedsUpdating || qbForceRescan) {
-                Com_Printf(" ( Updating )\n");
+                Q_Println(" ( Updating )");
 
                 // I need to scan this file to get the volume...
                 //
@@ -364,8 +363,8 @@ void R_CheckMP3s(const char* psDir)
 
                             iActualUnpackedSize = MP3_UnpackRawPCM(sFilename, pbData, iSize, pbUnpackBuffer);
                             if (iActualUnpackedSize != iRawPCMDataSize) {
-                                Com_Error(errorParm_t::ERR_DROP, "******* Whoah! MP3 %s unpacked to %d bytes, but size calc said %d!\n", sFilename,
-                                          iActualUnpackedSize, iRawPCMDataSize);
+                                Q_Error(errorParm_t::ERR_DROP, "******* Whoah! MP3 {} unpacked to {} bytes, but size calc said {}!", sFilename,
+                                        iActualUnpackedSize, iRawPCMDataSize);
                             }
 
                             // fake up a WAV structure so I can use the other post-load sound code such as volume calc for lip-synching
@@ -395,7 +394,7 @@ void R_CheckMP3s(const char* psDir)
                                 pSFX->bDefaultSound = false;
                             }
 
-                            //							OutputDebugString(va("File: \"%s\"   MaxVol %f\n",sFilename,pSFX->fVolRange));
+                            //							OutputDebugString(Q_Format("File: \"{}\"   MaxVol {:f}\n", sFilename, pSFX->fVolRange).c_str());
 
                             // other stuff...
                             //
@@ -423,44 +422,47 @@ void R_CheckMP3s(const char* psDir)
                                 strncpy(pTAG->title, Filename_WithoutPath(Filename_WithoutExt(sFilename)), sizeof(pTAG->title));
                                 strncpy(pTAG->artist, "Raven Software", sizeof(pTAG->artist));
                                 strncpy(pTAG->year, "2002", sizeof(pTAG->year));
-                                strncpy(pTAG->comment, va("%s %g", sKEY_MAXVOL, fMaxVol), sizeof(pTAG->comment));
-                                strncpy(pTAG->album, va("%s %d", sKEY_UNCOMP, iActualUnpackedSize), sizeof(pTAG->album));
+                                // the fields padded with zeros, as strncpy did
+                                memset(pTAG->comment, 0, sizeof(pTAG->comment));
+                                memset(pTAG->album, 0, sizeof(pTAG->album));
+                                Q_FormatTo(pTAG->comment, "{} {:g}", sKEY_MAXVOL, fMaxVol);
+                                Q_FormatTo(pTAG->album, "{} {}", sKEY_UNCOMP, iActualUnpackedSize);
 
                                 if (FS_Write(pTAG, sizeof(*pTAG), f)) // NZ = success
                                 {
                                     iFilesUpdated++;
                                 }
                                 else {
-                                    Com_Printf("*********** Failed write to file \"%s\"!\n", sFilename);
+                                    Q_Println("*********** Failed write to file \"{}\"!", sFilename);
                                     iErrors++;
-                                    strErrors += va("Failed to write: \"%s\"\n", sFilename);
+                                    strErrors += Q_Format("Failed to write: \"{}\"\n", sFilename).c_str();
                                 }
                             }
                             else {
-                                Com_Printf("*********** Failed write to file \"%s\"!\n", sFilename);
+                                Q_Println("*********** Failed write to file \"{}\"!", sFilename);
                                 iErrors++;
-                                strErrors += va("Failed to write: \"%s\"\n", sFilename);
+                                strErrors += Q_Format("Failed to write: \"{}\"\n", sFilename).c_str();
                             }
                             FS_FCloseFile(f);
                         }
                         else {
-                            Com_Printf("*********** Failed to re-open for write \"%s\"!\n", sFilename);
+                            Q_Println("*********** Failed to re-open for write \"{}\"!", sFilename);
                             iErrors++;
-                            strErrors += va("Failed to re-open for write: \"%s\"\n", sFilename);
+                            strErrors += Q_Format("Failed to re-open for write: \"{}\"\n", sFilename).c_str();
                         }
                     }
                     else {
-                        Com_Error(errorParm_t::ERR_DROP, "******* This MP3 should be deleted: \"%s\"\n", sFilename);
+                        Q_Error(errorParm_t::ERR_DROP, "******* This MP3 should be deleted: \"{}\"", sFilename);
                     }
                 }
                 else {
-                    Com_Printf("*********** File was not a valid MP3!: \"%s\"\n", sFilename);
+                    Q_Println("*********** File was not a valid MP3!: \"{}\"", sFilename);
                     iErrors++;
-                    strErrors += va("Not game-legal MP3 format: \"%s\"\n", sFilename);
+                    strErrors += Q_Format("Not game-legal MP3 format: \"{}\"\n", sFilename).c_str();
                 }
             }
             else {
-                Com_Printf(" ( OK )\n");
+                Q_Println(" ( OK )");
             }
 
             FS_FreeFile(pbData);
@@ -480,7 +482,7 @@ void S_MP3_CalcVols_f(void)
 
     if (Cmd_Argc() == 1 || Cmd_Argc() > 4) // 3 optional arguments
     {
-        Com_Printf(sUsage);
+        Q_Print("{}", sUsage);
         return;
     }
 
@@ -504,7 +506,7 @@ void S_MP3_CalcVols_f(void)
             else {
                 // unknown switch...
                 //
-                Com_Printf(sUsage);
+                Q_Print("{}", sUsage);
                 return;
             }
             continue;
@@ -512,13 +514,13 @@ void S_MP3_CalcVols_f(void)
         strcpy(sStartDir, Cmd_Argv(i));
     }
 
-    Com_Printf("Starting Scan for Updates in Dir: %s\n", sStartDir);
+    Q_Println("Starting Scan for Updates in Dir: {}", sStartDir);
     R_CheckMP3s(sStartDir);
 
-    Com_Printf("\n%d files found/scanned, %d files updated      ( %d errors total)\n", iFilesFound, iFilesUpdated, iErrors);
+    Q_Println("\n{} files found/scanned, {} files updated      ( {} errors total)", iFilesFound, iFilesUpdated, iErrors);
 
     if (iErrors) {
-        Com_Printf("\nBad Files:\n%s\n", strErrors.c_str());
+        Q_Println("\nBad Files:\n{}", strErrors);
     }
 }
 
@@ -607,7 +609,7 @@ static bool S_LoadSound_FileLoadAndNameAdjuster(char* psFilename, byte** pData, 
                 // yep, so fallback to re-try the english...
                 //
 #ifndef FINAL_BUILD
-                Com_Printf(S_COLOR_YELLOW "Foreign file missing: \"%s\"! (using English...)\n", psFilename);
+                Q_Println(S_COLOR_YELLOW "Foreign file missing: \"{}\"! (using English...)", psFilename);
 #endif
 
                 memcpy(psVoice, "chars", 5);
@@ -689,7 +691,7 @@ static bool S_LoadSound_Actual(sfx_t* sfx)
     //
     psExt = &sLoadName[strlen(sLoadName) - 4];
     if (*psExt != '.') {
-        // Com_Warning( "soundname '%s' does not have 3-letter extension\n",sLoadName);
+        // Q_PrintlnWarning("soundname '{}' does not have 3-letter extension", sLoadName);
         COM_DefaultExtension(sLoadName, sizeof(sLoadName), ".wav"); // so psExt below is always valid
         psExt = &sLoadName[strlen(sLoadName) - 4];
         len = strlen(sLoadName);
@@ -709,12 +711,12 @@ static bool S_LoadSound_Actual(sfx_t* sfx)
 
             if (S_LoadSound_DirIsAllowedToKeepMP3s(sfx->sSoundName) // NOT sLoadName, this uses original un-languaged name
                 && MP3Stream_InitFromFile(sfx, data, size, sLoadName, iRawPCMDataSize + 2304 /* + 1 MP3 frame size, jic */, false)) {
-                //				Com_DPrintf("(Keeping file \"%s\" as MP3)\n",sLoadName);
+                //				Q_DPrintln("(Keeping file \"{}\" as MP3)", sLoadName);
             }
             else {
                 // small file, not worth keeping as MP3 since it would increase in size (with MP3 header etc)...
                 //
-                Com_DPrintf("S_LoadSound: Unpacking MP3 file \"%s\" to wav.\n", sLoadName);
+                Q_DPrintln("S_LoadSound: Unpacking MP3 file \"{}\" to wav.", sLoadName);
                 //
                 // unpack and convert into WAV...
                 //
@@ -725,8 +727,8 @@ static bool S_LoadSound_Actual(sfx_t* sfx)
                         int iResultBytes = MP3_UnpackRawPCM(sLoadName, data, size, pbUnpackBuffer, false);
 
                         if (iResultBytes != iRawPCMDataSize) {
-                            Com_Printf(S_COLOR_YELLOW "**** MP3 %s final unpack size %d different to previous value %d\n", sLoadName, iResultBytes,
-                                       iRawPCMDataSize);
+                            Q_Println(S_COLOR_YELLOW "**** MP3 {} final unpack size {} different to previous value {}", sLoadName, iResultBytes,
+                                      iRawPCMDataSize);
                             // assert (iResultBytes == iRawPCMDataSize);
                         }
 
@@ -763,7 +765,7 @@ static bool S_LoadSound_Actual(sfx_t* sfx)
             }
         }
         else {
-            // MP3_IsValid() will already have printed any errors via Com_Printf at this point...
+            // MP3_IsValid() will already have printed any errors via Q_Println at this point...
             //
             FS_FreeFile(data);
             return false;
@@ -776,17 +778,17 @@ static bool S_LoadSound_Actual(sfx_t* sfx)
 
         info = GetWavinfo(sLoadName, data, size);
         if (info.channels != 1) {
-            Com_Printf("%s is a stereo wav file\n", sLoadName);
+            Q_Println("{} is a stereo wav file", sLoadName);
             FS_FreeFile(data);
             return false;
         }
 
         /*		if ( info.width == 1 ) {
-                    Com_Warning("%s is a 8 bit wav file\n", sLoadName);
+                    Q_PrintlnWarning("{} is a 8 bit wav file", sLoadName);
                 }
 
                 if ( info.rate != 22050 ) {
-                    Com_Warning("%s is not a 22kHz wav file\n", sLoadName);
+                    Q_PrintlnWarning("{} is not a 22kHz wav file", sLoadName);
                 }
         */
         samples = (short*)Z_Malloc(info.samples * sizeof(short) * 2, memtag::TAG_TEMP_WORKSPACE, false);

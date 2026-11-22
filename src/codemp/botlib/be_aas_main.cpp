@@ -83,7 +83,7 @@ int AAS_Initialized(void)
 void AAS_SetInitialized(void)
 {
     aasworld.initialized = true;
-    Com_Printf("AAS initialized.\n");
+    Q_Println("AAS initialized.");
 #ifdef DEBUG
     // create all the routing cache
     // AAS_CreateAllRoutingCache();
@@ -118,10 +118,10 @@ void AAS_ContinueInit(float time)
             AAS_Optimize();
         // save the AAS file
         if (AAS_WriteAASFile(aasworld.filename)) {
-            Com_Printf("%s written successfully\n", aasworld.filename);
+            Q_Println("{} written successfully", aasworld.filename);
         } // end if
         else {
-            Com_PrintError("couldn't write %s\n", aasworld.filename);
+            Q_PrintlnError("couldn't write {}", aasworld.filename);
         } // end else
     } // end if
     // initialize the routing
@@ -218,12 +218,12 @@ botlibError_t AAS_LoadFiles(const char* mapname)
     AAS_LoadBSPFile();
 
     // load the aas file
-    Com_sprintf(aasfile, MAX_PATH, "maps/%s.aas", mapname);
+    Q_FormatTo(std::span(aasfile, MAX_PATH), "maps/{}.aas", mapname);
     errnum = AAS_LoadAASFile(aasfile);
     if (errnum != botlibError_t::BLERR_NOERROR)
         return errnum;
 
-    Com_Printf("loaded %s\n", aasfile);
+    Q_Println("loaded {}", aasfile);
     strncpy(aasworld.filename, aasfile, MAX_PATH);
     return botlibError_t::BLERR_NOERROR;
 } // end of the function AAS_LoadFiles
@@ -321,5 +321,5 @@ void AAS_Shutdown(void)
     // NOTE: as soon as a new .bsp file is loaded the .bsp file memory is
     //  freed and reallocated, so there's no need to free that memory here
     // print shutdown
-    //	Com_Printf("AAS shutdown.\n");
+    //	Q_Println("AAS shutdown.");
 } // end of the function AAS_Shutdown

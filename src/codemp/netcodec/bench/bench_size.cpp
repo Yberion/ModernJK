@@ -24,10 +24,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // operation and nothing else.
 // Usage: netcodec_bench_size <trace.bin> ...   (train.bin, holdout.bin, captures.bin)
 #include <demo_trace.h>
+#include <fmt/base.h>
 
 #include <algorithm>
 #include <chrono>
-#include <cinttypes>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <map>
@@ -55,13 +56,13 @@ using Groups = std::map<std::string, Sizes>;
 
 void Report(const char* title, Groups& groups)
 {
-    std::printf("\n  %s\n    %-44s %8s %8s %5s %5s | %8s %6s\n", title, "", "n", "mean", "p95", "max", "engine", "ratio");
+    fmt::println("\n  {}\n    {:44} {:>8} {:>8} {:>5} {:>5} | {:>8} {:>6}", title, "", "n", "mean", "p95", "max", "engine", "ratio");
     for (auto& [key, g] : groups) {
         std::ranges::sort(g.v);
         const auto n = static_cast<double>(g.v.size());
         const double mean = static_cast<double>(g.coded) / n, em = static_cast<double>(g.engine) / n;
-        std::printf("    %-44.44s %8zu %8.1f %5u %5u | %8.1f %6.3f\n", key.c_str(), g.v.size(), mean, g.v[static_cast<size_t>(n * 0.95)].first,
-                    g.v.back().first, em, mean / em);
+        fmt::println("    {:44.44} {:8} {:8.1f} {:5} {:5} | {:8.1f} {:6.3f}", key, g.v.size(), mean, g.v[static_cast<size_t>(n * 0.95)].first, g.v.back().first,
+                     em, mean / em);
     }
 }
 
@@ -80,7 +81,7 @@ bool GameStateOnly(const Message& m) noexcept
 int main(int argc, char** argv)
 {
     if (argc < 2) {
-        std::fprintf(stderr, "usage: %s trace.bin ...\n", argv[0]);
+        fmt::println(stderr, "usage: {} trace.bin ...", argv[0]);
         return 2;
     }
     Groups all, snaps, byType, byInterval, byAge, byMap;
@@ -124,11 +125,11 @@ int main(int argc, char** argv)
         if (!in.Ok())
             return 2;
     }
-    std::printf("messages coded %zu, refused %zu; encoding %.0f ns per message\n", coded, refused,
-                static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(encodeTime).count()) / static_cast<double>(coded));
+    fmt::println("messages coded {}, refused {}; encoding {:.0f} ns per message", coded, refused,
+                 static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(encodeTime).count()) / static_cast<double>(coded));
     for (const auto& [set, g] : all)
-        std::printf("  all messages but the gamestate, %-8s coded %" PRIu64 " bytes, engine %" PRIu64 ", ratio %.3f\n", set.c_str(), g.coded, g.engine,
-                    static_cast<double>(g.coded) / static_cast<double>(g.engine));
+        fmt::println("  all messages but the gamestate, {:8} coded {} bytes, engine {}, ratio {:.3f}", set, g.coded, g.engine,
+                     static_cast<double>(g.coded) / static_cast<double>(g.engine));
     Report("snapshot-only messages by set", snaps);
     Report("by set and game type", byType);
     Report("by set and snapshot interval (ms)", byInterval);

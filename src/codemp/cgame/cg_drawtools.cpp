@@ -541,7 +541,7 @@ void CG_DrawNumField(int x, int y, int width, int value, int charWidth, int char
         break;
     }
 
-    Com_sprintf(num, sizeof(num), "%i", value);
+    Q_FormatTo(num, "{}", value);
     l = strlen(num);
     if (l > width)
         l = width;

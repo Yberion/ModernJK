@@ -483,7 +483,7 @@ bool NPC_UpdateAngles(bool doPitch, bool doYaw)
     /*
     if(doSound)
     {
-        G_Sound(NPC, G_SoundIndex(va("sound/enemies/borg/borgservo%d.wav", Q_irand(1, 8))));
+        G_Sound(NPC, G_SoundIndex(Q_Format("sound/enemies/borg/borgservo{}.wav", Q_irand(1, 8)).c_str()));
     }
     */
 
@@ -822,8 +822,8 @@ bool G_ActivateBehavior(gentity_t* self, bSet_t bset)
         }
     }
     else {
-        Quake3Game()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname,
-                                 GetStringForID(BSETTable, to_underlying(bset)), bs_name);
+        Quake3Game()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_VERBOSE, "{} attempting to run bSet {} ({})", self->targetname,
+                                   GetStringForID(BSETTable, to_underlying(bset)), bs_name);
         Quake3Game()->RunScript(self, bs_name);
     }
     return true;

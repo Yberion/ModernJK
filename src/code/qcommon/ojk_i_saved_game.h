@@ -91,7 +91,7 @@ public:
     // Clears error flag and message.
     virtual void clear_error() = 0;
 
-    // Calls Com_Error with last error message or with a generic one.
+    // Calls Q_Error with last error message or with a generic one.
     virtual void throw_error() = 0;
 }; // ISavedGame
 

@@ -76,12 +76,12 @@ void G2Time_ResetTimers(void)
 
 void G2Time_ReportTimers(void)
 {
-    Com_Printf("\n---------------------------------\nRenderSurfaces: %i\nR_AddGhoulSurfaces: %i\nG2_TransformGhoulBones: %i\nG2_ProcessGeneratedSurfaceBolts: "
-               "%i\nProcessModelBoltSurfaces: %i\nG2_ConstructGhoulSkeleton: %i\nRB_SurfaceGhoul: %i\nG2_SetupModelPointers: %i\n\nPrecise frame time: "
-               "%i\nTransformGhoulBones calls: %i\n---------------------------------\n\n",
-               G2Time_RenderSurfaces, G2Time_R_AddGHOULSurfaces, G2Time_G2_TransformGhoulBones, G2Time_G2_ProcessGeneratedSurfaceBolts,
-               G2Time_ProcessModelBoltSurfaces, G2Time_G2_ConstructGhoulSkeleton, G2Time_RB_SurfaceGhoul, G2Time_G2_SetupModelPointers, G2Time_PreciseFrame,
-               G2PerformanceCounter_G2_TransformGhoulBones);
+    Q_Println("\n---------------------------------\nRenderSurfaces: {}\nR_AddGhoulSurfaces: {}\nG2_TransformGhoulBones: {}\nG2_ProcessGeneratedSurfaceBolts: "
+              "{}\nProcessModelBoltSurfaces: {}\nG2_ConstructGhoulSkeleton: {}\nRB_SurfaceGhoul: {}\nG2_SetupModelPointers: {}\n\nPrecise frame time: "
+              "{}\nTransformGhoulBones calls: {}\n---------------------------------\n",
+              G2Time_RenderSurfaces, G2Time_R_AddGHOULSurfaces, G2Time_G2_TransformGhoulBones, G2Time_G2_ProcessGeneratedSurfaceBolts,
+              G2Time_ProcessModelBoltSurfaces, G2Time_G2_ConstructGhoulSkeleton, G2Time_RB_SurfaceGhoul, G2Time_G2_SetupModelPointers, G2Time_PreciseFrame,
+              G2PerformanceCounter_G2_TransformGhoulBones);
 }
 #endif
 
@@ -1223,7 +1223,7 @@ void G2_RagGetAnimMatrix(CGhoul2Info& ghoul2, const int boneNum, mdxaBone_t& mat
         bListIndex = G2_Find_Bone(ghoul2.animModel, ghoul2.mBlist, skel->name);
         if (bListIndex == -1) {
 #ifdef _RAG_PRINT_TEST
-            Com_Printf("Attempting to add %s\n", skel->name);
+            Q_Println("Attempting to add {}", skel->name);
 #endif
             bListIndex = G2_Add_Bone(ghoul2.animModel, ghoul2.mBlist, skel->name);
         }
@@ -1273,7 +1273,7 @@ void G2_RagGetAnimMatrix(CGhoul2Info& ghoul2, const int boneNum, mdxaBone_t& mat
             actuallySet = true;
         }
         else {
-            Com_Printf("BAD LIST INDEX: %s, %s [%i]\n", skel->name, pskel->name, parent);
+            Q_Println("BAD LIST INDEX: {}, {} [{}]", skel->name, pskel->name, parent);
         }
 #endif
     }
@@ -1284,7 +1284,7 @@ void G2_RagGetAnimMatrix(CGhoul2Info& ghoul2, const int boneNum, mdxaBone_t& mat
             actuallySet = true;
         }
         else {
-            Com_Printf("BAD LIST INDEX: %s\n", skel->name);
+            Q_Println("BAD LIST INDEX: {}", skel->name);
         }
 #endif
         // bone.animFrameMatrix = ghoul2.mBoneCache->mFinalBones[boneNum].boneMatrix;
@@ -1298,7 +1298,7 @@ void G2_RagGetAnimMatrix(CGhoul2Info& ghoul2, const int boneNum, mdxaBone_t& mat
 
 #ifdef _RAG_PRINT_TEST
     if (!actuallySet) {
-        Com_Printf("SET FAILURE\n");
+        Q_Println("SET FAILURE");
         G2_RagPrintMatrix(&bone.animFrameMatrix);
     }
 #endif
@@ -1401,25 +1401,26 @@ void G2_TransformBone(int child, CBoneCache& BC)
     if (printTiming) {
         char mess[1000];
         if (TB.blendMode) {
-            sprintf(mess, "b %2d %5d   %4d %4d %4d %4d  %f %f\n", boneListIndex, BC.incomingTime, (int)TB.newFrame, (int)TB.currentFrame, (int)TB.blendFrame,
-                    (int)TB.blendOldFrame, TB.backlerp, TB.blendLerp);
+            Q_FormatTo(mess, "b {:2} {:5}   {:4} {:4} {:4} {:4}  {:f} {:f}", boneListIndex, BC.incomingTime, (int)TB.newFrame, (int)TB.currentFrame,
+                       (int)TB.blendFrame, (int)TB.blendOldFrame, TB.backlerp, TB.blendLerp);
         }
         else {
-            sprintf(mess, "a %2d %5d   %4d %4d            %f\n", boneListIndex, BC.incomingTime, TB.newFrame, TB.currentFrame, TB.backlerp);
+            Q_FormatTo(mess, "a {:2} {:5}   {:4} {:4}            {:f}", boneListIndex, BC.incomingTime, TB.newFrame, TB.currentFrame, TB.backlerp);
         }
-        Com_DPrintf("%s", mess);
+        Q_DPrintln("{}", mess);
         const boneInfo_t& bone = boneList[boneListIndex];
         if (bone.flags & boneFlags_t::BONE_ANIM_BLEND) {
-            sprintf(mess,
-                    "                                                                    bfb[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x   bt(%5d-%5d) %7.2f %5d\n",
-                    boneListIndex, BC.incomingTime, bone.startTime, bone.startFrame, bone.endFrame, bone.animSpeed, bone.flags, bone.blendStart,
-                    bone.blendStart + bone.blendTime, bone.blendFrame, bone.blendLerpFrame);
+            Q_FormatTo(mess,
+                       "                                                                    bfb[{:2}] {:5}  {:5}  ({:5}-{:5}) {:4.2f} {:4x}   bt({:5}-{:5}) "
+                       "{:7.2f} {:5}\n",
+                       boneListIndex, BC.incomingTime, bone.startTime, bone.startFrame, bone.endFrame, bone.animSpeed, bone.flags, bone.blendStart,
+                       bone.blendStart + bone.blendTime, bone.blendFrame, bone.blendLerpFrame);
         }
         else {
-            sprintf(mess, "                                                                    bfa[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x\n", boneListIndex,
-                    BC.incomingTime, bone.startTime, bone.startFrame, bone.endFrame, bone.animSpeed, bone.flags);
+            Q_FormatTo(mess, "                                                                    bfa[{:2}] {:5}  {:5}  ({:5}-{:5}) {:4.2f} {:4x}\n",
+                       boneListIndex, BC.incomingTime, bone.startTime, bone.startFrame, bone.endFrame, bone.animSpeed, bone.flags);
         }
-        //		Com_DPrintf("%s",mess);
+        //		Q_DPrintln("{}", mess);
     }
 #endif
     //	boldFrame = (mdxaFrame_t *)((byte *)BC.header + BC.header->ofsFrames + TB.blendOldFrame * BC.frameSize );
@@ -2778,7 +2779,7 @@ void G2_GetBoltMatrixLow(CGhoul2Info& ghoul2, int boltNum, const vec3_t scale, m
 			strcpy(fName, "None?!");
 		}
 
-		Com_Error(errorParm_t::ERR_DROP, "Write down or save this error message, show it to Rich\nBad bolt index on model %s (filename %s), index %i boltlink %i\n", mName, fName, boltNum, bLink);
+		Q_Error(errorParm_t::ERR_DROP, "Write down or save this error message, show it to Rich\nBad bolt index on model {} (filename {}), index {} boltlink {}", mName, fName, boltNum, bLink);
 	}
 #endif
     if (boltList[boltNum].boneNumber >= 0) {
@@ -3817,7 +3818,7 @@ bool R_LoadMDXM(model_t* mod, void* buffer, const char* mod_name, bool& bAlready
     }
 
     if (version != MDXM_VERSION) {
-        Com_Printf(S_COLOR_YELLOW "R_LoadMDXM: %s has wrong version (%i should be %i)\n", mod_name, version, MDXM_VERSION);
+        Q_Println(S_COLOR_YELLOW "R_LoadMDXM: {} has wrong version ({} should be {})", mod_name, version, MDXM_VERSION);
         return false;
     }
 
@@ -3852,10 +3853,10 @@ bool R_LoadMDXM(model_t* mod, void* buffer, const char* mod_name, bool& bAlready
     }
 
     // first up, go load in the animation file we need that has the skeletal animation info for this model
-    mdxm->animIndex = RE_RegisterModel(va("%s.gla", mdxm->animName));
+    mdxm->animIndex = RE_RegisterModel(Q_Format("{}.gla", mdxm->animName).c_str());
 
     if (!mdxm->animIndex) {
-        Com_Printf(S_COLOR_YELLOW "R_LoadMDXM: missing animation file %s for mesh %s\n", mdxm->animName, mdxm->name);
+        Q_Println(S_COLOR_YELLOW "R_LoadMDXM: missing animation file {} for mesh {}", mdxm->animName, mdxm->name);
         return false;
     }
 
@@ -3930,11 +3931,11 @@ bool R_LoadMDXM(model_t* mod, void* buffer, const char* mod_name, bool& bAlready
             LL(surf->ofsEnd);
 
             if (surf->numVerts > SHADER_MAX_VERTEXES) {
-                Com_Error(errorParm_t::ERR_DROP, "R_LoadMDXM: %s has more than %i verts on a surface (%i)", mod_name, SHADER_MAX_VERTEXES, surf->numVerts);
+                Q_Error(errorParm_t::ERR_DROP, "R_LoadMDXM: {} has more than {} verts on a surface ({})", mod_name, SHADER_MAX_VERTEXES, surf->numVerts);
             }
             if (surf->numTriangles * 3 > SHADER_MAX_INDEXES) {
-                Com_Error(errorParm_t::ERR_DROP, "R_LoadMDXM: %s has more than %i triangles on a surface (%i)", mod_name, SHADER_MAX_INDEXES / 3,
-                          surf->numTriangles);
+                Q_Error(errorParm_t::ERR_DROP, "R_LoadMDXM: {} has more than {} triangles on a surface ({})", mod_name, SHADER_MAX_INDEXES / 3,
+                        surf->numTriangles);
             }
 
             // change to surface identifier
@@ -4183,7 +4184,7 @@ bool R_LoadMDXA(model_t* mod, void* buffer, const char* mod_name, bool& bAlready
     }
 
     if (version != MDXA_VERSION) {
-        Com_Printf(S_COLOR_YELLOW "R_LoadMDXA: %s has wrong version (%i should be %i)\n", mod_name, version, MDXA_VERSION);
+        Q_Println(S_COLOR_YELLOW "R_LoadMDXA: {} has wrong version ({} should be {})", mod_name, version, MDXA_VERSION);
         return false;
     }
 
@@ -4327,7 +4328,7 @@ bool R_LoadMDXA(model_t* mod, void* buffer, const char* mod_name, bool& bAlready
 #endif // CREATE_LIMB_HIERARCHY
 
     if (mdxa->numFrames < 1) {
-        Com_Printf(S_COLOR_YELLOW "R_LoadMDXA: %s has no frames\n", mod_name);
+        Q_Println(S_COLOR_YELLOW "R_LoadMDXA: {} has no frames", mod_name);
         return false;
     }
 

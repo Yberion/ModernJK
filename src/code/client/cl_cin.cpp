@@ -168,7 +168,7 @@ static int CIN_HandleForVideo(void)
             return i;
         }
     }
-    Com_Error(errorParm_t::ERR_DROP, "CIN_HandleForVideo: none free");
+    Q_Error(errorParm_t::ERR_DROP, "CIN_HandleForVideo: none free");
     return -1;
 }
 
@@ -1059,7 +1059,7 @@ static void readQuadInfo(byte* qData)
             cinTable[currentHandle].drawY = 256;
         }
         if (cinTable[currentHandle].CIN_WIDTH != 256 || cinTable[currentHandle].CIN_HEIGHT != 256) {
-            Com_Printf("HACK: approxmimating cinematic for Rage Pro or Voodoo\n");
+            Q_Println("HACK: approxmimating cinematic for Rage Pro or Voodoo");
         }
     }
 }
@@ -1274,7 +1274,7 @@ redump:
     cinTable[currentHandle].roqF1 = (signed char)framedata[6];
 
     if (cinTable[currentHandle].RoQFrameSize > 65536 || cinTable[currentHandle].roq_id == 0x1084) {
-        Com_DPrintf("roq_size>65536||roq_id==0x1084\n");
+        Q_DPrintln("roq_size>65536||roq_id==0x1084");
         cinTable[currentHandle].status = e_status::FMV_EOF;
         if (cinTable[currentHandle].looping) {
             RoQReset();
@@ -1358,7 +1358,7 @@ static void RoQShutdown(void)
         return;
     }
 
-    Com_DPrintf("finished cinematic\n");
+    Q_DPrintln("finished cinematic");
     cinTable[currentHandle].status = e_status::FMV_IDLE;
 
     if (cinTable[currentHandle].iFile) {
@@ -1377,7 +1377,7 @@ static void RoQShutdown(void)
         // the time it was referenced
         s = Cvar_VariableString("nextmap");
         if (s[0]) {
-            Cbuf_ExecuteText(cbufExec_t::EXEC_APPEND, va("%s\n", s));
+            Cbuf_ExecuteText(cbufExec_t::EXEC_APPEND, Q_Format("{}\n", s).c_str());
             Cvar_Set("nextmap", "");
         }
         CL_handle = -1;
@@ -1399,7 +1399,7 @@ e_status CIN_StopCinematic(int handle)
         return e_status::FMV_EOF;
     currentHandle = handle;
 
-    Com_DPrintf("trFMV::stop(), closing %s\n", cinTable[currentHandle].fileName);
+    Q_DPrintln("trFMV::stop(), closing {}", cinTable[currentHandle].fileName);
 
     if (!cinTable[currentHandle].buf) {
         if (cinTable[currentHandle].iFile) {
@@ -1515,10 +1515,10 @@ int CIN_PlayCinematic(const char* arg, int x, int y, int w, int h, cinematicFlag
     int i;
 
     if (strstr(arg, "/") == nullptr && strstr(arg, "\\") == nullptr) {
-        Com_sprintf(name, sizeof(name), "video/%s", arg);
+        Q_FormatTo(name, "video/{}", arg);
     }
     else {
-        Com_sprintf(name, sizeof(name), "%s", arg);
+        Q_FormatTo(name, "{}", arg);
     }
     COM_DefaultExtension(name, sizeof(name), ".roq");
 
@@ -1530,7 +1530,7 @@ int CIN_PlayCinematic(const char* arg, int x, int y, int w, int h, cinematicFlag
         }
     }
 
-    Com_DPrintf("CIN_PlayCinematic( %s )\n", arg);
+    Q_DPrintln("CIN_PlayCinematic( {} )", arg);
 
     memset(&cin, 0, sizeof(cinematics_t));
     currentHandle = CIN_HandleForVideo();
@@ -1543,7 +1543,7 @@ int CIN_PlayCinematic(const char* arg, int x, int y, int w, int h, cinematicFlag
     cinTable[currentHandle].ROQSize = FS_FOpenFileRead(cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, true);
 
     if (cinTable[currentHandle].ROQSize <= 0) {
-        Com_PrintError("playCinematic: %s not found!\n", arg);
+        Q_PrintlnError("playCinematic: {} not found!", arg);
         cinTable[currentHandle].fileName[0] = 0;
         return -1;
     }
@@ -1588,7 +1588,7 @@ int CIN_PlayCinematic(const char* arg, int x, int y, int w, int h, cinematicFlag
         //		FS_Read (cin.file, cinTable[currentHandle].RoQFrameSize+8, cinTable[currentHandle].iFile);
 
         cinTable[currentHandle].status = e_status::FMV_PLAY;
-        Com_DPrintf("trFMV::play(), playing %s\n", arg);
+        Q_DPrintln("trFMV::play(), playing {}", arg);
 
         if (cinTable[currentHandle].alterGameState) {
             cls.state = connstate_t::CA_CINEMATIC;
@@ -1601,7 +1601,7 @@ int CIN_PlayCinematic(const char* arg, int x, int y, int w, int h, cinematicFlag
 
         return currentHandle;
     }
-    Com_DPrintf("trFMV::play(), invalid RoQ ID\n");
+    Q_DPrintln("trFMV::play(), invalid RoQ ID");
 
     RoQShutdown();
     return -1;
@@ -1858,14 +1858,14 @@ static void PlayCinematic(const char* arg, const char* s, bool qbInGame)
 
     cinematicFlags_t bits = qbInGame ? cinematicFlags_t::CIN_NONE : cinematicFlags_t::CIN_system;
 
-    Com_DPrintf("CL_PlayCinematic_f\n");
+    Q_DPrintln("CL_PlayCinematic_f");
 
     char sTemp[1024];
     if (strstr(arg, "/") == nullptr && strstr(arg, "\\") == nullptr) {
-        Com_sprintf(sTemp, sizeof(sTemp), "video/%s", arg);
+        Q_FormatTo(sTemp, "video/{}", arg);
     }
     else {
-        Com_sprintf(sTemp, sizeof(sTemp), "%s", arg);
+        Q_FormatTo(sTemp, "{}", arg);
     }
     COM_DefaultExtension(sTemp, sizeof(sTemp), ".roq");
     arg = &sTemp[0];
@@ -1904,13 +1904,13 @@ static void PlayCinematic(const char* arg, const char* s, bool qbInGame)
         if (!Q_stricmp(arg, "video/jk0101_sw.roq")) {
             psAudioFile = "music/cinematic_1";
 #ifdef JK2_MODE
-            hCrawl = re.RegisterShaderNoMip(va("menu/video/tc_%d", sp_language->integer));
+            hCrawl = re.RegisterShaderNoMip(Q_Format("menu/video/tc_{}", sp_language->integer).c_str());
             if (!hCrawl) {
                 // failed, so go back to english
                 hCrawl = re.RegisterShaderNoMip("menu/video/tc_0");
             }
 #else
-            hCrawl = re.RegisterShaderNoMip(va("menu/video/tc_%s", se_language->string));
+            hCrawl = re.RegisterShaderNoMip(Q_Format("menu/video/tc_{}", se_language->string).c_str());
             if (!hCrawl) {
                 hCrawl = re.RegisterShaderNoMip("menu/video/tc_english"); // failed, so go back to english
             }
@@ -1957,7 +1957,7 @@ static void PlayCinematic(const char* arg, const char* s, bool qbInGame)
     }
 
     if (bFailed) {
-        Com_Printf(S_COLOR_RED "PlayCinematic(): Failed to open \"%s\"\n", arg);
+        Q_Println(S_COLOR_RED "PlayCinematic(): Failed to open \"{}\"", arg);
         // S_RestartMusic();	//restart the level music
         SCR_StopCinematic(); // I know this seems pointless, but it clears a bunch of vars as well
     }
@@ -2059,7 +2059,7 @@ void SCR_StopCinematic(bool bAllowRefusal /* = false */)
     }
 
     if (CL_IsRunningInGameCinematic()) {
-        Com_DPrintf("In-game Cinematic Stopped\n");
+        Q_DPrintln("In-game Cinematic Stopped");
     }
 
     if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES && stopCinematicCallCount != 1) { // hello no, don't want this plz
@@ -2072,7 +2072,7 @@ void SCR_StopCinematic(bool bAllowRefusal /* = false */)
     }
 
     if (cls.state == connstate_t::CA_CINEMATIC) {
-        Com_DPrintf("Cinematic Stopped\n");
+        Q_DPrintln("Cinematic Stopped");
         cls.state = connstate_t::CA_DISCONNECTED;
     }
 

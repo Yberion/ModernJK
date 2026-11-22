@@ -102,7 +102,7 @@ void G_SiegeRegisterWeaponsAndHoldables(team_t team)
 // or whatever.
 void SiegeSetCompleteData(team_t team)
 {
-    trap->SetConfigstring(CS_SIEGE_WINTEAM, va("%i", to_underlying(team)));
+    trap->SetConfigstring(CS_SIEGE_WINTEAM, Q_Format("{}", to_underlying(team)).c_str());
 }
 
 void InitSiegeMode(void)
@@ -134,7 +134,7 @@ void InitSiegeMode(void)
     if (g_siegeTeamSwitch.integer) {
         trap->SiegePersGet(&g_siegePersistant);
         if (g_siegePersistant.beatingTime) {
-            trap->SetConfigstring(CS_SIEGE_TIMEOVERRIDE, va("%i", g_siegePersistant.lastTime));
+            trap->SetConfigstring(CS_SIEGE_TIMEOVERRIDE, Q_Format("{}", g_siegePersistant.lastTime).c_str());
         }
         else {
             trap->SetConfigstring(CS_SIEGE_TIMEOVERRIDE, "0");
@@ -149,7 +149,7 @@ void InitSiegeMode(void)
 
     trap->Cvar_Register(&mapname, "mapname", "", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM);
 
-    Com_sprintf(levelname, sizeof(levelname), "maps/%s.siege", mapname.string);
+    Q_FormatTo(levelname, "maps/{}.siege", mapname.string);
 
     if (!levelname[0]) {
         goto failure;
@@ -194,7 +194,7 @@ void InitSiegeMode(void)
         }
     }
     else {
-        Com_Error(errorParm_t::ERR_DROP, "Siege teams not defined");
+        Q_Error(errorParm_t::ERR_DROP, "Siege teams not defined");
     }
 
     if (BG_SiegeGetValueGroup(siege_info, team2, gParseObjectives)) {
@@ -230,7 +230,7 @@ void InitSiegeMode(void)
         }
         if (BG_SiegeGetPairedValue(gParseObjectives, "Timed", goalreq)) {
             if (rebel_time_limit) {
-                Com_Printf("Tried to set imperial time limit, but there's already a rebel time limit!\nOnly one team can have a time limit.\n");
+                Q_Println("Tried to set imperial time limit, but there's already a rebel time limit!\nOnly one team can have a time limit.");
             }
             else {
                 imperial_time_limit = atoi(goalreq) * 1000;
@@ -251,7 +251,7 @@ void InitSiegeMode(void)
     BG_SiegeLoadClasses(nullptr);
 
     if (!bgNumSiegeClasses) { // We didn't find any?!
-        Com_Error(errorParm_t::ERR_DROP, "Couldn't find any player classes for Siege");
+        Q_Error(errorParm_t::ERR_DROP, "Couldn't find any player classes for Siege");
     }
 
     /*
@@ -284,7 +284,7 @@ void InitSiegeMode(void)
     BG_SiegeLoadTeams();
 
     if (!bgNumSiegeTeams) { // React same as with classes.
-        Com_Error(errorParm_t::ERR_DROP, "Couldn't find any player teams for Siege");
+        Q_Error(errorParm_t::ERR_DROP, "Couldn't find any player teams for Siege");
     }
 
     // Get and set the team themes for each team. This will control which classes can be
@@ -296,11 +296,11 @@ void InitSiegeMode(void)
 
         // Now count up the objectives for this team.
         i = 1;
-        strcpy(objecStr, va("Objective%i", i));
+        strcpy(objecStr, Q_Format("Objective{}", i).c_str());
         while (BG_SiegeGetValueGroup(gParseObjectives, objecStr, objective)) {
             objectiveNumTeam1++;
             i++;
-            strcpy(objecStr, va("Objective%i", i));
+            strcpy(objecStr, Q_Format("Objective{}", i).c_str());
         }
     }
     if (BG_SiegeGetValueGroup(siege_info, team2, gParseObjectives)) {
@@ -310,11 +310,11 @@ void InitSiegeMode(void)
 
         // Now count up the objectives for this team.
         i = 1;
-        strcpy(objecStr, va("Objective%i", i));
+        strcpy(objecStr, Q_Format("Objective{}", i).c_str());
         while (BG_SiegeGetValueGroup(gParseObjectives, objecStr, objective)) {
             objectiveNumTeam2++;
             i++;
-            strcpy(objecStr, va("Objective%i", i));
+            strcpy(objecStr, Q_Format("Objective{}", i).c_str());
         }
     }
 
@@ -461,7 +461,7 @@ void UseSiegeTarget(gentity_t* other, gentity_t* en, char* target)
     t = nullptr;
     while ((t = G_Find(t, FOFS(targetname), target)) != nullptr) {
         if (t == ent) {
-            Com_Warning("Entity used itself.\n");
+            Q_PrintlnWarning("Entity used itself.");
         }
         else {
             if (t->use) {
@@ -469,7 +469,7 @@ void UseSiegeTarget(gentity_t* other, gentity_t* en, char* target)
             }
         }
         if (!ent->inuse) {
-            Com_Printf("entity was removed while using targets\n");
+            Q_Println("entity was removed while using targets");
             return;
         }
     }
@@ -510,7 +510,7 @@ void BroadcastObjectiveCompletion(team_t team, int objective, int final, int cli
     }
 
     SiegeBroadcast_OBJECTIVECOMPLETE(team, client, objective);
-    // Com_Printf("Broadcast goal completion team %i objective %i final %i\n", team, objective, final);
+    // Q_Println("Broadcast goal completion team {} objective {} final {}", team, objective, final);
 }
 
 void AddSiegeWinningTeamPoints(team_t team, int winner)
@@ -595,7 +595,7 @@ void SiegeRoundComplete(team_t winningteam, int winningclient)
     char teamstr[1024];
     int originalWinningClient = winningclient;
 
-    // Com_Printf("Team %i won\n", winningteam);
+    // Q_Println("Team {} won", winningteam);
 
     if (winningclient != ENTITYNUM_NONE && g_entities[winningclient].client &&
         g_entities[winningclient].client->sess.sessionTeam != winningteam) { // this person just won the round for the other team..
@@ -611,13 +611,13 @@ void SiegeRoundComplete(team_t winningteam, int winningclient)
     // Instead of exiting like this, fire off a target, and let it handle things.
     // Can be a script or whatever the designer wants.
     if (winningteam == SIEGETEAM_TEAM1) {
-        Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
+        Q_FormatTo(teamstr, "{}", team1);
     }
     else {
-        Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
+        Q_FormatTo(teamstr, "{}", team2);
     }
 
-    trap->SetConfigstring(CS_SIEGE_STATE, va("3|%i", level.time)); // ended
+    trap->SetConfigstring(CS_SIEGE_STATE, Q_Format("3|{}", level.time).c_str()); // ended
     gSiegeRoundBegun = false;
     gSiegeRoundEnded = true;
     gSiegeRoundWinningTeam = winningteam;
@@ -795,7 +795,7 @@ void SiegeBeginRound(int entNum)
         }
     }
 
-    trap->SetConfigstring(CS_SIEGE_STATE, va("0|%i", level.time)); // we're ready to g0g0g0
+    trap->SetConfigstring(CS_SIEGE_STATE, Q_Format("0|{}", level.time).c_str()); // we're ready to g0g0g0
 }
 
 void SiegeCheckTimers(void)
@@ -881,7 +881,7 @@ void SiegeCheckTimers(void)
             gSiegeBeginTime = level.time + SIEGE_ROUND_BEGIN_TIME;
         }
         else {
-            trap->SetConfigstring(CS_SIEGE_STATE, va("2|%i", gSiegeBeginTime - SIEGE_ROUND_BEGIN_TIME)); // getting ready to begin
+            trap->SetConfigstring(CS_SIEGE_STATE, Q_Format("2|{}", gSiegeBeginTime - SIEGE_ROUND_BEGIN_TIME).c_str()); // getting ready to begin
         }
     }
 }
@@ -948,14 +948,14 @@ void siegeTriggerUse(gentity_t* ent, gentity_t* other, gentity_t* activator)
     }
 
     if (ent->side == SIEGETEAM_TEAM1) {
-        Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
+        Q_FormatTo(teamstr, "{}", team1);
     }
     else {
-        Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
+        Q_FormatTo(teamstr, "{}", team2);
     }
 
     if (BG_SiegeGetValueGroup(siege_info, teamstr, gParseObjectives)) {
-        Com_sprintf(objectivestr, sizeof(objectivestr), "Objective%i", ent->objective);
+        Q_FormatTo(objectivestr, "Objective{}", ent->objective);
 
         if (BG_SiegeGetValueGroup(gParseObjectives, objectivestr, desiredobjective)) {
             if (BG_SiegeGetPairedValue(desiredobjective, "final", teamstr)) {
@@ -1006,7 +1006,7 @@ void SP_info_siege_objective(gentity_t* ent)
 
     if (!ent->objective || ent->side == team_t::TEAM_FREE) { // j00 fux0red something up
         G_FreeEntity(ent);
-        Com_PrintError("info_siege_objective without an objective or side value\n");
+        Q_PrintlnError("info_siege_objective without an objective or side value");
         return;
     }
 
@@ -1069,7 +1069,7 @@ void SP_info_siege_radaricon(gentity_t* ent)
 
     G_SpawnString("icon", "", &s);
     if (!s || !s[0]) { // that's the whole point of the entity
-        Com_Error(errorParm_t::ERR_DROP, "misc_siege_radaricon without an icon");
+        Q_Error(errorParm_t::ERR_DROP, "misc_siege_radaricon without an icon");
         return;
     }
 
@@ -1102,14 +1102,14 @@ void decompTriggerUse(gentity_t* ent, gentity_t* other, gentity_t* activator)
 
     // Find out if this objective counts toward the final objective count
     if (ent->side == SIEGETEAM_TEAM1) {
-        Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
+        Q_FormatTo(teamstr, "{}", team1);
     }
     else {
-        Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
+        Q_FormatTo(teamstr, "{}", team2);
     }
 
     if (BG_SiegeGetValueGroup(siege_info, teamstr, gParseObjectives)) {
-        Com_sprintf(objectivestr, sizeof(objectivestr), "Objective%i", ent->objective);
+        Q_FormatTo(objectivestr, "Objective{}", ent->objective);
 
         if (BG_SiegeGetValueGroup(gParseObjectives, objectivestr, desiredobjective)) {
             if (BG_SiegeGetPairedValue(desiredobjective, "final", teamstr)) {
@@ -1148,7 +1148,7 @@ void SP_info_siege_decomplete(gentity_t* ent)
 
     if (!ent->objective || ent->side == team_t::TEAM_FREE) { // j00 fux0red something up
         G_FreeEntity(ent);
-        Com_PrintError("info_siege_objective_decomplete without an objective or side value\n");
+        Q_PrintlnError("info_siege_objective_decomplete without an objective or side value");
         return;
     }
 }
@@ -1549,7 +1549,7 @@ void SP_misc_siege_item(gentity_t* ent)
     }
 
     if (!ent->model || !ent->model[0]) {
-        Com_Error(errorParm_t::ERR_DROP, "You must specify a model for misc_siege_item types.");
+        Q_Error(errorParm_t::ERR_DROP, "You must specify a model for misc_siege_item types.");
     }
 
     G_SpawnInt("canpickup", "1", &canpickup);
@@ -1709,8 +1709,8 @@ void G_SiegeClientExData(gentity_t* msgTarg)
             }
 
             // append the stats
-            Com_sprintf(scratch, sizeof(scratch), "%i|%i|%i|%i", ent->s.number, ent->client->ps.stats[statIndex_t::STAT_HEALTH],
-                        ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH], ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex]);
+            Q_FormatTo(scratch, "{}|{}|{}|{}", ent->s.number, ent->client->ps.stats[statIndex_t::STAT_HEALTH],
+                       ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH], ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex]);
             Q_strcat(str, sizeof(str), scratch);
             count++;
         }

@@ -696,8 +696,10 @@ static void CG_DrawHUD(centity_t* cent)
 
         // Draw armor & health values
         if (cg_draw2D.integer == 2) {
-            CG_DrawSmallStringColor(x + 5, y - 60, va("Armor:%d", cg.snap->ps.stats[statIndex_t::STAT_ARMOR]), colorTable[ct_table_t::CT_HUD_GREEN]);
-            CG_DrawSmallStringColor(x + 5, y - 40, va("Health:%d", cg.snap->ps.stats[statIndex_t::STAT_HEALTH]), colorTable[ct_table_t::CT_HUD_GREEN]);
+            CG_DrawSmallStringColor(x + 5, y - 60, Q_Format("Armor:{}", cg.snap->ps.stats[statIndex_t::STAT_ARMOR]).c_str(),
+                                    colorTable[ct_table_t::CT_HUD_GREEN]);
+            CG_DrawSmallStringColor(x + 5, y - 40, Q_Format("Health:{}", cg.snap->ps.stats[statIndex_t::STAT_HEALTH]).c_str(),
+                                    colorTable[ct_table_t::CT_HUD_GREEN]);
         }
 
         CG_DrawHUDLeftFrame1(x, y);
@@ -716,13 +718,13 @@ static void CG_DrawHUD(centity_t* cent)
                 // Bob, just didn't want the ammo text drawing when the saber or the stun baton is the current weapon...change it back if this is wrong.
                 value = cg.snap->ps.ammo[weaponData[cent->currentState.weapon].ammoIndex];
                 //				value = cent->gent->client->ps.forcePower;
-                CG_DrawSmallStringColor(x, y - 60, va("Ammo:%d", value), colorTable[ct_table_t::CT_HUD_GREEN]);
+                CG_DrawSmallStringColor(x, y - 60, Q_Format("Ammo:{}", value).c_str(), colorTable[ct_table_t::CT_HUD_GREEN]);
             }
             else {
                 //				value = cg.snap->ps.ammo[weaponData[cent->currentState.weapon].ammoIndex];
             }
-            //			CG_DrawSmallStringColor(x, y - 60,va("Ammo:%d",value), colorTable[ct_table_t::CT_HUD_GREEN] );
-            CG_DrawSmallStringColor(x, y - 40, va("Force:%d", cent->gent->client->ps.forcePower), colorTable[ct_table_t::CT_HUD_GREEN]);
+            //			CG_DrawSmallStringColor(x, y - 60,Q_Format("Ammo:{}", value).c_str(), colorTable[ct_table_t::CT_HUD_GREEN] );
+            CG_DrawSmallStringColor(x, y - 40, Q_Format("Force:{}", cent->gent->client->ps.forcePower).c_str(), colorTable[ct_table_t::CT_HUD_GREEN]);
         }
 
         CG_DrawHUDRightFrame1(x, y);
@@ -1887,10 +1889,11 @@ CG_DrawSnapshot
 */
 static float CG_DrawSnapshot(float y)
 {
-    char* s;
+    const char* s;
+    formatText_t sText; // holds the text s points into
     int w;
 
-    s = va("time:%i snap:%i cmd:%i", cg.snap->serverTime, cg.latestSnapshotNum, cgs.serverCommandSequence);
+    s = (sText = Q_Format("time:{} snap:{} cmd:{}", cg.snap->serverTime, cg.latestSnapshotNum, cgs.serverCommandSequence)).c_str();
 
     w = cgi_R_Font_StrLenPixels(s, cgs.media.qhFontMedium, 1.0f);
     cgi_R_Font_DrawString(635 - w, y + 2, s, colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
@@ -1906,7 +1909,8 @@ CG_DrawFPS
 constexpr int FPS_FRAMES = 16;
 static float CG_DrawFPS(float y)
 {
-    char* s;
+    const char* s;
+    formatText_t sText; // holds the text s points into
     static unsigned short previousTimes[FPS_FRAMES];
     static unsigned short index;
     static int previous, lastupdate;
@@ -1934,7 +1938,7 @@ static float CG_DrawFPS(float y)
     }
     fps = 1000 * FPS_FRAMES / total;
 
-    s = va("%ifps", fps);
+    s = (sText = Q_Format("{}fps", fps)).c_str();
     const int w = cgi_R_Font_StrLenPixels(s, cgs.media.qhFontMedium, 1.0f);
     cgi_R_Font_DrawString(635 - w, y + 2, s, colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
 
@@ -1948,7 +1952,8 @@ CG_DrawTimer
 */
 static float CG_DrawTimer(float y)
 {
-    char* s;
+    const char* s;
+    formatText_t sText; // holds the text s points into
     int w;
     int mins, seconds, tens;
 
@@ -1958,7 +1963,7 @@ static float CG_DrawTimer(float y)
     tens = seconds / 10;
     seconds -= tens * 10;
 
-    s = va("%i:%i%i", mins, tens, seconds);
+    s = (sText = Q_Format("{}:{}{}", mins, tens, seconds)).c_str();
 
     w = cgi_R_Font_StrLenPixels(s, cgs.media.qhFontMedium, 1.0f);
     cgi_R_Font_DrawString(635 - w, y + 2, s, colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
@@ -2249,7 +2254,7 @@ void CG_DrawActive(stereoFrame_t stereoView)
         break;
     default:
         separation = 0;
-        Com_Error(errorParm_t::ERR_DROP, "CG_DrawActive: Undefined stereoView");
+        Q_Error(errorParm_t::ERR_DROP, "CG_DrawActive: Undefined stereoView");
     }
 
     // clear around the rendered view if sized down

@@ -900,15 +900,13 @@ static void CG_CheckShownFlicker(const playerState_t* ps)
 
     if (cg_showMiss.integer) {
         if (now.legs == shown[1].legs && now.legs != shown[0].legs) {
-            Com_Printf("shown flicker: legs anim %d, %d, %d at %d, %d, %d\n", shown[1].legs, shown[0].legs, now.legs, shown[1].time, shown[0].time, now.time);
+            Q_Println("shown flicker: legs anim {}, {}, {} at {}, {}, {}", shown[1].legs, shown[0].legs, now.legs, shown[1].time, shown[0].time, now.time);
         }
         if (now.torso == shown[1].torso && now.torso != shown[0].torso) {
-            Com_Printf("shown flicker: torso anim %d, %d, %d at %d, %d, %d\n", shown[1].torso, shown[0].torso, now.torso, shown[1].time, shown[0].time,
-                       now.time);
+            Q_Println("shown flicker: torso anim {}, {}, {} at {}, {}, {}", shown[1].torso, shown[0].torso, now.torso, shown[1].time, shown[0].time, now.time);
         }
         if (now.ducked == shown[1].ducked && now.ducked != shown[0].ducked) {
-            Com_Printf("shown flicker: crouch %d, %d, %d at %d, %d, %d\n", shown[1].ducked, shown[0].ducked, now.ducked, shown[1].time, shown[0].time,
-                       now.time);
+            Q_Println("shown flicker: crouch {}, {}, {} at {}, {}, {}", shown[1].ducked, shown[0].ducked, now.ducked, shown[1].time, shown[0].time, now.time);
         }
     }
     shown[1] = shown[0];
@@ -985,12 +983,12 @@ static void CG_CheckPredictedAnims(const playerState_t* base)
         return; // not predicted (the first snapshot, a gap)
     }
     if (CG_ShownAnim(predicted->legsAnim, predicted->legsFlip) != CG_ShownAnim(base->legsAnim, base->legsFlip)) {
-        Com_Printf("anim miss: legs predicted %d, server %d at %d\n", CG_ShownAnim(predicted->legsAnim, predicted->legsFlip),
-                   CG_ShownAnim(base->legsAnim, base->legsFlip), base->commandTime);
+        Q_Println("anim miss: legs predicted {}, server {} at {}", CG_ShownAnim(predicted->legsAnim, predicted->legsFlip),
+                  CG_ShownAnim(base->legsAnim, base->legsFlip), base->commandTime);
     }
     if (CG_ShownAnim(predicted->torsoAnim, predicted->torsoFlip) != CG_ShownAnim(base->torsoAnim, base->torsoFlip)) {
-        Com_Printf("anim miss: torso predicted %d, server %d at %d\n", CG_ShownAnim(predicted->torsoAnim, predicted->torsoFlip),
-                   CG_ShownAnim(base->torsoAnim, base->torsoFlip), base->commandTime);
+        Q_Println("anim miss: torso predicted {}, server {} at {}", CG_ShownAnim(predicted->torsoAnim, predicted->torsoFlip),
+                  CG_ShownAnim(base->torsoAnim, base->torsoFlip), base->commandTime);
     }
 }
 
@@ -1258,18 +1256,16 @@ static void CG_WritePredictMiss(fileHandle_t f)
     size_t i;
     int n;
 
-    Com_sprintf(line, sizeof(line), "predictmiss: %d ticks compared, %d with a difference in a field the server sets\n", cg_predictMiss.checked,
-                cg_predictMiss.differing);
+    Q_FormatTo(line, "predictmiss: {} ticks compared, {} with a difference in a field the server sets\n", cg_predictMiss.checked, cg_predictMiss.differing);
     CG_PredictMissLine(f, line);
     for (predictMissKind_t cause = predictMissKind_t::MISS_TELEPORT; cause < predictMissKind_t::MISS_ANIM; cause++) {
-        Com_sprintf(line, sizeof(line), "predictmiss: position, %s: %d ticks, mean %.2f units, max %.2f\n", cg_predictMissKinds[cause],
-                    cg_predictMiss.origin[cause], cg_predictMiss.origin[cause] ? cg_predictMiss.originSum[cause] / cg_predictMiss.origin[cause] : 0.0f,
-                    cg_predictMiss.originMax[cause]);
+        Q_FormatTo(line, "predictmiss: position, {}: {} ticks, mean {:.2f} units, max {:.2f}\n", cg_predictMissKinds[cause], cg_predictMiss.origin[cause],
+                   cg_predictMiss.origin[cause] ? cg_predictMiss.originSum[cause] / cg_predictMiss.origin[cause] : 0.0f, cg_predictMiss.originMax[cause]);
         CG_PredictMissLine(f, line);
     }
-    Com_sprintf(line, sizeof(line), "predictmiss: an animation only: %d ticks\n", cg_predictMiss.animOnly);
+    Q_FormatTo(line, "predictmiss: an animation only: {} ticks\n", cg_predictMiss.animOnly);
     CG_PredictMissLine(f, line);
-    Com_sprintf(line, sizeof(line), "predictmiss: %d frames predicted from a snapshot ahead of the drawn ones\n", cg_predictMiss.ahead);
+    Q_FormatTo(line, "predictmiss: {} frames predicted from a snapshot ahead of the drawn ones\n", cg_predictMiss.ahead);
     CG_PredictMissLine(f, line);
     // per word: offset, ticks, last predicted and server values
     for (i = 0; i < PS_WORDS; i++) {
@@ -1278,8 +1274,8 @@ static void CG_WritePredictMiss(fileHandle_t f)
 
             memcpy(&fp, &cg_predictMiss.predicted[i], 4);
             memcpy(&fs, &cg_predictMiss.server[i], 4);
-            Com_sprintf(line, sizeof(line), "field %4d %6d  %d (%g)  %d (%g)%s\n", (int)(i * 4), cg_predictMiss.count[i], cg_predictMiss.predicted[i], fp,
-                        cg_predictMiss.server[i], fs, cg_predictMiss.set[i] ? "" : "  never set by the server");
+            Q_FormatTo(line, "field {:4} {:6}  {} ({:g})  {} ({:g}){}\n", (int)(i * 4), cg_predictMiss.count[i], cg_predictMiss.predicted[i], fp,
+                       cg_predictMiss.server[i], fs, cg_predictMiss.set[i] ? "" : "  never set by the server");
             CG_PredictMissLine(f, line);
         }
     }
@@ -1287,26 +1283,26 @@ static void CG_WritePredictMiss(fileHandle_t f)
         const predictMissDetail_t* m = &cg_predictMissDetails[n];
         int a[PS_WORDS], b[PS_WORDS];
 
-        Com_sprintf(line, sizeof(line),
-                    "miss %d: tick %d, %s, %.2f units (%.2f %.2f %.2f); command %d %d %d buttons %x; "
-                    "touched %d: %d %d %d %d; nearest player %d at %.1f units, speed %.0f\n",
-                    n, m->server.commandTime, cg_predictMissKinds[m->kind], m->d, m->predicted.origin[0] - m->server.origin[0],
-                    m->predicted.origin[1] - m->server.origin[1], m->predicted.origin[2] - m->server.origin[2], m->cmd.forwardmove, m->cmd.rightmove,
-                    m->cmd.upmove, to_underlying(m->cmd.buttons), m->numTouch, m->numTouch > 0 ? m->touch[0] : -1, m->numTouch > 1 ? m->touch[1] : -1,
-                    m->numTouch > 2 ? m->touch[2] : -1, m->numTouch > 3 ? m->touch[3] : -1, m->nearest, m->nearest < 0 ? 0.0f : m->nearestDist,
-                    m->nearest < 0 ? 0.0f : m->nearestSpeed);
+        Q_FormatTo(line,
+                   "miss {}: tick {}, {}, {:.2f} units ({:.2f} {:.2f} {:.2f}); command {} {} {} buttons {:x}; touched {}: {} {} {} {}; nearest player {} at "
+                   "{:.1f} units, speed {:.0f}\n",
+                   n, m->server.commandTime, cg_predictMissKinds[m->kind], m->d, m->predicted.origin[0] - m->server.origin[0],
+                   m->predicted.origin[1] - m->server.origin[1], m->predicted.origin[2] - m->server.origin[2], m->cmd.forwardmove, m->cmd.rightmove,
+                   m->cmd.upmove, to_underlying(m->cmd.buttons), m->numTouch, m->numTouch > 0 ? m->touch[0] : -1, m->numTouch > 1 ? m->touch[1] : -1,
+                   m->numTouch > 2 ? m->touch[2] : -1, m->numTouch > 3 ? m->touch[3] : -1, m->nearest, m->nearest < 0 ? 0.0f : m->nearestDist,
+                   m->nearest < 0 ? 0.0f : m->nearestSpeed);
         CG_PredictMissLine(f, line);
         if (m->haveStart) {
-            Com_sprintf(line, sizeof(line),
-                        "  start: %d ticks before; origin %.2f %.2f %.2f velocity %.2f %.2f %.2f ground %d pm_flags %x "
-                        "pm_time %d pm_type %d legs %d torso %d weaponTime %d saberMove %d\n",
-                        (m->server.commandTime - m->start.commandTime) / TICK_MSEC, m->start.origin[0], m->start.origin[1], m->start.origin[2],
-                        m->start.velocity[0], m->start.velocity[1], m->start.velocity[2], m->start.groundEntityNum, to_underlying(m->start.pm_flags),
-                        m->start.pm_time, to_underlying(m->start.pm_type), to_underlying(m->start.legsAnim), to_underlying(m->start.torsoAnim),
-                        m->start.weaponTime, to_underlying(m->start.saberMove));
+            Q_FormatTo(line,
+                       "  start: {} ticks before; origin {:.2f} {:.2f} {:.2f} velocity {:.2f} {:.2f} {:.2f} ground {} pm_flags {:x} pm_time {} pm_type {} legs "
+                       "{} torso {} weaponTime {} saberMove {}\n",
+                       (m->server.commandTime - m->start.commandTime) / TICK_MSEC, m->start.origin[0], m->start.origin[1], m->start.origin[2],
+                       m->start.velocity[0], m->start.velocity[1], m->start.velocity[2], m->start.groundEntityNum, to_underlying(m->start.pm_flags),
+                       m->start.pm_time, to_underlying(m->start.pm_type), to_underlying(m->start.legsAnim), to_underlying(m->start.torsoAnim),
+                       m->start.weaponTime, to_underlying(m->start.saberMove));
         }
         else {
-            Com_sprintf(line, sizeof(line), "  start: not held\n");
+            Q_FormatTo(line, "  start: not held\n");
         }
         CG_PredictMissLine(f, line);
         memcpy(a, &m->predicted, sizeof(a));
@@ -1317,7 +1313,7 @@ static void CG_WritePredictMiss(fileHandle_t f)
 
                 memcpy(&fp, &a[i], 4);
                 memcpy(&fs, &b[i], 4);
-                Com_sprintf(line, sizeof(line), "  diff %4d  %d (%g)  %d (%g)\n", (int)(i * 4), a[i], fp, b[i], fs);
+                Q_FormatTo(line, "  diff {:4}  {} ({:g})  {} ({:g})\n", (int)(i * 4), a[i], fp, b[i], fs);
                 CG_PredictMissLine(f, line);
             }
         }
@@ -1327,26 +1323,26 @@ static void CG_WritePredictMiss(fileHandle_t f)
 void CG_PredictMiss_f(void)
 {
     if (!cg_predictMiss.on) {
-        Com_Printf("predictmiss: counting from now; call it again to write predictmiss.txt\n");
+        Q_Println("predictmiss: counting from now; call it again to write predictmiss.txt");
     }
     else {
         fileHandle_t f;
 
-        Com_Printf("predictmiss: %d ticks compared, %d with a difference in a field the server sets\n", cg_predictMiss.checked, cg_predictMiss.differing);
+        Q_Println("predictmiss: {} ticks compared, {} with a difference in a field the server sets", cg_predictMiss.checked, cg_predictMiss.differing);
         for (predictMissKind_t cause = predictMissKind_t::MISS_TELEPORT; cause < predictMissKind_t::MISS_ANIM; cause++) {
-            Com_Printf("predictmiss: position, %s: %d ticks, mean %.2f units, max %.2f\n", cg_predictMissKinds[cause], cg_predictMiss.origin[cause],
-                       cg_predictMiss.origin[cause] ? cg_predictMiss.originSum[cause] / cg_predictMiss.origin[cause] : 0.0f, cg_predictMiss.originMax[cause]);
+            Q_Println("predictmiss: position, {}: {} ticks, mean {:.2f} units, max {:.2f}", cg_predictMissKinds[cause], cg_predictMiss.origin[cause],
+                      cg_predictMiss.origin[cause] ? cg_predictMiss.originSum[cause] / cg_predictMiss.origin[cause] : 0.0f, cg_predictMiss.originMax[cause]);
         }
-        Com_Printf("predictmiss: an animation only: %d ticks\n", cg_predictMiss.animOnly);
-        Com_Printf("predictmiss: %d frames predicted from a snapshot ahead of the drawn ones\n", cg_predictMiss.ahead);
+        Q_Println("predictmiss: an animation only: {} ticks", cg_predictMiss.animOnly);
+        Q_Println("predictmiss: {} frames predicted from a snapshot ahead of the drawn ones", cg_predictMiss.ahead);
         trap->FS_Open("predictmiss.txt", &f, fsMode_t::FS_WRITE);
         if (f) {
             CG_WritePredictMiss(f);
             trap->FS_Close(f);
-            Com_Printf("predictmiss: %d misses in full, written to predictmiss.txt in the game folder of the home path\n", cg_predictMiss.details);
+            Q_Println("predictmiss: {} misses in full, written to predictmiss.txt in the game folder of the home path", cg_predictMiss.details);
         }
         else {
-            Com_Printf("predictmiss: could not write predictmiss.txt\n");
+            Q_Println("predictmiss: could not write predictmiss.txt");
         }
     }
     memset(&cg_predictMiss, 0, sizeof(cg_predictMiss));
@@ -1542,7 +1538,7 @@ void CG_PredictPlayerState(void)
     trap->GetUserCmd(cmdNum, &oldestCmd);
     if (oldestCmd.serverTime > cg.snap->ps.commandTime && oldestCmd.serverTime < cg.time) { // special check for map_restart
         if (cg_showMiss.integer) {
-            Com_Printf("exceeded PACKET_BACKUP on commands\n");
+            Q_Println("exceeded PACKET_BACKUP on commands");
         }
         return;
     }
@@ -1645,7 +1641,7 @@ void CG_PredictPlayerState(void)
                 // a teleport will not cause an error decay
                 VectorClear(cg.predictedError);
                 if (cg_showVehMiss.integer) {
-                    Com_Printf("VEH PredictionTeleport\n");
+                    Q_Println("VEH PredictionTeleport");
                 }
                 cg.thisFrameTeleport = false;
             }
@@ -1655,14 +1651,14 @@ void CG_PredictPlayerState(void)
 
                 if (cg_showVehMiss.integer) {
                     if (!VectorCompare(oldVehicleState.origin, adjusted)) {
-                        Com_Printf("VEH prediction error\n");
+                        Q_Println("VEH prediction error");
                     }
                 }
                 VectorSubtract(oldVehicleState.origin, adjusted, delta);
                 len = VectorLength(delta);
                 if (len > 0.1) {
                     if (cg_showVehMiss.integer) {
-                        Com_Printf("VEH Prediction miss: %f\n", len);
+                        Q_Println("VEH Prediction miss: {:f}", len);
                     }
                     if (cg_errorDecay.integer) {
                         int t;
@@ -1674,7 +1670,7 @@ void CG_PredictPlayerState(void)
                             f = 0;
                         }
                         if (f > 0 && cg_showVehMiss.integer) {
-                            Com_Printf("VEH Double prediction decay: %f\n", f);
+                            Q_Println("VEH Double prediction decay: {:f}", f);
                         }
                         VectorScale(cg.predictedError, f, cg.predictedError);
                     }
@@ -1687,13 +1683,13 @@ void CG_PredictPlayerState(void)
                 //
                 if (cg_showVehMiss.integer) {
                     if (!VectorCompare(oldVehicleState.vehOrientation, cg.predictedVehicleState.vehOrientation)) {
-                        Com_Printf("VEH orient prediction error\n");
-                        Com_Printf("VEH pitch prediction miss: %f\n",
-                                   AngleSubtract(oldVehicleState.vehOrientation[0], cg.predictedVehicleState.vehOrientation[0]));
-                        Com_Printf("VEH yaw prediction miss: %f\n",
-                                   AngleSubtract(oldVehicleState.vehOrientation[1], cg.predictedVehicleState.vehOrientation[1]));
-                        Com_Printf("VEH roll prediction miss: %f\n",
-                                   AngleSubtract(oldVehicleState.vehOrientation[2], cg.predictedVehicleState.vehOrientation[2]));
+                        Q_Println("VEH orient prediction error");
+                        Q_Println("VEH pitch prediction miss: {:f}",
+                                  AngleSubtract(oldVehicleState.vehOrientation[0], cg.predictedVehicleState.vehOrientation[0]));
+                        Q_Println("VEH yaw prediction miss: {:f}",
+                                  AngleSubtract(oldVehicleState.vehOrientation[1], cg.predictedVehicleState.vehOrientation[1]));
+                        Q_Println("VEH roll prediction miss: {:f}",
+                                  AngleSubtract(oldVehicleState.vehOrientation[2], cg.predictedVehicleState.vehOrientation[2]));
                     }
                 }
             }
@@ -1708,7 +1704,7 @@ void CG_PredictPlayerState(void)
                 // a teleport will not cause an error decay
                 VectorClear(cg.predictedError);
                 if (cg_showMiss.integer) {
-                    Com_Printf("PredictionTeleport\n");
+                    Q_Println("PredictionTeleport");
                 }
                 cg.thisFrameTeleport = false;
             }
@@ -1718,14 +1714,14 @@ void CG_PredictPlayerState(void)
 
                 if (cg_showMiss.integer) {
                     if (!VectorCompare(cg.predictedFullState.origin, adjusted)) {
-                        Com_Printf("prediction error\n");
+                        Q_Println("prediction error");
                     }
                 }
                 VectorSubtract(cg.predictedFullState.origin, adjusted, delta);
                 len = VectorLength(delta);
                 if (len > 0.1) {
                     if (cg_showMiss.integer) {
-                        Com_Printf("Prediction miss: %f\n", len);
+                        Q_Println("Prediction miss: {:f}", len);
                     }
                     if (cg_errorDecay.integer) {
                         int t;
@@ -1737,7 +1733,7 @@ void CG_PredictPlayerState(void)
                             f = 0;
                         }
                         if (f > 0 && cg_showMiss.integer) {
-                            Com_Printf("Double prediction decay: %f\n", f);
+                            Q_Println("Double prediction decay: {:f}", f);
                         }
                         VectorScale(cg.predictedError, f, cg.predictedError);
                     }
@@ -1843,8 +1839,7 @@ void CG_PredictPlayerState(void)
                 /*
                 if ( !cg_paused.integer )
                 {
-                    Com_Printf( "%d - PITCH change %4.2f\n", cg.time, AngleSubtract(veh->m_pVehicle->m_vOrientation[0],veh->m_pVehicle->m_vPrevOrientation[0])
-                );
+                    Q_Println("{} - PITCH change {:4.2f}", cg.time, AngleSubtract(veh->m_pVehicle->m_vOrientation[0],veh->m_pVehicle->m_vPrevOrientation[0]));
                 }
                 */
                 if (cg_showVehBounds.integer) {
@@ -1872,14 +1867,14 @@ void CG_PredictPlayerState(void)
     CG_InterpolateTicks(&cg.predictedPlayerState, current);
 
     if (cg_showMiss.integer > 1) {
-        Com_Printf("[%i : %i] ", cg_pmove.cmd.serverTime, cg.time);
+        Q_Print("[{} : {}] ", cg_pmove.cmd.serverTime, cg.time);
     }
 
     if (!moved) {
         // with the commands made one tick ahead, the server can run the newest before the next is made (a short round
         // trip): drawn from the snapshot, interpolated as above
         if (cg_showMiss.integer > 1) {
-            Com_Printf("not moved\n");
+            Q_Println("not moved");
         }
         // the events and the changes of that snapshot are still played here: while the prediction is on, the snapshot's
         // transition leaves them to this function (CG_TransitionSnapshot), and the next frame would compare with a
@@ -1901,7 +1896,7 @@ void CG_PredictPlayerState(void)
 
     if (cg_showMiss.integer) {
         if (cg.predictedPlayerState.eventSequence > oldPlayerState.eventSequence + MAX_PS_EVENTS) {
-            Com_Warning("dropped event\n");
+            Q_PrintlnWarning("dropped event");
         }
     }
 
@@ -1911,7 +1906,7 @@ void CG_PredictPlayerState(void)
 
     if (cg_showMiss.integer) {
         if (cg.eventSequence > cg.predictedPlayerState.eventSequence) {
-            Com_Warning("double event\n");
+            Q_PrintlnWarning("double event");
             cg.eventSequence = cg.predictedPlayerState.eventSequence;
         }
     }

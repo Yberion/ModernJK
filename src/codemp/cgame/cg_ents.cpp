@@ -347,7 +347,7 @@ localEntity_t* FX_AddOrientedLine(vec3_t start, vec3_t end, vec3_t normal, float
 
 #ifdef _DEBUG
     if (!shader) {
-        Com_Printf("FX_AddLine: NULL shader\n");
+        Q_Println("FX_AddLine: NULL shader");
     }
 #endif
 
@@ -789,7 +789,7 @@ void CG_AddRadarEnt(centity_t* cent)
     static const int numRadarEnts = ARRAY_LEN(cg.radarEntities);
     if (cg.radarEntityCount >= numRadarEnts) {
 #ifdef _DEBUG
-        Com_Warning("CG_AddRadarEnt full. (%d max)\n", numRadarEnts);
+        Q_PrintlnWarning("CG_AddRadarEnt full. ({} max)", numRadarEnts);
 #endif
         return;
     }
@@ -801,7 +801,7 @@ void CG_AddBracketedEnt(centity_t* cent)
     static const int numBracketEnts = ARRAY_LEN(cg.bracketedEntities);
     if (cg.bracketedEntityCount >= numBracketEnts) {
 #ifdef _DEBUG
-        Com_Warning("CG_AddBracketedEnt full. (%d max)\n", numBracketEnts);
+        Q_PrintlnWarning("CG_AddBracketedEnt full. ({} max)", numBracketEnts);
 #endif
         return;
     }
@@ -1042,8 +1042,8 @@ static void CG_General(centity_t* cent)
                 rotateBone = "lradius";
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "l_arm", limbName, sizeof(limbName));
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "torso", stubName, sizeof(stubName));
-                Com_sprintf(limbCapName, sizeof(limbCapName), "%s_cap_torso", limbName);
-                Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_l_arm", stubName);
+                Q_FormatTo(limbCapName, "{}_cap_torso", limbName);
+                Q_FormatTo(stubCapName, "{}_cap_l_arm", stubName);
                 limbTagName = "*l_arm_cap_torso";
                 stubTagName = "*torso_cap_l_arm";
             }
@@ -1051,8 +1051,8 @@ static void CG_General(centity_t* cent)
                 rotateBone = "rradius";
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "r_arm", limbName, sizeof(limbName));
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "torso", stubName, sizeof(stubName));
-                Com_sprintf(limbCapName, sizeof(limbCapName), "%s_cap_torso", limbName);
-                Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_r_arm", stubName);
+                Q_FormatTo(limbCapName, "{}_cap_torso", limbName);
+                Q_FormatTo(stubCapName, "{}_cap_r_arm", stubName);
                 limbTagName = "*r_arm_cap_torso";
                 stubTagName = "*torso_cap_r_arm";
             }
@@ -1060,8 +1060,8 @@ static void CG_General(centity_t* cent)
                 rotateBone = "rhand";
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "r_hand", limbName, sizeof(limbName));
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "r_arm", stubName, sizeof(stubName));
-                Com_sprintf(limbCapName, sizeof(limbCapName), "%s_cap_r_arm", limbName);
-                Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_r_hand", stubName);
+                Q_FormatTo(limbCapName, "{}_cap_r_arm", limbName);
+                Q_FormatTo(stubCapName, "{}_cap_r_hand", stubName);
                 limbTagName = "*r_hand_cap_r_arm";
                 stubTagName = "*r_arm_cap_r_hand";
             }
@@ -1069,8 +1069,8 @@ static void CG_General(centity_t* cent)
                 rotateBone = "ltibia";
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "l_leg", limbName, sizeof(limbName));
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "hips", stubName, sizeof(stubName));
-                Com_sprintf(limbCapName, sizeof(limbCapName), "%s_cap_hips", limbName);
-                Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_l_leg", stubName);
+                Q_FormatTo(limbCapName, "{}_cap_hips", limbName);
+                Q_FormatTo(stubCapName, "{}_cap_l_leg", stubName);
                 limbTagName = "*l_leg_cap_hips";
                 stubTagName = "*hips_cap_l_leg";
             }
@@ -1078,8 +1078,8 @@ static void CG_General(centity_t* cent)
                 rotateBone = "rtibia";
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "r_leg", limbName, sizeof(limbName));
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "hips", stubName, sizeof(stubName));
-                Com_sprintf(limbCapName, sizeof(limbCapName), "%s_cap_hips", limbName);
-                Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_r_leg", stubName);
+                Q_FormatTo(limbCapName, "{}_cap_hips", limbName);
+                Q_FormatTo(stubCapName, "{}_cap_r_leg", stubName);
                 limbTagName = "*r_leg_cap_hips";
                 stubTagName = "*hips_cap_r_leg";
             }
@@ -1087,8 +1087,8 @@ static void CG_General(centity_t* cent)
                 rotateBone = "rtibia";
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "r_leg", limbName, sizeof(limbName));
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "hips", stubName, sizeof(stubName));
-                Com_sprintf(limbCapName, sizeof(limbCapName), "%s_cap_hips", limbName);
-                Com_sprintf(stubCapName, sizeof(stubCapName), "%s_cap_r_leg", stubName);
+                Q_FormatTo(limbCapName, "{}_cap_hips", limbName);
+                Q_FormatTo(stubCapName, "{}_cap_r_leg", stubName);
                 limbTagName = "*r_leg_cap_hips";
                 stubTagName = "*hips_cap_r_leg";
             }
@@ -1752,7 +1752,7 @@ static void CG_Item(centity_t* cent)
 
     es = &cent->currentState;
     if (es->modelindex >= bg_numItems) {
-        Com_Error(errorParm_t::ERR_DROP, "Bad item index %i on entity", es->modelindex);
+        Q_Error(errorParm_t::ERR_DROP, "Bad item index {} on entity", es->modelindex);
     }
 
     /*
@@ -2803,7 +2803,7 @@ static void CG_InterpolateEntityPosition(centity_t* cent)
     // it would be an internal error to find an entity that interpolates without
     // a snapshot ahead of the current one
     if (cg.nextSnap == nullptr) {
-        Com_Error(errorParm_t::ERR_DROP, "CG_InterpoateEntityPosition: cg.nextSnap == NULL");
+        Q_Error(errorParm_t::ERR_DROP, "CG_InterpoateEntityPosition: cg.nextSnap == NULL");
         return;
     }
 
@@ -3066,7 +3066,7 @@ static void CG_AddCEntity(centity_t* cent)
     */
     switch (cent->currentState.eType) {
     default:
-        Com_Error(errorParm_t::ERR_DROP, "Bad entity type: %i\n", to_underlying(cent->currentState.eType));
+        Q_Error(errorParm_t::ERR_DROP, "Bad entity type: {}", to_underlying(cent->currentState.eType));
         break;
 
     case entityType_t::ET_FX:
@@ -3302,7 +3302,7 @@ void CG_ROFF_NotetrackCallback(centity_t* cent, const char* notetrack)
 
     if (strcmp(type, "effect") == 0) {
         if (!addlArgs) {
-            // sprintf(errMsg, "Offset position argument for 'effect' type is invalid.");
+            // Q_FormatTo(errMsg, "Offset position argument for 'effect' type is invalid.");
             // goto functionend;
             VectorClear(parsedOffset);
             goto defaultoffsetposition;
@@ -3320,7 +3320,7 @@ void CG_ROFF_NotetrackCallback(centity_t* cent, const char* notetrack)
             t[r] = '\0';
             i++;
             if (!r) { // failure..
-                // sprintf(errMsg, "Offset position argument for 'effect' type is invalid.");
+                // Q_FormatTo(errMsg, "Offset position argument for 'effect' type is invalid.");
                 // goto functionend;
                 VectorClear(parsedOffset);
                 i = 0;
@@ -3331,7 +3331,7 @@ void CG_ROFF_NotetrackCallback(centity_t* cent, const char* notetrack)
         }
 
         if (posoffsetGathered < 3) {
-            Com_sprintf(errMsg, sizeof(errMsg), "Offset position argument for 'effect' type is invalid.");
+            Q_FormatTo(errMsg, "Offset position argument for 'effect' type is invalid.");
             goto functionend;
         }
 
@@ -3410,17 +3410,17 @@ void CG_ROFF_NotetrackCallback(centity_t* cent, const char* notetrack)
     // else if ...
     else {
         if (type[0]) {
-            Com_Warning("\"%s\" is an invalid ROFF notetrack function\n", type);
+            Q_PrintlnWarning("\"{}\" is an invalid ROFF notetrack function", type);
         }
         else {
-            Com_Warning("Notetrack is missing function and/or arguments\n");
+            Q_PrintlnWarning("Notetrack is missing function and/or arguments");
         }
     }
 
     return;
 
 functionend:
-    Com_Printf("^3Type-specific notetrack error: %s\n", errMsg);
+    Q_Println("^3Type-specific notetrack error: {}", errMsg);
     return;
 }
 

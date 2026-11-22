@@ -60,7 +60,7 @@ static void UI_UpdateScreenshot(void)
     if (ui_screenshotType.string[0] && isalpha(ui_screenshotType.string[0])) {
         const std::optional<screenshotFormat_t> ssf = UI_GetScreenshotFormatForString(ui_screenshotType.string);
         if (!ssf) {
-            Com_Printf("UI Screenshot Format Type '%s' unrecognised, defaulting to JPEG\n", ui_screenshotType.string);
+            Q_Println("UI Screenshot Format Type '{}' unrecognised, defaulting to JPEG", ui_screenshotType.string);
             uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
             changed = true;
         }
@@ -69,7 +69,7 @@ static void UI_UpdateScreenshot(void)
     }
     else if (ui_screenshotType.integer < to_underlying(screenshotFormat_t::SSF_JPEG) ||
              ui_screenshotType.integer > to_underlying(screenshotFormat_t::SSF_PNG)) {
-        Com_Printf("ui_screenshotType %i is out of range, defaulting to 0 (JPEG)\n", ui_screenshotType.integer);
+        Q_Println("ui_screenshotType {} is out of range, defaulting to 0 (JPEG)", ui_screenshotType.integer);
         uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
         changed = true;
     }

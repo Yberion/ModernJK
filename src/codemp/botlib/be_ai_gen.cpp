@@ -99,7 +99,7 @@ int GeneticParentsAndChildSelection(int numranks, float* ranks, int* parent1, in
     int i;
 
     if (numranks > 256) {
-        Com_Warning("GeneticParentsAndChildSelection: too many bots\n");
+        Q_PrintlnWarning("GeneticParentsAndChildSelection: too many bots");
         *parent1 = *parent2 = *child = 0;
         return false;
     } // end if
@@ -109,7 +109,7 @@ int GeneticParentsAndChildSelection(int numranks, float* ranks, int* parent1, in
         max++;
     } // end for
     if (max < 3) {
-        Com_Warning("GeneticParentsAndChildSelection: too few valid bots\n");
+        Q_PrintlnWarning("GeneticParentsAndChildSelection: too few valid bots");
         *parent1 = *parent2 = *child = 0;
         return false;
     } // end if

@@ -216,17 +216,17 @@ memoryblock_t* BlockFromPointer(void* ptr, char* str)
 #ifdef MEMDEBUG
         // char *crash = (char *) nullptr;
         // crash[0] = 1;
-        Com_PrintError("%s: NULL pointer\n", str);
+        Q_PrintlnError("{}: NULL pointer", str);
 #endif // MEMDEBUG
         return nullptr;
     } // end if
     block = (memoryblock_t*)((char*)ptr - sizeof(memoryblock_t));
     if (block->id != MEM_ID && block->id != HUNK_ID) {
-        Com_PrintError("%s: invalid memory block\n", str);
+        Q_PrintlnError("{}: invalid memory block", str);
         return nullptr;
     } // end if
     if (block->ptr != ptr) {
-        Com_PrintError("%s: memory block pointer invalid\n", str);
+        Q_PrintlnError("{}: memory block pointer invalid", str);
         return nullptr;
     } // end if
     return block;
@@ -286,9 +286,9 @@ int MemoryByteSize(void* ptr)
 //===========================================================================
 void PrintUsedMemorySize(void)
 {
-    Com_Printf("total allocated memory: %d KB\n", allocatedmemory >> 10);
-    Com_Printf("total botlib memory: %d KB\n", totalmemorysize >> 10);
-    Com_Printf("total memory blocks: %d\n", numblocks);
+    Q_Println("total allocated memory: {} KB", allocatedmemory >> 10);
+    Q_Println("total botlib memory: {} KB", totalmemorysize >> 10);
+    Q_Println("total memory blocks: {}", numblocks);
 } // end of the function PrintUsedMemorySize
 //===========================================================================
 //
@@ -308,10 +308,10 @@ void PrintMemoryLabels(void)
     for (block = memory; block; block = block->next) {
 #ifdef MEMDEBUG
         if (block->id == HUNK_ID) {
-            Log_Write("%6d, hunk %p, %8d: %24s line %6d: %s\r\n", i, block->ptr, block->size, block->file, block->line, block->label);
+            Log_Write("{:6}, hunk {}, {:8}: {:>24} line {:6}: {}\r\n", i, block->ptr, block->size, block->file, block->line, block->label);
         } // end if
         else {
-            Log_Write("%6d,      %p, %8d: %24s line %6d: %s\r\n", i, block->ptr, block->size, block->file, block->line, block->label);
+            Log_Write("{:6},      {}, {:8}: {:>24} line {:6}: {}\r\n", i, block->ptr, block->size, block->file, block->line, block->label);
         } // end else
 #endif // MEMDEBUG
         i++;

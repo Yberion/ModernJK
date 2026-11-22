@@ -21,8 +21,17 @@
 add_executable(modernjk_test_safe main.cpp safe/string.cpp safe/limited_vector.cpp)
 target_include_directories(modernjk_test_safe PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src")
 target_link_libraries(modernjk_test_safe PRIVATE modernjk_safe_string modernjk_options modernjk_warnings
-	modernjk_defines)
+	modernjk_defines vendored::fmt)
 if(MINGW)
 	target_link_options(modernjk_test_safe PRIVATE -static)
 endif()
 add_test(NAME modernjk.safe COMMAND modernjk_test_safe)
+
+# The tests of src/shared/qcommon/q_fmt.h and q_fmt.cpp
+add_executable(modernjk_test_fmt qcommon/q_fmt.cpp "${PROJECT_SOURCE_DIR}/src/shared/qcommon/q_fmt.cpp")
+target_include_directories(modernjk_test_fmt PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src")
+target_link_libraries(modernjk_test_fmt PRIVATE modernjk_options modernjk_warnings modernjk_defines vendored::fmt)
+if(MINGW)
+	target_link_options(modernjk_test_fmt PRIVATE -static)
+endif()
+add_test(NAME modernjk.fmt COMMAND modernjk_test_fmt)

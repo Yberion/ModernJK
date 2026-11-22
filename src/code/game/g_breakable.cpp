@@ -394,12 +394,12 @@ void SP_func_breakable(gentity_t* self)
     if (self->team && self->team[0]) {
         self->noDamageTeam = (team_t)GetIDForString(TeamTable, self->team);
         if (self->noDamageTeam == team_t::TEAM_FREE) {
-            Com_Error(errorParm_t::ERR_DROP, "team name %s not recognized\n", self->team);
+            Q_Error(errorParm_t::ERR_DROP, "team name {} not recognized", self->team);
         }
     }
     self->team = nullptr;
     if (!self->model) {
-        Com_Error(errorParm_t::ERR_DROP, "func_breakable with NULL model\n");
+        Q_Error(errorParm_t::ERR_DROP, "func_breakable with NULL model");
     }
     InitBBrush(self);
 
@@ -451,7 +451,7 @@ void misc_model_breakable_die(gentity_t* self, gentity_t* inflictor, gentity_t* 
     if (self->e_DieFunc == dieFunc_t::dieF_NULL) // i was probably already killed since my die func was removed
     {
 #ifndef FINAL_BUILD
-        Com_Printf(S_COLOR_YELLOW "Recursive misc_model_breakable_die.  Use targets probably pointing back at self.\n");
+        Q_Println(S_COLOR_YELLOW "Recursive misc_model_breakable_die.  Use targets probably pointing back at self.");
 #endif
         return; // this happens when you have a cyclic target chain!
     }
@@ -681,7 +681,7 @@ void misc_model_breakable_init(gentity_t* ent)
     type = breakableModelType_t::MDL_OTHER;
 
     if (!ent->model) {
-        Com_Error(errorParm_t::ERR_DROP, "no model set on %s at (%.1f %.1f %.1f)\n", ent->classname, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
+        Q_Error(errorParm_t::ERR_DROP, "no model set on {} at ({:.1f} {:.1f} {:.1f})", ent->classname, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
     }
     // Main model
     ent->s.modelindex = ent->sound2to1 = G_ModelIndex(ent->model);
@@ -792,7 +792,7 @@ void TieFighterThink(gentity_t* self)
                             G_SoundOnEnt(bolt, soundChannel_t::CHAN_VOICE, "sound/weapons/tie_fighter/tie_fire.wav");
                         }
                         else {
-                            G_SoundOnEnt(bolt, soundChannel_t::CHAN_VOICE, va("sound/weapons/tie_fighter/tie_fire%d.wav", Q_irand(2, 3)));
+                            G_SoundOnEnt(bolt, soundChannel_t::CHAN_VOICE, Q_Format("sound/weapons/tie_fighter/tie_fire{}.wav", Q_irand(2, 3)).c_str());
                         }
                         self->attackDebounceTime = level.time + Q_irand(300, 2000);
                     }
@@ -804,7 +804,7 @@ void TieFighterThink(gentity_t* self)
         {                      // within range to start our sound
             if (dot > 0) {
                 if (!self->fly_sound_debounce_time) { // start sound
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, va("sound/weapons/tie_fighter/tiepass%d.wav", Q_irand(1, 5)));
+                    G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, Q_Format("sound/weapons/tie_fighter/tiepass{}.wav", Q_irand(1, 5)).c_str());
                     self->fly_sound_debounce_time = 2000;
                 }
                 else { // sound already started
@@ -1080,10 +1080,10 @@ void SP_misc_model_breakable(gentity_t* ent)
     misc_model_breakable_init(ent);
 
     len = strlen(ent->model) - 4;
-    assert(ent->model[len] == '.');                                                // we're expecting ".md3"
-    Com_sprintf(damageModel, sizeof(damageModel), "%.*s_d1.md3", len, ent->model); // chop extension
-    Com_sprintf(chunkModel, sizeof(chunkModel), "%.*s_c1.md3", len, ent->model);
-    Com_sprintf(useModel, sizeof(useModel), "%.*s_u1.md3", len, ent->model);
+    assert(ent->model[len] == '.');                            // we're expecting ".md3"
+    Q_FormatTo(damageModel, "{:.{}}_d1.md3", ent->model, len); // chop extension
+    Q_FormatTo(chunkModel, "{:.{}}_c1.md3", ent->model, len);
+    Q_FormatTo(useModel, "{:.{}}_u1.md3", ent->model, len);
 
     if (ent->takedamage) {
         // Dead/damaged model
@@ -1146,7 +1146,7 @@ void SP_misc_model_breakable(gentity_t* ent)
     if (ent->team && ent->team[0]) {
         ent->noDamageTeam = (team_t)GetIDForString(TeamTable, ent->team);
         if (ent->noDamageTeam == team_t::TEAM_FREE) {
-            Com_Error(errorParm_t::ERR_DROP, "team name %s not recognized\n", ent->team);
+            Q_Error(errorParm_t::ERR_DROP, "team name {} not recognized", ent->team);
         }
     }
 

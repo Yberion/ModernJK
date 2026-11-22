@@ -96,7 +96,7 @@ void SV_SectorList_f(void)
         for (ent = sec->entities; ent; ent = ent->nextEntityInWorldSector) {
             c++;
         }
-        Com_Printf("sector %i: %i entities\n", i, c);
+        Q_Println("sector {}: {} entities", i, c);
     }
 }
 
@@ -198,7 +198,7 @@ void SV_UnlinkEntity(sharedEntity_t* gEnt)
         }
     }
 
-    Com_Warning("SV_UnlinkEntity: not found in worldSector\n");
+    Q_PrintlnWarning("SV_UnlinkEntity: not found in worldSector");
 }
 
 /*
@@ -315,7 +315,7 @@ void SV_LinkEntity(sharedEntity_t* gEnt)
             // but nothing should evern need more than that
             if (ent->areanum != -1 && ent->areanum != area) {
                 if (ent->areanum2 != -1 && ent->areanum2 != area && sv.state == serverState_t::SS_LOADING) {
-                    Com_DPrintf("Object %i touching 3 areas at %f %f %f\n", gEnt->s.number, gEnt->r.absmin[0], gEnt->r.absmin[1], gEnt->r.absmin[2]);
+                    Q_DPrintln("Object {} touching 3 areas at {:f} {:f} {:f}", gEnt->s.number, gEnt->r.absmin[0], gEnt->r.absmin[1], gEnt->r.absmin[2]);
                 }
                 ent->areanum2 = area;
             }
@@ -404,7 +404,7 @@ void SV_AreaEntities_r(worldSector_t* node, areaParms_t* ap)
         }
 
         if (ap->count == ap->maxcount) {
-            Com_DPrintf("SV_AreaEntities: MAXCOUNT\n");
+            Q_DPrintln("SV_AreaEntities: MAXCOUNT");
             return;
         }
 
@@ -725,8 +725,8 @@ Ghoul2 Insert Start
             // if it could be done like that, it would probably be faster.
 #ifndef FINAL_BUILD
             if (sv_showghoultraces->integer) {
-                Com_Printf("Ghoul2 trace   lod=%1d   length=%6.0f   to %s\n", clip->useLod, VectorDistance(clip->start, clip->end),
-                           re->G2API_GetModelName(*(CGhoul2Info_v*)touch->ghoul2, 0));
+                Q_Println("Ghoul2 trace   lod={:1}   length={:6.0f}   to {}", clip->useLod, VectorDistance(clip->start, clip->end),
+                          re->G2API_GetModelName(*(CGhoul2Info_v*)touch->ghoul2, 0));
             }
 #endif
 

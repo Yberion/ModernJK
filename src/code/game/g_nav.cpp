@@ -182,10 +182,10 @@ void SP_waypoint(gentity_t* ent)
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, true)) { // if not SOLID_OK, and in solid
         ent->maxs[2] = CROUCH_MAXS_2;
         if (G_CheckInSolid(ent, true)) {
-            Com_PrintError("Waypoint %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+            Q_PrintlnError("Waypoint {} at {} in solid!", ent->targetname, vtos(ent->currentOrigin));
             assert(0 && "Waypoint in solid!");
             //				if (!g_entities[ENTITYNUM_WORLD].s.radius){	//not a region
-            //					Com_Error(errorParm_t::ERR_DROP, "Waypoint %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+            //					Q_Error(errorParm_t::ERR_DROP, "Waypoint {} at {} in solid!", ent->targetname, vtos(ent->currentOrigin));
             //				}
             delayedShutDown = level.time + 100;
             G_FreeEntity(ent);
@@ -221,11 +221,11 @@ void SP_waypoint_small(gentity_t* ent)
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, true)) {
         ent->maxs[2] = CROUCH_MAXS_2;
         if (G_CheckInSolid(ent, true)) {
-            Com_PrintError("Waypoint_small %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+            Q_PrintlnError("Waypoint_small {} at {} in solid!", ent->targetname, vtos(ent->currentOrigin));
             assert(0);
 #ifndef FINAL_BUILD
             if (!g_entities[ENTITYNUM_WORLD].s.radius) { // not a region
-                Com_Error(errorParm_t::ERR_DROP, "Waypoint_small %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+                Q_Error(errorParm_t::ERR_DROP, "Waypoint_small {} at {} in solid!", ent->targetname, vtos(ent->currentOrigin));
             }
 #endif
             G_FreeEntity(ent);
@@ -269,11 +269,11 @@ void SP_waypoint_navgoal(gentity_t* ent)
     VectorSet(ent->maxs, 16, 16, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        Com_PrintError("Waypoint_navgoal %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+        Q_PrintlnError("Waypoint_navgoal {} at {} in solid!", ent->targetname, vtos(ent->currentOrigin));
         assert(0);
 #ifndef FINAL_BUILD
         if (!g_entities[ENTITYNUM_WORLD].s.radius) { // not a region
-            Com_Error(errorParm_t::ERR_DROP, "Waypoint_navgoal %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+            Q_Error(errorParm_t::ERR_DROP, "Waypoint_navgoal {} at {} in solid!", ent->targetname, vtos(ent->currentOrigin));
         }
 #endif
     }
@@ -360,12 +360,12 @@ void Svcmd_Nav_f(void)
     }
     else {
         // Print the available commands
-        Com_Printf("nav - valid commands\n---\n");
-        Com_Printf("show\n - nodes\n - edges\n - testpath\n - enemypath\n - combatpoints\n - navgoals\n---\n");
-        Com_Printf("goto\n ---\n");
-        Com_Printf("gotonum\n ---\n");
-        Com_Printf("totals\n ---\n");
-        Com_Printf("set\n - testgoal\n---\n");
+        Q_Println("nav - valid commands\n---");
+        Q_Println("show\n - nodes\n - edges\n - testpath\n - enemypath\n - combatpoints\n - navgoals\n---");
+        Q_Println("goto\n ---");
+        Q_Println("gotonum\n ---");
+        Q_Println("totals\n ---");
+        Q_Println("set\n - testgoal\n---");
     }
 }
 

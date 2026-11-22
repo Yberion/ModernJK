@@ -560,7 +560,7 @@ int Pickup_Holocron(gentity_t* ent, gentity_t* other)
     const forcePowerLevels_t forceLevel = static_cast<forcePowerLevels_t>(ent->count);
     // check if out of range
     if (forceLevel < forcePowerLevels_t::FORCE_LEVEL_0 || forceLevel >= forcePowerLevels_t::NUM_FORCE_POWER_LEVELS) {
-        Com_Printf(" Pickup_Holocron : count %d not in valid range\n", ent->count);
+        Q_Println(" Pickup_Holocron : count {} not in valid range", ent->count);
         return 1;
     }
 
@@ -575,8 +575,8 @@ int Pickup_Holocron(gentity_t* ent, gentity_t* other)
     other->client->ps.forcePowerLevel[forcePower] = forceLevel;
     other->client->ps.forcePowersKnown |= Bit(forcePower);
 
-    missionInfo_Updated = true;                                                           // Activate flashing text
-    gi.cvar_set("cg_updatedDataPadForcePower1", va("%d", to_underlying(forcePower) + 1)); // The +1 is offset in the print routine.
+    missionInfo_Updated = true;                                                                         // Activate flashing text
+    gi.cvar_set("cg_updatedDataPadForcePower1", Q_Format("{}", to_underlying(forcePower) + 1).c_str()); // The +1 is offset in the print routine.
     cg_updatedDataPadForcePower1.integer = to_underlying(forcePower) + 1;
     gi.cvar_set("cg_updatedDataPadForcePower2", "0"); // The +1 is offset in the print routine.
     cg_updatedDataPadForcePower2.integer = 0;
@@ -718,7 +718,7 @@ void Touch_Item(gentity_t* ent, gentity_t* other, trace_t* trace)
         }
     }
     if (!ent->item) { // not an item!
-        Com_Printf("Touch_Item: %s is not an item!\n", ent->classname);
+        Q_Println("Touch_Item: {} is not an item!", ent->classname);
         return;
     }
 
@@ -1064,11 +1064,11 @@ void FinishSpawningItem(gentity_t* ent)
                  0);
         if (tr.startsolid) {
             if (g_entities[tr.entityNum].inuse) {
-                Com_Printf(S_COLOR_RED "FinishSpawningItem: removing %s startsolid at %s (in a %s)\n", ent->classname, vtos(ent->s.origin),
-                           g_entities[tr.entityNum].classname);
+                Q_Println(S_COLOR_RED "FinishSpawningItem: removing {} startsolid at {} (in a {})", ent->classname, vtos(ent->s.origin),
+                          g_entities[tr.entityNum].classname);
             }
             else {
-                Com_Printf(S_COLOR_RED "FinishSpawningItem: removing %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
+                Q_Println(S_COLOR_RED "FinishSpawningItem: removing {} startsolid at {}", ent->classname, vtos(ent->s.origin));
             }
             assert(0 && "item starting in solid");
             if (!g_entities[ENTITYNUM_WORLD].s.radius) { // not a region
@@ -1149,7 +1149,7 @@ The item will be added to the precache list
 void RegisterItem(gitem_t* item)
 {
     if (!item) {
-        Com_Error(errorParm_t::ERR_DROP, "RegisterItem: NULL");
+        Q_Error(errorParm_t::ERR_DROP, "RegisterItem: NULL");
     }
     itemRegistered[item - bg_itemlist.data()] = '1';
     gi.SetConfigstring(CS_ITEMS, itemRegistered); // Write the needed items to a config string
@@ -1180,7 +1180,7 @@ void SaveRegisteredItems(void)
         }
         string[ bg_numItems ] = 0;
 
-        Com_Printf( "%i items registered\n", count );
+        Q_Println("{} items registered", count);
         gi.SetConfigstring(CS_ITEMS, string);
     */
     gi.SetConfigstring(CS_ITEMS, itemRegistered);
@@ -1239,7 +1239,7 @@ void G_SpawnItem(gentity_t* ent, gitem_t* item)
     if (ent->team && ent->team[0]) {
         ent->noDamageTeam = (team_t)GetIDForString(TeamTable, ent->team);
         if (ent->noDamageTeam == team_t::TEAM_FREE) {
-            Com_Error(errorParm_t::ERR_DROP, "team name %s not recognized\n", ent->team);
+            Q_Error(errorParm_t::ERR_DROP, "team name {} not recognized", ent->team);
         }
     }
 
@@ -1473,5 +1473,5 @@ void ItemUse_Bacta(gentity_t* ent)
 
     ent->client->ps.inventory[inventory_t::INV_BACTA_CANISTER]--;
 
-    G_SoundOnEnt(ent, soundChannel_t::CHAN_VOICE, va("sound/weapons/force/heal%d_%c.mp3", Q_irand(1, 4), g_sex->string[0]));
+    G_SoundOnEnt(ent, soundChannel_t::CHAN_VOICE, Q_Format("sound/weapons/force/heal{}_{}.mp3", Q_irand(1, 4), g_sex->string[0]).c_str());
 }

@@ -64,7 +64,7 @@ void CG_RegisterWeapon(weapon_t weaponNum)
         }
     }
     if (!item->classname) {
-        Com_Error(errorParm_t::ERR_DROP, "Couldn't find weapon %i", to_underlying(weaponNum));
+        Q_Error(errorParm_t::ERR_DROP, "Couldn't find weapon {}", to_underlying(weaponNum));
     }
     CG_RegisterItemVisuals(item - bg_itemlist);
 
@@ -147,7 +147,7 @@ void CG_RegisterWeapon(weapon_t weaponNum)
 
             while (j < 4)
             {
-                weaponInfo->flashSound[j] = trap->S_RegisterSound( va("sound/weapons/melee/swing%i", j+1) );
+                weaponInfo->flashSound[j] = trap->S_RegisterSound( Q_Format("sound/weapons/melee/swing{}", j+1).c_str() );
                 weaponInfo->altFlashSound[j] = weaponInfo->flashSound[j];
                 j++;
             }

@@ -722,7 +722,7 @@ void laser_arm_use(gentity_t* self, gentity_t* other, gentity_t* activator)
     case 0:
     default:
         // Fire
-        // Com_Printf("FIRE!\n");
+        // Q_Println("FIRE!");
         //		self->lastEnemy->lastEnemy->e_ThinkFunc = thinkFunc_t::thinkF_laser_arm_fire;
         //		self->lastEnemy->lastEnemy->nextthink = level.time + FRAMETIME;
         // For 3 seconds
@@ -732,7 +732,7 @@ void laser_arm_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         break;
     case 1:
         // Yaw left
-        // Com_Printf("LEFT...\n");
+        // Q_Println("LEFT...");
         VectorCopy(self->lastEnemy->currentAngles, newAngles);
         newAngles[1] += self->speed;
         G_SetAngles(self->lastEnemy, newAngles);
@@ -741,7 +741,7 @@ void laser_arm_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         break;
     case 2:
         // Yaw right
-        // Com_Printf("RIGHT...\n");
+        // Q_Println("RIGHT...");
         VectorCopy(self->lastEnemy->currentAngles, newAngles);
         newAngles[1] -= self->speed;
         G_SetAngles(self->lastEnemy, newAngles);
@@ -750,7 +750,7 @@ void laser_arm_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         break;
     case 3:
         // pitch up
-        // Com_Printf("UP...\n");
+        // Q_Println("UP...");
         // FIXME: Clamp
         VectorCopy(self->lastEnemy->lastEnemy->currentAngles, newAngles);
         newAngles[0] -= self->speed;
@@ -762,7 +762,7 @@ void laser_arm_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         break;
     case 4:
         // pitch down
-        // Com_Printf("DOWN...\n");
+        // Q_Println("DOWN...");
         // FIXME: Clamp
         VectorCopy(self->lastEnemy->lastEnemy->currentAngles, newAngles);
         newAngles[0] += self->speed;
@@ -808,7 +808,7 @@ void laser_arm_start(gentity_t* base)
     if (base->target && base->target[0]) { // Start out pointing at something
         gentity_t* targ = G_Find(nullptr, FOFS(targetname), base->target);
         if (!targ) { // couldn't find it!
-            Com_PrintError("laser_arm can't find target %s!\n", base->target);
+            Q_PrintlnError("laser_arm can't find target {}!", base->target);
         }
         else { // point at it
             vec3_t dir, angles;
@@ -1643,7 +1643,7 @@ void spotlight_think(gentity_t* ent)
             G_UseTargets2(ent, &g_entities[0], ent->target2);
 
 #ifndef FINAL_BUILD
-            Com_DPrintf(S_COLOR_MAGENTA "Spotlight hit player at time: %d!!!\n", level.time);
+            Q_DPrintln(S_COLOR_MAGENTA "Spotlight hit player at time: {}!!!", level.time);
 #endif
         }
     }
@@ -1659,7 +1659,7 @@ void spotlight_link(gentity_t* ent)
     target = G_Find(target, FOFS(targetname), ent->target);
 
     if (!target) {
-        Com_PrintError("spotlight_link: bogus target %s\n", ent->target);
+        Q_PrintlnError("spotlight_link: bogus target {}", ent->target);
         G_FreeEntity(ent);
         return;
     }
@@ -1695,7 +1695,7 @@ void SP_misc_spotlight(gentity_t* base)
 //-----------------------------------------------------
 {
     if (!base->target) {
-        Com_PrintError("misc_spotlight must have a target\n");
+        Q_PrintlnError("misc_spotlight must have a target");
         G_FreeEntity(base);
         return;
     }

@@ -21,47 +21,36 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Engine functions and globals that OpenJK's msg.cpp refers to, reduced to what the benchmark needs:
 // no console output (cl_shownet stays nullptr), no file system (no netf / psf override file: default field widths,
 // as in the recordings), errors abort.
+#include <fmt/base.h>
 #include <qcommon/q_shared.h>
 #include <qcommon/qcommon.h>
 #include <server/server.h>
 
-#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iterator>
+#include <string>
 
 cvar_t* cl_shownet = nullptr;
 server_t sv;
 
-void QDECL Com_Printf(const char* fmt, ...)
+// where the engine code's messages and errors go (q_fmt.h, whose q_fmt.cpp the benchmark compiles): the messages
+// dropped, an error ends the benchmark
+void Q_VPrint(printLevel_t level, lineEnd_t end, fmt::string_view fmt, fmt::format_args args)
 {
+    (void)level;
+    (void)end;
     (void)fmt;
+    (void)args;
 }
 
-void QDECL Com_Warning(const char* fmt, ...)
+void NORETURN Q_VError(errorParm_t code, fmt::string_view fmt, fmt::format_args args)
 {
-    (void)fmt;
-}
-
-void NORETURN QDECL Com_Error(errorParm_t code, const char* fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    fprintf(stderr, "legacy Com_Error %d: ", to_underlying(code));
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
-    va_end(ap);
+    std::string text;
+    fmt::vformat_to(std::back_inserter(text), fmt, args);
+    fmt::println(stderr, "legacy Com_Error {}: {}", to_underlying(code), text);
     abort();
-}
-
-char* QDECL va(const char* format, ...)
-{
-    static char buf[1024];
-    va_list ap;
-    va_start(ap, format);
-    vsnprintf(buf, sizeof(buf), format, ap);
-    va_end(ap);
-    return buf;
 }
 
 void Q_strncpyz(char* dest, const char* src, int destsize)

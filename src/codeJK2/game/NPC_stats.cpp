@@ -64,12 +64,12 @@ bool G_ParseLiteral(const char** data, const char* string)
 
     token = COM_ParseExt(data, true);
     if (token[0] == 0) {
-        Com_Printf("unexpected EOF\n");
+        Q_Println("unexpected EOF");
         return true;
     }
 
     if (Q_stricmp(token, string)) {
-        Com_Printf("required string '%s' missing\n", string);
+        Q_Println("required string '{}' missing", string);
         return true;
     }
 
@@ -247,7 +247,7 @@ void SpewDebugStuffToFile(const EnumArray<animation_t, animNumber_t, animNumber_
     BGPAFtext[0] = 0;
 
     while (i < animNumber_t::MAX_ANIMATIONS) {
-        strcat(BGPAFtext, va("%i %i\n", to_underlying(i), bgGlobalAnimations[i].frameLerp));
+        strcat(BGPAFtext, Q_Format("{} {}\n", to_underlying(i), bgGlobalAnimations[i].frameLerp).c_str());
         i++;
     }
 
@@ -285,7 +285,7 @@ bool G_ParseAnimationFile(const char* af_filename)
         return false;
     }
     if (len >= (int)sizeof(text) - 1) {
-        Com_Error(errorParm_t::ERR_DROP, "G_ParseAnimationFile: File %s too long\n (%d > %zu)", af_filename, len, sizeof(text) - 1);
+        Q_Error(errorParm_t::ERR_DROP, "G_ParseAnimationFile: File {} too long\n ({} > {})", af_filename, len, sizeof(text) - 1);
         return false;
     }
     len = gi.RE_GetAnimationCFG(af_filename, text, sizeof(text));
@@ -318,7 +318,7 @@ bool G_ParseAnimationFile(const char* af_filename)
         if (!animNum) {
 // #ifndef FINAL_BUILD
 #ifdef _DEBUG
-            Com_Warning("Unknown token %s in %s\n", token, af_filename);
+            Q_PrintlnWarning("Unknown token {} in {}", token, af_filename);
 #endif
             continue;
         }
@@ -393,7 +393,7 @@ bool G_ParseAnimFileSet(const char* filename, const char* animCFG, int* animFile
     }
 
     if (level.numKnownAnimFileSets == MAX_ANIM_FILES) { // TOO MANY!
-        Com_Error(errorParm_t::ERR_DROP, "G_ParseAnimFileSet: MAX_ANIM_FILES");
+        Q_Error(errorParm_t::ERR_DROP, "G_ParseAnimFileSet: MAX_ANIM_FILES");
     }
 
     // Okay, time to parse in a new one
@@ -401,7 +401,7 @@ bool G_ParseAnimFileSet(const char* filename, const char* animCFG, int* animFile
                sizeof(level.knownAnimFileSets[level.numKnownAnimFileSets].filename));
 
     // Load and parse animations.cfg file
-    Com_sprintf(afilename, sizeof(afilename), "models/players/%s/animation.cfg", animCFG);
+    Q_FormatTo(afilename, "models/players/{}/animation.cfg", animCFG);
     if (!G_ParseAnimationFile(afilename)) {
         *animFileIndex = -1;
         return false;
@@ -430,7 +430,7 @@ void G_LoadAnimFileSet(gentity_t* ent, const char* modelName)
     GLAName = gi.G2API_GetGLAName(&ent->ghoul2[ent->playerModel]);
     // now load and parse the animation.cfg, animsounds.cfg and set the animFileIndex
     if (!GLAName) {
-        Com_Printf(S_COLOR_RED "Failed find animation file name models/players/%s/animation.cfg\n", modelName);
+        Q_Println(S_COLOR_RED "Failed find animation file name models/players/{}/animation.cfg", modelName);
         strippedName = "broken";
     }
     else {
@@ -444,7 +444,7 @@ void G_LoadAnimFileSet(gentity_t* ent, const char* modelName)
 
     // now load and parse the animation.cfg, animsounds.cfg and set the animFileIndex
     if (!G_ParseAnimFileSet(modelName, strippedName, &ent->client->clientInfo.animFileIndex)) {
-        Com_Printf(S_COLOR_RED "Failed to load animation file set models/players/%s/animation.cfg\n", modelName);
+        Q_Println(S_COLOR_RED "Failed to load animation file set models/players/{}/animation.cfg", modelName);
     }
 }
 
@@ -492,7 +492,7 @@ void NPC_PrecacheAnimationCFG(const char* NPC_type)
     while (1) {
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            Com_PrintError("unexpected EOF while parsing '%s'\n", NPC_type);
+            Q_PrintlnError("unexpected EOF while parsing '{}'", NPC_type);
             COM_EndParseSession();
             return;
         }
@@ -523,7 +523,7 @@ void NPC_PrecacheAnimationCFG(const char* NPC_type)
             char* slash = nullptr;
             char* strippedName;
 
-            int handle = gi.G2API_PrecacheGhoul2Model(va("models/players/%s/model.glm", value));
+            int handle = gi.G2API_PrecacheGhoul2Model(Q_Format("models/players/{}/model.glm", value).c_str());
             if (handle > 0) // FIXME: isn't 0 a valid handle?
             {
                 GLAName = gi.G2API_GetAnimFileNameIndex(handle);
@@ -634,7 +634,7 @@ void NPC_Precache(gentity_t* spawner)
         COM_BeginParseSession();
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            Com_PrintError("unexpected EOF while parsing '%s'\n", spawner->NPC_type);
+            Q_PrintlnError("unexpected EOF while parsing '{}'", spawner->NPC_type);
             COM_EndParseSession();
             return;
         }
@@ -788,9 +788,9 @@ void NPC_Precache(gentity_t* spawner)
     else {
         char skinName[MAX_QPATH];
         // precache ghoul2 model
-        gi.G2API_PrecacheGhoul2Model(va("models/players/%s/model.glm", playerModel));
+        gi.G2API_PrecacheGhoul2Model(Q_Format("models/players/{}/model.glm", playerModel).c_str());
         // precache skin
-        Com_sprintf(skinName, sizeof(skinName), "models/players/%s/model_%s.skin", playerModel, customSkin);
+        Q_FormatTo(skinName, "models/players/{}/model_{}.skin", playerModel, customSkin);
         // lets see if it's out there
         gi.RE_RegisterSkin(skinName);
     }
@@ -1038,7 +1038,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
         while (1) {
             token = COM_ParseExt(&p, true);
             if (!token[0]) {
-                Com_PrintError("unexpected EOF while parsing '%s'\n", NPCName);
+                Q_PrintlnError("unexpected EOF while parsing '{}'", NPCName);
                 COM_EndParseSession();
                 return false;
             }
@@ -1148,7 +1148,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->headYawRangeLeft = n;
@@ -1162,7 +1162,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->headYawRangeRight = n;
@@ -1176,7 +1176,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->headPitchRangeUp = n;
@@ -1190,7 +1190,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->headPitchRangeDown = n;
@@ -1204,7 +1204,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->torsoYawRangeLeft = n;
@@ -1218,7 +1218,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->torsoYawRangeRight = n;
@@ -1232,7 +1232,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->torsoPitchRangeUp = n;
@@ -1246,7 +1246,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 ri->torsoPitchRangeDown = n;
@@ -1260,7 +1260,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (n != 100) {
@@ -1276,7 +1276,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (n != 100) {
@@ -1292,7 +1292,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (n != 100) {
@@ -1308,7 +1308,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (n != 100) {
@@ -1325,7 +1325,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 1 || n > 5) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1341,7 +1341,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 1 || n > 5) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1357,7 +1357,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (f < 0.0f) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1373,7 +1373,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 1 || n > 5) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1389,7 +1389,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 30 || n > 180) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1405,7 +1405,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 1 || n > 5) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1421,7 +1421,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 1 || n > 5) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1437,7 +1437,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 1 || n > 5) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1464,7 +1464,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (f < 0.0f) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1480,7 +1480,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1496,7 +1496,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 30 || n > 180) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1512,7 +1512,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (f < 0.0f) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1528,7 +1528,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (f < 0.0f) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1602,7 +1602,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1618,7 +1618,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1634,7 +1634,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1650,7 +1650,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1666,7 +1666,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1725,7 +1725,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n <= 0) {
-                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_Println("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1741,7 +1741,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1757,7 +1757,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1773,7 +1773,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1789,7 +1789,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < to_underlying(bState_t::BS_DEFAULT) || n >= to_underlying(bState_t::NUM_BSTATES)) {
-                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
+                    Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1866,7 +1866,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 continue;
             }
 
-            Com_Warning("unknown keyword '%s' while parsing '%s'\n", token, NPCName);
+            Q_PrintlnWarning("unknown keyword '{}' while parsing '{}'", token, NPCName);
             SkipRestOfLine(&p);
         }
         COM_EndParseSession();
@@ -1903,12 +1903,12 @@ void NPC_LoadParms(void)
     // First, load in the npcs.cfg
     len = gi.FS_ReadFile(filename, (void**)&buffer);
     if (len == -1) {
-        Com_Printf("file not found\n");
+        Q_Println("file not found");
         return;
     }
 
     if (len >= MAX_NPC_DATA_SIZE) {
-        Com_Error(errorParm_t::ERR_DROP, "ext_data/NPCs.cfg is too large");
+        Q_Error(errorParm_t::ERR_DROP, "ext_data/NPCs.cfg is too large");
     }
 
     strncpy(NPCParms, buffer, sizeof(NPCParms) - 1);
@@ -1925,14 +1925,14 @@ void NPC_LoadParms(void)
     for (i = 0; i < fileCnt; i++, holdChar += npcExtFNLen + 1) {
         npcExtFNLen = strlen(holdChar);
 
-        len = gi.FS_ReadFile(va("ext_data/%s", holdChar), (void**)&buffer);
+        len = gi.FS_ReadFile(Q_Format("ext_data/{}", holdChar).c_str(), (void**)&buffer);
 
         if (len == -1) {
-            Com_Printf("error reading file\n");
+            Q_Println("error reading file");
         }
         else {
             if (totallen + len >= MAX_NPC_DATA_SIZE) {
-                Com_Error(errorParm_t::ERR_DROP, "NPC extensions (*.npc) are too large");
+                Q_Error(errorParm_t::ERR_DROP, "NPC extensions (*.npc) are too large");
             }
             strcat(marker, buffer);
             gi.FS_FreeFile(buffer);

@@ -64,14 +64,6 @@ const char* Q_strchrs(const char* string, const char* search);
 
 void Q_strstrip(char* string, const char* strip, const char* repl);
 
-#if defined(_MSC_VER)
-// vsnprintf is ISO/IEC 9899:1999
-// abstracting this to make it portable
-int Q_vsnprintf(char* str, size_t size, const char* format, va_list args);
-#else // not using MSVC
-#define Q_vsnprintf vsnprintf
-#endif
-
 #if defined(__cplusplus)
 } // extern "C"
 #endif

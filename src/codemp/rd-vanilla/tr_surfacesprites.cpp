@@ -258,7 +258,7 @@ static void R_SurfaceSpriteFrameUpdate(void)
     }
 
     if (r_surfaceSprites->integer >= 2) {
-        Com_Printf("Surfacesprites Drawn: %d, on %d surfaces\n", totalsurfsprites, sssurfaces);
+        Q_Println("Surfacesprites Drawn: {}, on {} surfaces", totalsurfsprites, sssurfaces);
     }
 
     totalsurfsprites = 0;

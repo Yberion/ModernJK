@@ -37,7 +37,7 @@ void pw(winding_t* w)
 {
     int i;
     for (i = 0; i < w->numpoints; i++)
-        printf("(%5.1f, %5.1f, %5.1f)\n", w->p[i][0], w->p[i][1], w->p[i][2]);
+        Q_FilePrintln(stdout, "({:5.1f}, {:5.1f}, {:5.1f})", w->p[i][0], w->p[i][1], w->p[i][2]);
 }
 
 /*
@@ -65,7 +65,7 @@ winding_t* AllocWinding(int points)
 void FreeWinding(winding_t* w)
 {
     if (*(unsigned*)w == 0xdeaddead)
-        Com_Error(errorParm_t::ERR_FATAL, "FreeWinding: freed a freed winding");
+        Q_Error(errorParm_t::ERR_FATAL, "FreeWinding: freed a freed winding");
     *(unsigned*)w = 0xdeaddead;
 
     c_active_windings--;
@@ -115,7 +115,7 @@ winding_t* BaseWindingForPlane(vec3_t normal, vec_t dist)
         }
     }
     if (x == -1)
-        Com_Error(errorParm_t::ERR_DROP, "BaseWindingForPlane: no axis found");
+        Q_Error(errorParm_t::ERR_DROP, "BaseWindingForPlane: no axis found");
 
     VectorCopy(vec3_origin, vup);
     switch (x) {
@@ -261,9 +261,9 @@ void ChopWindingInPlace(winding_t** inout, vec3_t normal, vec_t dist, vec_t epsi
     }
 
     if (f->numpoints > maxpts)
-        Com_Error(errorParm_t::ERR_DROP, "ClipWinding: points exceeded estimate");
+        Q_Error(errorParm_t::ERR_DROP, "ClipWinding: points exceeded estimate");
     if (f->numpoints > MAX_POINTS_ON_WINDING)
-        Com_Error(errorParm_t::ERR_DROP, "ClipWinding: MAX_POINTS_ON_WINDING");
+        Q_Error(errorParm_t::ERR_DROP, "ClipWinding: MAX_POINTS_ON_WINDING");
 
     FreeWinding(in);
     *inout = f;

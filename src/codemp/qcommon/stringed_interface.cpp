@@ -124,7 +124,7 @@ void SE_FreeFileDataAfterLoad(unsigned char* psLoadedFile)
 int giFilesFound;
 static void SE_R_ListFiles(const char* psExtension, const char* psDir, std::string& strResults)
 {
-    //	Com_Printf(va("Scanning Dir: %s\n",psDir));
+    //	Q_Println("Scanning Dir: {}", psDir);
 
     char **sysFiles, **dirFiles;
     int numSysFiles, i, numdirs;
@@ -134,7 +134,7 @@ static void SE_R_ListFiles(const char* psExtension, const char* psDir, std::stri
         if (dirFiles[i][0] && dirFiles[i][0] != '.') // skip blanks, plus ".", ".." etc
         {
             char sDirName[MAX_QPATH];
-            Com_sprintf(sDirName, sizeof(sDirName), "%s/%s", psDir, dirFiles[i]);
+            Q_FormatTo(sDirName, "{}/{}", psDir, dirFiles[i]);
             //
             // for some reason the quake filesystem in this game now returns an extra slash on the end,
             //	didn't used to. Sigh...
@@ -149,9 +149,9 @@ static void SE_R_ListFiles(const char* psExtension, const char* psDir, std::stri
     sysFiles = FS_ListFiles(psDir, psExtension, &numSysFiles);
     for (i = 0; i < numSysFiles; i++) {
         char sFilename[MAX_QPATH];
-        Com_sprintf(sFilename, sizeof(sFilename), "%s/%s", psDir, sysFiles[i]);
+        Q_FormatTo(sFilename, "{}/{}", psDir, sysFiles[i]);
 
-        //		Com_Printf("%sFound file: %s",!i?"\n":"",sFilename);
+        //		Q_Print("{}Found file: {}", !i?"\n":"", sFilename);
 
         strResults += sFilename;
         strResults += ';';
@@ -190,8 +190,8 @@ int SE_BuildFileList(const char* psStartDir, std::string& strResults)
 #else
     // .ST files...
     //
-    int iFilesFound = BuildFileList(va("%s\\*%s", psStartDir, sSE_INGAME_FILE_EXTENSION), // LPCSTR psPathAndFilter,
-                                    true                                                  // bool bRecurseSubDirs
+    int iFilesFound = BuildFileList(Q_Format("{}\\*{}", psStartDir, sSE_INGAME_FILE_EXTENSION).c_str(), // LPCSTR psPathAndFilter,
+                                    true                                                                // bool bRecurseSubDirs
     );
 
     extern string strResult;

@@ -1863,7 +1863,7 @@ std::optional<animNumber_t> PM_ValidateAnimRange(int startFrame, int endFrame, f
         if (animSpeed < 0) { // playing backwards
             if (animations[anim].firstFrame == endFrame) {
                 if (animations[anim].numFrames + animations[anim].firstFrame == startFrame) {
-                    // Com_Printf( "valid reverse anim: %s\n", BG_AnimName( anim ) );
+                    // Q_Println("valid reverse anim: {}", BG_AnimName( anim ));
                     return anim;
                 }
             }
@@ -1871,7 +1871,7 @@ std::optional<animNumber_t> PM_ValidateAnimRange(int startFrame, int endFrame, f
         else {                                                                              // playing forwards
             if (animations[anim].firstFrame == startFrame) {                                // This anim starts on this frame
                 if (animations[anim].firstFrame + animations[anim].numFrames == endFrame) { // This anim ends on this frame
-                    // Com_Printf( "valid forward anim: %s\n", BG_AnimName( anim ) );
+                    // Q_Println("valid forward anim: {}", BG_AnimName( anim ));
                     return anim;
                 }
             }
@@ -1880,7 +1880,7 @@ std::optional<animNumber_t> PM_ValidateAnimRange(int startFrame, int endFrame, f
     }
 
     // Not in ANY anim?  SHOULD NEVER HAPPEN
-    Com_Printf("invalid anim range %d to %d, speed %4.2f\n", startFrame, endFrame, animSpeed);
+    Q_Println("invalid anim range {} to {}, speed {:4.2f}", startFrame, endFrame, animSpeed);
     return std::nullopt;
 }
 /*
@@ -2178,7 +2178,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
     if (anim < animNumber_t::BOTH_1CRUFTFORGIL || anim >= animNumber_t::MAX_ANIMATIONS) {
         assert(0 && "anim out of range!!!");
 #ifndef FINAL_BUILD
-        Com_Error(errorParm_t::ERR_DROP, "%s tried to play invalid anim %d", gent->NPC_type, to_underlying(anim));
+        Q_Error(errorParm_t::ERR_DROP, "{} tried to play invalid anim {}", gent->NPC_type, to_underlying(anim));
 #endif
         return;
     }
@@ -2201,8 +2201,8 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
 
         if (!PM_HasAnimation(gent, anim)) {
             if (Q3_DebugLevelShown(WL_e::WL_VERBOSE)) {
-                // Com_Printf(S_COLOR_RED"SET_ANIM_UPPER ERROR: anim %s does not exist in this model (%s)!\n", BG_AnimName( anim ),
-                // ((gent!=nullptr&&gent->client!=nullptr) ? gent->client->renderInfo.torsoModelName : "unknown") );
+                // Q_Println(S_COLOR_RED"SET_ANIM_UPPER ERROR: anim {} does not exist in this model ({})!", BG_AnimName( anim ),
+                // ((gent!=nullptr&&gent->client!=nullptr) ? gent->client->renderInfo.torsoModelName : "unknown"));
             }
             goto setAnimLegs;
         }
@@ -2237,7 +2237,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
                 int startFrame, endFrame;
 
                 if (cg_debugAnim.integer == 3 || (!gent->s.number && cg_debugAnim.integer == 1) || (gent->s.number && cg_debugAnim.integer == 2)) {
-                    Com_Printf("Time=%d: %s TORSO anim %d %s\n", actualTime, gent->targetname, to_underlying(anim), BG_AnimName(anim));
+                    Q_Println("Time={}: {} TORSO anim {} {}", actualTime, gent->targetname, to_underlying(anim), BG_AnimName(anim));
                 }
 
                 // we have a ghoul2 model - animate it?
@@ -2247,7 +2247,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
                     if (gi.G2API_GetAnimRange(&gent->ghoul2[gent->playerModel], "lower_lumbar", &startFrame, &endFrame)) //"upper_lumbar"
                     {
 #if G2_DEBUG_TIMING
-                        Com_Printf("tstop %d\n", cg.time);
+                        Q_Println("tstop {}", cg.time);
 #endif
                         gi.G2API_StopBoneAnimIndex(&gent->ghoul2[gent->playerModel], gent->lowerLumbarBone); // gent->upperLumbarBone
                         if (gent->motionBone != -1) {
@@ -2287,8 +2287,8 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
 //							assert((currentFrame <=endFrame) && (currentFrame>=startFrame));
 // yes, its the same animation, so work out where we are in the leg anim, and blend us
 #if G2_DEBUG_TIMING
-                            Com_Printf("tlegb %d     %d %d %4.2f %4.2f %d\n", actualTime, animations[anim].firstFrame,
-                                       (animations[anim].numFrames) + animations[anim].firstFrame, legAnimSpeed, currentFrame, blendTime);
+                            Q_Println("tlegb {}     {} {} {:4.2f} {:4.2f} {}", actualTime, animations[anim].firstFrame,
+                                      (animations[anim].numFrames) + animations[anim].firstFrame, legAnimSpeed, currentFrame, blendTime);
 #endif
                             if (oldAnimSpeed != animSpeed &&
                                 ((oldAnimSpeed > 0 && animSpeed > 0) || (oldAnimSpeed < 0 && animSpeed < 0))) { // match the new speed, actually
@@ -2329,7 +2329,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
                         // lets see if a) we are already animating and b) we aren't going to do the same animation again
                         if (animatingTorso && ((firstFrame != startFrame) || (lastFrame != endFrame))) {
 #if G2_DEBUG_TIMING
-                            Com_Printf("trsob %d     %d %d %4.2f %4.2f %d\n", actualTime, firstFrame, lastFrame, animSpeed, -1, blendTime);
+                            Q_Println("trsob {}     {} {} {:4.2f} {:4.2f} {}", actualTime, firstFrame, lastFrame, animSpeed, -1, blendTime);
 #endif
                             gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->playerModel], gent->lowerLumbarBone, // gent->upperLumbarBone
                                                       firstFrame, lastFrame, animFlags, animSpeed, actualTime, -1, blendTime);
@@ -2342,7 +2342,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
                         else {
                             // no, ok, no blend then because we are either looping on the same anim, or starting from no anim
 #if G2_DEBUG_TIMING
-                            Com_Printf("trson %d     %d %d %4.2f %4.2f %d\n", actualTime, firstFrame, lastFrame, animSpeed, -1, -1);
+                            Q_Println("trson {}     {} {} {:4.2f} {:4.2f} {}", actualTime, firstFrame, lastFrame, animSpeed, -1, -1);
 #endif
                             gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->playerModel], gent->lowerLumbarBone, // gent->upperLumbarBone
                                                       firstFrame, lastFrame, animFlags & ~boneFlags_t::BONE_ANIM_BLEND, animSpeed, cg.time, -1, -1);
@@ -2357,7 +2357,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
         }
         /*
         #ifdef _DEBUG
-                Com_Printf(S_COLOR_GREEN"SET_ANIM_UPPER: %s (%s)\n", BG_AnimName( anim ), gent->targetname );
+                Q_Println(S_COLOR_GREEN"SET_ANIM_UPPER: {} ({})", BG_AnimName( anim ), gent->targetname);
         #endif
         */
         if ((gent->client) && Any(setAnimFlags & setAnimFlags_t::SETANIM_FLAG_HOLD)) { // FIXME: allow to set a specific time?
@@ -2393,8 +2393,8 @@ setAnimLegs:
 
         if (!PM_HasAnimation(gent, anim)) {
             if (Q3_DebugLevelShown(WL_e::WL_VERBOSE)) {
-                // Com_Printf(S_COLOR_RED"SET_ANIM_LOWER ERROR: anim %s does not exist in this model (%s)!\n", BG_AnimName( anim ),
-                // ((gent!=nullptr&&gent->client!=nullptr) ? gent->client->renderInfo.legsModelName : "unknown") );
+                // Q_Println(S_COLOR_RED"SET_ANIM_LOWER ERROR: anim {} does not exist in this model ({})!", BG_AnimName( anim ),
+                // ((gent!=nullptr&&gent->client!=nullptr) ? gent->client->renderInfo.legsModelName : "unknown"));
             }
             goto setAnimDone;
         }
@@ -2426,7 +2426,7 @@ setAnimLegs:
             int startFrame, endFrame;
 
             if (cg_debugAnim.integer == 3 || (!gent->s.number && cg_debugAnim.integer == 1) || (gent->s.number && cg_debugAnim.integer == 2)) {
-                Com_Printf("Time=%d: %s LEGS anim %d %s\n", actualTime, gent->targetname, to_underlying(anim), BG_AnimName(anim));
+                Q_Println("Time={}: {} LEGS anim {} {}", actualTime, gent->targetname, to_underlying(anim), BG_AnimName(anim));
             }
 
             boneFlags_t animFlags = boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE;
@@ -2445,7 +2445,7 @@ setAnimLegs:
                 // remove it if we already have an animation on this bone
                 if (gi.G2API_GetAnimRange(&gent->ghoul2[gent->playerModel], "model_root", &startFrame, &endFrame)) {
 #if G2_DEBUG_TIMING
-                    Com_Printf("lstop %d\n", cg.time);
+                    Q_Println("lstop {}", cg.time);
 #endif
                     gi.G2API_StopBoneAnimIndex(&gent->ghoul2[gent->playerModel], gent->rootBone);
                 }
@@ -2476,8 +2476,8 @@ setAnimLegs:
 //					assert((currentFrame <=endFrame) && (currentFrame>=startFrame));
 // yes, its the same animation, so work out where we are in the torso anim, and blend us
 #if G2_DEBUG_TIMING
-                    Com_Printf("ltrsb %d     %d %d %4.2f %4.2f %d\n", actualTime, animations[anim].firstFrame,
-                               (animations[anim].numFrames) + animations[anim].firstFrame, legAnimSpeed, currentFrame, blendTime);
+                    Q_Println("ltrsb {}     {} {} {:4.2f} {:4.2f} {}", actualTime, animations[anim].firstFrame,
+                              (animations[anim].numFrames) + animations[anim].firstFrame, legAnimSpeed, currentFrame, blendTime);
 #endif
                     if (oldAnimSpeed != animSpeed &&
                         ((oldAnimSpeed > 0 && animSpeed > 0) || (oldAnimSpeed < 0 && animSpeed < 0))) { // match the new speed, actually
@@ -2505,7 +2505,7 @@ setAnimLegs:
                     // lets see if a) we are already animating and b) we aren't going to do the same animation again
                     if (animatingLegs && ((legAnimSpeed != animSpeed) || (firstFrame != startFrame) || (lastFrame != endFrame))) {
 #if G2_DEBUG_TIMING
-                        Com_Printf("legsb %d     %d %d %4.2f %4.2f %d\n", actualTime, firstFrame, lastFrame, animSpeed, -1, blendTime);
+                        Q_Println("legsb {}     {} {} {:4.2f} {:4.2f} {}", actualTime, firstFrame, lastFrame, animSpeed, -1, blendTime);
 #endif
                         gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->playerModel], gent->rootBone, firstFrame, lastFrame, animFlags, animSpeed, actualTime, -1,
                                                   blendTime);
@@ -2513,7 +2513,7 @@ setAnimLegs:
                     else {
                         // no, ok, no blend then because we are either looping on the same anim, or starting from no anim
 #if G2_DEBUG_TIMING
-                        Com_Printf("legsn %d     %d %d %4.2f %4.2f %d\n", actualTime, firstFrame, lastFrame, animSpeed, -1, -1);
+                        Q_Println("legsn {}     {} {} {:4.2f} {:4.2f} {}", actualTime, firstFrame, lastFrame, animSpeed, -1, -1);
 #endif
                         gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->playerModel], gent->rootBone, firstFrame, lastFrame,
                                                   animFlags & ~boneFlags_t::BONE_ANIM_BLEND, animSpeed, cg.time, -1, -1);
@@ -2524,7 +2524,7 @@ setAnimLegs:
 
         /*
         #ifdef _DEBUG
-                Com_Printf(S_COLOR_GREEN"SET_ANIM_LOWER: %s (%s)\n", BG_AnimName( anim ), gent->targetname );
+                Q_Println(S_COLOR_GREEN"SET_ANIM_LOWER: {} ({})", BG_AnimName( anim ), gent->targetname);
         #endif
         */
         if ((gent->client) && Any(setAnimFlags & setAnimFlags_t::SETANIM_FLAG_HOLD)) { // FIXME: allow to set a specific time?

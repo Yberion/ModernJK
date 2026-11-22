@@ -290,7 +290,7 @@ void CG_CheckChangedPredictableEvents(playerState_t* ps)
                 cg.predictableEvents[i & (MAX_PREDICTED_EVENTS - 1)] = event;
 
                 if (cg_showMiss.integer) {
-                    Com_Warning("changed predicted event\n");
+                    Q_PrintlnWarning("changed predicted event");
                 }
             }
         }
@@ -380,36 +380,36 @@ void CG_CheckLocalSounds(playerState_t* ps, playerState_t* ops)
     if (ps->persistant[persEnum_t::PERS_CAPTURES] != ops->persistant[persEnum_t::PERS_CAPTURES]) {
         pushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, ps->persistant[persEnum_t::PERS_CAPTURES]);
         reward = true;
-        // Com_Printf("capture\n");
+        // Q_Println("capture");
     }
     if (ps->persistant[persEnum_t::PERS_IMPRESSIVE_COUNT] != ops->persistant[persEnum_t::PERS_IMPRESSIVE_COUNT]) {
         sfx = cgs.media.impressiveSound;
 
         pushReward(sfx, cgs.media.medalImpressive, ps->persistant[persEnum_t::PERS_IMPRESSIVE_COUNT]);
         reward = true;
-        // Com_Printf("impressive\n");
+        // Q_Println("impressive");
     }
     if (ps->persistant[persEnum_t::PERS_EXCELLENT_COUNT] != ops->persistant[persEnum_t::PERS_EXCELLENT_COUNT]) {
         sfx = cgs.media.excellentSound;
         pushReward(sfx, cgs.media.medalExcellent, ps->persistant[persEnum_t::PERS_EXCELLENT_COUNT]);
         reward = true;
-        // Com_Printf("excellent\n");
+        // Q_Println("excellent");
     }
     if (ps->persistant[persEnum_t::PERS_GAUNTLET_FRAG_COUNT] != ops->persistant[persEnum_t::PERS_GAUNTLET_FRAG_COUNT]) {
         sfx = cgs.media.humiliationSound;
         pushReward(sfx, cgs.media.medalGauntlet, ps->persistant[persEnum_t::PERS_GAUNTLET_FRAG_COUNT]);
         reward = true;
-        // Com_Printf("gauntlet frag\n");
+        // Q_Println("gauntlet frag");
     }
     if (ps->persistant[persEnum_t::PERS_DEFEND_COUNT] != ops->persistant[persEnum_t::PERS_DEFEND_COUNT]) {
         pushReward(cgs.media.defendSound, cgs.media.medalDefend, ps->persistant[persEnum_t::PERS_DEFEND_COUNT]);
         reward = true;
-        // Com_Printf("defend\n");
+        // Q_Println("defend");
     }
     if (ps->persistant[persEnum_t::PERS_ASSIST_COUNT] != ops->persistant[persEnum_t::PERS_ASSIST_COUNT]) {
         // pushReward(cgs.media.assistSound, cgs.media.medalAssist, ps->persistant[persEnum_t::PERS_ASSIST_COUNT]);
         // reward = true;
-        // Com_Printf("assist\n");
+        // Q_Println("assist");
     }
     // if any of the player event bits changed
     if (ps->persistant[persEnum_t::PERS_PLAYEREVENTS] != ops->persistant[persEnum_t::PERS_PLAYEREVENTS]) {

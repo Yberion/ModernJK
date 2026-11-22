@@ -132,7 +132,7 @@ static weaponconfig_t* weaponconfig;
 int BotValidWeaponNumber(int weaponnum)
 {
     if (weaponnum <= 0 || weaponnum > weaponconfig->numweapons) {
-        Com_PrintError("weapon number out of range\n");
+        Q_PrintlnError("weapon number out of range");
         return false;
     } // end if
     return true;
@@ -146,11 +146,11 @@ int BotValidWeaponNumber(int weaponnum)
 bot_weaponstate_t* BotWeaponStateFromHandle(int handle)
 {
     if (handle <= 0 || handle > MAX_CLIENTS) {
-        Com_PrintError("weapon state handle %d out of range\n", handle);
+        Q_PrintlnError("weapon state handle {} out of range", handle);
         return nullptr;
     } // end if
     if (!botweaponstates[handle]) {
-        Com_PrintError("invalid weapon state %d\n", handle);
+        Q_PrintlnError("invalid weapon state {}", handle);
         return nullptr;
     } // end if
     return botweaponstates[handle];
@@ -198,13 +198,13 @@ weaponconfig_t* LoadWeaponConfig(char* filename)
 
     max_weaponinfo = (int)LibVarValue("max_weaponinfo", "32");
     if (max_weaponinfo < 0) {
-        Com_PrintError("max_weaponinfo = %d\n", max_weaponinfo);
+        Q_PrintlnError("max_weaponinfo = {}", max_weaponinfo);
         max_weaponinfo = 32;
         LibVarSet("max_weaponinfo", "32");
     } // end if
     max_projectileinfo = (int)LibVarValue("max_projectileinfo", "32");
     if (max_projectileinfo < 0) {
-        Com_PrintError("max_projectileinfo = %d\n", max_projectileinfo);
+        Q_PrintlnError("max_projectileinfo = {}", max_projectileinfo);
         max_projectileinfo = 32;
         LibVarSet("max_projectileinfo", "32");
     } // end if
@@ -212,7 +212,7 @@ weaponconfig_t* LoadWeaponConfig(char* filename)
     PC_SetBaseFolder(BOTFILESBASEFOLDER);
     source = LoadSourceFile(path);
     if (!source) {
-        Com_PrintError("counldn't load %s\n", path);
+        Q_PrintlnError("counldn't load {}", path);
         return nullptr;
     } // end if
     // initialize weapon config
@@ -231,7 +231,7 @@ weaponconfig_t* LoadWeaponConfig(char* filename)
                 return nullptr;
             } // end if
             if (weaponinfo.number < 0 || weaponinfo.number >= max_weaponinfo) {
-                Com_PrintError("weapon info number %d out of range in %s\n", weaponinfo.number, path);
+                Q_PrintlnError("weapon info number {} out of range in {}", weaponinfo.number, path);
                 FreeMemory(wc);
                 FreeSource(source);
                 return nullptr;
@@ -241,7 +241,7 @@ weaponconfig_t* LoadWeaponConfig(char* filename)
         } // end if
         else if (!strcmp(token.string, "projectileinfo")) {
             if (wc->numprojectiles >= max_projectileinfo) {
-                Com_PrintError("more than %d projectiles defined in %s\n", max_projectileinfo, path);
+                Q_PrintlnError("more than {} projectiles defined in {}", max_projectileinfo, path);
                 FreeMemory(wc);
                 FreeSource(source);
                 return nullptr;
@@ -255,7 +255,7 @@ weaponconfig_t* LoadWeaponConfig(char* filename)
             wc->numprojectiles++;
         } // end if
         else {
-            Com_PrintError("unknown definition %s in %s\n", token.string, path);
+            Q_PrintlnError("unknown definition {} in {}", token.string, path);
             FreeMemory(wc);
             FreeSource(source);
             return nullptr;
@@ -267,12 +267,12 @@ weaponconfig_t* LoadWeaponConfig(char* filename)
         if (!wc->weaponinfo[i].valid)
             continue;
         if (!wc->weaponinfo[i].name[0]) {
-            Com_PrintError("weapon %d has no name in %s\n", i, path);
+            Q_PrintlnError("weapon {} has no name in {}", i, path);
             FreeMemory(wc);
             return nullptr;
         } // end if
         if (!wc->weaponinfo[i].projectile[0]) {
-            Com_PrintError("weapon %s has no projectile in %s\n", wc->weaponinfo[i].name, path);
+            Q_PrintlnError("weapon {} has no projectile in {}", wc->weaponinfo[i].name, path);
             FreeMemory(wc);
             return nullptr;
         } // end if
@@ -284,14 +284,14 @@ weaponconfig_t* LoadWeaponConfig(char* filename)
             } // end if
         } // end for
         if (j == wc->numprojectiles) {
-            Com_PrintError("weapon %s uses undefined projectile in %s\n", wc->weaponinfo[i].name, path);
+            Q_PrintlnError("weapon {} uses undefined projectile in {}", wc->weaponinfo[i].name, path);
             FreeMemory(wc);
             return nullptr;
         } // end if
     } // end for
     if (!wc->numweapons)
-        Com_Warning("no weapon info loaded\n");
-    Com_Printf("loaded %s\n", path);
+        Q_PrintlnWarning("no weapon info loaded");
+    Q_Println("loaded {}", path);
     return wc;
 } // end of the function LoadWeaponConfig
 //===========================================================================
@@ -347,7 +347,7 @@ botlibError_t BotLoadWeaponWeights(int weaponstate, char* filename)
     //
     ws->weaponweightconfig = ReadWeightConfig(filename);
     if (!ws->weaponweightconfig) {
-        Com_PrintError("couldn't load weapon config %s\n", filename);
+        Q_PrintlnError("couldn't load weapon config {}", filename);
         return botlibError_t::BLERR_CANNOTLOADWEAPONWEIGHTS;
     } // end if
     if (!weaponconfig)
@@ -463,11 +463,11 @@ int BotAllocWeaponState(void)
 void BotFreeWeaponState(int handle)
 {
     if (handle <= 0 || handle > MAX_CLIENTS) {
-        Com_PrintError("weapon state handle %d out of range\n", handle);
+        Q_PrintlnError("weapon state handle {} out of range", handle);
         return;
     } // end if
     if (!botweaponstates[handle]) {
-        Com_PrintError("invalid weapon state %d\n", handle);
+        Q_PrintlnError("invalid weapon state {}", handle);
         return;
     } // end if
     BotFreeWeaponWeights(handle);
@@ -487,7 +487,7 @@ botlibError_t BotSetupWeaponAI(void)
     file = LibVarString("weaponconfig", "weapons.c");
     weaponconfig = LoadWeaponConfig(file);
     if (!weaponconfig) {
-        Com_PrintError("couldn't load the weapon config\n");
+        Q_PrintlnError("couldn't load the weapon config");
         return botlibError_t::BLERR_CANNOTLOADWEAPONCONFIG;
     } // end if
 

@@ -233,11 +233,11 @@ void Q_strcat(char* dest, int size, const char* src)
 
     l1 = strlen(dest);
     if (l1 >= size) {
-        // Com_Error( errorParm_t::ERR_FATAL, "Q_strcat: already overflowed" );
+        // Q_Error(errorParm_t::ERR_FATAL, "Q_strcat: already overflowed");
         return;
     }
     if (strlen(src) + 1 > (size_t)(size - l1)) { // do the error here instead of in Q_strncpyz to get a meaningful msg
-        // Com_Error(errorParm_t::ERR_FATAL,"Q_strcat: cannot append \"%s\" to \"%s\"", src, dest);
+        // Q_Error(errorParm_t::ERR_FATAL, "Q_strcat: cannot append \"{}\" to \"{}\"", src, dest);
         return;
     }
     Q_strncpyz(dest + l1, src, size - l1);
@@ -439,35 +439,3 @@ const char* Q_strchrs(const char* string, const char* search)
 
     return nullptr;
 }
-
-#if defined(_MSC_VER)
-/*
-=============
-Q_vsnprintf
-
-Special wrapper function for Microsoft's broken _vsnprintf() function.
-MinGW comes with its own snprintf() which is not broken.
-=============
-*/
-
-int Q_vsnprintf(char* str, size_t size, const char* format, va_list ap)
-{
-    int retval;
-
-    retval = _vsnprintf(str, size, format, ap);
-
-    if (retval < 0 || retval == size) {
-        // Microsoft doesn't adhere to the C99 standard of vsnprintf,
-        // which states that the return value must be the number of
-        // bytes written if the output string had sufficient length.
-        //
-        // Obviously we cannot determine that value from Microsoft's
-        // implementation, so we have no choice but to return size.
-
-        str[size - 1] = '\0';
-        return size;
-    }
-
-    return retval;
-}
-#endif

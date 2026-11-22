@@ -235,8 +235,9 @@ bool CG_OwnerDrawVisible(int flags)
 const char* CG_GetKillerText(void)
 {
     static const char* s = "";
+    static formatText_t sText; // the text returned, valid until the next call
     if (cg.killerName[0]) {
-        s = va("%s %s", CG_GetStringEdString("MP_INGAME", "KILLEDBY"), cg.killerName);
+        s = (sText = Q_Format("{} {}", CG_GetStringEdString("MP_INGAME", "KILLEDBY"), cg.killerName)).c_str();
     }
     return s;
 }
@@ -244,6 +245,7 @@ const char* CG_GetKillerText(void)
 const char* CG_GetGameStatusText(void)
 {
     static const char* s = "";
+    static formatText_t sText; // the text returned, valid until the next call
     if (cgs.gametype == gametype_t::GT_POWERDUEL) {
         s = "";
     }
@@ -252,18 +254,20 @@ const char* CG_GetGameStatusText(void)
             char sPlaceWith[256];
             trap->SE_GetStringTextString("MP_INGAME_PLACE_WITH", sPlaceWith, sizeof(sPlaceWith));
 
-            s = va("%s %s %i", CG_PlaceString(cg.snap->ps.persistant[persEnum_t::PERS_RANK] + 1), sPlaceWith, cg.snap->ps.persistant[persEnum_t::PERS_SCORE]);
+            s = (sText = Q_Format("{} {} {}", CG_PlaceString(cg.snap->ps.persistant[persEnum_t::PERS_RANK] + 1), sPlaceWith,
+                                  cg.snap->ps.persistant[persEnum_t::PERS_SCORE]))
+                    .c_str();
         }
     }
     else {
         if (cg.teamScores[0] == cg.teamScores[1]) {
-            s = va("%s %i", CG_GetStringEdString("MP_INGAME", "TIEDAT"), cg.teamScores[0]);
+            s = (sText = Q_Format("{} {}", CG_GetStringEdString("MP_INGAME", "TIEDAT"), cg.teamScores[0])).c_str();
         }
         else if (cg.teamScores[0] >= cg.teamScores[1]) {
-            s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1]);
+            s = (sText = Q_Format("{}, {} / {}", CG_GetStringEdString("MP_INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1])).c_str();
         }
         else {
-            s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0]);
+            s = (sText = Q_Format("{}, {} / {}", CG_GetStringEdString("MP_INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0])).c_str();
         }
     }
     return s;
@@ -386,7 +390,7 @@ void CG_DrawNewTeamInfo(rectDef_t* rect, float text_x, float text_y, float scale
             trap->R_SetColor(hcolor);
             CG_DrawPic(xx, y + 1, PIC_WIDTH - 2, PIC_WIDTH - 2, cgs.media.heartShader);
 
-            // Com_sprintf (st, sizeof(st), "%3i %3i", ci->health,	ci->armor);
+            // Q_FormatTo(st, "{:3} {:3}", ci->health, ci->armor);
             // CG_Text_Paint(xx, y + text_y, scale, hcolor, st, 0, 0);
 
             // draw weapon icon
@@ -500,6 +504,7 @@ void CG_DrawMedal(int ownerDraw, rectDef_t* rect, float scale, vec4_t color, qha
     score_t* score = &cg.scores[cg.selectedScore];
     float value = 0;
     const char* text = nullptr;
+    formatText_t textText; // holds the text text points into
     color[3] = 0.25;
 
     switch (ownerDraw) {
@@ -532,13 +537,13 @@ void CG_DrawMedal(int ownerDraw, rectDef_t* rect, float scale, vec4_t color, qha
     if (value > 0) {
         if (ownerDraw != CG_PERFECT) {
             if (ownerDraw == CG_ACCURACY) {
-                text = va("%i%%", (int)value);
+                text = (textText = Q_Format("{}%", (int)value)).c_str();
                 if (value > 50) {
                     color[3] = 1.0;
                 }
             }
             else {
-                text = va("%i", (int)value);
+                text = (textText = Q_Format("{}", (int)value)).c_str();
                 color[3] = 1.0;
             }
         }

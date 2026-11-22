@@ -66,20 +66,20 @@ void Log_Open(char* filename)
     if (!LibVarValue("log", "0"))
         return;
     if (!filename || !strlen(filename)) {
-        Com_Printf("openlog <filename>\n");
+        Q_Println("openlog <filename>");
         return;
     } // end if
     if (logfile.fp) {
-        Com_PrintError("log file %s is already opened\n", logfile.filename);
+        Q_PrintlnError("log file {} is already opened", logfile.filename);
         return;
     } // end if
     logfile.fp = fopen(filename, "wb");
     if (!logfile.fp) {
-        Com_PrintError("can't open the log file %s\n", filename);
+        Q_PrintlnError("can't open the log file {}", filename);
         return;
     } // end if
     Q_strncpyz(logfile.filename, filename, MAX_LOGFILENAMESIZE);
-    Com_Printf("Opened log %s\n", logfile.filename);
+    Q_Println("Opened log {}", logfile.filename);
 } // end of the function Log_Create
 //===========================================================================
 //
@@ -92,11 +92,11 @@ void Log_Close(void)
     if (!logfile.fp)
         return;
     if (fclose(logfile.fp)) {
-        Com_PrintError("can't close log file %s\n", logfile.filename);
+        Q_PrintlnError("can't close log file {}", logfile.filename);
         return;
     } // end if
     logfile.fp = nullptr;
-    Com_Printf("Closed log %s\n", logfile.filename);
+    Q_Println("Closed log {}", logfile.filename);
 } // end of the function Log_Close
 //===========================================================================
 //
@@ -115,16 +115,13 @@ void Log_Shutdown(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL Log_Write(const char* fmt, ...)
+void Log_VWrite(fmt::string_view fmt, fmt::format_args args)
 {
-    va_list ap;
 
     if (!logfile.fp)
         return;
-    va_start(ap, fmt);
-    vfprintf(logfile.fp, fmt, ap);
-    va_end(ap);
-    // fprintf(logfile.fp, "\r\n");
+    Q_VFilePrint(logfile.fp, lineEnd_t::NONE, fmt, args);
+    // Q_FilePrintln(logfile.fp, "\r");
     fflush(logfile.fp);
 } // end of the function Log_Write
 //===========================================================================
@@ -133,18 +130,15 @@ void QDECL Log_Write(const char* fmt, ...)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL Log_WriteTimeStamped(char* fmt, ...)
+void Log_VWriteTimeStamped(fmt::string_view fmt, fmt::format_args args)
 {
-    va_list ap;
 
     if (!logfile.fp)
         return;
-    fprintf(logfile.fp, "%d   %02d:%02d:%02d:%02d   ", logfile.numwrites, (int)(botlibglobals.time / 60 / 60), (int)(botlibglobals.time / 60),
-            (int)(botlibglobals.time), (int)((int)(botlibglobals.time * 100)) - ((int)botlibglobals.time) * 100);
-    va_start(ap, fmt);
-    vfprintf(logfile.fp, fmt, ap);
-    va_end(ap);
-    fprintf(logfile.fp, "\r\n");
+    Q_FilePrint(logfile.fp, "{}   {:02}:{:02}:{:02}:{:02}   ", logfile.numwrites, (int)(botlibglobals.time / 60 / 60), (int)(botlibglobals.time / 60),
+                (int)(botlibglobals.time), (int)((int)(botlibglobals.time * 100)) - ((int)botlibglobals.time) * 100);
+    Q_VFilePrint(logfile.fp, lineEnd_t::NONE, fmt, args);
+    Q_FilePrint(logfile.fp, "\r\n");
     logfile.numwrites++;
     fflush(logfile.fp);
 } // end of the function Log_Write

@@ -75,7 +75,7 @@ gentity_t* SV_GentityNum(int num)
 svEntity_t* SV_SvEntityForGentity(gentity_t* gEnt)
 {
     if (!gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_SvEntityForGentity: bad gEnt");
+        Q_Error(errorParm_t::ERR_DROP, "SV_SvEntityForGentity: bad gEnt");
     }
     return &sv.svEntities[gEnt->s.number];
 }
@@ -90,28 +90,24 @@ gentity_t* SV_GEntityForSvEntity(svEntity_t* svEnt)
 
 /*
 ===============
-SV_GameSendServerCommand
+SV_GameVSendServerCommand
 
 Sends a command string to a client
 ===============
 */
-void SV_GameSendServerCommand(int clientNum, const char* fmt, ...)
+void SV_GameVSendServerCommand(int clientNum, fmt::string_view fmt, fmt::format_args args)
 {
     char msg[8192];
-    va_list argptr;
-
-    va_start(argptr, fmt);
-    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-    va_end(argptr);
+    Q_VFormatToCut(msg, fmt, args);
 
     if (clientNum == -1) {
-        SV_SendServerCommand(nullptr, "%s", msg);
+        SV_SendServerCommand(nullptr, "{}", msg);
     }
     else {
         if (clientNum < 0 || clientNum >= 1) {
             return;
         }
-        SV_SendServerCommand(svs.clients + clientNum, "%s", msg);
+        SV_SendServerCommand(svs.clients + clientNum, "{}", msg);
     }
 }
 
@@ -143,7 +139,7 @@ void SV_SetBrushModel(gentity_t* ent, const char* name)
     vec3_t mins, maxs;
 
     if (!name) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_SetBrushModel: NULL model for ent number %d", ent->s.number);
+        Q_Error(errorParm_t::ERR_DROP, "SV_SetBrushModel: NULL model for ent number {}", ent->s.number);
     }
 
     if (name[0] == '*') {
@@ -171,7 +167,7 @@ void SV_SetBrushModel(gentity_t* ent, const char* name)
         ent->contents = CM_ModelContents(h, -1);
     }
     else if (name[0] == '#') {
-        ent->s.modelindex = CM_LoadSubBSP(va("maps/%s.bsp", name + 1), false);
+        ent->s.modelindex = CM_LoadSubBSP(Q_Format("maps/{}.bsp", name + 1).c_str(), false);
         CM_ModelBounds(SubBSP[CM_FindSubBSP(ent->s.modelindex)], ent->s.modelindex, mins, maxs);
 
         VectorCopy(mins, ent->mins);
@@ -186,7 +182,7 @@ void SV_SetBrushModel(gentity_t* ent, const char* name)
         //	ent->contents = contentsFlags_t::CONTENTS_SOLID;
     }
     else {
-        Com_Error(errorParm_t::ERR_DROP, "SV_SetBrushModel: %s isn't a brush model (ent %d)", name, ent->s.number);
+        Q_Error(errorParm_t::ERR_DROP, "SV_SetBrushModel: {} isn't a brush model (ent {})", name, ent->s.number);
     }
 }
 
@@ -297,7 +293,7 @@ void SV_AdjustAreaPortalState(gentity_t* ent, bool open)
 #ifndef JK2_MODE
     if (!Any(ent->contents & contentsFlags_t::CONTENTS_OPAQUE)) {
 #ifndef FINAL_BUILD
-//		Com_Printf( "INFO: entity number %d not opaque: not affecting area portal!\n", ent->s.number );
+//		Q_Println("INFO: entity number {} not opaque: not affecting area portal!", ent->s.number);
 #endif
         return;
     }
@@ -342,7 +338,7 @@ SV_GetServerinfo
 void SV_GetServerinfo(char* buffer, int bufferSize)
 {
     if (bufferSize < 1) {
-        Com_Error(errorParm_t::ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize);
+        Q_Error(errorParm_t::ERR_DROP, "SV_GetServerinfo: bufferSize == {}", bufferSize);
     }
     Q_strncpyz(buffer, Cvar_InfoString(cvarFlags_t::CVAR_SERVERINFO), bufferSize);
 }
@@ -863,16 +859,16 @@ void SV_InitGameProgs(void)
     }
 
     // load a new game dll
-    import.Print = Com_VPrintf;
+    import.Print = Q_VPrint;
     import.WriteCam = Com_WriteCam;
     import.FlushCamFile = Com_FlushCamFile;
-    import.Error = Com_VError;
+    import.Error = Q_VError;
 
     import.Milliseconds = Sys_Milliseconds2;
 
     import.DropClient = SV_GameDropClient;
 
-    import.SendServerCommand = SV_GameSendServerCommand;
+    import.VSendServerCommand = SV_GameVSendServerCommand;
 
     import.linkentity = SV_LinkEntity;
     import.unlinkentity = SV_UnlinkEntity;
@@ -1024,24 +1020,24 @@ void SV_InitGameProgs(void)
     GetGameAPIProc* GetGameAPI;
     gameLibrary = Sys_LoadSPGameDll(gamename, &GetGameAPI);
     if (!gameLibrary)
-        Com_Error(errorParm_t::ERR_DROP, "Failed to load %s library", gamename);
+        Q_Error(errorParm_t::ERR_DROP, "Failed to load {} library", gamename);
 
     ge = (game_export_t*)GetGameAPI(&import);
     if (!ge) {
         Sys_UnloadDll(gameLibrary);
-        Com_Error(errorParm_t::ERR_DROP, "Failed to load %s library", gamename);
+        Q_Error(errorParm_t::ERR_DROP, "Failed to load {} library", gamename);
     }
 
     if (ge->apiversion != GAME_API_VERSION) {
         int apiVersion = ge->apiversion;
         Sys_UnloadDll(gameLibrary);
-        Com_Error(errorParm_t::ERR_DROP, "game is version %i, not %i", apiVersion, GAME_API_VERSION);
+        Q_Error(errorParm_t::ERR_DROP, "game is version {}, not {}", apiVersion, GAME_API_VERSION);
     }
 
     // hook up the client while we're here
     if (!CL_InitCGameVM(gameLibrary)) {
         Sys_UnloadDll(gameLibrary);
-        Com_Error(errorParm_t::ERR_DROP, "Failed to load client game functions");
+        Q_Error(errorParm_t::ERR_DROP, "Failed to load client game functions");
     }
 
     sv.entityParsePoint = CM_EntityString();

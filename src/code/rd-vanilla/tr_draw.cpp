@@ -59,7 +59,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* d
 #endif
     // make sure rows and cols are powers of 2
     if ((cols & (cols - 1)) || (rows & (rows - 1))) {
-        Com_Error(errorParm_t::ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i", cols, rows);
+        Q_Error(errorParm_t::ERR_DROP, "Draw_StretchRaw: size not a power of 2: {} by {}", cols, rows);
     }
 
     GL_Bind(tr.scratchImage[iClient]);
@@ -85,7 +85,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* d
 #ifdef TIMEBIND
         if (r_ignore->integer) {
             end = ri.Milliseconds();
-            Com_Printf("qglTexImage2D %i, %i: %i msec\n", cols, rows, end - start);
+            Q_Println("qglTexImage2D {}, {}: {} msec", cols, rows, end - start);
         }
 #endif
     }
@@ -106,7 +106,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* d
 #ifdef TIMEBIND
             if (r_ignore->integer) {
                 end = ri.Milliseconds();
-                Com_Printf("qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start);
+                Q_Println("qglTexSubImage2D {}, {}: {} msec", cols, rows, end - start);
             }
 #endif
         }
@@ -459,7 +459,7 @@ bool RE_ProcessDissolve(void)
 
         int iDissolvePercentage = ((ri.Milliseconds() - Dissolve.iStartTime) * 100) / (1000.0f * fDISSOLVE_SECONDS);
 
-        //		Com_Printf("iDissolvePercentage %d\n",iDissolvePercentage);
+        //		Q_Println("iDissolvePercentage {}", iDissolvePercentage);
 
         if (iDissolvePercentage <= 100) {
             extern void RB_SetGL2D(void);
@@ -722,7 +722,7 @@ bool RE_InitDissolve(bool bForceCircularExtroWipe)
 {
     R_IssuePendingRenderCommands();
 
-    //	Com_Printf("RE_InitDissolve()\n");
+    //	Q_Println("RE_InitDissolve()");
     bool bReturn = false;
 
     if (                      // Dissolve.iStartTime == 0	// no point in interruping an existing one

@@ -445,7 +445,7 @@ static void EnumerateField(const save_field_t* pField, const byte* pbBase)
         break;
 
     default:
-        Com_Error(errorParm_t::ERR_DROP, "EnumerateField: unknown field type");
+        Q_Error(errorParm_t::ERR_DROP, "EnumerateField: unknown field type");
         break;
     }
 }
@@ -571,7 +571,7 @@ static void EvaluateField(const save_field_t* pField, byte* pbBase, byte* pbOrig
         break;
 
     default:
-        Com_Error(errorParm_t::ERR_DROP, "EvaluateField: unknown field type");
+        Q_Error(errorParm_t::ERR_DROP, "EvaluateField: unknown field type");
         break;
     }
 }
@@ -698,7 +698,7 @@ template <typename T> static void EvaluateFields(const save_field_t* pFields, T*
                 copy_retail_gclient_to_current(retail_client, *reinterpret_cast<gclient_t*>(pbData));
             }
             else {
-                Com_Error(errorParm_t::ERR_DROP, "EvaluateFields(): variable-sized chunk '%s' without handler!", ::SG_GetChidText(ulChid));
+                Q_Error(errorParm_t::ERR_DROP, "EvaluateFields(): variable-sized chunk '{}' without handler!", ::SG_GetChidText(ulChid));
             }
         }
     }

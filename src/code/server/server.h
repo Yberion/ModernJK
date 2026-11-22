@@ -174,7 +174,11 @@ extern cvar_t* sv_compress_saved_games;
 // sv_main.c
 //
 void SV_FinalMessage(char* message);
-void QDECL SV_SendServerCommand(client_t* cl, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
+void SV_VSendServerCommand(client_t* cl, fmt::string_view fmt, fmt::format_args args);
+template <typename... T> void SV_SendServerCommand(client_t* cl, fmt::format_string<T...> fmt, T&&... args)
+{
+    SV_VSendServerCommand(cl, fmt.get(), Q_FormatArgs(args...));
+}
 
 void SV_AddOperatorCommands(void);
 void SV_RemoveOperatorCommands(void);

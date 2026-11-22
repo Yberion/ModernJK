@@ -139,7 +139,7 @@ void COM_BeginParseSession(void)
     parseDataCount++;
 #ifdef _DEBUG
     if (parseDataCount >= MAX_PARSE_DATA) {
-        Com_Error(errorParm_t::ERR_FATAL, "COM_BeginParseSession: cannot nest more than %d parsing sessions.\n", MAX_PARSE_DATA);
+        Q_Error(errorParm_t::ERR_FATAL, "COM_BeginParseSession: cannot nest more than {} parsing sessions.", MAX_PARSE_DATA);
     }
 #endif
 
@@ -158,7 +158,7 @@ void COM_EndParseSession(void)
 int COM_GetCurrentParseLine(int index)
 {
     if (parseDataCount < 0)
-        Com_Error(errorParm_t::ERR_FATAL, "COM_GetCurrentParseLine: parseDataCount < 0 (be sure to call COM_BeginParseSession!)");
+        Q_Error(errorParm_t::ERR_FATAL, "COM_GetCurrentParseLine: parseDataCount < 0 (be sure to call COM_BeginParseSession!)");
 
     if (parseData[parseDataCount].com_tokenline)
         return parseData[parseDataCount].com_tokenline;
@@ -188,7 +188,7 @@ const char* SkipWhitespace(const char* data, bool* hasNewLines)
     int c;
 
     if (parseDataCount < 0)
-        Com_Error(errorParm_t::ERR_FATAL, "SkipWhitespace: parseDataCount < 0");
+        Q_Error(errorParm_t::ERR_FATAL, "SkipWhitespace: parseDataCount < 0");
 
     while ((c = *(const unsigned char* /*eurofix*/)data) <= ' ') {
         if (!c) {
@@ -300,7 +300,7 @@ char* COM_ParseExt(const char** data_p, bool allowLineBreaks)
     }
 
     if (parseDataCount < 0)
-        Com_Error(errorParm_t::ERR_FATAL, "COM_ParseExt: parseDataCount < 0 (be sure to call COM_BeginParseSession!)");
+        Q_Error(errorParm_t::ERR_FATAL, "COM_ParseExt: parseDataCount < 0 (be sure to call COM_BeginParseSession!)");
 
     while (1) {
         // skip whitespace
@@ -389,7 +389,7 @@ bool COM_ParseString(const char** data, const char** s)
 {
     *s = COM_ParseExt(data, false);
     if (s[0] == nullptr) {
-        Com_Printf("unexpected EOF in COM_ParseString\n");
+        Q_Println("unexpected EOF in COM_ParseString");
         return true;
     }
     return false;
@@ -406,7 +406,7 @@ bool COM_ParseInt(const char** data, int* i)
 
     token = COM_ParseExt(data, false);
     if (token[0] == 0) {
-        Com_Printf("unexpected EOF in COM_ParseInt\n");
+        Q_Println("unexpected EOF in COM_ParseInt");
         return true;
     }
 
@@ -425,7 +425,7 @@ bool COM_ParseFloat(const char** data, float* f)
 
     token = COM_ParseExt(data, false);
     if (token[0] == 0) {
-        Com_Printf("unexpected EOF in COM_ParseFloat\n");
+        Q_Println("unexpected EOF in COM_ParseFloat");
         return true;
     }
 
@@ -463,7 +463,7 @@ void COM_MatchToken(const char** buf_p, const char* match)
 
     token = COM_Parse(buf_p);
     if (strcmp(token, match)) {
-        Com_Error(errorParm_t::ERR_DROP, "MatchToken: %s != %s", token, match);
+        Q_Error(errorParm_t::ERR_DROP, "MatchToken: {} != {}", token, match);
     }
 }
 
@@ -509,7 +509,7 @@ void SkipRestOfLine(const char** data)
     int c;
 
     if (parseDataCount < 0)
-        Com_Error(errorParm_t::ERR_FATAL, "SkipRestOfLine: parseDataCount < 0");
+        Q_Error(errorParm_t::ERR_FATAL, "SkipRestOfLine: parseDataCount < 0");
 
     p = *data;
 
@@ -662,7 +662,7 @@ const char* Info_ValueForKey(const char* s, const char* key)
     }
 
     if (strlen(s) >= MAX_INFO_STRING) {
-        Com_Error(errorParm_t::ERR_DROP, "Info_ValueForKey: oversize infostring");
+        Q_Error(errorParm_t::ERR_DROP, "Info_ValueForKey: oversize infostring");
     }
 
     valueindex ^= 1;
@@ -750,7 +750,7 @@ void Info_RemoveKey(char* s, const char* key)
     char* o;
 
     if (strlen(s) >= MAX_INFO_STRING) {
-        Com_Error(errorParm_t::ERR_DROP, "Info_RemoveKey: oversize infostring");
+        Q_Error(errorParm_t::ERR_DROP, "Info_RemoveKey: oversize infostring");
     }
 
     if (strchr(key, '\\')) {
@@ -821,12 +821,12 @@ void Info_SetValueForKey(char* s, const char* key, const char* value)
     const char* blacklist = "\\;\"";
 
     if (strlen(s) >= MAX_INFO_STRING) {
-        Com_Error(errorParm_t::ERR_DROP, "Info_SetValueForKey: oversize infostring");
+        Q_Error(errorParm_t::ERR_DROP, "Info_SetValueForKey: oversize infostring");
     }
 
     for (; *blacklist; ++blacklist) {
         if (strchr(key, *blacklist) || strchr(value, *blacklist)) {
-            Com_Printf(S_COLOR_YELLOW "Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value);
+            Q_Println(S_COLOR_YELLOW "Can't use keys or values with a '{}': {} = {}", *blacklist, key, value);
             return;
         }
     }
@@ -835,10 +835,10 @@ void Info_SetValueForKey(char* s, const char* key, const char* value)
     if (!value || !strlen(value))
         return;
 
-    Com_sprintf(newi, sizeof(newi), "\\%s\\%s", key, value);
+    Q_FormatTo(newi, "\\{}\\{}", key, value);
 
     if (strlen(newi) + strlen(s) >= MAX_INFO_STRING) {
-        Com_Printf("Info string length exceeded\n");
+        Q_Println("Info string length exceeded");
         return;
     }
 

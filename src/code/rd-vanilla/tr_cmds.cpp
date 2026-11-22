@@ -43,38 +43,38 @@ void R_PerformanceCounters(void)
 
     if (r_speeds->integer == 1) {
         const float texSize = R_SumOfUsedImages(false) / (8 * 1048576.0f) * (r_texturebits->integer ? r_texturebits->integer : glConfig.colorBits);
-        Com_Printf("%i/%i shdrs/srfs %i leafs %i vrts %i/%i tris %.2fMB tex %.2f dc\n", backEnd.pc.c_shaders, backEnd.pc.c_surfaces, tr.pc.c_leafs,
-                   backEnd.pc.c_vertexes, backEnd.pc.c_indexes / 3, backEnd.pc.c_totalIndexes / 3, texSize,
-                   backEnd.pc.c_overDraw / (float)(glConfig.vidWidth * glConfig.vidHeight));
+        Q_Println("{}/{} shdrs/srfs {} leafs {} vrts {}/{} tris {:.2f}MB tex {:.2f} dc", backEnd.pc.c_shaders, backEnd.pc.c_surfaces, tr.pc.c_leafs,
+                  backEnd.pc.c_vertexes, backEnd.pc.c_indexes / 3, backEnd.pc.c_totalIndexes / 3, texSize,
+                  backEnd.pc.c_overDraw / (float)(glConfig.vidWidth * glConfig.vidHeight));
     }
     else if (r_speeds->integer == 2) {
-        Com_Printf("(patch) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n", tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip,
-                   tr.pc.c_sphere_cull_patch_out, tr.pc.c_box_cull_patch_in, tr.pc.c_box_cull_patch_clip, tr.pc.c_box_cull_patch_out);
-        Com_Printf("(md3) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n", tr.pc.c_sphere_cull_md3_in, tr.pc.c_sphere_cull_md3_clip,
-                   tr.pc.c_sphere_cull_md3_out, tr.pc.c_box_cull_md3_in, tr.pc.c_box_cull_md3_clip, tr.pc.c_box_cull_md3_out);
+        Q_Println("(patch) {} sin {} sclip  {} sout {} bin {} bclip {} bout", tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip,
+                  tr.pc.c_sphere_cull_patch_out, tr.pc.c_box_cull_patch_in, tr.pc.c_box_cull_patch_clip, tr.pc.c_box_cull_patch_out);
+        Q_Println("(md3) {} sin {} sclip  {} sout {} bin {} bclip {} bout", tr.pc.c_sphere_cull_md3_in, tr.pc.c_sphere_cull_md3_clip,
+                  tr.pc.c_sphere_cull_md3_out, tr.pc.c_box_cull_md3_in, tr.pc.c_box_cull_md3_clip, tr.pc.c_box_cull_md3_out);
     }
     else if (r_speeds->integer == 3) {
-        Com_Printf("viewcluster: %i\n", tr.viewCluster);
+        Q_Println("viewcluster: {}", tr.viewCluster);
     }
     else if (r_speeds->integer == 4) {
         if (backEnd.pc.c_dlightVertexes) {
-            Com_Printf("dlight srf:%i  culled:%i  verts:%i  tris:%i\n", tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled, backEnd.pc.c_dlightVertexes,
-                       backEnd.pc.c_dlightIndexes / 3);
+            Q_Println("dlight srf:{}  culled:{}  verts:{}  tris:{}", tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled, backEnd.pc.c_dlightVertexes,
+                      backEnd.pc.c_dlightIndexes / 3);
         }
     }
     else if (r_speeds->integer == 5) {
-        Com_Printf("zFar: %.0f\n", tr.viewParms.zFar);
+        Q_Println("zFar: {:.0f}", tr.viewParms.zFar);
     }
     else if (r_speeds->integer == 6) {
-        Com_Printf("flare adds:%i tests:%i renders:%i\n", backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests, backEnd.pc.c_flareRenders);
+        Q_Println("flare adds:{} tests:{} renders:{}", backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests, backEnd.pc.c_flareRenders);
     }
     else if (r_speeds->integer == 7) {
         const float texSize = R_SumOfUsedImages(true) / (1048576.0f);
         const float backBuff = glConfig.vidWidth * glConfig.vidHeight * glConfig.colorBits / (8.0f * 1024 * 1024);
         const float depthBuff = glConfig.vidWidth * glConfig.vidHeight * glConfig.depthBits / (8.0f * 1024 * 1024);
         const float stencilBuff = glConfig.vidWidth * glConfig.vidHeight * glConfig.stencilBits / (8.0f * 1024 * 1024);
-        Com_Printf("Tex MB %.2f + buffers %.2f MB = Total %.2fMB\n", texSize, backBuff * 2 + depthBuff + stencilBuff,
-                   texSize + backBuff * 2 + depthBuff + stencilBuff);
+        Q_Println("Tex MB {:.2f} + buffers {:.2f} MB = Total {:.2f}MB", texSize, backBuff * 2 + depthBuff + stencilBuff,
+                  texSize + backBuff * 2 + depthBuff + stencilBuff);
     }
 
     memset(&tr.pc, 0, sizeof(tr.pc));
@@ -144,7 +144,7 @@ static void* R_GetCommandBufferReserved(int bytes, int reservedBytes)
     // always leave room for the end of list command
     if (cmdList->used + bytes + sizeof(int) + reservedBytes > MAX_RENDER_COMMANDS) {
         if (bytes > MAX_RENDER_COMMANDS - (int)sizeof(int)) {
-            Com_Error(errorParm_t::ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes);
+            Q_Error(errorParm_t::ERR_FATAL, "R_GetCommandBuffer: bad size {}", bytes);
         }
         // if we run out of room, just start dropping commands
         return nullptr;
@@ -384,12 +384,12 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
     //
     if (r_measureOverdraw->integer) {
         if (glConfig.stencilBits < 4) {
-            Com_Warning("not enough stencil bits to measure overdraw: %d\n", glConfig.stencilBits);
+            Q_PrintlnWarning("not enough stencil bits to measure overdraw: {}", glConfig.stencilBits);
             ri.Cvar_Set("r_measureOverdraw", "0");
             r_measureOverdraw->modified = false;
         }
         else if (r_shadows->integer == 2) {
-            Com_Warning("stencil shadows and overdraw measurement are mutually exclusive\n");
+            Q_PrintlnWarning("stencil shadows and overdraw measurement are mutually exclusive");
             ri.Cvar_Set("r_measureOverdraw", "0");
             r_measureOverdraw->modified = false;
         }
@@ -438,7 +438,7 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 
         R_IssuePendingRenderCommands();
         if ((err = qglGetError()) != GL_NO_ERROR) {
-            Com_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!\n", err);
+            Q_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x{:x})!", err);
         }
     }
 
@@ -459,12 +459,12 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
             cmd->buffer = (int)GL_BACK_RIGHT;
         }
         else {
-            Com_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was %i", to_underlying(stereoFrame));
+            Q_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was {}", to_underlying(stereoFrame));
         }
     }
     else {
         if (stereoFrame != stereoFrame_t::STEREO_CENTER) {
-            Com_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was %i", to_underlying(stereoFrame));
+            Q_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was {}", to_underlying(stereoFrame));
         }
         //		if ( !Q_stricmp( r_drawBuffer->string, "GL_FRONT" ) ) {
         //			cmd->buffer = (int)GL_FRONT;

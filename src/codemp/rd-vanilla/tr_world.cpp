@@ -1435,7 +1435,7 @@ static mnode_t* R_PointInLeaf(const vec3_t p)
     cplane_t* plane;
 
     if (!tr.world) {
-        Com_Error(errorParm_t::ERR_DROP, "R_PointInLeaf: bad model");
+        Q_Error(errorParm_t::ERR_DROP, "R_PointInLeaf: bad model");
     }
 
     node = tr.world->nodes;
@@ -1530,7 +1530,7 @@ static void R_MarkLeaves(void)
     if (r_showcluster->modified || r_showcluster->integer) {
         r_showcluster->modified = false;
         if (r_showcluster->integer) {
-            Com_Printf("cluster:%i  area:%i\n", cluster, leaf->area);
+            Q_Println("cluster:{}  area:{}", cluster, leaf->area);
         }
     }
 

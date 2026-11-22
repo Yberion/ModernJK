@@ -119,7 +119,7 @@ bool DemoRecorder::Write(const eng::ServerMessage& msg, int lastCommand, const d
     eng::Frame& slot = frames[(uint32_t)m.seq % eng::kPacketBackup];
     slot.seq = -1;
     if (!size) {
-        Com_Warning("message %d not recorded in the demo (too large or malformed)\n", m.seq);
+        Q_PrintlnWarning("message {} not recorded in the demo (too large or malformed)", m.seq);
         return false;
     }
     if (m.snapshot) {

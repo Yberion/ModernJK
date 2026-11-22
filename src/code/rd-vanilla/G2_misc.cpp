@@ -256,11 +256,11 @@ void G2_List_Model_Surfaces(const char* fileName)
     mdxmSurface_t* surface = (mdxmSurface_t*)((byte*)mod_m->mdxm + mod_m->mdxm->ofsLODs + sizeof(mdxmLOD_t));
 
     for (x = 0; x < mod_m->mdxm->numSurfaces; x++) {
-        Com_Printf("Surface %i Name %s\n", x, surf->name);
+        Q_Println("Surface {} Name {}", x, surf->name);
         if (r_verbose->value) {
-            Com_Printf("Num Descendants %i\n", surf->numChildren);
+            Q_Println("Num Descendants {}", surf->numChildren);
             for (i = 0; i < surf->numChildren; i++) {
-                Com_Printf("Descendant %i\n", surf->childIndexes[i]);
+                Q_Println("Descendant {}", surf->childIndexes[i]);
             }
         }
         // find the next surface
@@ -290,15 +290,15 @@ void G2_List_Model_Bones(const char* fileName, int frame)
     // walk each bone and list it's name
     for (x = 0; x < mod_a->mdxa->numBones; x++) {
         skel = (mdxaSkel_t*)((byte*)header + sizeof(mdxaHeader_t) + offsets->offsets[x]);
-        Com_Printf("Bone %i Name %s\n", x, skel->name);
+        Q_Println("Bone {} Name {}", x, skel->name);
 
-        Com_Printf("X pos %f, Y pos %f, Z pos %f\n", skel->BasePoseMat.matrix[0][3], skel->BasePoseMat.matrix[1][3], skel->BasePoseMat.matrix[2][3]);
+        Q_Println("X pos {:f}, Y pos {:f}, Z pos {:f}", skel->BasePoseMat.matrix[0][3], skel->BasePoseMat.matrix[1][3], skel->BasePoseMat.matrix[2][3]);
 
         // if we are in verbose mode give us more details
         if (r_verbose->value) {
-            Com_Printf("Num Descendants %i\n", skel->numChildren);
+            Q_Println("Num Descendants {}", skel->numChildren);
             for (i = 0; i < skel->numChildren; i++) {
-                Com_Printf("Num Descendants %i\n", skel->numChildren);
+                Q_Println("Num Descendants {}", skel->numChildren);
             }
         }
     }
@@ -371,7 +371,7 @@ void R_TransformEachSurface(const mdxmSurface_t* surface, vec3_t scale, CMiniHea
     TransformedVertsArray[surface->thisSurfaceIndex] = (intptr_t)TransformedVerts;
     if (!TransformedVerts) {
         assert(TransformedVerts);
-        Com_Error(errorParm_t::ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust G2_MINIHEAP_SIZE in sv_init.cpp.\n");
+        Q_Error(errorParm_t::ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust G2_MINIHEAP_SIZE in sv_init.cpp.");
     }
 
     // whip through and actually transform each vertex
@@ -575,7 +575,7 @@ void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frameNum, vec3_t scale, 
         // give us space for the transformed vertex array to be put in
         g.mTransformedVertsArray = (intptr_t*)G2VertSpace->MiniHeapAlloc(g.currentModel->mdxm->numSurfaces * sizeof(intptr_t));
         if (!g.mTransformedVertsArray) {
-            Com_Error(errorParm_t::ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust G2_MINIHEAP_SIZE in sv_init.cpp.\n");
+            Q_Error(errorParm_t::ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust G2_MINIHEAP_SIZE in sv_init.cpp.");
         }
 
         memset(g.mTransformedVertsArray, 0, (g.currentModel->mdxm->numSurfaces * sizeof(intptr_t)));
@@ -1076,7 +1076,7 @@ static bool G2_TracePolys(const mdxmSurface_t* surface, const mdxmSurfHierarchy_
                                                                     ((int)(y_pos * hitMatReg[shader->hitLocation].height) *
                        hitMatReg[shader->hitLocation].width) +
                                                                     ((int)(x_pos * hitMatReg[shader->hitLocation].width)));
-                                                Com_Printf("G2_TracePolys hit location: %d\n", newCol.mLocation);
+                                                Q_Println("G2_TracePolys hit location: {}", newCol.mLocation);
                                             }
 
                                             if (shader->hitMaterial)

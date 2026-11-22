@@ -39,8 +39,8 @@ void NPC_MineMonster_Precache(void)
     int i;
 
     for (i = 0; i < 4; i++) {
-        G_SoundIndex(va("sound/chars/mine/misc/bite%i.wav", i + 1));
-        G_SoundIndex(va("sound/chars/mine/misc/miss%i.wav", i + 1));
+        G_SoundIndex(Q_Format("sound/chars/mine/misc/bite{}.wav", i + 1).c_str());
+        G_SoundIndex(Q_Format("sound/chars/mine/misc/miss{}.wav", i + 1).c_str());
     }
 }
 
@@ -125,10 +125,10 @@ void MineMonster_TryDamage(gentity_t* enemy, int damage)
 
     if (tr.entityNum >= 0 && tr.entityNum < ENTITYNUM_NONE) {
         G_Damage(&g_entities[tr.entityNum], NPCS.NPC, NPCS.NPC, dir, tr.endpos, damage, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE);
-        G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_EffectIndex(va("sound/chars/mine/misc/bite%i.wav", Q_irand(1, 4))));
+        G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_EffectIndex(Q_Format("sound/chars/mine/misc/bite{}.wav", Q_irand(1, 4)).c_str()));
     }
     else {
-        G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_EffectIndex(va("sound/chars/mine/misc/miss%i.wav", Q_irand(1, 4))));
+        G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_EffectIndex(Q_Format("sound/chars/mine/misc/miss{}.wav", Q_irand(1, 4)).c_str()));
     }
 }
 

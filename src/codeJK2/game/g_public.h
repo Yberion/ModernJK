@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
-inline constexpr int GAME_API_VERSION = 11;
+inline constexpr int GAME_API_VERSION = 12;
 
 // entity->svFlags
 // the server does not know how to interpret most of the values
@@ -141,18 +141,18 @@ class CMiniHeap;
 /*
 Ghoul2 Insert End
 */
-typedef struct {
+typedef struct game_import_s {
     //============== general Quake services ==================
 
     // print message on the local console (formatted by the engine, q_fmt.h)
-    void (*Print)(printLevel_t level, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
+    void (*Print)(printLevel_t level, lineEnd_t end, fmt::string_view fmt, fmt::format_args args);
 
     // Write a camera ref_tag to cameras.map
     void (*WriteCam)(const char* text);
     void (*FlushCamFile)();
 
     // abort the game
-    NORETURN_PTR void (*Error)(errorParm_t code, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
+    NORETURN_PTR void (*Error)(errorParm_t code, fmt::string_view fmt, fmt::format_args args);
 
     // get current time for profiling reasons
     // this should NOT be used for any game related tasks,
@@ -192,7 +192,11 @@ typedef struct {
 
     // reliably sends a command string to be interpreted by the given
     // client.  If clientNum is -1, it will be sent to all clients
-    void (*SendServerCommand)(int clientNum, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
+    void (*VSendServerCommand)(int clientNum, fmt::string_view fmt, fmt::format_args args);
+    template <typename... T> void SendServerCommand(int clientNum, fmt::format_string<T...> fmt, T&&... args)
+    {
+        VSendServerCommand(clientNum, fmt.get(), Q_FormatArgs(args...));
+    }
 
     // config strings hold all the index strings, and various other information
     // that is reliably communicated to all clients

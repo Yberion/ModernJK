@@ -36,6 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // them.
 #pragma once
 
+#include <fmt/base.h>
 #include <netcodec/codec.h>
 
 #include <cstdio>
@@ -106,7 +107,7 @@ inline bool WriteClientTrace(const char* path, const std::vector<ClientTraceStre
 {
     detail_client::File out{std::unique_ptr<FILE, int (*)(FILE*)>(std::fopen(path, "wb"), &std::fclose)};
     if (!out.f) {
-        std::fprintf(stderr, "cannot write %s\n", path);
+        fmt::println(stderr, "cannot write {}", path);
         return false;
     }
     out.PutBytes("JKCT", 4);
@@ -154,13 +155,13 @@ inline bool ReadClientTrace(const char* path, std::vector<ClientTraceStream>& st
 {
     detail_client::File in{std::unique_ptr<FILE, int (*)(FILE*)>(std::fopen(path, "rb"), &std::fclose)};
     if (!in.f) {
-        std::fprintf(stderr, "cannot read %s\n", path);
+        fmt::println(stderr, "cannot read {}", path);
         return false;
     }
     std::array<char, 4> magic{};
     in.GetBytes(magic.data(), 4);
     if (std::memcmp(magic.data(), "JKCT", 4) != 0 || in.Get<int32_t>() != 1) {
-        std::fprintf(stderr, "%s: not a version 1 client trace\n", path);
+        fmt::println(stderr, "{}: not a version 1 client trace", path);
         return false;
     }
     const auto numStreams = in.Get<int32_t>();
@@ -202,7 +203,7 @@ inline bool ReadClientTrace(const char* path, std::vector<ClientTraceStream>& st
         }
     }
     if (!in.ok)
-        std::fprintf(stderr, "%s: truncated client trace\n", path);
+        fmt::println(stderr, "{}: truncated client trace", path);
     return in.ok;
 }
 

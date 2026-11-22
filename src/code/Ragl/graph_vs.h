@@ -76,7 +76,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 //	for (TestSearch.path_begin(); !TestSearch.path_end(); TestSearch.path_inc())
 //	{
-//		sprintf(Buf, "(%d)", TestSearch.path_at());
+//		Q_FormatTo(Buf, "({})", TestSearch.path_at());
 //		OutputDebugString(Buf);
 //	}
 //
@@ -1439,31 +1439,31 @@ public:
 
     void ProfileSpew()
     {
-        ProfilePrint("%s", "");
-        ProfilePrint("%s", "");
-        ProfilePrint("--------------------------------------------------------");
-        ProfilePrint("RAVEN STANDARD LIBRARY  -  COMPUTATIONAL GEOMETRY MODULE");
-        ProfilePrint("               Graph Profile Results                    ");
-        ProfilePrint("--------------------------------------------------------");
-        ProfilePrint("%s", "");
-        ProfilePrint("GRAPH SIZE (Bytes): (%zu)  (KiloBytes): (%5.3f)  MeggaBytes(%3.3f)", (sizeof(*this)), ((float)(sizeof(*this)) / 1024.0f),
-                     ((float)(sizeof(*this)) / 1048576.0f));
-        ProfilePrint("GRAPH COUNT: (%d) Nodes  (%d) Edges", mNodes.size(), mEdges.size());
+        ProfilePrintln("{}", "");
+        ProfilePrintln("{}", "");
+        ProfilePrintln("--------------------------------------------------------");
+        ProfilePrintln("RAVEN STANDARD LIBRARY  -  COMPUTATIONAL GEOMETRY MODULE");
+        ProfilePrintln("               Graph Profile Results                    ");
+        ProfilePrintln("--------------------------------------------------------");
+        ProfilePrintln("{}", "");
+        ProfilePrintln("GRAPH SIZE (Bytes): ({})  (KiloBytes): ({:5.3f})  MeggaBytes({:3.3f})", (sizeof(*this)), ((float)(sizeof(*this)) / 1024.0f),
+                       ((float)(sizeof(*this)) / 1048576.0f));
+        ProfilePrintln("GRAPH COUNT: ({}) Nodes  ({}) Edges", mNodes.size(), mEdges.size());
         if (mNodes.size()) {
-            ProfilePrint("GRAPH COUNT: (%f) Edges/Node", (float)mEdges.size() / (float)mNodes.size());
+            ProfilePrintln("GRAPH COUNT: ({:f}) Edges/Node", (float)mEdges.size() / (float)mNodes.size());
         }
-        ProfilePrint("%s", "");
+        ProfilePrintln("{}", "");
         if (mSearchCount) {
-            ProfilePrint("SEARCH: (%d) Searches  (%f) AveSize", mSearchCount, ((float)mSearchMemorySize / (float)mSearchCount));
+            ProfilePrintln("SEARCH: ({}) Searches  ({:f}) AveSize", mSearchCount, ((float)mSearchMemorySize / (float)mSearchCount));
             if (mSearchSuccess) {
-                ProfilePrint("SEARCH: (%d) Successes  (%f) AveVisited  (%f) AvePathLen", mSearchSuccess, ((float)mSearchSuccessVisited / (float)mSearchSuccess),
-                             ((float)mSearchSuccessPathLen / (float)mSearchSuccess));
+                ProfilePrintln("SEARCH: ({}) Successes  ({:f}) AveVisited  ({:f}) AvePathLen", mSearchSuccess,
+                               ((float)mSearchSuccessVisited / (float)mSearchSuccess), ((float)mSearchSuccessPathLen / (float)mSearchSuccess));
             }
             if (mSearchFail) {
-                ProfilePrint("SEARCH: (%d) Failures  (%f) AveVisited", mSearchFail, ((float)mSearchFailVisited / (float)mSearchFail));
+                ProfilePrintln("SEARCH: ({}) Failures  ({:f}) AveVisited", mSearchFail, ((float)mSearchFailVisited / (float)mSearchFail));
             }
         }
-        ProfilePrint("%s", "");
+        ProfilePrintln("{}", "");
     };
 #endif
 };

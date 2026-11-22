@@ -45,7 +45,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
-#include <stdarg.h>
 #include "l_memory.h"
 #include "l_script.h"
 
@@ -209,22 +208,19 @@ const char* PunctuationFromNum(script_t* script, punctuationId_t num)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL ScriptError(script_t* script, const char* str, ...)
+void VScriptError(script_t* script, fmt::string_view str, fmt::format_args args)
 {
     char text[1024];
-    va_list ap;
 
     if (Any(script->flags & scriptParseFlags_t::SCFL_NOERRORS))
         return;
 
-    va_start(ap, str);
-    Q_vsnprintf(text, sizeof(text), str, ap);
-    va_end(ap);
+    Q_VFormatToCut(text, str, args);
 #ifdef BOTLIB
-    Com_PrintError("file %s, line %d: %s\n", script->filename, script->line, text);
+    Q_PrintlnError("file {}, line {}: {}", script->filename, script->line, text);
 #endif // BOTLIB
 #ifdef MEQCC
-    printf("error: file %s, line %d: %s\n", script->filename, script->line, text);
+    Q_FilePrintln(stdout, "error: file {}, line {}: {}", script->filename, script->line, text);
 #endif // MEQCC
 #ifdef BSPC
     Log_Print("error: file %s, line %d: %s\n", script->filename, script->line, text);
@@ -236,22 +232,19 @@ void QDECL ScriptError(script_t* script, const char* str, ...)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL ScriptWarning(script_t* script, const char* str, ...)
+void VScriptWarning(script_t* script, fmt::string_view str, fmt::format_args args)
 {
     char text[1024];
-    va_list ap;
 
     if (Any(script->flags & scriptParseFlags_t::SCFL_NOWARNINGS))
         return;
 
-    va_start(ap, str);
-    Q_vsnprintf(text, sizeof(text), str, ap);
-    va_end(ap);
+    Q_VFormatToCut(text, str, args);
 #ifdef BOTLIB
-    Com_Warning("file %s, line %d: %s\n", script->filename, script->line, text);
+    Q_PrintlnWarning("file {}, line {}: {}", script->filename, script->line, text);
 #endif // BOTLIB
 #ifdef MEQCC
-    printf("warning: file %s, line %d: %s\n", script->filename, script->line, text);
+    Q_FilePrintln(stdout, "warning: file {}, line {}: {}", script->filename, script->line, text);
 #endif // MEQCC
 #ifdef BSPC
     Log_Print("warning: file %s, line %d: %s\n", script->filename, script->line, text);
@@ -462,7 +455,7 @@ int PS_ReadString(script_t* script, token_t* token, int quote)
     while (1) {
         // minus 2 because trailing double quote and zero have to be appended
         if (len >= MAX_TOKEN - 2) {
-            ScriptError(script, "string longer than MAX_TOKEN = %d", MAX_TOKEN);
+            ScriptError(script, "string longer than MAX_TOKEN = {}", MAX_TOKEN);
             return 0;
         } // end if
         // if there is an escape character and
@@ -507,7 +500,7 @@ int PS_ReadString(script_t* script, token_t* token, int quote)
             } // end if
             if (*script->script_p == '\n') {
                 token->string[len] = 0;
-                ScriptError(script, "newline inside string %s", token->string);
+                ScriptError(script, "newline inside string {}", token->string);
                 return 0;
             } // end if
             token->string[len++] = *script->script_p++;
@@ -536,7 +529,7 @@ int PS_ReadName(script_t* script, token_t* token)
     do {
         token->string[len++] = *script->script_p++;
         if (len >= MAX_TOKEN) {
-            ScriptError(script, "name longer than MAX_TOKEN = %d", MAX_TOKEN);
+            ScriptError(script, "name longer than MAX_TOKEN = {}", MAX_TOKEN);
             return 0;
         } // end if
         c = *script->script_p;
@@ -637,7 +630,7 @@ int PS_ReadNumber(script_t* script, token_t* token)
         while ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
             token->string[len++] = *script->script_p++;
             if (len >= MAX_TOKEN) {
-                ScriptError(script, "hexadecimal number longer than MAX_TOKEN = %d", MAX_TOKEN);
+                ScriptError(script, "hexadecimal number longer than MAX_TOKEN = {}", MAX_TOKEN);
                 return 0;
             } // end if
             c = *script->script_p;
@@ -654,7 +647,7 @@ int PS_ReadNumber(script_t* script, token_t* token)
         while (c == '0' || c == '1') {
             token->string[len++] = *script->script_p++;
             if (len >= MAX_TOKEN) {
-                ScriptError(script, "binary number longer than MAX_TOKEN = %d", MAX_TOKEN);
+                ScriptError(script, "binary number longer than MAX_TOKEN = {}", MAX_TOKEN);
                 return 0;
             } // end if
             c = *script->script_p;
@@ -678,7 +671,7 @@ int PS_ReadNumber(script_t* script, token_t* token)
                 break;
             token->string[len++] = *script->script_p++;
             if (len >= MAX_TOKEN - 1) {
-                ScriptError(script, "number longer than MAX_TOKEN = %d", MAX_TOKEN);
+                ScriptError(script, "number longer than MAX_TOKEN = {}", MAX_TOKEN);
                 return 0;
             } // end if
         } // end while
@@ -804,7 +797,7 @@ int PS_ReadPrimitive(script_t* script, token_t* token)
     len = 0;
     while (*script->script_p > ' ' && *script->script_p != ';') {
         if (len >= MAX_TOKEN - 1) {
-            ScriptError(script, "primitive token longer than MAX_TOKEN = %d", MAX_TOKEN);
+            ScriptError(script, "primitive token longer than MAX_TOKEN = {}", MAX_TOKEN);
             return 0;
         } // end if
         token->string[len++] = *script->script_p++;
@@ -896,12 +889,12 @@ int PS_ExpectTokenString(script_t* script, char* string)
     token_t token;
 
     if (!PS_ReadToken(script, &token)) {
-        ScriptError(script, "couldn't find expected %s", string);
+        ScriptError(script, "couldn't find expected {}", string);
         return 0;
     } // end if
 
     if (strcmp(token.string, string)) {
-        ScriptError(script, "expected %s, found %s", string, token.string);
+        ScriptError(script, "expected {}, found {}", string, token.string);
         return 0;
     } // end if
     return 1;
@@ -933,7 +926,7 @@ int PS_ExpectTokenType(script_t* script, tokenType_t type, int subtype, token_t*
             strcpy(str, "name");
         if (type == tokenType_t::TT_PUNCTUATION)
             strcpy(str, "punctuation");
-        ScriptError(script, "expected a %s, found %s", str, token->string);
+        ScriptError(script, "expected a {}, found {}", str, token->string);
         return 0;
     } // end if
     if (token->type == tokenType_t::TT_NUMBER) {
@@ -955,7 +948,7 @@ int PS_ExpectTokenType(script_t* script, tokenType_t type, int subtype, token_t*
                 strcat(str, " float");
             if (subtype & TT_INTEGER)
                 strcat(str, " integer");
-            ScriptError(script, "expected %s, found %s", str, token->string);
+            ScriptError(script, "expected {}, found {}", str, token->string);
             return 0;
         } // end if
     } // end if
@@ -965,7 +958,7 @@ int PS_ExpectTokenType(script_t* script, tokenType_t type, int subtype, token_t*
             return 0;
         } // end if
         if (token->subtype != subtype) {
-            ScriptError(script, "expected %s, found %s", PunctuationFromNum(script, static_cast<punctuationId_t>(subtype)),
+            ScriptError(script, "expected {}, found {}", PunctuationFromNum(script, static_cast<punctuationId_t>(subtype)),
                         token->string); // the mixed subtype parameter holds a punctuation here
             return 0;
         } // end if
@@ -1133,7 +1126,7 @@ long double ReadSignedFloat(script_t* script)
     }
 
     if (token.type != tokenType_t::TT_NUMBER) {
-        ScriptError(script, "expected float value, found %s", token.string);
+        ScriptError(script, "expected float value, found {}", token.string);
         return 0;
     }
 
@@ -1161,7 +1154,7 @@ signed long int ReadSignedInt(script_t* script)
     }
 
     if (token.type != tokenType_t::TT_NUMBER || token.subtype == TT_FLOAT) {
-        ScriptError(script, "expected integer value, found %s", token.string);
+        ScriptError(script, "expected integer value, found {}", token.string);
         return 0;
     }
 
@@ -1296,9 +1289,9 @@ script_t* LoadScriptFile(const char* filename)
 
 #ifdef BOTLIB
     if (strlen(basefolder))
-        Com_sprintf(pathname, sizeof(pathname), "%s/%s", basefolder, filename);
+        Q_FormatTo(pathname, "{}/{}", basefolder, filename);
     else
-        Com_sprintf(pathname, sizeof(pathname), "%s", filename);
+        Q_FormatTo(pathname, "{}", filename);
     length = botimport.FS_FOpenFile(pathname, &fp, fsMode_t::FS_READ);
     if (!fp)
         return nullptr;
@@ -1405,8 +1398,8 @@ void FreeScript(script_t* script)
 void PS_SetBaseFolder(const char* path)
 {
 #ifdef BSPC
-    sprintf(basefolder, path);
+    Q_FormatTo(basefolder, "{}", path);
 #else
-    Com_sprintf(basefolder, sizeof(basefolder), "%s", path);
+    Q_FormatTo(basefolder, "{}", path);
 #endif
 } // end of the function PS_SetBaseFolder
