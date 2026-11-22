@@ -1,0 +1,75 @@
+--- a/src/codemp/qcommon/q_shared.cpp
++++ b/src/codemp/qcommon/q_shared.cpp
+@@ -672,6 +672,64 @@
+ FIXME: make this buffer size safe someday
+ ============
+ */
++// Measuring code (docs/modernization/tools/fmtbench/va_lengths.patch), not in the game: the length of every text va
++// writes, counted by range and appended at the module's unloading or the program's exit to
++// $VA_LENGTHS_DIR/va_lengths_<module>_<process>.txt, one line per unloading: the module, the calls of 0 to 15, 16 to
++// 22, 23 to 31, 32 to 63, 64 to 127, 128 to 255, 256 to 1,023 and 1,024 characters or more, the longest.
++#include <cstdlib>
++#ifdef _WIN32
++#include <process.h>
++#else
++#include <unistd.h>
++#endif
++namespace {
++unsigned long long va_buckets[8];
++size_t va_longest;
++
++void VA_DumpLengths()
++{
++#if defined(_GAME)
++    const char* label = "game";
++#elif defined(_CGAME)
++    const char* label = "cgame";
++#elif defined(UI_BUILD)
++    const char* label = "ui";
++#else
++    const char* label = "engine";
++#endif
++#ifdef _WIN32
++    const int pid = _getpid();
++#else
++    const int pid = static_cast<int>(getpid());
++#endif
++    const char* dir = getenv("VA_LENGTHS_DIR");
++    char path[1024];
++    snprintf(path, sizeof(path), "%s/va_lengths_%s_%d.txt", dir ? dir : ".", label, pid);
++    FILE* f = fopen(path, "a");
++    if (!f)
++        return;
++    fprintf(f, "%s", label);
++    for (const unsigned long long b : va_buckets)
++        fprintf(f, " %llu", b);
++    fprintf(f, " longest %zu\n", va_longest);
++    fclose(f);
++}
++
++void VA_CountLength(const char* s)
++{
++    static const bool registered = (atexit(VA_DumpLengths), true);
++    (void)registered;
++    const size_t n = strlen(s);
++    constexpr size_t limits[7] = {15, 22, 31, 63, 127, 255, 1023};
++    int b = 0;
++    while (b < 7 && n > limits[b])
++        ++b;
++    ++va_buckets[b];
++    if (n > va_longest)
++        va_longest = n;
++}
++} // namespace
++
+ constexpr int MAX_VA_STRING = 32000;
+ constexpr int MAX_VA_BUFFERS = 4;
+ 
+@@ -686,6 +744,7 @@
+     buf = (char*)&string[index++ & 3];
+     Q_vsnprintf(buf, sizeof(*string), format, argptr);
+     va_end(argptr);
++    VA_CountLength(buf);
+ 
+     return buf;
+ }

@@ -89,6 +89,10 @@ The Release presets build with link-time optimization, the Debug and sanitizer p
 
 The C and C++ code of `src/` and `test/` is laid out by clang-format 23 (`.clang-format`; another major version lays it out differently): `clang-format -i <files>` before a change is handed over, run again until nothing changes. The Linux validation (`validate.sh`) checks it.
 
+## The use of AI
+
+The modernization is done with an AI assistant, Claude, by Anthropic: it searches the sources, measures, and writes the code, the tools and the documents. Every decision is taken by a person, written in [the plan](docs/modernization/PLAN.md) with its date; every change is built on the three compilers, checked by the tests and the scripted scenarios, tried in game where it changes the game, and committed by a person.
+
 ## Credits
 
 - Star Wars Jedi Knight: Jedi Academy and Star Wars Jedi Knight II: Jedi Outcast, by Raven Software, published by LucasArts and Activision; Raven Software and Activision released their source code under the GPLv2 in 2013 ([Jedi Academy](https://github.com/jedis/jediacademy), [Jedi Outcast](https://github.com/jedis/jedioutcast)). The game data is theirs and is not part of this repository.
