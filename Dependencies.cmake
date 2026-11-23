@@ -120,8 +120,8 @@ function(modernjk_setup_dependencies)
 		target_link_libraries(FLAC PRIVATE modernjk_options vendored_flac_overflow)
 	endif()
 
-	# the engines that open a window
-	if(modernjk_BUILD_MP_CLIENT OR modernjk_BUILD_SP OR modernjk_BUILD_JK2)
+	# the engines that open a window, and the fuzzers, one of which plays the sound on OpenAL Soft's loopback device
+	if(modernjk_BUILD_MP_CLIENT OR modernjk_BUILD_SP OR modernjk_BUILD_JK2 OR modernjk_BUILD_FUZZ_TESTS)
 		# The sound (src/shared/sound): OpenAL Soft plays it, a static library built by its own CMake file without
 		# its programs, its legacy EAX extension (the reverb goes through EFX), its HRTF data (HRTF is off) and its
 		# C++ modules (the project scans for none); the system's sound servers are its required backends, so that a
@@ -161,7 +161,10 @@ function(modernjk_setup_dependencies)
 				# cannot see initialised through the view
 				-Wno-maybe-uninitialized)
 		endif()
+	endif()
 
+	# the engines that open a window
+	if(modernjk_BUILD_MP_CLIENT OR modernjk_BUILD_SP OR modernjk_BUILD_JK2)
 		find_package(OpenGL REQUIRED)
 		if(WIN32)
 			# SDL2 for Windows, built by its authors (libs/SDL2): the DLL beside the engines, SDL2main for WinMain

@@ -67,6 +67,9 @@ public:
     // dr_wav goes straight to the frame in PCM, and decodes from the start in the compressed encodings
     bool Seek(std::uint64_t frame) override { return drwav_seek_to_pcm_frame(&wav_, frame) != DRWAV_FALSE; }
 
+    // the data chunk's size
+    std::optional<std::uint64_t> Frames() override { return wav_.totalPCMFrameCount; }
+
 private:
     drwav wav_{};
     bool open_ = false;

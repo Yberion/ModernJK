@@ -20,6 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // formats.h -- one decoder per format, each in its own file over its library; OpenDecoder (decoder.cpp) picks one.
 // Each returns nullptr when its library cannot open the file.
+// Example: OpenFlac(file) decodes through libFLAC; OpenDecoder calls it for a file starting with "fLaC".
 #pragma once
 
 #include "decoder.h"

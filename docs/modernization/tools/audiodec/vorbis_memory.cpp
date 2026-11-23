@@ -1,6 +1,6 @@
 // The memory stb_vorbis needs to open and decode each file of a corpus (sample_vorbis.bin): setup, setup's temporary
 // and decoding's temporary memory, as stb_vorbis_get_info reports them; prints the largest of each and of their sum
-// (the size of the block src/shared/sound/vorbis.cpp gives stb_vorbis comes from it).
+// (the size of the block src/shared/sound/decoder/vorbis.cpp gives stb_vorbis comes from it).
 // build: clang++ -O2 -std=c++20 -w -I<repository>/libs/stb vorbis_memory.cpp -o vorbis_memory
 // usage: vorbis_memory <build/audiolibs/decoders/data/sample_vorbis.bin>
 #include "stb_vorbis.c"

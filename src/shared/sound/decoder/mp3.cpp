@@ -27,6 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define DR_MP3_NO_STDIO
 #include <dr_mp3.h>
 
+#include <vector>
+
 namespace sound {
 
 namespace {
@@ -65,12 +67,39 @@ public:
         return static_cast<std::size_t>(drmp3_read_pcm_frames_s16(&mp3_, out.size() / static_cast<std::size_t>(Channels()), out.data()));
     }
 
-    // dr_mp3 decodes again from the start up to the frame: the music seeks rarely, at a transition
-    bool Seek(std::uint64_t frame) override { return drmp3_seek_to_pcm_frame(&mp3_, frame) != DRMP3_FALSE; }
+    // dr_mp3 alone decodes every frame up to the one asked (23 ms for 60 s of music): the first seek beyond the start
+    // gives it a table of 256 points over the file (0.7 ms to build, then 0.2 ms for any seek)
+    bool Seek(std::uint64_t frame) override
+    {
+        if (frame > 0 && seekPoints_.empty()) {
+            drmp3_uint32 count = kSeekPoints;
+            seekPoints_.resize(count);
+
+            if (drmp3_calculate_seek_points(&mp3_, &count, seekPoints_.data()) != DRMP3_FALSE && count > 0) {
+                seekPoints_.resize(count);
+                drmp3_bind_seek_table(&mp3_, count, seekPoints_.data());
+            }
+            else {
+                seekPoints_.assign(1, drmp3_seek_point{});
+            }
+        }
+
+        return drmp3_seek_to_pcm_frame(&mp3_, frame) != DRMP3_FALSE;
+    }
+
+    // dr_mp3 counts them through the file's frames, then goes back to where it was: the music asks once per piece
+    std::optional<std::uint64_t> Frames() override
+    {
+        const drmp3_uint64 frames = drmp3_get_pcm_frame_count(&mp3_);
+        return frames > 0 ? std::optional<std::uint64_t>(frames) : std::nullopt;
+    }
 
 private:
+    static constexpr drmp3_uint32 kSeekPoints = 256;
+
     drmp3 mp3_{};
     bool open_ = false;
+    std::vector<drmp3_seek_point> seekPoints_; // the seek table dr_mp3 keeps a pointer to, built at the first seek
 };
 
 } // namespace

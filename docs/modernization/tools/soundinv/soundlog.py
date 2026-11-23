@@ -1,4 +1,5 @@
-"""Summarizes a sound log: the SNDLOG lines a client writes while s_log is set (soundlog.patch on the old mixer).
+"""Summarizes a sound log: the SNDLOG lines a client writes while s_log is set (soundlog.patch on the old mixer) or
+s_show is 1 (src/shared/sound, whose frames add their virtual voices and whose replacements name their slot).
 
     python -I docs/modernization/tools/soundinv/soundlog.py <qconsole.log> [<qconsole.log> ...]
 
@@ -66,11 +67,16 @@ def summarize(path):
     print(f"  records: {dict(kinds)}")
 
     busy = [int(r[3].get("busy", 0)) for r in frames]
+    virtual = [int(r[3]["virtual"]) for r in frames if "virtual" in r[3]]
+    limit = 64 if virtual else 32
 
     if busy:
-        full = sum(1 for b in busy if b >= 32)
-        print(f"  channels playing at a frame: mean {sum(busy) / len(busy):.1f}, most {max(busy)}, all 32 at {full} frames "
-              f"({100.0 * full / len(busy):.1f} %)")
+        full = sum(1 for b in busy if b >= limit)
+        print(f"  {'voices mixed' if virtual else 'channels playing'} at a frame: mean {sum(busy) / len(busy):.1f}, most {max(busy)}, "
+              f"all {limit} at {full} frames ({100.0 * full / len(busy):.1f} %)")
+
+    if virtual:
+        print(f"  virtual voices at a frame: mean {sum(virtual) / len(virtual):.1f}, most {max(virtual)}")
 
     starts = [r for r in records if r[1] == "start"]
     print(f"  sounds started: {len(starts)} ({len(starts) / max(seconds, 0.001):.1f} per second)")
@@ -81,8 +87,12 @@ def summarize(path):
     print("\n".join(top(collections.Counter(r[2] for r in audible))))
 
     replaces = [r for r in records if r[1] == "replace" and r[3].get("audible") == "1"]
-    print(f"  sounds cut by the same entity's channel while playing: {len(replaces)}")
-    print("\n".join(top(collections.Counter(f"{r[2]} chan={r[3].get('chan')} by chan={r[3].get('by_chan')}" for r in replaces), 6)))
+    print(f"  sounds cut by the same entity's channel or slot while playing: {len(replaces)}")
+    print("\n".join(top(collections.Counter(
+        f"{r[2]} slot={r[3]['slot']}" if "slot" in r[3] else f"{r[2]} chan={r[3].get('chan')} by chan={r[3].get('by_chan')}" for r in replaces), 6)))
+
+    if kinds.get("merge"):
+        print(f"  the same sound started twice at one instant and place, played as one voice: {kinds['merge']}")
 
     drops = [r for r in records if r[1] == "drop"]
     print(f"  sounds stopped for good when out of range at one frame: {len(drops)}")

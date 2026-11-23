@@ -18,14 +18,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// OpenAL Soft as the sound uses it, on its loopback device (rendered into memory, no sound card needed): HRTF off,
-// the resampler bsinc24, the extensions the sound needs (the default device followed and reopened, EFX's EAX reverb),
-// and a decoded sound played to its end.
+// The tests of src/shared/sound/device: OpenAL Soft as the sound uses it, on its loopback device (rendered into memory,
+// no sound card needed): HRTF off, the resampler bsinc24, the extensions the sound needs (the default device followed
+// and reopened, EFX's EAX reverb), a decoded sound played to its end; then sound::Device on the loopback device, its
+// resampler found and its mute silencing the output.
 #include "sound.h"
 
 #include <check.h>
 
-#include <shared/sound/decoder.h>
+#include <shared/sound/decoder/decoder.h>
+#include <shared/sound/device/device.h>
 
 #define AL_ALEXT_PROTOTYPES
 #include <AL/al.h>
@@ -33,8 +35,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <AL/alext.h>
 #include <AL/efx.h>
 
+#include <algorithm>
 #include <cstdint>
+#include <memory>
 #include <string_view>
+#include <vector>
 
 namespace {
 
@@ -111,10 +116,55 @@ void Reverb()
     alDeleteEffects(1, &effect);
 }
 
+// sound::Device on the loopback device: bsinc24 found, a tone heard, nothing while muted, the tone again after
+void TestDevice(const std::filesystem::path& data)
+{
+    test::Host host(data);
+    const std::unique_ptr<sound::Device> device = sound::Device::OpenLoopback(host.host, kRate);
+    CHECK(device != nullptr);
+
+    if (device == nullptr) {
+        return;
+    }
+
+    CHECK(device->Resampler() > 0);
+    const auto pcm = sound::Decode(test::ReadFile(data / "mono22k_s16.wav"));
+    CHECK(pcm.has_value());
+
+    if (!pcm) {
+        return;
+    }
+
+    ALuint buffer = 0;
+    ALuint source = 0;
+    alGenBuffers(1, &buffer);
+    alBufferData(buffer, AL_FORMAT_MONO16, pcm->samples.data(), static_cast<ALsizei>(pcm->samples.size() * sizeof(std::int16_t)), pcm->rate);
+    alGenSources(1, &source);
+    alSourcei(source, AL_BUFFER, static_cast<ALint>(buffer));
+    alSourcei(source, AL_LOOPING, AL_TRUE);
+    alSourcePlay(source);
+    std::vector<std::int16_t> out(static_cast<std::size_t>(kRate / 20) * 2);
+    // silent but for OpenAL Soft's dither of its 16-bit output, a step or two
+    const auto silent = [&out] { return std::ranges::all_of(out, [](std::int16_t s) { return s >= -4 && s <= 4; }); };
+    device->Render(out);
+    CHECK(!silent());
+    device->SetMuted(true);
+    device->Render(out);
+    device->Render(out);
+    CHECK(silent());
+    device->SetMuted(false);
+    device->Render(out);
+    device->Render(out);
+    CHECK(!silent());
+    alDeleteSources(1, &source);
+    alDeleteBuffers(1, &buffer);
+    CHECK_EQUAL(alGetError(), AL_NO_ERROR);
+}
+
 } // namespace
 
 // a loopback device and its context set up as the sound will, then the checks above on it
-void RunOpenALTests(const std::filesystem::path& data)
+void RunDeviceTests(const std::filesystem::path& data)
 {
     CHECK(alcIsExtensionPresent(nullptr, "ALC_SOFT_loopback"));
     CHECK(alcIsExtensionPresent(nullptr, "ALC_SOFT_system_events"));
@@ -149,4 +199,5 @@ void RunOpenALTests(const std::filesystem::path& data)
     }
 
     alcCloseDevice(device);
+    TestDevice(data);
 }

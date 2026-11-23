@@ -35,8 +35,8 @@ namespace sound {
 namespace {
 
 // stb_vorbis allocates what a file declares (the vendor's text of a 422-byte file asked for 1.7 GB): all its memory
-// comes from a block of ours instead, as its documentation offers, so that such a file fails to open. The survey's 453
-// files need at most 202 KB (setup and temporary memory, 23 November 2026), its author's at most about 150 KB.
+// comes from a block of ours instead, as its documentation offers, so that such a file fails to open. The 453 Ogg
+// Vorbis files measured need at most 202 KB (setup and temporary memory), its author's at most about 150 KB.
 constexpr int kMemory = 1024 * 1024;
 using Memory = std::array<char, kMemory>;
 
@@ -66,6 +66,13 @@ public:
 
     // stb_vorbis finds the Ogg page that holds the frame by bisecting the file, then decodes from it
     bool Seek(std::uint64_t frame) override { return frame <= UINT_MAX && stb_vorbis_seek(vorbis_, static_cast<unsigned int>(frame)) != 0; }
+
+    // the last page's position, 0 when stb_vorbis cannot find it
+    std::optional<std::uint64_t> Frames() override
+    {
+        const unsigned int frames = stb_vorbis_stream_length_in_samples(vorbis_);
+        return frames > 0 ? std::optional<std::uint64_t>(frames) : std::nullopt;
+    }
 
 private:
     stb_vorbis* vorbis_;

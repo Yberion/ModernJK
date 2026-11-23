@@ -18,23 +18,25 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// libFuzzer target on the sound's decoders: each input decoded whole, then read again after a seek to a frame its last
-// two bytes give. The files of test/sound/data are a starting corpus, but silence_11min.flac, whose ten minutes of
-// decoding at every input slow the fuzzer about a hundredfold (copy the others into the work folder):
+// fuzz_decode.cpp -- libFuzzer target on the sound's decoders: each input decoded whole, then opened again, its frames
+// counted, and read again after a seek to a frame its last two bytes give. The files of test/sound/data are a starting
+// corpus, but silence_11min.flac, whose ten minutes of decoding at every input slow the fuzzer about a hundredfold (copy
+// the others into the work folder). Example:
 //   sound_fuzz_decode <work folder>
-#include <shared/sound/decoder.h>
+#include <shared/sound/decoder/decoder.h>
 
 #include <cstddef>
 #include <cstdint>
 #include <span>
 
-// one input, as libFuzzer calls it: decoded whole, then opened again, moved and read to its end
+// one input, as libFuzzer calls it: decoded whole, then opened again, its frames counted, moved and read to its end
 extern "C" int LLVMFuzzerTestOneInput(const std::uint8_t* data, std::size_t size)
 {
     const std::span<const std::byte> file(reinterpret_cast<const std::byte*>(data), size);
     (void)sound::Decode(file);
 
     if (const auto decoder = sound::OpenDecoder(file)) {
+        (void)decoder->Frames();
         const std::uint64_t frame = size >= 2 ? (std::uint64_t{data[size - 2]} << 8 | data[size - 1]) : 0;
 
         if (decoder->Seek(frame)) {

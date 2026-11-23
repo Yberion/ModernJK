@@ -36,7 +36,11 @@ int main(int argc, char** argv)
 
     const std::filesystem::path data = argv[1];
     RunDecoderTests(data);
-    RunOpenALTests(data);
+    RunDeviceTests(data);
+    RunBankTests(data);
+    RunVoicesTests(data);
+    RunStreamTests(data);
+    RunAmbientTests(data);
     fmt::println("{} failed check(s)", ::test::failures);
     return ::test::failures;
 }

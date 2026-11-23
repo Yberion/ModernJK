@@ -18,6 +18,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
+// decoder.cpp -- the choice of a file's decoder by its first bytes (decoder.h), and a sound decoded whole: read through
+// its decoder in blocks, bounded to ten minutes, and to ten minutes of 48,000 Hz stereo whatever its rate, so that a
+// damaged file cannot grow without end, what a damaged file gives before its damage kept. Example: "RIFF" (or "RIFX", "RF64", "riff") opens dr_wav, "fLaC"
+// libFLAC, "OggS" stb_vorbis, anything else dr_mp3.
 #include "decoder.h"
 
 #include "formats.h"
@@ -62,7 +66,7 @@ std::unique_ptr<Decoder> OpenDecoder(std::span<const std::byte> file)
 {
     auto decoder = OpenByContent(file);
 
-    if (!decoder || decoder->Rate() <= 0 || decoder->Channels() < 1 || decoder->Channels() > 2) {
+    if (!decoder || decoder->Rate() < kMinRate || decoder->Rate() > kMaxRate || decoder->Channels() < 1 || decoder->Channels() > 2) {
         return nullptr;
     }
 
@@ -80,10 +84,12 @@ std::optional<Pcm> Decode(std::span<const std::byte> file)
 
     Pcm pcm{.rate = decoder->Rate(), .channels = decoder->Channels(), .samples = {}};
     const auto channels = static_cast<std::size_t>(pcm.channels);
-    // A sound decoded whole lasts at most ten minutes, the game's longest (its music) under four: a damaged or hostile
-    // file cannot make it grow without bound (a FLAC frame of one constant value gives 65,535 samples for a few bytes)
+    // A sound decoded whole lasts at most ten minutes, and holds at most ten minutes of 48,000 Hz stereo (110 MB)
+    // whatever rate it declares; the game's longest (its music) lasts under four minutes: a damaged or hostile file
+    // cannot make it grow without bound (a FLAC frame of one constant value gives 65,535 samples for a few bytes)
     constexpr std::size_t maxSeconds = 600;
-    const std::size_t maxSamples = static_cast<std::size_t>(pcm.rate) * maxSeconds * channels;
+    constexpr std::size_t maxAnyRate = maxSeconds * 48000 * 2;
+    const std::size_t maxSamples = std::min(static_cast<std::size_t>(pcm.rate) * maxSeconds * channels, maxAnyRate);
     constexpr std::size_t chunkFrames = 16384;
 
     for (;;) {

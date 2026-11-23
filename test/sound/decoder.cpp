@@ -18,7 +18,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// The tests of src/shared/sound/decoder.h: each decoder on the sample files of test/sound/data (written by
+// The tests of src/shared/sound/decoder/decoder.h: each decoder on the sample files of test/sound/data (written by
 // docs/modernization/tools/audiodec/make_test_samples.cpp, which printed the WAV hashes below), the FLAC files against
 // the WAV of the same signal, the Ogg Vorbis and MP3 files by their signal to noise ratio against it, an MP3 behind an
 // ID3v2 tag, seeking, files that are not sounds, and damaged copies of every sample (under the sanitizers' presets, a
@@ -27,8 +27,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <check.h>
 
-#include <shared/sound/decoder.h>
+#include <shared/sound/decoder/decoder.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <random>
@@ -193,6 +194,30 @@ void TestFiles(const std::filesystem::path& data)
     CHECK(plain.has_value() && behindTag.has_value() && plain->samples == behindTag->samples);
 }
 
+// each format's count of frames, as the music asks it to loop a piece before its end: the frames a whole decoding
+// gives, and the reading going on from where it was
+void TestFrames(const std::filesystem::path& data)
+{
+    for (const char* name : {"mono22k_s16.wav", "stereo44k_s16.flac", "mono22k.ogg", "stereo44k.ogg", "mono22k.mp3", "stereo44k.mp3"}) {
+        const auto file = test::ReadFile(data / name);
+        const auto whole = sound::Decode(Bytes(file));
+        auto decoder = sound::OpenDecoder(Bytes(file));
+        CHECK(whole.has_value() && decoder != nullptr);
+
+        if (!whole || decoder == nullptr) {
+            continue;
+        }
+
+        std::vector<std::int16_t> first(64 * static_cast<std::size_t>(decoder->Channels()));
+        CHECK_EQUAL(decoder->Read(first), 64U);
+        const std::optional<std::uint64_t> frames = decoder->Frames();
+        CHECK(frames.has_value() && *frames == whole->samples.size() / static_cast<std::size_t>(whole->channels));
+        std::vector<std::int16_t> next(first.size());
+        CHECK_EQUAL(decoder->Read(next), 64U);
+        CHECK(std::equal(next.begin(), next.end(), whole->samples.begin() + static_cast<std::ptrdiff_t>(first.size())));
+    }
+}
+
 // files the decoders must refuse, and the bound of a sound decoded whole
 void TestNotSounds(const std::filesystem::path& data)
 {
@@ -284,6 +309,7 @@ void TestDamaged(const std::filesystem::path& data)
 void RunDecoderTests(const std::filesystem::path& data)
 {
     TestFiles(data);
+    TestFrames(data);
     TestNotSounds(data);
     TestDamaged(data);
 }

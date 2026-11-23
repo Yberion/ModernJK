@@ -106,6 +106,9 @@ public:
         return false;
     }
 
+    // the stream information's total, read with the header
+    std::optional<std::uint64_t> Frames() override { return frames_ > 0 ? std::optional<std::uint64_t>(frames_) : std::nullopt; }
+
 private:
     // the object a callback's user data points to
     static Flac& Self(void* self) noexcept { return *static_cast<Flac*>(self); }
@@ -192,6 +195,7 @@ private:
             // libFLAC's metadata is a union whose member the type gives
             const FLAC__StreamMetadata_StreamInfo& info = metadata->data.stream_info; // NOLINT(cppcoreguidelines-pro-type-union-access)
             Self(self).SetFormat(static_cast<int>(info.sample_rate), static_cast<int>(info.channels));
+            Self(self).frames_ = info.total_samples;
         }
     }
 
@@ -199,6 +203,7 @@ private:
     static void OnError(const FLAC__StreamDecoder* /*decoder*/, FLAC__StreamDecoderErrorStatus /*status*/, void* /*self*/) {}
 
     FLAC__StreamDecoder* decoder_ = nullptr;
+    std::uint64_t frames_ = 0; // the stream information's total, 0 when it does not give it
     std::span<const std::byte> file_;
     std::size_t position_ = 0;
     std::vector<std::int16_t> pending_;
