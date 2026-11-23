@@ -1379,6 +1379,17 @@ void Menus_OpenByName(const char* p)
     Menus_ActivateByName(p);
 }
 
+void Menu_PlaySound(sfxHandle_t sfx, sound::Slot slot, float volume)
+{
+    sound::Request request;
+    request.sound = sfx;
+    request.soundClass = sound::SoundClass::Interface;
+    request.place = sound::Place::Listener;
+    request.slot = slot;
+    request.volume = volume;
+    DC->sound->Play(request);
+}
+
 static void Menu_RunCloseScript(menuDef_t* menu)
 {
     if (menu && Any(menu->window.flags & windowFlags_t::WINDOW_VISIBLE) && menu->onClose) {
@@ -1780,7 +1791,7 @@ bool Script_SetFocus(itemDef_t* item, char** args)
                 Item_RunScript(focusItem, focusItem->onFocus);
             }
             if (DC->Assets.itemFocusSound) {
-                DC->startLocalSound(DC->Assets.itemFocusSound, soundChannel_t::CHAN_LOCAL_SOUND);
+                Menu_PlaySound(DC->Assets.itemFocusSound);
             }
         }
     }
@@ -1942,7 +1953,7 @@ bool Script_Play(itemDef_t* item, char** args)
 {
     const char* val;
     if (String_Parse(args, &val)) {
-        DC->startLocalSound(DC->registerSound(val), soundChannel_t::CHAN_AUTO);
+        Menu_PlaySound(DC->sound->Register(val), sound::Slot::None, 0.75f);
     }
     return true;
 }
@@ -1951,8 +1962,8 @@ bool Script_playLooped(itemDef_t* item, char** args)
 {
     const char* val;
     if (String_Parse(args, &val)) {
-        DC->stopBackgroundTrack();
-        DC->startBackgroundTrack(val, val, false);
+        DC->sound->StopMusic();
+        DC->sound->StartMusic(val, val);
     }
     return true;
 }
@@ -2214,7 +2225,7 @@ bool Item_SetFocus(itemDef_t* item, float x, float y)
     }
 
     if (playSound && sfx) {
-        DC->startLocalSound(*sfx, soundChannel_t::CHAN_LOCAL_SOUND);
+        Menu_PlaySound(*sfx);
     }
 
     for (i = 0; i < parent->itemCount; i++) {
@@ -3945,8 +3956,8 @@ void Menus_Activate(menuDef_t* menu)
     }
 
     if (menu->soundName && *menu->soundName) {
-        //		DC->stopBackgroundTrack();					// you don't want to do this since it will reset s_rawend
-        DC->startBackgroundTrack(menu->soundName, menu->soundName, false);
+        //		DC->sound->StopMusic();					// you don't want to do this since it will reset s_rawend
+        DC->sound->StartMusic(menu->soundName, menu->soundName);
     }
 
     menu->appearanceTime = 0;
@@ -5091,19 +5102,19 @@ void Item_Model_Paint(itemDef_t* item)
                 uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
                 break;
             case animNumber_t::BOTH_KNOCKDOWN3: // on front - into force getup
-                trap->S_StartLocalSound(uiInfo.uiDC.Assets.moveJumpSound, soundChannel_t::CHAN_LOCAL);
+                Menu_PlaySound(uiInfo.uiDC.Assets.moveJumpSound, sound::Slot::Menu, 0.75f);
                 ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_FORCE_GETUP_F1));
                 ItemParse_asset_model_go(item, modelPath, &uiInfo.moveAnimTime);
                 uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
                 break;
             case animNumber_t::BOTH_KNOCKDOWN2: // on back - kick forward getup
-                trap->S_StartLocalSound(uiInfo.uiDC.Assets.moveJumpSound, soundChannel_t::CHAN_LOCAL);
+                Menu_PlaySound(uiInfo.uiDC.Assets.moveJumpSound, sound::Slot::Menu, 0.75f);
                 ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_GETUP_BROLL_F));
                 ItemParse_asset_model_go(item, modelPath, &uiInfo.moveAnimTime);
                 uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
                 break;
             case animNumber_t::BOTH_KNOCKDOWN1: // on back - roll-away
-                trap->S_StartLocalSound(uiInfo.uiDC.Assets.moveRollSound, soundChannel_t::CHAN_LOCAL);
+                Menu_PlaySound(uiInfo.uiDC.Assets.moveRollSound, sound::Slot::Menu, 0.75f);
                 ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_GETUP_BROLL_R));
                 ItemParse_asset_model_go(item, modelPath, &uiInfo.moveAnimTime);
                 uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
@@ -6554,7 +6565,7 @@ bool ItemParse_focusSound(itemDef_t* item, int handle)
     if (!trap->PC_ReadToken(handle, &token)) {
         return false;
     }
-    item->focusSound = DC->registerSound(token.string);
+    item->focusSound = DC->sound->Register(token.string);
     return true;
 }
 
@@ -8079,29 +8090,6 @@ Hacks to fix issues with Team Arena menu scripts
 */
 static void Item_ApplyHacks(itemDef_t* item)
 {
-    if (item->type == ITEM_TYPE_MULTI && item->cvar && !Q_stricmp(item->cvar, "s_UseOpenAL")) {
-        if (item->parent) {
-            menuDef_t* parent = (menuDef_t*)item->parent;
-            VectorSet4(parent->disableColor, 0.5f, 0.5f, 0.5f, 1.0f);
-            item->disabled = true;
-            // Just in case it had focus
-            item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
-            Q_Println("Disabling eax field because current platform does not support EAX.");
-        }
-    }
-
-    if (item->type == ITEM_TYPE_TEXT && item->window.name && !Q_stricmp(item->window.name, "eax_icon") && item->cvarTest &&
-        !Q_stricmp(item->cvarTest, "s_UseOpenAL") && item->enableCvar && Any(item->cvarFlags & itemCvarFlags_t::CVAR_HIDE)) {
-        if (item->parent) {
-            menuDef_t* parent = (menuDef_t*)item->parent;
-            VectorSet4(parent->disableColor, 0.5f, 0.5f, 0.5f, 1.0f);
-            item->disabled = item->disabledHidden = true;
-            // Just in case it had focus
-            item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
-            Q_Println("Hiding eax_icon object because current platform does not support EAX.");
-        }
-    }
-
     // Fix length of favorite address in createfavorite.menu
     if (item->type == ITEM_TYPE_EDITFIELD && item->cvar && !Q_stricmp(item->cvar, "ui_favoriteAddress")) {
         editFieldDef_t* editField = item->typeData.edit;
@@ -8124,24 +8112,6 @@ static void Item_ApplyHacks(itemDef_t* item)
 
             Q_Println("Extended player name field using cvar {} to {} characters", item->cvar, MAX_NAME_LENGTH);
             editField->maxChars = MAX_NAME_LENGTH;
-        }
-    }
-
-    if (item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp(item->window.name, "sound_quality")) {
-        multiDef_t* multiPtr = item->typeData.multi;
-        int i;
-        bool found = false;
-        for (i = 0; i < multiPtr->count; i++) {
-            if (multiPtr->cvarValue[i] == 44) {
-                found = true;
-                break;
-            }
-        }
-        if (!found && multiPtr->count < MAX_MULTI_CVARS) {
-            multiPtr->cvarList[multiPtr->count] = String_Alloc("@MENUS_VERY_HIGH");
-            multiPtr->cvarValue[multiPtr->count] = 44;
-            multiPtr->count++;
-            Q_Println("Extended sound quality field to contain very high setting.");
         }
     }
 }
@@ -9080,10 +9050,6 @@ static void Menu_CacheContents(menuDef_t* menu)
         Window_CacheContents(&menu->window);
         for (i = 0; i < menu->itemCount; i++) {
             Item_CacheContents(menu->items[i]);
-        }
-
-        if (menu->soundName && *menu->soundName) {
-            DC->registerSound(menu->soundName);
         }
     }
 }

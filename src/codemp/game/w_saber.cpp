@@ -218,11 +218,11 @@ void WP_DeactivateSaber(gentity_t* self, bool clearLength)
         */
         // Doens't matter ATM
         if (self->client->saber[0].soundOff) {
-            G_Sound(self, soundChannel_t::CHAN_WEAPON, self->client->saber[0].soundOff);
+            G_Sound(self, sound::SoundClass::Saber, sound::Slot::Weapon, self->client->saber[0].soundOff);
         }
 
         if (self->client->saber[1].soundOff && self->client->saber[1].model[0]) {
-            G_Sound(self, soundChannel_t::CHAN_WEAPON, self->client->saber[1].soundOff);
+            G_Sound(self, sound::SoundClass::Saber, sound::Slot::Weapon, self->client->saber[1].soundOff);
         }
     }
 }
@@ -245,11 +245,11 @@ void WP_ActivateSaber(gentity_t* self)
     if (self->client->ps.saberHolstered) {
         self->client->ps.saberHolstered = 0;
         if (self->client->saber[0].soundOn) {
-            G_Sound(self, soundChannel_t::CHAN_WEAPON, self->client->saber[0].soundOn);
+            G_Sound(self, sound::SoundClass::Saber, sound::Slot::Weapon, self->client->saber[0].soundOn);
         }
 
         if (self->client->saber[1].soundOn) {
-            G_Sound(self, soundChannel_t::CHAN_WEAPON, self->client->saber[1].soundOn);
+            G_Sound(self, sound::SoundClass::Saber, sound::Slot::Weapon, self->client->saber[1].soundOn);
         }
     }
 }
@@ -3249,20 +3249,20 @@ void WP_SaberBounceSound(gentity_t* ent, int saberNum, int bladeNum)
     }
     index = Q_irand(1, 9);
     if (!WP_SaberBladeUseSecondBladeStyle(&ent->client->saber[saberNum], bladeNum) && ent->client->saber[saberNum].bounceSound[0]) {
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[saberNum].bounceSound[Q_irand(0, 2)]);
+        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[saberNum].bounceSound[Q_irand(0, 2)]);
     }
     else if (WP_SaberBladeUseSecondBladeStyle(&ent->client->saber[saberNum], bladeNum) && ent->client->saber[saberNum].bounce2Sound[0]) {
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[saberNum].bounce2Sound[Q_irand(0, 2)]);
+        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[saberNum].bounce2Sound[Q_irand(0, 2)]);
     }
 
     else if (!WP_SaberBladeUseSecondBladeStyle(&ent->client->saber[saberNum], bladeNum) && ent->client->saber[saberNum].blockSound[0]) {
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[saberNum].blockSound[Q_irand(0, 2)]);
+        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[saberNum].blockSound[Q_irand(0, 2)]);
     }
     else if (WP_SaberBladeUseSecondBladeStyle(&ent->client->saber[saberNum], bladeNum) && ent->client->saber[saberNum].block2Sound[0]) {
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[saberNum].block2Sound[Q_irand(0, 2)]);
+        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[saberNum].block2Sound[Q_irand(0, 2)]);
     }
     else {
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", index).c_str()));
+        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", index).c_str()));
     }
 }
 
@@ -5288,7 +5288,7 @@ void MakeDeadSaber(gentity_t* ent)
     trace_t tr;
 
     if (level.gametype == gametype_t::GT_JEDIMASTER) { // never spawn a dead saber in JM, because the only saber on the level is really a world object
-        // G_Sound(ent, soundChannel_t::CHAN_AUTO, saberOffSound);
+        // G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, saberOffSound);
         return;
     }
 
@@ -5498,12 +5498,12 @@ void DownedSaberThink(gentity_t* saberent)
 
         saberent->r.contents = contentsFlags_t::CONTENTS_LIGHTSABER;
 
-        G_Sound(saberOwn, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/force/pull.wav"));
+        G_Sound(saberOwn, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/pull.wav"));
         if (saberOwn->client->saber[0].soundOn) {
-            G_Sound(saberent, soundChannel_t::CHAN_BODY, saberOwn->client->saber[0].soundOn);
+            G_Sound(saberent, sound::SoundClass::Saber, sound::Slot::None, saberOwn->client->saber[0].soundOn);
         }
         if (saberOwn->client->saber[1].soundOn) {
-            G_Sound(saberOwn, soundChannel_t::CHAN_BODY, saberOwn->client->saber[1].soundOn);
+            G_Sound(saberOwn, sound::SoundClass::Saber, sound::Slot::None, saberOwn->client->saber[1].soundOn);
         }
 
         return;
@@ -5624,11 +5624,11 @@ void saberKnockDown(gentity_t* saberent, gentity_t* saberOwner, gentity_t* other
     trap->LinkEntity((sharedEntity_t*)saberent);
 
     if (saberOwner->client->saber[0].soundOff) {
-        G_Sound(saberent, soundChannel_t::CHAN_BODY, saberOwner->client->saber[0].soundOff);
+        G_Sound(saberent, sound::SoundClass::Saber, sound::Slot::None, saberOwner->client->saber[0].soundOff);
     }
 
     if (saberOwner->client->saber[1].soundOff && saberOwner->client->saber[1].model[0]) {
-        G_Sound(saberOwner, soundChannel_t::CHAN_BODY, saberOwner->client->saber[1].soundOff);
+        G_Sound(saberOwner, sound::SoundClass::Saber, sound::Slot::None, saberOwner->client->saber[1].soundOff);
     }
 }
 
@@ -5947,7 +5947,7 @@ void saberBackToOwner(gentity_t* saberent)
         saberent->nextthink = level.time;
 
         if (saberOwner->client && saberOwner->client->saber[0].soundOff) {
-            G_Sound(saberent, soundChannel_t::CHAN_AUTO, saberOwner->client->saber[0].soundOff);
+            G_Sound(saberent, sound::SoundClass::Saber, sound::Slot::None, saberOwner->client->saber[0].soundOff);
         }
         MakeDeadSaber(saberent);
 
@@ -6029,7 +6029,7 @@ void saberBackToOwner(gentity_t* saberent)
         saberent->s.loopIsSoundset = false;
 
         if (ownerLen <= 32) {
-            G_Sound(saberent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/weapons/saber/saber_catch.wav"));
+            G_Sound(saberent, sound::SoundClass::Saber, sound::Slot::None, G_SoundIndex("sound/weapons/saber/saber_catch.wav"));
 
             saberOwner->client->ps.saberInFlight = false;
             saberOwner->client->ps.saberEntityState = 0;
@@ -6124,7 +6124,7 @@ void saberFirstThrown(gentity_t* saberent)
         saberent->nextthink = level.time;
 
         if (saberOwn->client && saberOwn->client->saber[0].soundOff) {
-            G_Sound(saberent, soundChannel_t::CHAN_AUTO, saberOwn->client->saber[0].soundOff);
+            G_Sound(saberent, sound::SoundClass::Saber, sound::Slot::None, saberOwn->client->saber[0].soundOff);
         }
         MakeDeadSaber(saberent);
 
@@ -6510,10 +6510,10 @@ static gentity_t* G_KickTrace(gentity_t* ent, vec3_t kickDir, float kickDist, ve
         // FIXME: regardless of what we hit, do kick hit sound and impact effect
         // G_PlayEffect( "misc/kickHit", trace.endpos, trace.plane.normal );
         if (ent->client->ps.torsoAnim == animNumber_t::BOTH_A7_HILT) {
-            G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/movers/objects/saber_slam"));
+            G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, G_SoundIndex("sound/movers/objects/saber_slam"));
         }
         else {
-            G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
+            G_Sound(ent, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
         }
         if (hitEnt->inuse) { // we hit an entity
             // FIXME: don't hit same ent more than once per kick
@@ -6917,10 +6917,10 @@ static void G_GrabSomeMofos(gentity_t* self)
                     if (!grabbed->client->ps.saberHolstered) {
                         grabbed->client->ps.saberHolstered = 2;
                         if (grabbed->client->saber[0].soundOff) {
-                            G_Sound(grabbed, soundChannel_t::CHAN_AUTO, grabbed->client->saber[0].soundOff);
+                            G_Sound(grabbed, sound::SoundClass::Saber, sound::Slot::None, grabbed->client->saber[0].soundOff);
                         }
                         if (grabbed->client->saber[1].soundOff && grabbed->client->saber[1].model[0]) {
-                            G_Sound(grabbed, soundChannel_t::CHAN_AUTO, grabbed->client->saber[1].soundOff);
+                            G_Sound(grabbed, sound::SoundClass::Saber, sound::Slot::None, grabbed->client->saber[1].soundOff);
                         }
                     }
                 }
@@ -7069,10 +7069,10 @@ void WP_SaberPositionUpdate(gentity_t* self, usercmd_t* ucmd)
                         if (!grappler->client->ps.saberHolstered) {
                             grappler->client->ps.saberHolstered = 2;
                             if (grappler->client->saber[0].soundOff) {
-                                G_Sound(grappler, soundChannel_t::CHAN_AUTO, grappler->client->saber[0].soundOff);
+                                G_Sound(grappler, sound::SoundClass::Saber, sound::Slot::None, grappler->client->saber[0].soundOff);
                             }
                             if (grappler->client->saber[1].soundOff && grappler->client->saber[1].model[0]) {
-                                G_Sound(grappler, soundChannel_t::CHAN_AUTO, grappler->client->saber[1].soundOff);
+                                G_Sound(grappler, sound::SoundClass::Saber, sound::Slot::None, grappler->client->saber[1].soundOff);
                             }
                         }
                     }
@@ -7085,8 +7085,9 @@ void WP_SaberPositionUpdate(gentity_t* self, usercmd_t* ucmd)
                                 int grapplerTime = grappler->client->ps.torsoTimer;
 
                                 G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 10, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_MELEE);
-                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str()
-                                // ) );
+                                // G_Sound(grappler, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}",
+                                // Q_irand( 1, 4 )).c_str()
+                                // ));
 
                                 // it might try to put them into a pain anim or something, so override it back again
                                 if (grappler->health > 0) {
@@ -7105,8 +7106,9 @@ void WP_SaberPositionUpdate(gentity_t* self, usercmd_t* ucmd)
                                 int grapplerTime = grappler->client->ps.torsoTimer;
 
                                 G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 10, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_MELEE);
-                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str()
-                                // ) );
+                                // G_Sound(grappler, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}",
+                                // Q_irand( 1, 4 )).c_str()
+                                // ));
 
                                 // it might try to put them into a pain anim or something, so override it back again
                                 if (grappler->health > 0) {
@@ -7124,8 +7126,9 @@ void WP_SaberPositionUpdate(gentity_t* self, usercmd_t* ucmd)
                                 vec3_t tossDir;
 
                                 G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 30, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_MELEE);
-                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str()
-                                // ) );
+                                // G_Sound(grappler, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}",
+                                // Q_irand( 1, 4 )).c_str()
+                                // ));
 
                                 self->client->grappleState = 0;
 
@@ -7150,8 +7153,9 @@ void WP_SaberPositionUpdate(gentity_t* self, usercmd_t* ucmd)
                                 int grapplerTime = grappler->client->ps.torsoTimer;
 
                                 G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 20, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_MELEE);
-                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str()
-                                // ) );
+                                // G_Sound(grappler, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}",
+                                // Q_irand( 1, 4 )).c_str()
+                                // ));
 
                                 // it might try to put them into a pain anim or something, so override it back again
                                 if (grappler->health > 0) {
@@ -7168,17 +7172,19 @@ void WP_SaberPositionUpdate(gentity_t* self, usercmd_t* ucmd)
                             if (self->client->ps.torsoTimer < 2000) {
                                 // G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 10, damageFlags_t::DAMAGE_NORMAL,
                                 // meansOfDeath_t::MOD_MELEE); don't do damage on this one, it would look very freaky if they died
-                                G_EntitySound(grappler, soundChannel_t::CHAN_VOICE, G_SoundIndex("*pain100.wav"));
-                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str()
-                                // ) );
+                                G_EntitySound(grappler, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("*pain100.wav"));
+                                // G_Sound(grappler, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}",
+                                // Q_irand( 1, 4 )).c_str()
+                                // ));
                                 self->client->grappleState++;
                             }
                         }
                         else { // and another smash
                             if (self->client->ps.torsoTimer < 1000) {
                                 G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 30, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_MELEE);
-                                // G_Sound( grappler, soundChannel_t::CHAN_AUTO, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str()
-                                // ) );
+                                // G_Sound(grappler, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}",
+                                // Q_irand( 1, 4 )).c_str()
+                                // ));
 
                                 // it might try to put them into a pain anim or something, so override it back again
                                 if (grappler->health > 0) {

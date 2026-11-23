@@ -1125,7 +1125,7 @@ static int CG_CalcFov(void)
                     static int zoomSoundTime = 0;
 
                     if (zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000) {
-                        trap->S_StartSound(cg.refdef.vieworg, ENTITYNUM_WORLD, soundChannel_t::CHAN_LOCAL, cgs.media.disruptorZoomLoop);
+                        CG_StartLocalSound(cgs.media.disruptorZoomLoop, sound::SoundClass::Interface, sound::Slot::Menu);
                         zoomSoundTime = cg.time + 300;
                     }
                 }
@@ -1545,7 +1545,7 @@ static void CG_PowerupTimerSounds(void)
             continue;
         }
         if ((t - cg.time) / POWERUP_BLINK_TIME != (t - cg.oldTime) / POWERUP_BLINK_TIME) {
-            // trap->S_StartSound( nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_ITEM, cgs.media.wearOffSound );
+            // CG_StartSound(nullptr, cg.snap->ps.clientNum, sound::SoundClass::World, sound::Slot::Item, cgs.media.wearOffSound);
         }
     }
 }
@@ -1714,7 +1714,7 @@ static void CG_PlayBufferedSounds(void)
 {
     if (cg.soundTime < cg.time) {
         if (cg.soundBufferOut != cg.soundBufferIn && cg.soundBuffer[cg.soundBufferOut]) {
-            trap->S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], soundChannel_t::CHAN_ANNOUNCER);
+            CG_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], sound::SoundClass::Announcer, sound::Slot::Announcer);
             cg.soundBuffer[cg.soundBufferOut] = 0;
             cg.soundBufferOut = (cg.soundBufferOut + 1) % MAX_SOUNDBUFFER;
             cg.soundTime = cg.time + 750;
@@ -1736,10 +1736,14 @@ void CG_UpdateSoundTrackers()
             if (cg.snap &&
                 cent->currentState.trickedentindex == cg.snap->ps.clientNum) { // this is actually the player, so center the sound origin right on top of us
                 VectorCopy(cg.refdef.vieworg, cent->lerpOrigin);
-                trap->S_UpdateEntityPosition(cent->currentState.number, cent->lerpOrigin);
+                trap->sound->UpdateEntity(cent->currentState.number, CG_SoundVector(cent->lerpOrigin), CG_SoundVector(cg.predictedPlayerState.velocity));
             }
             else {
-                trap->S_UpdateEntityPosition(cent->currentState.number, cg_entities[cent->currentState.trickedentindex].lerpOrigin);
+                vec3_t velocity;
+
+                CG_EntitySoundVelocity(&cg_entities[cent->currentState.trickedentindex], velocity);
+                trap->sound->UpdateEntity(cent->currentState.number, CG_SoundVector(cg_entities[cent->currentState.trickedentindex].lerpOrigin),
+                                          CG_SoundVector(velocity));
             }
         }
 
@@ -2285,10 +2289,6 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayb
 
     CG_RunLightStyles();
 
-    // any looped sounds will be respecified as entities
-    // are added to the render list
-    trap->S_ClearLoopingSounds();
-
     // clear all the render lists
     trap->R_ClearScene();
 
@@ -2488,11 +2488,12 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayb
     cstr = CG_ConfigString(CS_GLOBAL_AMBIENT_SET);
 
     if (cstr && cstr[0]) {
-        trap->S_UpdateAmbientSet(cstr, cg.refdef.vieworg);
+        trap->sound->UpdateAmbientSet(cstr, CG_SoundVector(cg.refdef.vieworg));
     }
 
-    // update audio positions
-    trap->S_Respatialize(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater);
+    // update audio positions, then the looping sounds asked for in this frame
+    CG_SetSoundListener(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater != 0);
+    CG_UpdateLoopingSounds();
 
     // make sure the lagometerSample and frame timing isn't done twice when in stereo
     if (stereoView != stereoFrame_t::STEREO_RIGHT) {

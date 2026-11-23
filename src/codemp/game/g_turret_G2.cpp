@@ -561,7 +561,7 @@ static void turretG2_turnoff(gentity_t* self)
     }
     // shut-down sound
     if (!(self->spawnflags & SPF_TURRETG2_TURBO)) {
-        G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/chars/turret/shutdown.wav"));
+        G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/turret/shutdown.wav"));
     }
 
     // make turret play ping sound for 5 seconds
@@ -588,7 +588,7 @@ static bool turretG2_find_enemies(gentity_t* self)
         // We were active and alert, i.e. had an enemy in the last 3 secs
         if (self->painDebounceTime < level.time) {
             if (!(self->spawnflags & SPF_TURRETG2_TURBO)) {
-                G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/chars/turret/ping.wav"));
+                G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/turret/ping.wav"));
             }
             self->painDebounceTime = level.time + 1000;
         }
@@ -670,7 +670,7 @@ static bool turretG2_find_enemies(gentity_t* self)
                 if (self->attackDebounceTime < level.time) {
                     // We haven't fired or acquired an enemy in the last 2 seconds-start-up sound
                     if (!(self->spawnflags & SPF_TURRETG2_TURBO)) {
-                        G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/chars/turret/startup.wav"));
+                        G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/turret/startup.wav"));
                     }
 
                     // Wind up turrets for a bit

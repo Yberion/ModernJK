@@ -1275,7 +1275,6 @@ void R_DeleteTextures(void);
 float R_SumOfUsedImages(bool bUseFormat);
 void R_InitSkins(void);
 skin_t* R_GetSkinByHandle(qhandle_t hSkin);
-const void* RB_TakeVideoFrameCmd(const void* data);
 void RE_HunkClearCrap(void);
 
 //
@@ -1685,15 +1684,6 @@ typedef struct drawSurfsCommand_s {
     int numDrawSurfs;
 } drawSurfsCommand_t;
 
-typedef struct videoFrameCommand_s {
-    renderCommand_t commandId;
-    int width;
-    int height;
-    byte* captureBuffer;
-    byte* encodeBuffer;
-    bool motionJpeg;
-} videoFrameCommand_t;
-
 enum class renderCommand_t {
     RC_END_OF_LIST = 0,
     RC_SET_COLOR,
@@ -1704,8 +1694,7 @@ enum class renderCommand_t {
     RC_DRAW_BUFFER,
     RC_SWAP_BUFFERS,
     RC_WORLD_EFFECTS,
-    RC_AUTO_MAP,
-    RC_VIDEOFRAME
+    RC_AUTO_MAP
 };
 
 // all of the information needed by the back end must be
@@ -1737,7 +1726,6 @@ void RE_RotatePic(float x, float y, float w, float h, float s1, float t1, float 
 void RE_RotatePic2(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a, qhandle_t hShader);
 void RE_BeginFrame(stereoFrame_t stereoFrame);
 void RE_EndFrame(int* frontEndMsec, int* backEndMsec);
-void RE_TakeVideoFrame(int width, int height, byte* captureBuffer, byte* encodeBuffer, bool motionJpeg);
 
 /*
 Ghoul2 Insert Start

@@ -120,11 +120,11 @@ vec3_t* CG_SetEntitySoundPosition(centity_t* cent)
 
         v = cgs.inlineModelMidpoints[cent->currentState.modelindex];
         VectorAdd(cent->lerpOrigin, v, origin);
-        cgi_S_UpdateEntityPosition(cent->currentState.number, origin);
+        CG_SetSoundPosition(cent->currentState.number, origin);
         VectorCopy(origin, v3Return);
     }
     else {
-        cgi_S_UpdateEntityPosition(cent->currentState.number, cent->lerpOrigin);
+        CG_SetSoundPosition(cent->currentState.number, cent->lerpOrigin);
         VectorCopy(cent->lerpOrigin, v3Return);
     }
 
@@ -151,7 +151,7 @@ static void CG_EntityEffects(centity_t* cent)
         sfxHandle_t sfx =
             (cent->currentState.eType == entityType_t::ET_MOVER) ? cent->currentState.loopSound : cgs.sound_precache[cent->currentState.loopSound];
 
-        cgi_S_AddLoopingSound(cent->currentState.number, v3Origin /*cent->lerpOrigin*/, vec3_origin, sfx);
+        CG_AddLoopingSound(cent->currentState.number, v3Origin /*cent->lerpOrigin*/, sfx, sound::SoundClass::World);
     }
 
     // constant light glow
@@ -540,27 +540,28 @@ static void CG_General(centity_t* cent)
                 if (cent->gent->owner->client &&
                     cg_entities[cent->currentState.otherEntityNum].currentState.saberActive) { // saber is in-flight and active, play a sound on it
                     if (cent->gent->owner->client->ps.saberEntityState == saberEntityState_t::SES_RETURNING) {
-                        cgi_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, CG_SaberHumSoundForEnt(cent->gent->owner));
+                        CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, CG_SaberHumSoundForEnt(cent->gent->owner), sound::SoundClass::Saber);
                     }
                     else {
                         int spinSound;
                         switch (cent->gent->owner->client->ps.forcePowerLevel[forcePowers_t::FP_SABERTHROW]) {
                         case forcePowerLevels_t::FORCE_LEVEL_1:
-                            spinSound = cgi_S_RegisterSound("sound/weapons/saber/saberspin3.wav");
+                            spinSound = gi.sound->Register("sound/weapons/saber/saberspin3.wav");
                             break;
                         case forcePowerLevels_t::FORCE_LEVEL_2:
-                            spinSound = cgi_S_RegisterSound("sound/weapons/saber/saberspin2.wav");
+                            spinSound = gi.sound->Register("sound/weapons/saber/saberspin2.wav");
                             break;
                         default:
                         case forcePowerLevels_t::FORCE_LEVEL_3:
-                            spinSound = cgi_S_RegisterSound("sound/weapons/saber/saberspin1.wav");
+                            spinSound = gi.sound->Register("sound/weapons/saber/saberspin1.wav");
                             break;
                         }
-                        cgi_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, spinSound);
+                        CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, spinSound, sound::SoundClass::Saber);
                         /*
                         if ( cg_weapons[weapon_t::WP_SABER].missileSound )
                         {
-                            cgi_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cg_weapons[weapon_t::WP_SABER].missileSound );
+                            CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, cg_weapons[weapon_t::WP_SABER].missileSound,
+                        sound::SoundClass::Saber);
                         }
                         */
                     }
@@ -588,28 +589,28 @@ static void CG_General(centity_t* cent)
             if (cent->gent->owner->client && cent->currentState.saberActive) { // saber is in-flight and active, play a sound on it
                 if (cent->gent->owner->client->ps.saberEntityState == saberEntityState_t::SES_RETURNING) {
                     if (cg_weapons[weapon_t::WP_SABER].firingSound) {
-                        cgi_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, cg_weapons[weapon_t::WP_SABER].firingSound);
+                        CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, cg_weapons[weapon_t::WP_SABER].firingSound, sound::SoundClass::Saber);
                     }
                 }
                 else {
                     int spinSound;
                     switch (cent->gent->owner->client->ps.forcePowerLevel[forcePowers_t::FP_SABERTHROW]) {
                     case forcePowerLevels_t::FORCE_LEVEL_1:
-                        spinSound = cgi_S_RegisterSound("sound/weapons/saber/saberspin3.wav");
+                        spinSound = gi.sound->Register("sound/weapons/saber/saberspin3.wav");
                         break;
                     case forcePowerLevels_t::FORCE_LEVEL_2:
-                        spinSound = cgi_S_RegisterSound("sound/weapons/saber/saberspin2.wav");
+                        spinSound = gi.sound->Register("sound/weapons/saber/saberspin2.wav");
                         break;
                     default:
                     case forcePowerLevels_t::FORCE_LEVEL_3:
-                        spinSound = cgi_S_RegisterSound("sound/weapons/saber/saberspin1.wav");
+                        spinSound = gi.sound->Register("sound/weapons/saber/saberspin1.wav");
                         break;
                     }
-                    cgi_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, spinSound);
+                    CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, spinSound, sound::SoundClass::Saber);
                     /*
                     if ( cg_weapons[weapon_t::WP_SABER].missileSound )
                     {
-                        cgi_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cg_weapons[weapon_t::WP_SABER].missileSound );
+                        CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, cg_weapons[weapon_t::WP_SABER].missileSound, sound::SoundClass::Saber);
                     }
                     */
                 }
@@ -757,7 +758,7 @@ static void CG_Speaker(centity_t* cent)
         return;
     }
 
-    cgi_S_StartSound(nullptr, cent->currentState.number, soundChannel_t::CHAN_ITEM, cgs.sound_precache[cent->currentState.eventParm]);
+    CG_StartSound(nullptr, cent->currentState.number, sound::SoundClass::World, sound::Slot::Item, cgs.sound_precache[cent->currentState.eventParm]);
 
     //	ent->s.frame = ent->wait * 10;
     //	ent->s.clientNum = ent->random * 10;
@@ -965,7 +966,7 @@ static void CG_Missile(centity_t* cent)
 
         // add missile sound
         if (weapon->alt_missileSound)
-            cgi_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->alt_missileSound);
+            CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, weapon->alt_missileSound, sound::SoundClass::Weapon);
 
         // Don't draw something without a model
         if (weapon->alt_missileModel == NULL_HANDLE)
@@ -983,7 +984,7 @@ static void CG_Missile(centity_t* cent)
 
         // add missile sound
         if (weapon->missileSound)
-            cgi_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->missileSound);
+            CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, weapon->missileSound, sound::SoundClass::Weapon);
 
         // Don't draw something without a model
         if (weapon->missileModel == NULL_HANDLE)
@@ -1591,7 +1592,7 @@ CG_AddLocalSet
 
 static void CG_AddLocalSet(centity_t* cent)
 {
-    cent->gent->setTime = cgi_S_AddLocalSet(cent->gent->soundSet, cg.refdef.vieworg, cent->lerpOrigin, cent->gent->s.number, cent->gent->setTime);
+    gi.sound->AddLocalSet(cent->gent->soundSet, cent->gent->s.number, CG_SoundVector(cent->lerpOrigin));
 }
 
 /*
@@ -1602,7 +1603,7 @@ CAS_GetBModelSound
 
 sfxHandle_t CAS_GetBModelSound(const char* name, int stage)
 {
-    return cgi_AS_GetBModelSound(name, stage);
+    return gi.sound->BrushModelSound(name, static_cast<sound::BrushModelStage>(stage));
 }
 
 void CG_DLightThink(centity_t* cent)
@@ -2177,8 +2178,8 @@ void CG_ROFF_NotetrackCallback(centity_t* cent, const char* notetrack)
         }
     }
     else if (strcmp(type, "sound") == 0) {
-        objectID = cgi_S_RegisterSound(argument);
-        cgi_S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_BODY, objectID);
+        objectID = gi.sound->Register(argument);
+        CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::World, sound::Slot::None, objectID);
     }
     else if (strcmp(type, "loop") == 0) { // handled server-side
         return;

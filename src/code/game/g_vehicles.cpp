@@ -409,7 +409,7 @@ void G_DriveATST(gentity_t* pEnt, gentity_t* atst)
             G_SetG2PlayerModelInfo(pEnt, "atst", nullptr, nullptr, nullptr);
             // turn off hatch underside
             gi.G2API_SetSurfaceOnOff(&pEnt->ghoul2[pEnt->playerModel], "head_hatchcover", g2SurfaceFlags_t::G2SURFACEFLAG_OFF);
-            G_Sound(pEnt, G_SoundIndex("sound/chars/atst/atst_hatch_close"));
+            G_Sound(pEnt, sound::SoundClass::World, G_SoundIndex("sound/chars/atst/atst_hatch_close"));
         }
         pEnt->s.radius = 320;
         // weapon
@@ -739,7 +739,7 @@ bool Board(Vehicle_t* pVeh, bgEntity_t* pEnt)
         G_Sound(parent, soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundOn);
 #else
         // NOTE: Use this type so it's spatialized and updates play origin as bike moves - MCG
-        G_SoundIndexOnEnt(parent, soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundOn);
+        G_SoundIndexOnEnt(parent, sound::SoundClass::World, sound::Slot::None, pVeh->m_pVehicleInfo->soundOn);
 #endif
     }
 
@@ -1916,7 +1916,7 @@ maintainSelfDuringBoarding:
             // TODO: MP Shift Sound Playback
 #else
             // NOTE: Use this type so it's spatialized and updates play origin as bike moves - MCG
-            G_SoundIndexOnEnt(pVeh->m_pParentEntity, soundChannel_t::CHAN_AUTO, shiftSound);
+            G_SoundIndexOnEnt(pVeh->m_pParentEntity, sound::SoundClass::World, sound::Slot::None, shiftSound);
 #endif
         }
     }

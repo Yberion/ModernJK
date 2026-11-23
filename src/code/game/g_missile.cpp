@@ -426,7 +426,7 @@ void G_SpawnNoghriGasCloud(gentity_t* ent)
     ent->freeAfterEvent = false;
     ent->e_TouchFunc = touchFunc_t::touchF_NULL;
     // ent->s.loopSound = G_SoundIndex( "sound/weapons/noghri/smoke.wav" );
-    // G_SoundOnEnt( ent, soundChannel_t::CHAN_AUTO, "sound/weapons/noghri/smoke.wav" );
+    // G_SoundOnEnt(ent, sound::SoundClass::Weapon, sound::Slot::None, "sound/weapons/noghri/smoke.wav");
 
     G_SetOrigin(ent, ent->currentOrigin);
     ent->e_ThinkFunc = thinkFunc_t::thinkF_NoghriGasCloudThink;

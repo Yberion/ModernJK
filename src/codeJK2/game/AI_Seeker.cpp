@@ -161,7 +161,7 @@ void Seeker_Strafe(void)
         if (tr.fraction > 0.9f) {
             VectorMA(NPC->client->ps.velocity, SEEKER_STRAFE_VEL * side, right, NPC->client->ps.velocity);
 
-            G_Sound(NPC, G_SoundIndex("sound/chars/seeker/misc/hiss"));
+            G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/seeker/misc/hiss"));
 
             // Add a slight upward push
             NPC->client->ps.velocity[2] += SEEKER_UPWARD_PUSH;
@@ -191,7 +191,7 @@ void Seeker_Strafe(void)
             // Try to move the desired enemy side
             VectorMA(NPC->client->ps.velocity, dis, dir, NPC->client->ps.velocity);
 
-            G_Sound(NPC, G_SoundIndex("sound/chars/seeker/misc/hiss"));
+            G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/seeker/misc/hiss"));
 
             // Add a slight upward push
             NPC->client->ps.velocity[2] += SEEKER_UPWARD_PUSH;
@@ -381,7 +381,7 @@ void Seeker_FollowPlayer(void)
     else {
         if (TIMER_Done(NPC, "seekerhiss")) {
             TIMER_Set(NPC, "seekerhiss", 1000 + Q_flrand(0.0f, 1.0f) * 1000);
-            G_Sound(NPC, G_SoundIndex("sound/chars/seeker/misc/hiss"));
+            G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/seeker/misc/hiss"));
         }
 
         // Hey come back!

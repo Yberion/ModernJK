@@ -83,9 +83,9 @@ void SFxHelper::CloseFile(fileHandle_t fh)
 }
 
 //------------------------------------------------------
-void SFxHelper::PlaySound(vec3_t org, int entityNum, soundChannel_t entchannel, int sfxHandle)
+void SFxHelper::PlaySound(vec3_t org, int entityNum, sound::SoundClass soundClass, sound::Slot slot, int sfxHandle)
 {
-    cgi_S_StartSound(org, entityNum, entchannel, sfxHandle);
+    CG_StartSound(org, entityNum, soundClass, slot, sfxHandle);
 }
 
 //------------------------------------------------------
@@ -111,7 +111,7 @@ int SFxHelper::RegisterShader(const gsl::cstring_span& shader)
 int SFxHelper::RegisterSound(const gsl::cstring_span& sound)
 {
     // TODO: it would be nice to change the ABI here to allow for passing of string views
-    return cgi_S_RegisterSound(std::string(sound.begin(), sound.end()).c_str());
+    return gi.sound->Register(std::string(sound.begin(), sound.end()).c_str());
 }
 
 //------------------------------------------------------

@@ -3738,7 +3738,7 @@ void STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
                     if (player && (STEER::HasBeenBlockedFor(actor, 15000)) && !gi.inPVS(player->currentOrigin, NAV::GetNodePosition(actor->lastWaypoint)) &&
                         !gi.inPVS(player->currentOrigin, actor->currentOrigin) && !G_CheckInSolidTeleport(NAV::GetNodePosition(actor->lastWaypoint), actor)) {
                         G_SetOrigin(actor, NAV::GetNodePosition(actor->lastWaypoint));
-                        G_SoundOnEnt(NPC, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                        G_SoundOnEnt(NPC, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                     }
                     else {
                         NPC_TryJump(NAV::GetNodePosition(actor->lastWaypoint));

@@ -205,11 +205,11 @@ void CG_Credits_Init(const char* psStripReference, vec4_t* pv4Color)
 {
     // Play the light side end credits music.
     if (g_entities[0].client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].status != 2) {
-        cgi_S_StartBackgroundTrack("music/endcredits.mp3", nullptr, false);
+        gi.sound->StartMusic("music/endcredits.mp3", "");
     }
     // Play the dark side end credits music.
     else {
-        cgi_S_StartBackgroundTrack("music/vjun3/vjun3_explore.mp3", nullptr, false);
+        gi.sound->StartMusic("music/vjun3/vjun3_explore.mp3", "");
     }
 
     // could make these into parameters later, but for now...

@@ -42,7 +42,7 @@ int BG_SoundIndex(const char* sound)
 #ifdef _GAME
     return G_SoundIndex(sound);
 #elif defined(_CGAME) || defined(UI_BUILD)
-    return trap->S_RegisterSound(sound);
+    return trap->sound->Register(sound);
 #endif
 }
 

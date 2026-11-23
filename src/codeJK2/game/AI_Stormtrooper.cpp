@@ -384,11 +384,11 @@ static void NPC_ST_SleepShuffle(void)
         switch ( soundIndex )
         {
         case 0:
-            G_Sound( NPC, G_SoundIndex("sound/chars/imperialsleeper1/scav4/hunh.mp3") );
+            G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/imperialsleeper1/scav4/hunh.mp3"));
             break;
 
         case 1:
-            G_Sound( NPC, G_SoundIndex("sound/chars/imperialsleeper3/scav4/tryingtosleep.wav") );
+            G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/imperialsleeper3/scav4/tryingtosleep.wav"));
             break;
         }
         */

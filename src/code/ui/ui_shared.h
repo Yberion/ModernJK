@@ -25,6 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __UI_SHARED_H
 #define __UI_SHARED_H
 
+#include <shared/sound/sound.h>
+
 enum class screenshotFormat_t { SSF_JPEG = 0, SSF_TGA, SSF_PNG };
 
 inline constexpr int MAX_OPEN_MENUS = 16;
@@ -187,7 +189,7 @@ typedef struct {
     int (*registerFont)(const char* pFontname);
     qhandle_t (*registerModel)(const char* p);
     qhandle_t (*registerShaderNoMip)(const char* p);
-    sfxHandle_t (*registerSound)(const char* name, bool compressed);
+    sound::Api* sound;
     void (*renderScene)(const refdef_t* fd);
     bool (*runScript)(const char** p);
     bool (*deferScript)(const char** p);
@@ -195,7 +197,6 @@ typedef struct {
     void (*setColor)(const vec4_t v);
     void (*setCVar)(const char* cvar, const char* value);
     void (*setOverstrikeMode)(bool b);
-    void (*startLocalSound)(sfxHandle_t sfx, soundChannel_t channelNum);
     void (*stopCinematic)(int handle);
     int (*textHeight)(const char* text, float scale, int iFontIndex);
     int (*textWidth)(const char* text, float scale, int iFontIndex);
@@ -474,6 +475,10 @@ void Menu_New(char* buffer);
 void Menus_OpenByName(const char* p);
 void Menu_PaintAll(void);
 void Menu_Reset(void);
+// a menu's sound at the listener; in the menus' slot, one at a time, unless another slot is given
+void Menu_PlaySound(sfxHandle_t sfx, sound::Slot slot = sound::Slot::Menu, float volume = 1.0f);
+// a character's line in a menu: the voice of the player's entity, 0, whose lip sync the talking head follows
+void Menu_PlayVoice(sfxHandle_t sfx);
 void PC_EndParseSession(char* buffer);
 bool PC_Float_Parse(int handle, float* f);
 bool PC_ParseString(const char** tempStr);

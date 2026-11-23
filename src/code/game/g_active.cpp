@@ -594,7 +594,7 @@ void P_WorldEffects(gentity_t* ent)
 
                     if (ent->health > 0) { // did that last one kill them?
                         // play the choking sound
-                        G_SoundOnEnt(ent, soundChannel_t::CHAN_VOICE, Q_Format("*choke{}.wav", Q_irand(1, 3)).c_str());
+                        G_SoundOnEnt(ent, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("*choke{}.wav", Q_irand(1, 3)).c_str());
 
                         // make them grasp their throat
                         NPC_SetAnim(ent, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_CHOKE1,
@@ -924,7 +924,7 @@ void DoImpact(gentity_t* self, gentity_t* other, bool damageSelf, trace_t* trace
                  magnitude >= 120) { // FORCE-SMACKED into something
             if (TIMER_Done(self, "impactEffect")) {
                 G_PlayEffect(G_EffectIndex("env/impact_dustonly"), trace->endpos, trace->plane.normal);
-                G_Sound(self, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
+                G_Sound(self, sound::SoundClass::Weapon, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
                 TIMER_Set(self, "impactEffect", 1000);
             }
         }
@@ -1773,7 +1773,7 @@ gentity_t* G_KickTrace(gentity_t* ent, vec3_t kickDir, float kickDist, vec3_t ki
                     // do kick hit sound and impact effect
                     if (TIMER_Done(ent, "kickSoundDebounce")) {
                         if (ent->client->ps.torsoAnim == animNumber_t::BOTH_A7_HILT) {
-                            G_Sound(ent, G_SoundIndex("sound/movers/objects/saber_slam"));
+                            G_Sound(ent, sound::SoundClass::Saber, G_SoundIndex("sound/movers/objects/saber_slam"));
                         }
                         else {
                             vec3_t fxOrg, fxDir;
@@ -1781,7 +1781,7 @@ gentity_t* G_KickTrace(gentity_t* ent, vec3_t kickDir, float kickDist, vec3_t ki
                             VectorMA(trace.endpos, Q_flrand(5.0f, 10.0f), fxDir, fxOrg);
                             VectorScale(fxDir, -1, fxDir);
                             G_PlayEffect(G_EffectIndex("melee/kick_impact"), fxOrg, fxDir);
-                            // G_Sound( ent, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str() ) );
+                            // G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str() ));
                         }
                         TIMER_Set(ent, "kickSoundDebounce", 2000);
                     }
@@ -1863,11 +1863,11 @@ gentity_t* G_KickTrace(gentity_t* ent, vec3_t kickDir, float kickDist, vec3_t ki
                 if (doSoundOnWalls) { // do kick hit sound and impact effect
                     if (TIMER_Done(ent, "kickSoundDebounce")) {
                         if (ent->client->ps.torsoAnim == animNumber_t::BOTH_A7_HILT) {
-                            G_Sound(ent, G_SoundIndex("sound/movers/objects/saber_slam"));
+                            G_Sound(ent, sound::SoundClass::Saber, G_SoundIndex("sound/movers/objects/saber_slam"));
                         }
                         else {
                             G_PlayEffect(G_EffectIndex("melee/kick_impact"), trace.endpos, trace.plane.normal);
-                            // G_Sound( ent, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str() ) );
+                            // G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str() ));
                         }
                         TIMER_Set(ent, "kickSoundDebounce", 2000);
                     }
@@ -2271,7 +2271,7 @@ bool G_CheckClampUcmd(gentity_t* ent, usercmd_t* ucmd)
 
                 // FIXME: NPCs yell?
                 G_AddEvent(ent, entity_event_t::EV_JUMP, 0);
-                G_SoundOnEnt(ent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                G_SoundOnEnt(ent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                 ucmd->upmove = 0; // clear any actual jump command
             }
         }
@@ -2304,7 +2304,7 @@ bool G_CheckClampUcmd(gentity_t* ent, usercmd_t* ucmd)
                 ent->client->ps.pm_flags |= pmoveFlags_t::PMF_JUMPING;       //|pmoveFlags_t::PMF_SLOW_MO_FALL;
                 // FIXME: NPCs yell?
                 G_AddEvent(ent, entity_event_t::EV_JUMP, 0);
-                G_SoundOnEnt(ent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                G_SoundOnEnt(ent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
             }
             else { // FIXME: if this is the second jump, maybe we should just stop the anim?
             }
@@ -2365,7 +2365,7 @@ bool G_CheckClampUcmd(gentity_t* ent, usercmd_t* ucmd)
                     ent->client->ps.pm_flags |= pmoveFlags_t::PMF_JUMPING;       //|pmoveFlags_t::PMF_SLOW_MO_FALL;
                     // FIXME: NPCs yell?
                     G_AddEvent(ent, entity_event_t::EV_JUMP, 0);
-                    G_SoundOnEnt(ent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                    G_SoundOnEnt(ent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                 }
                 else { // FIXME: if this is the second jump, maybe we should just stop the anim?
                 }
@@ -2406,7 +2406,7 @@ bool G_CheckClampUcmd(gentity_t* ent, usercmd_t* ucmd)
                 ent->client->ps.pm_flags |= pmoveFlags_t::PMF_JUMPING;       //|pmoveFlags_t::PMF_SLOW_MO_FALL;
                 // FIXME: NPCs yell?
                 G_AddEvent(ent, entity_event_t::EV_JUMP, 0);
-                G_SoundOnEnt(ent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                G_SoundOnEnt(ent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
             }
         }
 
@@ -4160,7 +4160,7 @@ void ClientThink_real(gentity_t* ent, usercmd_t* ucmd)
                 ucmd->upmove > 0 // jumping not allowed
             ) {
                 // already zooming, so must be wanting to turn it off
-                G_Sound(ent, G_SoundIndex("sound/weapons/disruptor/zoomend.wav"));
+                G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/disruptor/zoomend.wav"));
                 cg.zoomMode = 0;
                 cg.zoomTime = cg.time;
                 cg.zoomLocked = false;

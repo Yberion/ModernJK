@@ -1914,7 +1914,7 @@ void ParseAnimationEvtBlock(const char* aeb_filename, animevent_t* animEvents, a
                         animEvents[curAnimEvent].eventData[num] = 0;
                     }
                     else {
-                        animEvents[curAnimEvent].eventData[num] = trap->S_RegisterSound(Q_Format(fmt::runtime(soundFormat), n).c_str());
+                        animEvents[curAnimEvent].eventData[num] = trap->sound->Register(Q_Format(fmt::runtime(soundFormat), n).c_str());
                     }
                 }
                 animEvents[curAnimEvent].eventData[AED_SOUND_NUMRANDOMSNDS] = num - 1;
@@ -1924,7 +1924,7 @@ void ParseAnimationEvtBlock(const char* aeb_filename, animevent_t* animEvents, a
                     animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] = 0;
                 }
                 else {
-                    animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] = trap->S_RegisterSound(stringData);
+                    animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] = trap->sound->Register(stringData);
                 }
 #ifndef FINAL_BUILD
                 if (!animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] && stringData[0] != '*') { // couldn't register it - file not found

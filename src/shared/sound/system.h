@@ -61,7 +61,7 @@ public:
     ~System() override;
 
     // Api
-    [[nodiscard]] SoundHandle Register(std::string_view name) override { return bank_.Register(name); }
+    SoundHandle Register(std::string_view name) override { return bank_.Register(name); }
     VoiceHandle Play(const Request& request) override { return voices_.Play(request); }
     void Stop(VoiceHandle voice) override { voices_.Stop(voice); }
     [[nodiscard]] bool IsPlaying(VoiceHandle voice) const override { return voices_.IsPlaying(voice); }

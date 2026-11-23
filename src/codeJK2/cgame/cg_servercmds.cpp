@@ -181,7 +181,7 @@ static void CG_ConfigStringModified(void)
     }
     else if (num >= CS_SOUNDS && num < CS_SOUNDS + MAX_SOUNDS) {
         if (str[0] != '*') {
-            cgs.sound_precache[num - CS_SOUNDS] = cgi_S_RegisterSound(str);
+            cgs.sound_precache[num - CS_SOUNDS] = gi.sound->Register(str);
         }
     }
     else if (num >= CS_EFFECTS && num < CS_EFFECTS + MAX_FX) {

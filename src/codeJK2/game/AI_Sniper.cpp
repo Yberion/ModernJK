@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern void CG_DrawAlert(vec3_t origin, float rating);
 extern void G_AddVoiceEvent(gentity_t* self, entity_event_t event, int speakDebounceTime);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 extern void NPC_TempLookTarget(gentity_t* self, int lookEntNum, int minLookTime, int maxLookTime);
 extern bool G_ExpandPointToBBox(vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, contentsFlags_t clipmask);
 extern bool FlyingCreature(gentity_t* ent);
@@ -742,7 +742,7 @@ void NPC_BSSniper_Attack(void)
         if (TIMER_Done(NPC, "attackDelay")) {
             WeaponThink(true);
             if (Any(ucmd.buttons & (buttonFlags_t::BUTTON_ATTACK | buttonFlags_t::BUTTON_ALT_ATTACK))) {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_WEAPON, "sound/null.wav");
+                G_SoundOnEnt(NPC, sound::SoundClass::Weapon, sound::Slot::Weapon, "sound/null.wav");
             }
 
             // took a shot, now hide

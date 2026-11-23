@@ -1032,37 +1032,6 @@ gentity_t* G_TempEntity(vec3_t origin, entity_event_t event)
     return e;
 }
 
-/*
-=================
-G_SoundTempEntity
-
-Special event entity that keeps sound trackers in mind
-=================
-*/
-gentity_t* G_SoundTempEntity(vec3_t origin, entity_event_t event)
-{
-    gentity_t* e;
-    vec3_t snapped;
-
-    e = G_Spawn();
-
-    e->s.eType = BG_EventEntityType(BG_PackEvent(event));
-    e->inuse = true;
-
-    e->classname = "tempEntity";
-    e->eventTime = level.time;
-    e->freeAfterEvent = true;
-
-    VectorCopy(origin, snapped);
-    SnapVector(snapped); // save network bandwidth
-    G_SetOrigin(e, snapped);
-
-    // find cluster for PVS
-    trap->LinkEntity((sharedEntity_t*)e);
-
-    return e;
-}
-
 // scale health down below 1024 to fit in health bits
 void G_ScaleNetHealth(gentity_t* self)
 {
@@ -1259,123 +1228,6 @@ gentity_t* G_ScreenShake(vec3_t org, gentity_t* target, float intensity, int dur
     return te;
 }
 
-/*
-=============
-G_MuteSound
-=============
-*/
-void G_MuteSound(int entnum, soundChannel_t channel)
-{
-    gentity_t *te, *e;
-
-    te = G_TempEntity(vec3_origin, entity_event_t::EV_MUTE_SOUND);
-    te->r.svFlags = svFlags_t::SVF_BROADCAST;
-    te->s.trickedentindex2 = entnum;
-    te->s.trickedentindex = std::to_underlying(channel);
-
-    e = &g_entities[entnum];
-
-    if (e && Any(e->s.eFlags & entityFlags_t::EF_SOUNDTRACKER)) {
-        G_FreeEntity(e);
-        e->s.eFlags = entityFlags_t::EF_NONE;
-    }
-}
-
-/*
-=============
-G_Sound
-=============
-*/
-void G_Sound(gentity_t* ent, soundChannel_t channel, int soundIndex)
-{
-    gentity_t* te;
-
-    assert(soundIndex);
-
-    te = G_SoundTempEntity(ent->r.currentOrigin, entity_event_t::EV_GENERAL_SOUND);
-    te->s.eventParm = soundIndex;
-    te->s.saberEntityNum = std::to_underlying(channel);
-}
-
-/*
-=============
-G_Sound
-
-On a tracking channel (the force powers' sounds), which the client may stop
-=============
-*/
-void G_Sound(gentity_t* ent, trackchan_t channel, int soundIndex)
-{
-    gentity_t* te;
-
-    assert(soundIndex);
-
-    te = G_SoundTempEntity(ent->r.currentOrigin, entity_event_t::EV_GENERAL_SOUND);
-    te->s.eventParm = soundIndex;
-    te->s.saberEntityNum = std::to_underlying(channel);
-
-    if (ent && ent->client &&
-        channel > trackchan_t::TRACK_CHANNEL_NONE) { // let the client remember the index of the player entity so he can kill the most recent sound on request
-        if (g_entities[ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE]].inuse &&
-            ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE] > MAX_CLIENTS) {
-            G_MuteSound(ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
-            if (ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE] > MAX_CLIENTS &&
-                g_entities[ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE]].inuse) {
-                G_FreeEntity(&g_entities[ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE]]);
-            }
-            ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE] = 0;
-        }
-
-        ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE] = te->s.number;
-        te->s.trickedentindex = ent->s.number;
-        te->s.eFlags = entityFlags_t::EF_SOUNDTRACKER;
-        // fix: let other players know about this
-        // for case that they will meet this one
-        te->r.svFlags |= svFlags_t::SVF_BROADCAST;
-        // te->freeAfterEvent = false;
-    }
-}
-
-/*
-=============
-G_SoundAtLoc
-=============
-*/
-void G_SoundAtLoc(vec3_t loc, soundChannel_t channel, int soundIndex)
-{
-    gentity_t* te;
-
-    te = G_TempEntity(loc, entity_event_t::EV_GENERAL_SOUND);
-    te->s.eventParm = soundIndex;
-    te->s.saberEntityNum = std::to_underlying(channel);
-}
-
-/*
-=============
-G_EntitySound
-=============
-*/
-void G_EntitySound(gentity_t* ent, soundChannel_t channel, int soundIndex)
-{
-    gentity_t* te;
-
-    te = G_TempEntity(ent->r.currentOrigin, entity_event_t::EV_ENTITY_SOUND);
-    te->s.eventParm = soundIndex;
-    te->s.clientNum = ent->s.number;
-    te->s.trickedentindex = std::to_underlying(channel);
-}
-
-// To make porting from SP easier.
-void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath)
-{
-    gentity_t* te;
-
-    te = G_TempEntity(ent->r.currentOrigin, entity_event_t::EV_ENTITY_SOUND);
-    te->s.eventParm = G_SoundIndex((char*)soundPath);
-    te->s.clientNum = ent->s.number;
-    te->s.trickedentindex = std::to_underlying(channel);
-}
-
 //==============================================================================
 
 /*
@@ -1480,10 +1332,10 @@ bool TryHeal(gentity_t* ent, gentity_t* target)
                 target->healingDebounce = level.time + target->healingrate;
                 if (target->healingsound && target->healingsound[0]) { // play it
                     if (target->s.solid == SOLID_BMODEL) {             // ok, well, just play it on the client then.
-                        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(target->healingsound));
+                        G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex(target->healingsound));
                     }
                     else {
-                        G_Sound(target, soundChannel_t::CHAN_AUTO, G_SoundIndex(target->healingsound));
+                        G_Sound(target, sound::SoundClass::World, sound::Slot::None, G_SoundIndex(target->healingsound));
                     }
                 }
 
@@ -1954,11 +1806,6 @@ void G_ROFF_NotetrackCallback(gentity_t* cent, const char* notetrack)
 
         trap->ROFF_Play(cent->s.number, cent->roffid, false);
     }
-}
-
-void G_SpeechEvent(gentity_t* self, entity_event_t event)
-{
-    G_AddEvent(self, event, 0);
 }
 
 bool G_ExpandPointToBBox(vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, contentsFlags_t clipmask)

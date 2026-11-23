@@ -2872,7 +2872,7 @@ void Q3_SetLoopSound(int entID, const char* name)
     }
 
     if (self->s.eType == entityType_t::ET_MOVER) {
-        index = cgi_S_RegisterSound(name);
+        index = gi.sound->Register(name);
     }
     else {
         index = G_SoundIndex(name);
@@ -4268,7 +4268,7 @@ static void Q3_SetBobaJetPack(int entID, bool add)
             G_PlayEffect(G_EffectIndex("boba/jetSP"), ent->playerModel, ent->genericBolt2, ent->s.number, ent->currentOrigin, true, true);
         }
         // take-off sound
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_ITEM, "sound/chars/boba/bf_blast-off.wav");
+        G_SoundOnEnt(ent, sound::SoundClass::World, sound::Slot::Item, "sound/chars/boba/bf_blast-off.wav");
         // jet loop sound
         ent->s.loopSound = G_SoundIndex("sound/chars/boba/bf_jetpack_lp.wav");
     }
@@ -4281,7 +4281,7 @@ static void Q3_SetBobaJetPack(int entID, bool add)
         }
         // stop jet loop sound
         ent->s.loopSound = 0;
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_ITEM, "sound/chars/boba/bf_land.wav");
+        G_SoundOnEnt(ent, sound::SoundClass::World, sound::Slot::Item, "sound/chars/boba/bf_land.wav");
     }
 }
 /*
@@ -7271,7 +7271,8 @@ int CQuake3GameInterface::PlayIcarusSound(int taskID, int entID, const char* nam
         }
         else {
             // This the voice channel
-            G_SoundOnEnt(ent, voice_chan, ((char*)finalName));
+            const soundUse_t use = BG_SoundUseOfChannel(voice_chan);
+            G_SoundOnEnt(ent, use.soundClass, use.slot, ((char*)finalName));
         }
         // Remember we're waiting for this
         Q3_TaskIDSet(ent, taskID_t::TID_CHAN_VOICE, taskID);
@@ -7287,7 +7288,7 @@ int CQuake3GameInterface::PlayIcarusSound(int taskID, int entID, const char* nam
         G_SoundBroadcast(ent, soundHandle);
     }
     else {
-        G_Sound(ent, soundHandle);
+        G_Sound(ent, sound::SoundClass::World, soundHandle);
     }
 
     return true;

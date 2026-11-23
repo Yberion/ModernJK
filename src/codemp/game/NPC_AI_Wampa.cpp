@@ -249,7 +249,7 @@ void Wampa_Slash(int boltIndex, bool backhand)
                 AngleVectors(angs, pushDir, nullptr, nullptr);
                 G_Knockdown(radiusEnt);
             }
-            G_Sound(radiusEnt, soundChannel_t::CHAN_WEAPON, G_SoundIndex("sound/chars/rancor/swipehit.wav"));
+            G_Sound(radiusEnt, sound::SoundClass::Weapon, sound::Slot::Weapon, G_SoundIndex("sound/chars/rancor/swipehit.wav"));
         }
     }
 }
@@ -497,7 +497,8 @@ void NPC_BSWampa_Default(void)
         }
         else {
             if (TIMER_Done(NPCS.NPC, "angrynoise")) {
-                G_Sound(NPCS.NPC, soundChannel_t::CHAN_VOICE, G_SoundIndex(Q_Format("sound/chars/wampa/misc/anger{}.wav", Q_irand(1, 2)).c_str()));
+                G_Sound(NPCS.NPC, sound::SoundClass::Voice, sound::Slot::Voice,
+                        G_SoundIndex(Q_Format("sound/chars/wampa/misc/anger{}.wav", Q_irand(1, 2)).c_str()));
 
                 TIMER_Set(NPCS.NPC, "angrynoise", Q_irand(5000, 10000));
             }
@@ -550,7 +551,7 @@ void NPC_BSWampa_Default(void)
     }
     else {
         if (TIMER_Done(NPCS.NPC, "idlenoise")) {
-            G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/wampa/misc/anger3.wav"));
+            G_Sound(NPCS.NPC, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/wampa/misc/anger3.wav"));
 
             TIMER_Set(NPCS.NPC, "idlenoise", Q_irand(2000, 4000));
         }

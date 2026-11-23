@@ -209,7 +209,6 @@ cvar_t* broadsword_dircap = nullptr;
 Ghoul2 Insert End
 */
 
-cvar_t* r_aviMotionJpegQuality;
 cvar_t* r_screenshotJpegQuality;
 
 cvar_t* r_patchStitching;

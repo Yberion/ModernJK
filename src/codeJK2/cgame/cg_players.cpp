@@ -155,12 +155,12 @@ static void CG_RegisterCustomSounds(clientInfo_t* ci, int iSoundEntryBase, int i
             break; // fairly pointless code in original, since there are no nullptr's in the table, but wtf...
         }
 
-        sfxHandle_t hSFX = cgi_S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", psDir, s + 1).c_str());
+        sfxHandle_t hSFX = gi.sound->Register(Q_Format("sound/chars/{}/misc/{}", psDir, s + 1).c_str());
         if (hSFX == 0) {
             // hmmm... variant in table was missing, so forcibly-retry with %1 version (which we may have just tried, but wtf?)...
             //
             s = GetCustomSound_VariantCapped(ppsTable, i, true);
-            hSFX = cgi_S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", psDir, s + 1).c_str());
+            hSFX = gi.sound->Register(Q_Format("sound/chars/{}/misc/{}", psDir, s + 1).c_str());
             //
             // and fall through regardless...
             //
@@ -186,7 +186,7 @@ static sfxHandle_t CG_CustomSound(int entityNum, const char* soundName, customSo
     int i;
 
     if (soundName[0] != '*') {
-        return cgi_S_RegisterSound(soundName);
+        return gi.sound->Register(soundName);
     }
 
     if (!g_entities[entityNum].client) {
@@ -272,14 +272,14 @@ static sfxHandle_t CG_CustomSound(int entityNum, const char* soundName, customSo
     return 0;
 }
 
-void CG_TryPlayCustomSound(vec3_t origin, int entityNum, soundChannel_t channel, const char* soundName, customSoundSet_t customSoundSet)
+void CG_TryPlayCustomSound(vec3_t origin, int entityNum, sound::SoundClass soundClass, sound::Slot slot, const char* soundName, customSoundSet_t customSoundSet)
 {
     sfxHandle_t soundIndex = CG_CustomSound(entityNum, soundName, customSoundSet);
     if (!soundIndex) {
         return;
     }
 
-    cgi_S_StartSound(origin, entityNum, channel, soundIndex);
+    CG_StartSound(origin, entityNum, soundClass, slot, soundIndex);
 }
 /*
 ======================
@@ -1033,7 +1033,7 @@ void CG_PlayerAnimSounds(int animFileIndex, bool torso, int oldFrame, int frame,
         {
             // FIXME: allow customSounds in here *...
             if (cgs.sound_precache[holdSnd]) {
-                cgi_S_StartSound(nullptr, entNum, soundChannel_t::CHAN_AUTO, cgs.sound_precache[holdSnd]);
+                CG_StartSound(nullptr, entNum, sound::SoundClass::World, sound::Slot::None, cgs.sound_precache[holdSnd]);
             }
             else {
                 holdSnd = 0;
@@ -1399,11 +1399,12 @@ CG_AddHeadBob
 static bool CG_AddHeadBob(centity_t* cent, vec3_t addTo)
 {
     renderInfo_t* renderInfo = &cent->gent->client->renderInfo;
-    const int volume = gi.VoiceVolume[cent->gent->s.clientNum];
-    const int volChange = volume - renderInfo->lastVoiceVolume; // was *3 because voice fromLA was too low
+    const sound::VoiceState voiceState = gi.sound->GetVoiceState(cent->gent->s.clientNum);
+    const int volume = BG_VoiceLevel(voiceState);
+    const int volChange = volume - BG_VoiceLevel(renderInfo->lastVoiceState); // was *3 because voice fromLA was too low
     int i;
 
-    renderInfo->lastVoiceVolume = volume;
+    renderInfo->lastVoiceState = voiceState;
 
     if (!volume) {
         // Not talking, set our target to be the normal head position
@@ -2974,7 +2975,7 @@ void CG_AddRefEntityWithPowerups(refEntity_t* ent, int powerups, centity_t* cent
     //	if ( gent->client->ps.powerups[PW_WEAPON_OVERCHARGE] > 0 )
     //	{
     //		centity_t *cent = &cg_entities[gent->s.number];
-    //		cgi_S_AddLoopingSound( 0, cent->lerpOrigin, vec3_origin, cgs.media.overchargeLoopSound );
+    //		CG_AddLoopingSound(0, cent->lerpOrigin, cgs.media.overchargeLoopSound, sound::SoundClass::World);
     //	}
 
     // If certain states are active, we don't want to add in the regular body
@@ -3083,7 +3084,7 @@ void CG_AddRefEntityWithPowerups(refEntity_t* ent, int powerups, centity_t* cent
             cgi_R_AddRefEntityToScene(ent);
 
             if (Q_flrand(0.0f, 1.0f) > 0.9f)
-                cgi_S_StartSound(ent->origin, gent->s.number, soundChannel_t::CHAN_AUTO, cgi_S_RegisterSound("sound/effects/energy_crackle.wav"));
+                CG_StartSound(ent->origin, gent->s.number, sound::SoundClass::Force, sound::Slot::None, gi.sound->Register("sound/effects/energy_crackle.wav"));
         }
     }
 
@@ -3318,16 +3319,16 @@ bool CG_G2PlayerHeadAnims(centity_t* cent)
             }
         }
 
-        if (gi.VoiceVolume[cent->gent->s.clientNum] > 0) // if we aren't talking, then it will be 0, -1 for talking but paused
+        if (gi.sound->GetVoiceState(cent->gent->s.clientNum) >= sound::VoiceState::Level1) // if we aren't talking, then it will be 0, -1 for talking but paused
         {
-            anim = animNumber_t::FACE_TALK1 + gi.VoiceVolume[cent->gent->s.clientNum] - 1;
+            anim = animNumber_t::FACE_TALK1 + BG_VoiceLevel(gi.sound->GetVoiceState(cent->gent->s.clientNum)) - 1;
         }
-        else if (gi.VoiceVolume[cent->gent->s.clientNum] == 0)   // don't do aux if in a slient part of speech
-        {                                                        // not talking
-            if (cent->gent->client->facial_aux < 0)              // are we auxing ?
-            {                                                    // yes
-                if (-(cent->gent->client->facial_aux) < cg.time) // are we done auxing ?
-                {                                                // yes, reset aux timer
+        else if (gi.sound->GetVoiceState(cent->gent->s.clientNum) == sound::VoiceState::NotTalking) // don't do aux if in a slient part of speech
+        {                                                                                           // not talking
+            if (cent->gent->client->facial_aux < 0)                                                 // are we auxing ?
+            {                                                                                       // yes
+                if (-(cent->gent->client->facial_aux) < cg.time)                                    // are we done auxing ?
+                {                                                                                   // yes, reset aux timer
                     cent->gent->client->facial_aux = cg.time + Q_flrand(7000.0, 10000.0);
                 }
                 else { // not yet, so choose aux
@@ -3386,7 +3387,7 @@ int CG_PlayerHeadExtension(centity_t* cent, refEntity_t* head)
 
     // if we have facial texture extensions, go get the sound override and add it to the face skin
     // if we aren't talking, then it will be 0
-    if (ci->extensions && (gi.VoiceVolume[cent->gent->s.clientNum] > 0)) { // FIXME: When talking, look at talkTarget, if any
+    if (ci->extensions && (gi.sound->GetVoiceState(cent->gent->s.clientNum) >= sound::VoiceState::Level1)) { // FIXME: When talking, look at talkTarget, if any
         // ALSO: When talking, add a head bob/movement on syllables - when gi.VoiceVolume[] changes drastically
 
         if (cent->gent->health <= 0) { // Dead people close their eyes and don't make faces!  They also tell no tales...  BUM BUM BAHHHHHHH!
@@ -3395,7 +3396,7 @@ int CG_PlayerHeadExtension(centity_t* cent, refEntity_t* head)
             return true;
         }
 
-        head->customSkin = ci->headSkin + 4 + gi.VoiceVolume[cent->gent->s.clientNum];
+        head->customSkin = ci->headSkin + 4 + BG_VoiceLevel(gi.sound->GetVoiceState(cent->gent->s.clientNum));
         // reset the frown and blink timers
     }
     else
@@ -3443,7 +3444,8 @@ int CG_PlayerHeadExtension(centity_t* cent, refEntity_t* head)
 
             // now, if we aren't auxing - lets see if we should be blinking or frowning
             if (!add_in) {
-                if (gi.VoiceVolume[cent->gent->s.clientNum] == -1) { // then we're talking and don't want to use blinking normal frames, force open eyes.
+                if (gi.sound->GetVoiceState(cent->gent->s.clientNum) ==
+                    sound::VoiceState::Silent) { // then we're talking and don't want to use blinking normal frames, force open eyes.
                     add_in = 0;
                     // reset blink timer
                     cent->gent->client->facial_blink = cg.time + Q_flrand(3000.0, 5000.0);
@@ -3564,24 +3566,24 @@ void CG_GetPlayerLightLevel(centity_t* cent)
 int CG_SaberHumSoundForEnt(gentity_t* gent)
 {
     // now: based on saber type and npc, pick correct hum sound
-    int saberHumSound = cgi_S_RegisterSound("sound/weapons/saber/saberhum1.wav");
+    int saberHumSound = gi.sound->Register("sound/weapons/saber/saberhum1.wav");
     if (gent && gent->client) {
         if (gent->client->NPC_class == class_t::CLASS_DESANN) { // desann
-            saberHumSound = cgi_S_RegisterSound("sound/weapons/saber/saberhum2.wav");
+            saberHumSound = gi.sound->Register("sound/weapons/saber/saberhum2.wav");
         }
         else if (gent->client->NPC_class == class_t::CLASS_LUKE) { // luke
-            saberHumSound = cgi_S_RegisterSound("sound/weapons/saber/saberhum5.wav");
+            saberHumSound = gi.sound->Register("sound/weapons/saber/saberhum5.wav");
         }
         else if (gent->client->NPC_class == class_t::CLASS_KYLE) { // Kyle NPC and player
-            saberHumSound = cgi_S_RegisterSound("sound/weapons/saber/saberhum4.wav");
+            saberHumSound = gi.sound->Register("sound/weapons/saber/saberhum4.wav");
         }
         else if (gent->client->playerTeam == team_t::TEAM_ENEMY) // NPC_class == class_t::CLASS_TAVION )
         {                                                        // reborn, shadowtroopers, tavion
-            saberHumSound = cgi_S_RegisterSound("sound/weapons/saber/saberhum3.wav");
+            saberHumSound = gi.sound->Register("sound/weapons/saber/saberhum3.wav");
         }
         else { // allies
                // use default
-               // saberHumSound = cgi_S_RegisterSound( "sound/weapons/saber/saberhum1.wav" );
+               // saberHumSound = gi.sound->Register( "sound/weapons/saber/saberhum1.wav" );
         }
     }
     return saberHumSound;
@@ -3603,19 +3605,20 @@ void CG_StopWeaponSounds(centity_t* cent)
             return;
         }
 
-        cgi_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, CG_SaberHumSoundForEnt(&g_entities[cent->currentState.clientNum]));
+        CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, CG_SaberHumSoundForEnt(&g_entities[cent->currentState.clientNum]),
+                           sound::SoundClass::Saber);
         return;
     }
 
     if (cent->currentState.weapon == weapon_t::WP_STUN_BATON) {
-        cgi_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound);
+        CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, weapon->firingSound, sound::SoundClass::Weapon);
         return;
     }
 
     if (!Any(cent->currentState.eFlags & entityFlags_t::EF_FIRING)) {
         if (cent->pe.lightningFiring) {
             if (weapon->stopSound) {
-                cgi_S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_WEAPON, weapon->stopSound);
+                CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Weapon, sound::Slot::Weapon, weapon->stopSound);
             }
 
             cent->pe.lightningFiring = false;
@@ -3630,7 +3633,7 @@ void CG_StopWeaponSounds(centity_t* cent)
 
     if (Any(cent->currentState.eFlags & entityFlags_t::EF_ALT_FIRING) && !weak) {
         if (weapon->altFiringSound) {
-            cgi_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->altFiringSound);
+            CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, weapon->altFiringSound, sound::SoundClass::Weapon);
         }
         cent->pe.lightningFiring = true;
     }
@@ -3641,7 +3644,7 @@ void CG_StopWeaponSounds(centity_t* cent)
             if (weak && (Q_irand(0, 1)))
                 return;
 
-            cgi_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound);
+            CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, weapon->firingSound, sound::SoundClass::Weapon);
         }
     }
 }
@@ -3983,7 +3986,7 @@ void CG_AddSaberBlade(centity_t* cent, centity_t* scent, refEntity_t* saber, ren
                         VectorCopy(trace.endpos, spot);
                         spot[2] += 4;
                         G_PlayEffect("saber/boil", spot);
-                        cgi_S_StartSound(spot, -1, soundChannel_t::CHAN_AUTO, cgi_S_RegisterSound("sound/weapons/saber/hitwater.wav"));
+                        CG_StartSound(spot, -1, sound::SoundClass::Saber, sound::Slot::None, gi.sound->Register("sound/weapons/saber/hitwater.wav"));
                     }
                     // cent->gent->client->ps.saberEventFlags |= saberEventFlags_t::SEF_INWATER;
                     // don't do other trace
@@ -4002,8 +4005,8 @@ void CG_AddSaberBlade(centity_t* cent, centity_t* scent, refEntity_t* saber, ren
                             if (cg.time - cent->gent->client->ps.saberHitWallSoundDebounceTime >=
                                 100) { // ugh, need to have a real sound debouncer... or do this game-side
                                 cent->gent->client->ps.saberHitWallSoundDebounceTime = cg.time;
-                                cgi_S_StartSound(cent->lerpOrigin, cent->currentState.clientNum, soundChannel_t::CHAN_ITEM,
-                                                 cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberhitwall{}.wav", Q_irand(1, 3)).c_str()));
+                                CG_StartSound(cent->lerpOrigin, cent->currentState.clientNum, sound::SoundClass::Saber, sound::Slot::Item,
+                                              gi.sound->Register(Q_Format("sound/weapons/saber/saberhitwall{}.wav", Q_irand(1, 3)).c_str()));
                             }
                         }
                     }
@@ -4586,21 +4589,21 @@ void CG_Player(centity_t* cent)
                     qhandle_t saberOnSound;
 
                     if (cent->gent->client->playerTeam == team_t::TEAM_PLAYER) {
-                        saberOnSound = cgi_S_RegisterSound("sound/weapons/saber/saberon.wav");
+                        saberOnSound = gi.sound->Register("sound/weapons/saber/saberon.wav");
                     }
                     else {
-                        saberOnSound = cgi_S_RegisterSound("sound/weapons/saber/enemy_saber_on.wav");
+                        saberOnSound = gi.sound->Register("sound/weapons/saber/enemy_saber_on.wav");
                     }
                     if (!cent->gent->client->ps.weaponTime) { // make us play the turn on anim
                         cent->gent->client->ps.weaponstate = weaponstate_t::WEAPON_RAISING;
                         cent->gent->client->ps.weaponTime = 250;
                     }
                     if (cent->currentState.saberInFlight) { // play it on the saber
-                        cgi_S_UpdateEntityPosition(cent->gent->client->ps.saberEntityNum, g_entities[cent->gent->client->ps.saberEntityNum].currentOrigin);
-                        cgi_S_StartSound(nullptr, cent->gent->client->ps.saberEntityNum, soundChannel_t::CHAN_AUTO, saberOnSound);
+                        CG_SetSoundPosition(cent->gent->client->ps.saberEntityNum, g_entities[cent->gent->client->ps.saberEntityNum].currentOrigin);
+                        CG_StartSound(nullptr, cent->gent->client->ps.saberEntityNum, sound::SoundClass::Saber, sound::Slot::None, saberOnSound);
                     }
                     else {
-                        cgi_S_StartSound(nullptr, cent->currentState.number, soundChannel_t::CHAN_AUTO, saberOnSound);
+                        CG_StartSound(nullptr, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, saberOnSound);
                     }
                 }
                 if (cg.frametime > 0) {
@@ -5118,14 +5121,13 @@ void CG_Player(centity_t* cent)
                     else if (cent->gent->client->ps.saberLength < cent->gent->client->ps.saberLengthMax) { // saber is on
                         if (!cent->gent->client->ps.saberLength) {
                             if (cent->currentState.saberInFlight) { // play it on the saber
-                                cgi_S_UpdateEntityPosition(cent->gent->client->ps.saberEntityNum,
-                                                           g_entities[cent->gent->client->ps.saberEntityNum].currentOrigin);
-                                cgi_S_StartSound(nullptr, cent->gent->client->ps.saberEntityNum, soundChannel_t::CHAN_AUTO,
-                                                 cgi_S_RegisterSound("sound/weapons/saber/saberon.wav"));
+                                CG_SetSoundPosition(cent->gent->client->ps.saberEntityNum, g_entities[cent->gent->client->ps.saberEntityNum].currentOrigin);
+                                CG_StartSound(nullptr, cent->gent->client->ps.saberEntityNum, sound::SoundClass::Saber, sound::Slot::None,
+                                              gi.sound->Register("sound/weapons/saber/saberon.wav"));
                             }
                             else {
-                                cgi_S_StartSound(nullptr, cent->currentState.number, soundChannel_t::CHAN_AUTO,
-                                                 cgi_S_RegisterSound("sound/weapons/saber/saberon.wav"));
+                                CG_StartSound(nullptr, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None,
+                                              gi.sound->Register("sound/weapons/saber/saberon.wav"));
                             }
                         }
                         cent->gent->client->ps.saberLength += cent->gent->client->ps.saberLengthMax / 6 * cg.frametime / 100; //= saberLengthMax;

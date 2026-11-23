@@ -42,7 +42,7 @@ extern void NPC_SetLookTarget(gentity_t* self, int entNum, int clearTime);
 extern void NPC_TempLookTarget(gentity_t* self, int lookEntNum, int minLookTime, int maxLookTime);
 extern bool G_ExpandPointToBBox(vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, contentsFlags_t clipmask);
 extern bool NPC_CheckEnemyStealth(void);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 extern gitem_t* FindItemForAmmo(ammo_t ammo);
 extern void ForceThrow(gentity_t* self, bool pull);
 extern void ForceLightning(gentity_t* self);
@@ -152,7 +152,7 @@ void Jedi_Cloak(gentity_t* self)
             self->client->ps.powerups[powerup_t::PW_UNCLOAKING] = level.time + 2000;
             // FIXME: debounce attacks?
             // FIXME: temp sound
-            G_SoundOnEnt(self, soundChannel_t::CHAN_ITEM, "sound/chars/shadowtrooper/cloak.wav");
+            G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::Item, "sound/chars/shadowtrooper/cloak.wav");
         }
     }
 }
@@ -164,7 +164,7 @@ void Jedi_Decloak(gentity_t* self)
             self->client->ps.powerups[powerup_t::PW_CLOAKED] = 0;
             self->client->ps.powerups[powerup_t::PW_UNCLOAKING] = level.time + 2000;
             // FIXME: temp sound
-            G_SoundOnEnt(self, soundChannel_t::CHAN_ITEM, "sound/chars/shadowtrooper/decloak.wav");
+            G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::Item, "sound/chars/shadowtrooper/decloak.wav");
         }
     }
 }
@@ -229,10 +229,10 @@ static void Jedi_AggressionErosion(int amt)
         if (NPC->client->ps.saberActive) {
             NPC->client->ps.saberActive = false;
             if (NPC->client->playerTeam == team_t::TEAM_PLAYER) {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_WEAPON, "sound/weapons/saber/saberoff.wav");
+                G_SoundOnEnt(NPC, sound::SoundClass::Saber, sound::Slot::Weapon, "sound/weapons/saber/saberoff.wav");
             }
             else {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_WEAPON, "sound/weapons/saber/enemy_saber_off.wav");
+                G_SoundOnEnt(NPC, sound::SoundClass::Saber, sound::Slot::Weapon, "sound/weapons/saber/enemy_saber_off.wav");
             }
         }
     }
@@ -1148,7 +1148,7 @@ bool Jedi_DodgeEvasion(gentity_t* self, gentity_t* shooter, trace_t* tr, hitLoca
             self->client->ps.forcePowersActive |= Bit(forcePowers_t::FP_SPEED);
             self->client->ps.forcePowerDuration[forcePowers_t::FP_SPEED] = level.time + self->client->ps.torsoAnimTimer;
             // sound
-            G_Sound(self, G_SoundIndex("sound/weapons/force/speed.wav"));
+            G_Sound(self, sound::SoundClass::Force, G_SoundIndex("sound/weapons/force/speed.wav"));
         }
         else { // player
             ForceSpeed(self, 500);
@@ -1272,7 +1272,7 @@ evasionType_t Jedi_CheckFlipEvasions(gentity_t* self, float rightdot, float zdif
             self->client->ps.velocity[2] = 200;
             self->client->ps.forceJumpZStart = self->currentOrigin[2]; // so we don't take damage if we land at same height
             self->client->ps.pm_flags |= pmoveFlags_t::PMF_JUMPING;
-            G_SoundOnEnt(self, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+            G_SoundOnEnt(self, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
             // ucmd.upmove = 0;
             return evasionType_t::EVASION_CARTWHEEL;
         }
@@ -1319,7 +1319,7 @@ evasionType_t Jedi_CheckFlipEvasions(gentity_t* self, float rightdot, float zdif
                             NPC_SetAnim(self, parts, anim, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
                             self->client->ps.forceJumpZStart = self->currentOrigin[2]; // so we don't take damage if we land at same height
                             self->client->ps.pm_flags |= (pmoveFlags_t::PMF_JUMPING | pmoveFlags_t::PMF_SLOW_MO_FALL);
-                            G_SoundOnEnt(self, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                            G_SoundOnEnt(self, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                             return evasionType_t::EVASION_OTHER;
                         }
                         else {                                                    // boxed in on both sides
@@ -1364,7 +1364,7 @@ evasionType_t Jedi_CheckFlipEvasions(gentity_t* self, float rightdot, float zdif
                     NPC_SetAnim(self, parts, anim, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
                     self->client->ps.forceJumpZStart = self->currentOrigin[2]; // so we don't take damage if we land at same height
                     self->client->ps.pm_flags |= (pmoveFlags_t::PMF_JUMPING | pmoveFlags_t::PMF_SLOW_MO_FALL);
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                    G_SoundOnEnt(self, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                     return evasionType_t::EVASION_OTHER;
                 }
                 // else check for wall in front, do backflip off wall
@@ -1821,7 +1821,7 @@ evasionType_t Jedi_SaberBlockGo(gentity_t* self, usercmd_t* cmd, vec3_t pHitloc,
                         self->client->ps.pm_flags |= pmoveFlags_t::PMF_JUMPING | pmoveFlags_t::PMF_SLOW_MO_FALL;
                         self->client->saberTrail.inAction = true; // FIXME: reset this when done!
                         self->client->saberTrail.duration = 300;  // FIXME: reset this when done!
-                        G_SoundOnEnt(self, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                        G_SoundOnEnt(self, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                         cmd->upmove = 0;
                         saberBusy = true;
                         // evaded = true;
@@ -2898,10 +2898,10 @@ static void Jedi_CombatIdle(int enemy_dist)
                     NPC->client->ps.saberActive = false;
                     // sound
                     if (NPC->client->playerTeam == team_t::TEAM_PLAYER) {
-                        G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, "sound/weapons/saber/saberoff.wav");
+                        G_SoundOnEnt(NPC, sound::SoundClass::Saber, sound::Slot::None, "sound/weapons/saber/saberoff.wav");
                     }
                     else {
-                        G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, "sound/weapons/saber/enemy_saber_off.wav");
+                        G_SoundOnEnt(NPC, sound::SoundClass::Saber, sound::Slot::None, "sound/weapons/saber/enemy_saber_off.wav");
                     }
                     // Don't attack for a bit
                     NPCInfo->stats.aggression = 3;
@@ -3358,7 +3358,7 @@ static bool Jedi_TryJump(gentity_t* goal)
 
                                 NPC->client->ps.weaponTime = NPC->client->ps.torsoAnimTimer;
                                 NPC->client->ps.forcePowersActive |= Bit(forcePowers_t::FP_LEVITATION);
-                                G_SoundOnEnt(NPC, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                                G_SoundOnEnt(NPC, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
 
                                 TIMER_Set(NPC, "forceJumpChasing", Q_irand(2000, 3000));
                                 debounce = true;

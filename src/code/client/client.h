@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <qcommon/qcommon.h>
 #include <rd-common/tr_public.h>
 #include "keys.h"
-#include "snd_public.h"
+#include <shared/sound/engine/engine.h>
 #include <cgame/cg_public.h>
 
 // snapshots are a view of the server at a given time
@@ -314,6 +314,8 @@ void CL_AddReliableCommand(const char* cmd);
 void CL_Disconnect_f(void);
 void CL_Vid_Restart_f(void);
 void CL_Snd_Restart_f(void);
+// whether a file can be read, from a pak or a folder
+bool CL_FileExists(const char* psFilename);
 
 bool CL_CheckPaused(void);
 

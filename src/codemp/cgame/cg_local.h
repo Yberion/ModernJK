@@ -315,8 +315,8 @@ inline constexpr int MAX_CG_LOOPSOUNDS = 8;
 typedef struct cgLoopSound_s {
     int entityNum;
     vec3_t origin;
-    vec3_t velocity;
     sfxHandle_t sfx;
+    sound::SoundClass soundClass;
 } cgLoopSound_t;
 
 // centity_t have a direct corespondence with gentity_t in the game, but
@@ -1786,10 +1786,31 @@ void CG_ReattachLimb(centity_t* source);
 // cg_ents.cpp
 //
 
-void CG_S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx);
-void CG_S_AddRealLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx);
+void CG_S_AddLoopingSound(int entityNum, const vec3_t origin, sfxHandle_t sfx, sound::SoundClass soundClass);
+void CG_S_AddRealLoopingSound(int entityNum, const vec3_t origin, sfxHandle_t sfx, sound::SoundClass soundClass);
 void CG_S_StopLoopingSound(int entityNum, sfxHandle_t sfx);
 void CG_S_UpdateLoopingSounds(int entityNum);
+
+//
+// cg_sound.cpp
+//
+// a vec3_t as the sound's vector
+sound::Vector CG_SoundVector(const vec3_t v);
+// how fast an entity moves, for Doppler
+void CG_EntitySoundVelocity(const centity_t* cent, vec3_t velocity);
+// a sound heard from a point (origin), or following its entity (origin nullptr), in the entity's slot; entityNum -1 or
+// ENTITYNUM_NONE for no entity
+sound::VoiceHandle CG_StartSound(const vec3_t origin, int entityNum, sound::SoundClass soundClass, sound::Slot slot, sfxHandle_t sfx, float volume = 1.0f);
+// a sound at the listener, not positioned
+sound::VoiceHandle CG_StartLocalSound(sfxHandle_t sfx, sound::SoundClass soundClass, sound::Slot slot, float volume = 1.0f);
+// a looping sound asked for in this frame, heard from origin: kept playing while it is asked for at every frame
+void CG_AddLoopingSound(int entityNum, const vec3_t origin, sfxHandle_t sfx, sound::SoundClass soundClass);
+// at the frame's end: the loops asked for started or moved, the others stopped
+void CG_UpdateLoopingSounds(void);
+// every loop stopped (a level's start, a map restart)
+void CG_StopLoopingSounds(void);
+// the ears, once per frame
+void CG_SetSoundListener(int entityNum, const vec3_t origin, const matrix3_t axis, bool underwater);
 
 void CG_SetEntitySoundPosition(centity_t* cent);
 void CG_AddPacketEntities(bool isPortal);

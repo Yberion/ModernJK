@@ -90,7 +90,7 @@ void WP_prox_mine_think(gentity_t* ent)
         // play activated warning
         ent->count = 0;
         ent->s.eFlags |= entityFlags_t::EF_PROX_TRIP;
-        G_Sound(ent, G_SoundIndex("sound/weapons/laser_trap/warning.wav"));
+        G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/laser_trap/warning.wav"));
     }
 
     // if it isn't time to auto-explode, do a small proximity check
@@ -110,7 +110,7 @@ void WP_prox_mine_think(gentity_t* ent)
     }
 
     if (blow) {
-        //		G_Sound( ent, G_SoundIndex( "sound/weapons/flechette/warning.wav" ));
+        //		G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex( "sound/weapons/flechette/warning.wav" ));
         ent->e_ThinkFunc = thinkFunc_t::thinkF_WP_Explode;
         ent->nextthink = level.time + 200;
     }
@@ -131,7 +131,7 @@ void laserTrapThink(gentity_t* ent)
     // turn on the beam effect
     if (!Any(ent->s.eFlags & entityFlags_t::EF_FIRING)) {
         // arm me
-        G_Sound(ent, G_SoundIndex("sound/weapons/laser_trap/warning.wav"));
+        G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/laser_trap/warning.wav"));
         ent->s.loopSound = G_SoundIndex("sound/weapons/laser_trap/hum_loop.wav");
         ent->s.eFlags |= entityFlags_t::EF_FIRING;
     }

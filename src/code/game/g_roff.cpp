@@ -261,11 +261,11 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
 
         // check for eType and play the sound
         if (ent->s.eType == entityType_t::ET_MOVER) {
-            objectID = cgi_S_RegisterSound(argument);
-            cgi_S_StartSound(ent->s.pos.trBase, ent->s.number, soundChannel_t::CHAN_BODY, objectID);
+            objectID = gi.sound->Register(argument);
+            CG_StartSound(ent->s.pos.trBase, ent->s.number, sound::SoundClass::World, sound::Slot::None, objectID);
         }
         else {
-            G_SoundOnEnt(ent, soundChannel_t::CHAN_BODY, argument);
+            G_SoundOnEnt(ent, sound::SoundClass::Body, sound::Slot::None, argument);
         }
     }
     else if (strcmp(type, "USE") == 0) {
@@ -339,14 +339,14 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
             else if (r2 && strstr(teststr, "sound")) { // OK... we should have a relative sound path
                 // try to register the sound and add it to the entitystate loopSound parameter
                 if (ent->s.eType == entityType_t::ET_MOVER) {
-                    objectID = cgi_S_RegisterSound(addlArg);
+                    objectID = gi.sound->Register(addlArg);
                     if (objectID) {
                         ent->s.loopSound = objectID;
                         Q_DPrintln(S_COLOR_GREEN "NoteTrack:  \"{}\"", notetrack);
                     }
                     else {
                         ent->s.loopSound = 0;
-                        Q_FormatTo(errMsg, "cgi_S_RegisterSound({}) failed to return a valid sfxHandle_t for additional argument. Setting 'loopSound' to 0.",
+                        Q_FormatTo(errMsg, "gi.sound->Register({}) failed to return a valid sfxHandle_t for additional argument. Setting 'loopSound' to 0.",
                                    addlArg);
                         goto functionend;
                     }

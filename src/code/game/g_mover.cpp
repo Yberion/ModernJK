@@ -909,12 +909,12 @@ void Use_BinaryMover(gentity_t* ent, gentity_t* other, gentity_t* activator)
             key = INV_GoodieKeyCheck(activator);
             if (key) { // activator has a goodie key, remove it
                 activator->client->ps.inventory[*key]--;
-                G_Sound(activator, G_SoundIndex("sound/movers/goodie_pass.wav"));
+                G_Sound(activator, sound::SoundClass::World, G_SoundIndex("sound/movers/goodie_pass.wav"));
                 // once the goodie mover has been used, it no longer requires a goodie key
                 ent->spawnflags &= ~MOVER_GOODIE;
             }
             else { // don't have a goodie key
-                G_Sound(activator, G_SoundIndex("sound/movers/goodie_fail.wav"));
+                G_Sound(activator, sound::SoundClass::World, G_SoundIndex("sound/movers/goodie_fail.wav"));
                 ent->fly_sound_debounce_time = level.time + 5000;
                 text = "cp @SP_INGAME_NEED_KEY_TO_OPEN";
                 // FIXME: temp message, only on certain difficulties?, graphic instead of text?
@@ -1945,7 +1945,7 @@ void SP_func_train(gentity_t* self)
 
     if (G_SpawnString("noise", "", &noise)) {
         if (VALIDSTRING(noise)) {
-            self->s.loopSound = cgi_S_RegisterSound(noise); // G_SoundIndex( noise );
+            self->s.loopSound = gi.sound->Register(noise); // G_SoundIndex( noise );
         }
     }
 
@@ -2088,7 +2088,7 @@ void func_rotating_touch(gentity_t* self, gentity_t* other, trace_t* trace)
         //		tent->s.eventParm = powerup_t::PW_DISRUPTION;
         //		tent->owner = self;
         // let G_Damage call the fx instead, beside, this way you can disintegrate a corpse this way
-        G_Sound(other, G_SoundIndex("sound/effects/energy_crackle.wav"));
+        G_Sound(other, sound::SoundClass::Force, G_SoundIndex("sound/effects/energy_crackle.wav"));
         G_Damage(other, self, self, nullptr, nullptr, 10000, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_SNIPER);
     }
 }
@@ -2433,7 +2433,7 @@ void security_panel_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         // FIXME: maybe set frame on me to have key sticking out?
         // self->s.frame = 1;
         // play sound
-        G_Sound(self, self->soundPos2);
+        G_Sound(self, sound::SoundClass::World, self->soundPos2);
         // unusable
         self->e_UseFunc = useFunc_t::useF_NULL;
     }
@@ -2447,7 +2447,7 @@ void security_panel_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         G_UseTargets2(self, activator, self->target2);
         // FIXME: change display?  Maybe shader animmap change?
         // play sound
-        G_Sound(self, self->soundPos1);
+        G_Sound(self, sound::SoundClass::World, self->soundPos1);
     }
 }
 

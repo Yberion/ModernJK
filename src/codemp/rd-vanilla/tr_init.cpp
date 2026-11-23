@@ -212,7 +212,6 @@ Ghoul2 Insert End
 
 cvar_t* se_language;
 
-cvar_t* r_aviMotionJpegQuality;
 cvar_t* r_screenshotJpegQuality;
 
 cvar_t* r_patchStitching;
@@ -1166,76 +1165,6 @@ void R_ScreenShot_f(void)
         Q_Println("[skipnotify]Wrote {}", checkname);
 }
 
-/*
-==================
-RB_TakeVideoFrameCmd
-==================
-*/
-const void* RB_TakeVideoFrameCmd(const void* data)
-{
-    const videoFrameCommand_t* cmd;
-    byte* cBuf;
-    size_t memcount, linelen;
-    int padwidth, avipadwidth, padlen, avipadlen;
-    GLint packAlign;
-
-    cmd = (const videoFrameCommand_t*)data;
-
-    qglGetIntegerv(GL_PACK_ALIGNMENT, &packAlign);
-
-    linelen = cmd->width * 3;
-
-    // Alignment stuff for glReadPixels
-    padwidth = PAD(linelen, packAlign);
-    padlen = padwidth - linelen;
-    // AVI line padding
-    avipadwidth = PAD(linelen, AVI_LINE_PADDING);
-    avipadlen = avipadwidth - linelen;
-
-    cBuf = (byte*)PADP(cmd->captureBuffer, packAlign);
-
-    qglReadPixels(0, 0, cmd->width, cmd->height, GL_RGB, GL_UNSIGNED_BYTE, cBuf);
-
-    memcount = padwidth * cmd->height;
-
-    // gamma correct
-    if (glConfig.deviceSupportsGamma && !glConfigExt.doGammaCorrectionWithShaders)
-        R_GammaCorrect(cBuf, memcount);
-
-    if (cmd->motionJpeg) {
-        memcount = RE_SaveJPGToBuffer(cmd->encodeBuffer, linelen * cmd->height, r_aviMotionJpegQuality->integer, cmd->width, cmd->height, cBuf, padlen, false);
-        ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, memcount);
-    }
-    else {
-        byte *lineend, *memend;
-        byte *srcptr, *destptr;
-
-        srcptr = cBuf;
-        destptr = cmd->encodeBuffer;
-        memend = srcptr + memcount;
-
-        // swap R and B and remove line paddings
-        while (srcptr < memend) {
-            lineend = srcptr + linelen;
-            while (srcptr < lineend) {
-                *destptr++ = srcptr[2];
-                *destptr++ = srcptr[1];
-                *destptr++ = srcptr[0];
-                srcptr += 3;
-            }
-
-            Com_Memset(destptr, '\0', avipadlen);
-            destptr += avipadlen;
-
-            srcptr += padlen;
-        }
-
-        ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, avipadwidth * cmd->height);
-    }
-
-    return (const void*)(cmd + 1);
-}
-
 //============================================================================
 
 /*
@@ -1625,10 +1554,8 @@ Ghoul2 Insert Start
     if (ri.Sys_LowPhysicalMemory())
         ri.Cvar_Set("r_modelpoolmegs", "0");
 
-    r_aviMotionJpegQuality = ri.Cvar_Get("r_aviMotionJpegQuality", "90", cvarFlags_t::CVAR_ARCHIVE_ND, "");
     r_screenshotJpegQuality = ri.Cvar_Get("r_screenshotJpegQuality", "95", cvarFlags_t::CVAR_ARCHIVE_ND, "");
 
-    ri.Cvar_CheckRange(r_aviMotionJpegQuality, 10, 100, true);
     ri.Cvar_CheckRange(r_screenshotJpegQuality, 10, 100, true);
 
     r_patchStitching = ri.Cvar_Get("r_patchStitching", "1", cvarFlags_t::CVAR_ARCHIVE, "Enable stitching of neighbouring patch surfaces");
@@ -1972,9 +1899,6 @@ Q_EXPORT refexport_t* QDECL GetRefAPI(int apiVersion, refimport_t* rimp)
     re.RegisterMedia_GetLevel = RE_RegisterMedia_GetLevel;
     re.RegisterImages_LevelLoadEnd = RE_RegisterImages_LevelLoadEnd;
     re.RegisterModels_LevelLoadEnd = RE_RegisterModels_LevelLoadEnd;
-
-    // AVI recording
-    re.TakeVideoFrame = RE_TakeVideoFrame;
 
     // G2 stuff
     re.InitSkins = R_InitSkins;

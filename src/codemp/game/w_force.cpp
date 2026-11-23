@@ -948,7 +948,7 @@ void ForceHeal(gentity_t* self)
     */
     // NOTE: Decided to make all levels instant.
 
-    G_Sound(self, soundChannel_t::CHAN_ITEM, G_SoundIndex("sound/weapons/force/heal.wav"));
+    G_Sound(self, sound::SoundClass::Force, sound::Slot::Item, G_SoundIndex("sound/weapons/force/heal.wav"));
 }
 
 void WP_AddToClientBitflags(gentity_t* ent, int entNum)
@@ -1232,7 +1232,7 @@ void ForceSpeed(gentity_t* self, int forceDuration)
     self->client->ps.forceAllowDeactivateTime = level.time + 1500;
 
     WP_ForcePowerStart(self, forcePowers_t::FP_SPEED, forceDuration);
-    G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/force/speed.wav"));
+    G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/speed.wav"));
     G_Sound(self, trackchan_t::TRACK_CHANNEL_2, speedLoopSound);
 }
 
@@ -1255,7 +1255,7 @@ void ForceSeeing(gentity_t* self)
 
     WP_ForcePowerStart(self, forcePowers_t::FP_SEE, 0);
 
-    G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/weapons/force/see.wav"));
+    G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/see.wav"));
     G_Sound(self, trackchan_t::TRACK_CHANNEL_5, seeLoopSound);
 }
 
@@ -1387,7 +1387,7 @@ void ForceLightning(gentity_t* self)
     self->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_FORCE_HOLD;
     self->client->ps.forceHandExtendTime = level.time + 20000;
 
-    G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/force/lightning"));
+    G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/lightning"));
 
     WP_ForcePowerStart(self, forcePowers_t::FP_LIGHTNING, 500);
 }
@@ -1449,7 +1449,8 @@ void ForceLightningDamage(gentity_t* self, gentity_t* traceEnt, vec3_t dir, vec3
                 }
                 if (traceEnt->client) {
                     if (!Q_irand(0, 2)) {
-                        G_Sound(traceEnt, soundChannel_t::CHAN_BODY, G_SoundIndex(Q_Format("sound/weapons/force/lightninghit{}", Q_irand(1, 3)).c_str()));
+                        G_Sound(traceEnt, sound::SoundClass::Force, sound::Slot::None,
+                                G_SoundIndex(Q_Format("sound/weapons/force/lightninghit{}", Q_irand(1, 3)).c_str()));
                     }
 
                     if (traceEnt->client->ps.electrifyTime <
@@ -1600,7 +1601,7 @@ void ForceDrain(gentity_t* self)
     self->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_FORCE_HOLD;
     self->client->ps.forceHandExtendTime = level.time + 20000;
 
-    G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/force/drain.wav"));
+    G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/drain.wav"));
 
     WP_ForcePowerStart(self, forcePowers_t::FP_DRAIN, 500);
 }
@@ -1696,7 +1697,7 @@ void ForceDrainDamage(gentity_t* self, gentity_t* traceEnt, vec3_t dir, vec3_t i
                 {
                     if ( !Q_irand( 0, 2 ) )
                     {
-                        //G_Sound( traceEnt, soundChannel_t::CHAN_BODY, G_SoundIndex( "sound/weapons/force/lightninghit.wav" ) );
+                        //G_Sound(traceEnt, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex( "sound/weapons/force/lightninghit.wav" ));
                     }
                 //	traceEnt->s.powerups |= ( 1 << PW_DISINT_1 );
 
@@ -1852,7 +1853,7 @@ void ForceJumpCharge(gentity_t* self, usercmd_t* ucmd)
     }
 
     if (self->client->ps.fd.forcePower < forcePowerNeeded[self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION]][forcePowers_t::FP_LEVITATION]) {
-        G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+        G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], sound::Slot::None);
         return;
     }
 
@@ -1878,14 +1879,14 @@ void ForceJumpCharge(gentity_t* self, usercmd_t* ucmd)
     // clamp to max strength for current level
     if (self->client->ps.fd.forceJumpCharge > forceJumpStrength[self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION]]) {
         self->client->ps.fd.forceJumpCharge = forceJumpStrength[self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION]];
-        G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+        G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], sound::Slot::None);
     }
 
     // clamp to max available force power
     if (self->client->ps.fd.forceJumpCharge / forceJumpChargeInterval / (FORCE_JUMP_CHARGE_TIME / FRAMETIME) *
             forcePowerNeeded[self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION]][forcePowers_t::FP_LEVITATION] >
         self->client->ps.fd.forcePower) { // can't use more than you have
-        G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+        G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], sound::Slot::None);
         self->client->ps.fd.forceJumpCharge = self->client->ps.fd.forcePower * forceJumpChargeInterval / (FORCE_JUMP_CHARGE_TIME / FRAMETIME);
     }
 
@@ -1928,7 +1929,7 @@ forceJump_t WP_GetVelocityForForceJump(gentity_t* self, vec3_t jumpVel, usercmd_
         }
     }
 
-    G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+    G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], sound::Slot::None);
 
     G_PreDefSound(self->client->ps.origin, pdSounds_t::PDSOUND_FORCEJUMP);
 
@@ -2233,7 +2234,7 @@ void ForceTelepathy(gentity_t* self)
 
     if (ForceTelepathyCheckDirectNPCTarget(self, &tr, &tookPower)) { // hit an NPC directly
         self->client->ps.forceAllowDeactivateTime = level.time + 1500;
-        G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/weapons/force/distract.wav"));
+        G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/distract.wav"));
         self->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_FORCEPUSH;
         self->client->ps.forceHandExtendTime = level.time + 1000;
         return;
@@ -2265,7 +2266,7 @@ void ForceTelepathy(gentity_t* self)
                 WP_ForcePowerStart(self, forcePowers_t::FP_TELEPATHY, 0);
             }
 
-            G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/weapons/force/distract.wav"));
+            G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/distract.wav"));
 
             self->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_FORCEPUSH;
             self->client->ps.forceHandExtendTime = level.time + 1000;
@@ -2329,7 +2330,7 @@ void ForceTelepathy(gentity_t* self)
                 WP_ForcePowerStart(self, forcePowers_t::FP_TELEPATHY, 0);
             }
 
-            G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/weapons/force/distract.wav"));
+            G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/distract.wav"));
 
             self->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_FORCEPUSH;
             self->client->ps.forceHandExtendTime = level.time + 1000;
@@ -2539,7 +2540,7 @@ void ForceThrow(gentity_t* self, bool pull)
     BG_ClearRocketLock(&self->client->ps);
 
     if (!pull && self->client->ps.saberLockTime > level.time && self->client->ps.saberLockFrame) {
-        G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/force/push.wav"));
+        G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/push.wav"));
         self->client->ps.powerups[powerup_t::PW_DISINT_4] = level.time + 1500;
 
         self->client->ps.saberLockHits += std::to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_PUSH]) * 2;
@@ -2552,7 +2553,7 @@ void ForceThrow(gentity_t* self, bool pull)
 
     // make sure this plays and that you cannot press fire for about 1 second after this
     if (pull) {
-        G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/force/pull.wav"));
+        G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/pull.wav"));
         if (self->client->ps.forceHandExtend == forceHandAnims_t::HANDEXTEND_NONE) {
             self->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_FORCEPULL;
             if (level.gametype == gametype_t::GT_SIEGE && self->client->ps.weapon == weapon_t::WP_SABER) { // hold less so can attack right after a pull
@@ -2566,7 +2567,7 @@ void ForceThrow(gentity_t* self, bool pull)
         self->client->ps.powerups[powerup_t::PW_PULL] = self->client->ps.powerups[powerup_t::PW_DISINT_4];
     }
     else {
-        G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/force/push.wav"));
+        G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/push.wav"));
         if (self->client->ps.forceHandExtend == forceHandAnims_t::HANDEXTEND_NONE) {
             self->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_FORCEPUSH;
             self->client->ps.forceHandExtendTime = level.time + 1000;
@@ -2857,12 +2858,12 @@ void ForceThrow(gentity_t* self, bool pull)
 
                 if (otherPushPower != forcePowerLevels_t::FORCE_LEVEL_0 && CanCounterThrow(push_list[x], self, pull)) {
                     if (pull) {
-                        G_Sound(push_list[x], soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/force/pull.wav"));
+                        G_Sound(push_list[x], sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/pull.wav"));
                         push_list[x]->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_FORCEPULL;
                         push_list[x]->client->ps.forceHandExtendTime = level.time + 400;
                     }
                     else {
-                        G_Sound(push_list[x], soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/force/push.wav"));
+                        G_Sound(push_list[x], sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/push.wav"));
                         push_list[x]->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_FORCEPUSH;
                         push_list[x]->client->ps.forceHandExtendTime = level.time + 1000;
                     }
@@ -3119,7 +3120,7 @@ void WP_ForcePowerStop(gentity_t* self, forcePowers_t forcePower)
         break;
     case forcePowers_t::FP_SPEED:
         if (wasActive & Bit(forcePowers_t::FP_SPEED)) {
-            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_2 - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_2 - trackchan_t::TRACK_CHANNEL_NONE], sound::Slot::None);
         }
         break;
     case forcePowers_t::FP_PUSH:
@@ -3128,7 +3129,7 @@ void WP_ForcePowerStop(gentity_t* self, forcePowers_t forcePower)
         break;
     case forcePowers_t::FP_TELEPATHY:
         if (wasActive & Bit(forcePowers_t::FP_TELEPATHY)) {
-            G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/weapons/force/distractstop.wav"));
+            G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/distractstop.wav"));
         }
         self->client->ps.fd.forceMindtrickTargetIndex = 0;
         self->client->ps.fd.forceMindtrickTargetIndex2 = 0;
@@ -3137,7 +3138,7 @@ void WP_ForcePowerStop(gentity_t* self, forcePowers_t forcePower)
         break;
     case forcePowers_t::FP_SEE:
         if (wasActive & Bit(forcePowers_t::FP_SEE)) {
-            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_5 - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_5 - trackchan_t::TRACK_CHANNEL_NONE], sound::Slot::None);
         }
         break;
     case forcePowers_t::FP_GRIP:
@@ -3148,7 +3149,7 @@ void WP_ForcePowerStop(gentity_t* self, forcePowers_t forcePower)
             (level.time - g_entities[self->client->ps.fd.forceGripEntityNum].client->ps.fd.forceGripStarted) >
                 500) { // if we had our throat crushed in for more than half a second, gasp for air when we're let go
             if (wasActive & Bit(forcePowers_t::FP_GRIP)) {
-                G_EntitySound(&g_entities[self->client->ps.fd.forceGripEntityNum], soundChannel_t::CHAN_VOICE, G_SoundIndex("*gasp.wav"));
+                G_EntitySound(&g_entities[self->client->ps.fd.forceGripEntityNum], sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("*gasp.wav"));
             }
         }
 
@@ -3183,17 +3184,17 @@ void WP_ForcePowerStop(gentity_t* self, forcePowers_t forcePower)
     case forcePowers_t::FP_RAGE:
         self->client->ps.fd.forceRageRecoveryTime = level.time + 10000;
         if (wasActive & Bit(forcePowers_t::FP_RAGE)) {
-            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_3 - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_3 - trackchan_t::TRACK_CHANNEL_NONE], sound::Slot::None);
         }
         break;
     case forcePowers_t::FP_ABSORB:
         if (wasActive & Bit(forcePowers_t::FP_ABSORB)) {
-            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_3 - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_3 - trackchan_t::TRACK_CHANNEL_NONE], sound::Slot::None);
         }
         break;
     case forcePowers_t::FP_PROTECT:
         if (wasActive & Bit(forcePowers_t::FP_PROTECT)) {
-            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_3 - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_3 - trackchan_t::TRACK_CHANNEL_NONE], sound::Slot::None);
         }
         break;
     case forcePowers_t::FP_DRAIN:
@@ -3309,7 +3310,7 @@ void DoGripAction(gentity_t* self, forcePowers_t forcePower)
             G_Damage(gripEnt, self, self, nullptr, nullptr, 20, damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_FORCE_DARK);
 
             // Must play custom sounds on the actual entity. Don't use G_Sound (it creates a temp entity for the sound)
-            G_EntitySound(gripEnt, soundChannel_t::CHAN_VOICE, G_SoundIndex(Q_Format("*choke{}.wav", Q_irand(1, 3)).c_str()));
+            G_EntitySound(gripEnt, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex(Q_Format("*choke{}.wav", Q_irand(1, 3)).c_str()));
 
             gripEnt->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_CHOKE;
             gripEnt->client->ps.forceHandExtendTime = level.time + 2000;
@@ -3386,7 +3387,7 @@ void DoGripAction(gentity_t* self, forcePowers_t forcePower)
             G_Damage(gripEnt, self, self, nullptr, nullptr, 40, damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_FORCE_DARK);
 
             // Must play custom sounds on the actual entity. Don't use G_Sound (it creates a temp entity for the sound)
-            G_EntitySound(gripEnt, soundChannel_t::CHAN_VOICE, G_SoundIndex(Q_Format("*choke{}.wav", Q_irand(1, 3)).c_str()));
+            G_EntitySound(gripEnt, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex(Q_Format("*choke{}.wav", Q_irand(1, 3)).c_str()));
 
             gripEnt->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_CHOKE;
             gripEnt->client->ps.forceHandExtendTime = level.time + 2000;
@@ -3731,7 +3732,7 @@ int WP_DoSpecificPower(gentity_t* self, usercmd_t* ucmd, forcePowers_t forcepowe
 
         if (self->client->ps.groundEntityNum == ENTITYNUM_NONE) {
             self->client->ps.fd.forceJumpCharge = 0;
-            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], sound::Slot::None);
             // This only happens if the groundEntityNum == ENTITYNUM_NONE when the button is actually released
         }
         else { // still on ground, so jump
@@ -3925,7 +3926,7 @@ void SeekerDroneUpdate(gentity_t* self)
     if (self->client->ps.droneExistTime >= level.time && self->client->ps.droneExistTime < (level.time + 5000)) {
         self->client->ps.genericEnemyIndex = 1024 + self->client->ps.droneExistTime;
         if (self->client->ps.droneFireTime < level.time) {
-            G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/laser_trap/warning.wav"));
+            G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/laser_trap/warning.wav"));
             self->client->ps.droneFireTime = level.time + 100;
         }
         return;
@@ -4017,7 +4018,7 @@ void SeekerDroneUpdate(gentity_t* self)
                 VectorNormalize(endir);
 
                 WP_FireGenericBlasterMissile(self, org, endir, 0, 15, 2000, meansOfDeath_t::MOD_BLASTER);
-                G_SoundAtLoc(org, soundChannel_t::CHAN_WEAPON, G_SoundIndex("sound/weapons/bryar/fire.wav"));
+                G_SoundAtLoc(org, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex("sound/weapons/bryar/fire.wav"));
 
                 self->client->ps.droneFireTime = level.time + Q_irand(400, 700);
             }
@@ -4218,7 +4219,7 @@ bool G_SpecialRollGetup(gentity_t* self)
     }
 
     if (rolled) {
-        G_EntitySound(self, soundChannel_t::CHAN_VOICE, G_SoundIndex("*jump1.wav"));
+        G_EntitySound(self, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("*jump1.wav"));
     }
 
     return rolled;
@@ -4324,7 +4325,7 @@ void WP_ForcePowersUpdate(gentity_t* self, usercmd_t* ucmd)
                         // self->client->ps.velocity[2] = 400;
                     }
                     else if (self->client->ps.quickerGetup) {
-                        G_EntitySound(self, soundChannel_t::CHAN_VOICE, G_SoundIndex("*jump1.wav"));
+                        G_EntitySound(self, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("*jump1.wav"));
                         self->client->ps.forceDodgeAnim = 3;
                         self->client->ps.forceHandExtendTime = level.time + 500;
                         self->client->ps.velocity[2] = 300;
@@ -4344,7 +4345,7 @@ void WP_ForcePowersUpdate(gentity_t* self, usercmd_t* ucmd)
             else if (self->client->ps.groundEntityNum != ENTITYNUM_NONE && !self->client->ps.forceDodgeAnim) {
                 self->client->ps.forceDodgeAnim = 1;
                 self->client->ps.forceHandExtendTime = level.time + 1000;
-                G_EntitySound(self, soundChannel_t::CHAN_VOICE, G_SoundIndex("*jump1.wav"));
+                G_EntitySound(self, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("*jump1.wav"));
                 self->client->ps.velocity[2] = 100;
             }
             else if (!self->client->ps.forceDodgeAnim) {
@@ -4393,7 +4394,7 @@ void WP_ForcePowersUpdate(gentity_t* self, usercmd_t* ucmd)
         self->client->ps.fd.forceDeactivateAll = 0;
 
         if (self->client->ps.fd.forceJumpCharge) {
-            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], sound::Slot::None);
             self->client->ps.fd.forceJumpCharge = 0;
         }
     }
@@ -4508,7 +4509,7 @@ void WP_ForcePowersUpdate(gentity_t* self, usercmd_t* ucmd)
         self->client->fjDidJump) { // this was for the "charge" jump method... I guess
         if (ucmd->upmove < 10 &&
             (!Any(ucmd->buttons & buttonFlags_t::BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != forcePowers_t::FP_LEVITATION)) {
-            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+            G_MuteSound(self->client->ps.fd.killSoundEntIndex[trackchan_t::TRACK_CHANNEL_1 - trackchan_t::TRACK_CHANNEL_NONE], sound::Slot::None);
             self->client->ps.fd.forceJumpCharge = 0;
         }
     }
@@ -4765,7 +4766,7 @@ bool Jedi_DodgeEvasion(gentity_t* self, gentity_t* shooter, trace_t* tr, hitLoca
             ForceSpeed(self, 500);
         }
         else {
-            G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/force/speed.wav"));
+            G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/speed.wav"));
         }
         return true;
     }

@@ -101,7 +101,7 @@ SoundHandle Bank::RegisterKey(std::string key)
     std::optional<Sound> sound = Load(key);
 
     if (!sound) {
-        host_.print(Message::Warning, fmt::format("could not find sound {}", key));
+        host_.print(Message::Debug, fmt::format("could not find sound {}", key));
         missing_.insert(std::move(key));
         return kNoSound;
     }

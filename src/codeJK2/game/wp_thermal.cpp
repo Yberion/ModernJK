@@ -38,7 +38,7 @@ void thermalDetonatorExplode(gentity_t* ent)
 //---------------------------------------------------------
 {
     if (!ent->count) {
-        G_Sound(ent, G_SoundIndex("sound/weapons/thermal/warning.wav"));
+        G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/thermal/warning.wav"));
         ent->count = 1;
         ent->nextthink = level.time + 800;
         ent->svFlags |= svFlags_t::SVF_BROADCAST; // so everyone hears/sees the explosion?

@@ -433,7 +433,7 @@ void G_SetMovedir(vec3_t angles, vec3_t movedir);
 void G_InitGentity(gentity_t* e, bool bFreeG2);
 gentity_t* G_Spawn(void);
 gentity_t* G_TempEntity(const vec3_t origin, entity_event_t event);
-void G_Sound(gentity_t* ent, int soundIndex);
+void G_Sound(gentity_t* ent, sound::SoundClass soundClass, int soundIndex);
 void G_FreeEntity(gentity_t* e);
 
 void G_TouchTriggers(gentity_t* ent);
@@ -554,8 +554,8 @@ void Svcmd_Form_f(void);
 // g_utils.cpp
 //
 void Svcmd_Use_f(void);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
-extern void G_SoundIndexOnEnt(gentity_t* ent, soundChannel_t channel, int index);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
+extern void G_SoundIndexOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, int index);
 
 //
 // g_weapons.cpp

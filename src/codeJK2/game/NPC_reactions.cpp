@@ -32,9 +32,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern bool G_CheckForStrongAttackMomentum(gentity_t* self);
 extern void G_AddVoiceEvent(gentity_t* self, entity_event_t event, int speakDebounceTime);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 extern int PM_AnimLength(int index, animNumber_t anim);
-extern void cgi_S_StartSound(vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx);
 extern bool Q3_TaskIDPending(gentity_t* ent, taskID_t taskType);
 extern animNumber_t PM_PickAnim(gentity_t* self, animNumber_t minAnim, animNumber_t maxAnim);
 extern bool NPC_CheckLookTarget(gentity_t* self);
@@ -490,7 +489,7 @@ void NPC_Touch(gentity_t* self, gentity_t* other, trace_t* trace)
                 gi.G2API_SetSurfaceOnOff(&self->ghoul2[self->playerModel], "l_arm_key", g2SurfaceFlags_t::G2SURFACEFLAG_OFF);
                 self->message = nullptr;
                 // FIXME: temp pickup sound
-                G_Sound(player, G_SoundIndex("sound/weapons/key_pkup.wav"));
+                G_Sound(player, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/key_pkup.wav"));
                 // FIXME: need some event to pass to cgame for sound/graphic/message?
             }
             gi.SendServerCommand(0, "{}", text);
@@ -744,16 +743,16 @@ void NPC_Respond(gentity_t* self, int userNum)
         }
         break;
     case class_t::CLASS_R2D2: // droid
-        G_Sound(self, G_SoundIndex(Q_Format("sound/chars/r2d2/misc/r2d2talk0{}.wav", Q_irand(1, 3)).c_str()));
+        G_Sound(self, sound::SoundClass::World, G_SoundIndex(Q_Format("sound/chars/r2d2/misc/r2d2talk0{}.wav", Q_irand(1, 3)).c_str()));
         break;
     case class_t::CLASS_R5D2: // droid
-        G_Sound(self, G_SoundIndex(Q_Format("sound/chars/r5d2/misc/r5talk{}.wav", Q_irand(1, 4)).c_str()));
+        G_Sound(self, sound::SoundClass::World, G_SoundIndex(Q_Format("sound/chars/r5d2/misc/r5talk{}.wav", Q_irand(1, 4)).c_str()));
         break;
     case class_t::CLASS_MOUSE: // droid
-        G_Sound(self, G_SoundIndex(Q_Format("sound/chars/mouse/misc/mousego{}.wav", Q_irand(1, 3)).c_str()));
+        G_Sound(self, sound::SoundClass::World, G_SoundIndex(Q_Format("sound/chars/mouse/misc/mousego{}.wav", Q_irand(1, 3)).c_str()));
         break;
     case class_t::CLASS_GONK: // droid
-        G_Sound(self, G_SoundIndex(Q_Format("sound/chars/gonk/misc/gonktalk{}.wav", Q_irand(1, 2)).c_str()));
+        G_Sound(self, sound::SoundClass::World, G_SoundIndex(Q_Format("sound/chars/gonk/misc/gonktalk{}.wav", Q_irand(1, 2)).c_str()));
         break;
     default:
         break;
@@ -803,8 +802,8 @@ void NPC_UseResponse(gentity_t* self, gentity_t* user, bool useWhenDone)
         return;
     }
 
-    if (gi.VoiceVolume[self->s.number]) { // I'm talking already
-        if (!useWhenDone) {               // you're not trying to use me
+    if (gi.sound->GetVoiceState(self->s.number) != sound::VoiceState::NotTalking) { // I'm talking already
+        if (!useWhenDone) {                                                         // you're not trying to use me
             return;
         }
     }
@@ -855,7 +854,7 @@ void NPC_Use(gentity_t* self, gentity_t* other, gentity_t* activator)
                             G_ActivateBehavior( self, bSet_t::BSET_USE );
                         }
                     }
-                    else if ( !self->enemy && activator->s.number == 0 && !gi.VoiceVolume[self->s.number] &&
+                    else if ( !self->enemy && activator->s.number == 0 && gi.sound->GetVoiceState(self->s.number) == sound::VoiceState::NotTalking &&
            !Any(self->NPC->scriptFlags&scriptFlags_t::SCF_NO_RESPONSE) )
                     {//I don't have an enemy and I'm not talking and I was used by the player
                         NPC_UseResponse( self, other, false );
@@ -870,7 +869,7 @@ void NPC_Use(gentity_t* self, gentity_t* other, gentity_t* activator)
         //		{//Heal me NOW, dammit!
         //			NPC_TakePatient( activator );
         //		}
-        else if (!self->enemy && activator->s.number == 0 && !gi.VoiceVolume[self->s.number] &&
+        else if (!self->enemy && activator->s.number == 0 && gi.sound->GetVoiceState(self->s.number) == sound::VoiceState::NotTalking &&
                  !Any(self->NPC->scriptFlags & scriptFlags_t::SCF_NO_RESPONSE)) { // I don't have an enemy and I'm not talking and I was used by the player
             NPC_UseResponse(self, other, false);
         }

@@ -366,7 +366,7 @@ void eweb_use(gentity_t* self, gentity_t* other, gentity_t* activator)
     }
 #endif
 
-    G_Sound(self, G_SoundIndex("sound/weapons/eweb/eweb_mount.mp3"));
+    G_Sound(self, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/eweb/eweb_mount.mp3"));
 
     if (!(self->spawnflags & EMPLACED_PLAYERUSE) || activator->s.number == 0) { // player-only usescript or any usescript
         // Run use script
@@ -603,7 +603,7 @@ void emplaced_gun_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         }
 #endif
 
-        G_Sound(self, G_SoundIndex("sound/weapons/emplaced/emplaced_mount.mp3"));
+        G_Sound(self, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/emplaced/emplaced_mount.mp3"));
 
         if (!(self->spawnflags & EMPLACED_PLAYERUSE) || activator->s.number == 0) { // player-only usescript or any usescript
             // Run use script
@@ -1004,10 +1004,10 @@ void RunEmplacedWeapon(gentity_t* ent, usercmd_t** ucmd)
 
         if (ent->owner->e_UseFunc == useFunc_t::useF_eweb_use) // yeah, crappy way to check this, but...
         {
-            G_Sound(ent, G_SoundIndex("sound/weapons/eweb/eweb_dismount.mp3"));
+            G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/eweb/eweb_dismount.mp3"));
         }
         else {
-            G_Sound(ent, G_SoundIndex("sound/weapons/emplaced/emplaced_dismount.mp3"));
+            G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/emplaced/emplaced_dismount.mp3"));
         }
 
         ExitEmplacedWeapon(ent);

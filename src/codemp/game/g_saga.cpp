@@ -1365,7 +1365,7 @@ void SiegeItemTouch(gentity_t* self, gentity_t* other, trace_t* trace)
     }
 
     if (self->noise_index) { // play the pickup noise.
-        G_Sound(other, soundChannel_t::CHAN_AUTO, self->noise_index);
+        G_Sound(other, sound::SoundClass::World, sound::Slot::None, self->noise_index);
     }
 
     self->genericValue2 = 1; // Mark it as picked up.

@@ -49,8 +49,6 @@ static void* gameLibrary;
 extern void Com_WriteCam(const char* text);
 extern void Com_FlushCamFile();
 
-extern int s_entityWavVol[MAX_GENTITIES];
-
 // these functions must be used instead of pointer arithmetic, because
 // the game allocates gentities with private information after the server shared part
 /*
@@ -912,7 +910,7 @@ void SV_InitGameProgs(void)
     import.AdjustAreaPortalState = SV_AdjustAreaPortalState;
     import.AreasConnected = CM_AreasConnected;
 
-    import.VoiceVolume = s_entityWavVol;
+    import.sound = &SND_Api();
 
     import.Malloc = G_ZMalloc_Helper;
     import.Free = Z_Free;

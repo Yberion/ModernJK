@@ -270,7 +270,7 @@ void ImperialProbe_FireBlaster(void)
 
     G_PlayEffect("bryar/muzzle_flash", muzzle1);
 
-    G_Sound(NPC, G_SoundIndex("sound/chars/probe/misc/fire"));
+    G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/probe/misc/fire"));
 
     if (NPC->health) {
         CalcEntitySpot(NPC->enemy, spot_t::SPOT_CHEST, enemy_org1);
@@ -356,7 +356,7 @@ void ImperialProbe_AttackDecision(void)
     // randomly talk
     if (TIMER_Done(NPC, "patrolNoise")) {
         if (TIMER_Done(NPC, "angerNoise")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/probe/misc/probetalk{}", Q_irand(1, 3)).c_str());
+            G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/probe/misc/probetalk{}", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPC, "patrolNoise", Q_irand(4000, 10000));
         }
@@ -495,14 +495,14 @@ void ImperialProbe_Patrol(void)
         }
         // randomly talk
         if (TIMER_Done(NPC, "patrolNoise")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/probe/misc/probetalk{}", Q_irand(1, 3)).c_str());
+            G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/probe/misc/probetalk{}", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPC, "patrolNoise", Q_irand(2000, 4000));
         }
     }
     else // He's got an enemy. Make him angry.
     {
-        G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, "sound/chars/probe/misc/anger1");
+        G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, "sound/chars/probe/misc/anger1");
         TIMER_Set(NPC, "angerNoise", Q_irand(2000, 4000));
         // NPCInfo->behaviorState = bState_t::BS_HUNT_AND_KILL;
     }

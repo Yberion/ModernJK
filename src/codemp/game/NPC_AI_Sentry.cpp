@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_nav.h"
 
 extern gitem_t* BG_FindItemForAmmo(ammo_t ammo);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 
 constexpr int MIN_DISTANCE = 256;
 constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
@@ -107,7 +107,7 @@ void NPC_Sentry_Pain(gentity_t* self, gentity_t* attacker, int damage)
         self->flags |= gentityFlags_t::FL_SHIELDED;
         NPC_SetAnim(self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_FLY_SHIELDED,
                     setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
-        G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/sentry/misc/sentry_pain"));
+        G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/sentry/misc/sentry_pain"));
 
         NPC_SetLocalState(*self->NPC, sentryLocalState_t::LSTATE_ACTIVE);
     }
@@ -152,7 +152,7 @@ void Sentry_Fire(void)
     else if (NPC_LocalState<sentryLocalState_t>(*NPCS.NPCInfo) == sentryLocalState_t::LSTATE_ACTIVE) {
         NPC_SetLocalState(*NPCS.NPCInfo, sentryLocalState_t::LSTATE_POWERING_UP);
 
-        G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/sentry/misc/sentry_shield_open"));
+        G_Sound(NPCS.NPC, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/sentry/misc/sentry_shield_open"));
         NPC_SetAnim(NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_POWERUP1,
                     setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
         TIMER_Set(NPCS.NPC, "powerup", 250);
@@ -417,7 +417,7 @@ void Sentry_RangedAttack(bool visible, bool advance)
                 NPCS.NPC->flags |= gentityFlags_t::FL_SHIELDED;
                 NPC_SetAnim(NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_FLY_SHIELDED,
                             setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
-                G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, "sound/chars/sentry/misc/sentry_shield_close");
+                G_SoundOnEnt(NPCS.NPC, sound::SoundClass::World, sound::Slot::None, "sound/chars/sentry/misc/sentry_shield_close");
             }
         }
         else {
@@ -448,7 +448,7 @@ void Sentry_AttackDecision(void)
     // randomly talk
     if (TIMER_Done(NPCS.NPC, "patrolNoise")) {
         if (TIMER_Done(NPCS.NPC, "angerNoise")) {
-            G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/sentry/misc/talk{}", Q_irand(1, 3)).c_str());
+            G_SoundOnEnt(NPCS.NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/sentry/misc/talk{}", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPCS.NPC, "patrolNoise", Q_irand(4000, 10000));
         }
@@ -512,7 +512,7 @@ void NPC_Sentry_Patrol(void)
 
         // randomly talk
         if (TIMER_Done(NPCS.NPC, "patrolNoise")) {
-            G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/sentry/misc/talk{}", Q_irand(1, 3)).c_str());
+            G_SoundOnEnt(NPCS.NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/sentry/misc/talk{}", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPCS.NPC, "patrolNoise", Q_irand(2000, 4000));
         }

@@ -37,7 +37,7 @@ extern void NPC_SetLookTarget(gentity_t* self, int entNum, int clearTime);
 extern void NPC_TempLookTarget(gentity_t* self, int lookEntNum, int minLookTime, int maxLookTime);
 extern bool G_ExpandPointToBBox(vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, contentsFlags_t clipmask);
 extern bool NPC_CheckEnemyStealth(void);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 
 extern gitem_t* BG_FindItemForAmmo(ammo_t ammo);
 
@@ -317,7 +317,7 @@ void Boba_FlyStart(gentity_t* self)
         self->client->ps.eFlags2 |= entityFlags2_t::EF2_FLYING; // moveType = MT_FLYSWIM;
         self->client->jetPackTime = level.time + Q_irand(3000, 10000);
         // take-off sound
-        G_SoundOnEnt(self, soundChannel_t::CHAN_ITEM, "sound/boba/jeton.wav");
+        G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::Item, "sound/boba/jeton.wav");
         // jet loop sound
         self->s.loopSound = G_SoundIndex("sound/boba/jethover.wav");
         if (self->NPC) {
@@ -415,7 +415,7 @@ void Boba_StartFlameThrower(gentity_t* self)
 
     }
     */
-    G_SoundOnEnt(self, soundChannel_t::CHAN_WEAPON, "sound/effects/combustfire.mp3");
+    G_SoundOnEnt(self, sound::SoundClass::Weapon, sound::Slot::Weapon, "sound/effects/combustfire.mp3");
 
     trap->G2API_GetBoltMatrix(NPCS.NPC->ghoul2, 0, NPCS.NPC->client->renderInfo.handRBolt, &boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin,
                               level.time, nullptr, NPCS.NPC->modelScale);
@@ -710,7 +710,7 @@ void Jedi_Cloak(gentity_t* self)
 
                 // FIXME: debounce attacks?
                 // FIXME: temp sound
-                G_Sound(self, soundChannel_t::CHAN_ITEM, G_SoundIndex("sound/chars/shadowtrooper/cloak.wav"));
+                G_Sound(self, sound::SoundClass::World, sound::Slot::Item, G_SoundIndex("sound/chars/shadowtrooper/cloak.wav"));
             }
         }
     }
@@ -724,7 +724,7 @@ void Jedi_Decloak(gentity_t* self)
             if (self->client->ps.powerups[powerup_t::PW_CLOAKED]) { // Uncloak
                 self->client->ps.powerups[powerup_t::PW_CLOAKED] = 0;
 
-                G_Sound(self, soundChannel_t::CHAN_ITEM, G_SoundIndex("sound/chars/shadowtrooper/decloak.wav"));
+                G_Sound(self, sound::SoundClass::World, sound::Slot::Item, G_SoundIndex("sound/chars/shadowtrooper/decloak.wav"));
             }
         }
     }
@@ -1832,7 +1832,7 @@ evasionType_t Jedi_CheckFlipEvasions(gentity_t* self, float rightdot, float zdif
                 G_AddEvent(self, entity_event_t::EV_JUMP, 0);
             }
             else {
-                G_SoundOnEnt(self, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                G_SoundOnEnt(self, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
             }
             // ucmd.upmove = 0;
             return evasionType_t::EVASION_CARTWHEEL;
@@ -1887,7 +1887,7 @@ evasionType_t Jedi_CheckFlipEvasions(gentity_t* self, float rightdot, float zdif
                                     G_AddEvent(self, entity_event_t::EV_JUMP, 0);
                                 }
                                 else {
-                                    G_SoundOnEnt(self, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                                    G_SoundOnEnt(self, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                                 }
                                 return evasionType_t::EVASION_OTHER;
                             }
@@ -1948,7 +1948,7 @@ evasionType_t Jedi_CheckFlipEvasions(gentity_t* self, float rightdot, float zdif
                             G_AddEvent(self, entity_event_t::EV_JUMP, 0);
                         }
                         else {
-                            G_SoundOnEnt(self, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                            G_SoundOnEnt(self, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                         }
                         return evasionType_t::EVASION_OTHER;
                     }
@@ -2448,7 +2448,7 @@ evasionType_t Jedi_SaberBlockGo(gentity_t* self, usercmd_t* cmd, vec3_t pHitloc,
                                 G_AddEvent(self, entity_event_t::EV_JUMP, 0);
                             }
                             else {
-                                G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/force/jump.wav"));
+                                G_Sound(self, sound::SoundClass::Force, sound::Slot::None, G_SoundIndex("sound/weapons/force/jump.wav"));
                             }
                             cmd->upmove = 0;
                             saberBusy = true;
@@ -4074,11 +4074,11 @@ static bool Jedi_TryJump(gentity_t* goal)
                                 NPCS.NPC->client->ps.weaponTime = NPCS.NPC->client->ps.torsoTimer;
                                 NPCS.NPC->client->ps.fd.forcePowersActive |= Bit(forcePowers_t::FP_LEVITATION);
                                 if (NPCS.NPC->client->NPC_class == class_t::CLASS_BOBAFETT) {
-                                    G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_ITEM, "sound/boba/jeton.wav");
+                                    G_SoundOnEnt(NPCS.NPC, sound::SoundClass::World, sound::Slot::Item, "sound/boba/jeton.wav");
                                     NPCS.NPC->client->jetPackTime = level.time + Q_irand(1000, 3000);
                                 }
                                 else {
-                                    G_SoundOnEnt(NPCS.NPC, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                                    G_SoundOnEnt(NPCS.NPC, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                                 }
 
                                 TIMER_Set(NPCS.NPC, "forceJumpChasing", Q_irand(2000, 3000));

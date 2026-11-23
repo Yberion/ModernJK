@@ -1901,9 +1901,6 @@ void RB_ExecuteRenderCommands(const void* data)
         case renderCommand_t::RC_SWAP_BUFFERS:
             data = RB_SwapBuffers(data);
             break;
-        case renderCommand_t::RC_VIDEOFRAME:
-            data = RB_TakeVideoFrameCmd(data);
-            break;
         case renderCommand_t::RC_WORLD_EFFECTS:
             data = RB_WorldEffects(data);
             break;

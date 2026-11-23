@@ -59,7 +59,7 @@ constexpr int MIN_STAY_VIEWABLE_TIME = 20000;
 // Externs
 ////////////////////////////////////////////////////////////////////////////////////////
 extern Vehicle_t* G_IsRidingVehicle(gentity_t* ent);
-extern void G_SoundAtSpot(vec3_t org, int soundIndex, bool broadcast);
+extern void G_SoundAtSpot(vec3_t org, sound::SoundClass soundClass, int soundIndex, bool broadcast);
 extern void CG_DrawEdge(vec3_t start, vec3_t end, edgeType_t type);
 
 trace_t mPilotViewTrace;
@@ -134,7 +134,7 @@ void Pilot_Update(void)
                 if (pVeh->m_pVehicleInfo->soundFlyBy2 && (!soundFlyBy || !Q_irand(0, 1))) {
                     soundFlyBy = pVeh->m_pVehicleInfo->soundFlyBy2;
                 }
-                G_SoundAtSpot(mPilotViewTrace.endpos, soundFlyBy, true);
+                G_SoundAtSpot(mPilotViewTrace.endpos, sound::SoundClass::World, soundFlyBy, true);
             }
             else {
                 //	CG_DrawEdge(player->currentOrigin, mPilotViewTrace.endpos, edgeType_t::EDGE_IMPACT_SAFE);
@@ -441,7 +441,7 @@ void Pilot_Steer_Vehicle()
             if (ActorVeh->m_pVehicleInfo->soundFlyBy2 && (!soundFlyBy || !Q_irand(0, 1))) {
                 soundFlyBy = ActorVeh->m_pVehicleInfo->soundFlyBy2;
             }
-            G_Sound(ActorVeh->m_pParentEntity, soundFlyBy);
+            G_Sound(ActorVeh->m_pParentEntity, sound::SoundClass::World, soundFlyBy);
         }
     }
 

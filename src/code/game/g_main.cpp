@@ -864,7 +864,7 @@ FUNCTIONS CALLED EVERY FRAME
 static void G_CheckTasksCompleted(gentity_t* ent)
 {
     if (Q3_TaskIDPending(ent, taskID_t::TID_CHAN_VOICE)) {
-        if (!gi.VoiceVolume[ent->s.number]) { // not playing a voice sound
+        if (gi.sound->GetVoiceState(ent->s.number) == sound::VoiceState::NotTalking) { // not playing a voice sound
             // return task_complete
             Q3_TaskIDComplete(ent, taskID_t::TID_CHAN_VOICE);
         }
@@ -1101,7 +1101,7 @@ void G_PlayerGuiltDeath(void)
         player->client->ps.stats[statIndex_t::STAT_HEALTH] = 0;
         // turn off saber
         if (player->client->ps.weapon == weapon_t::WP_SABER && player->client->ps.SaberActive()) {
-            G_SoundIndexOnEnt(player, soundChannel_t::CHAN_WEAPON, player->client->ps.saber[0].soundOff);
+            G_SoundIndexOnEnt(player, sound::SoundClass::Saber, sound::Slot::Weapon, player->client->ps.saber[0].soundOff);
             player->client->ps.SaberDeactivate();
         }
         // play the "what have I done?!" anim

@@ -63,7 +63,7 @@ void WP_Melee(gentity_t* ent)
     }
 
     if (tr_ent && tr_ent->takedamage) {
-        G_Sound(tr_ent, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
+        G_Sound(tr_ent, sound::SoundClass::Weapon, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
         G_Damage(tr_ent, ent, ent, wpFwd, tr.endpos, damage, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE);
     }
 }

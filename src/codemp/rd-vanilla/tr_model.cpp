@@ -515,9 +515,7 @@ void RE_RegisterMedia_LevelLoadEnd(void)
     RE_RegisterModels_LevelLoadEnd(false);
 
     RE_RegisterImages_LevelLoadEnd();
-    ri.SND_RegisterAudio_LevelLoadEnd(false);
     //	RE_InitDissolve();
-    ri.S_RestartMusic();
 }
 
 /*

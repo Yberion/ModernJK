@@ -34,7 +34,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern IHeapAllocator* G2VertSpaceClient;
 
-#include "snd_ambient.h"
 #include <qcommon/timing.h>
 
 #include <algorithm>
@@ -934,6 +933,9 @@ void CL_FirstSnapshot(void)
     }
 
     re->RegisterMedia_LevelLoadEnd();
+    // the sounds the level did not use freed, then its music started from its beginning with the level
+    SND_EndRegistration();
+    SND_RestartMusic();
 
     cls.state = connstate_t::CA_ACTIVE;
 

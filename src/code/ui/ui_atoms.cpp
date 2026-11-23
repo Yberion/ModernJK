@@ -149,28 +149,28 @@ static void UI_Cache_f(void)
     extern EnumArray<const char*, forceWarning_t, forceWarning_t::NUM_FORCE_WARNINGS> lukeForceStatusSounds;
     extern EnumArray<const char*, forceWarning_t, forceWarning_t::NUM_FORCE_WARNINGS> kyleForceStatusSounds;
     for (forceWarning_t index = forceWarning_t::FW_VERY_LIGHT; index < forceWarning_t::NUM_FORCE_WARNINGS; index++) {
-        DC->registerSound(lukeForceStatusSounds[index], false);
-        DC->registerSound(kyleForceStatusSounds[index], false);
+        DC->sound->Register(lukeForceStatusSounds[index]);
+        DC->sound->Register(kyleForceStatusSounds[index]);
     }
     for (int index = 1; index <= 18; index++) {
-        DC->registerSound(Q_Format("sound/chars/storyinfo/{}", index).c_str(), false);
+        DC->sound->Register(Q_Format("sound/chars/storyinfo/{}", index).c_str());
     }
-    trap_S_RegisterSound("sound/chars/kyle/04kyk001.mp3", false);
-    trap_S_RegisterSound("sound/chars/kyle/05kyk001.mp3", false);
-    trap_S_RegisterSound("sound/chars/kyle/07kyk001.mp3", false);
-    trap_S_RegisterSound("sound/chars/kyle/14kyk001.mp3", false);
-    trap_S_RegisterSound("sound/chars/kyle/21kyk001.mp3", false);
-    trap_S_RegisterSound("sound/chars/kyle/24kyk001.mp3", false);
-    trap_S_RegisterSound("sound/chars/kyle/25kyk001.mp3", false);
+    DC->sound->Register("sound/chars/kyle/04kyk001.mp3");
+    DC->sound->Register("sound/chars/kyle/05kyk001.mp3");
+    DC->sound->Register("sound/chars/kyle/07kyk001.mp3");
+    DC->sound->Register("sound/chars/kyle/14kyk001.mp3");
+    DC->sound->Register("sound/chars/kyle/21kyk001.mp3");
+    DC->sound->Register("sound/chars/kyle/24kyk001.mp3");
+    DC->sound->Register("sound/chars/kyle/25kyk001.mp3");
 
-    trap_S_RegisterSound("sound/chars/luke/06luk001.mp3", false);
-    trap_S_RegisterSound("sound/chars/luke/08luk001.mp3", false);
-    trap_S_RegisterSound("sound/chars/luke/22luk001.mp3", false);
-    trap_S_RegisterSound("sound/chars/luke/23luk001.mp3", false);
-    trap_S_RegisterSound("sound/chars/protocol/12pro001.mp3", false);
-    trap_S_RegisterSound("sound/chars/protocol/15pro001.mp3", false);
-    trap_S_RegisterSound("sound/chars/protocol/16pro001.mp3", false);
-    trap_S_RegisterSound("sound/chars/wedge/13wea001.mp3", false);
+    DC->sound->Register("sound/chars/luke/06luk001.mp3");
+    DC->sound->Register("sound/chars/luke/08luk001.mp3");
+    DC->sound->Register("sound/chars/luke/22luk001.mp3");
+    DC->sound->Register("sound/chars/luke/23luk001.mp3");
+    DC->sound->Register("sound/chars/protocol/12pro001.mp3");
+    DC->sound->Register("sound/chars/protocol/15pro001.mp3");
+    DC->sound->Register("sound/chars/protocol/16pro001.mp3");
+    DC->sound->Register("sound/chars/wedge/13wea001.mp3");
 
     Menus_ActivateByName("ingameMissionSelect1");
     Menus_ActivateByName("ingameMissionSelect2");

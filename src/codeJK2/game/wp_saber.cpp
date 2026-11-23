@@ -62,7 +62,7 @@ extern void G_ReflectMissile(gentity_t* ent, gentity_t* missile, vec3_t forward)
 extern int G_CheckLedgeDive(gentity_t* self, float checkDist, vec3_t checkVel, bool tryOpposite, bool tryPerp);
 extern void G_BounceMissile(gentity_t* ent, trace_t* trace);
 extern bool G_PointInBounds(const vec3_t point, const vec3_t mins, const vec3_t maxs);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 extern void NPC_UseResponse(gentity_t* self, gentity_t* user, bool useWhenDone);
 extern void WP_FireDreadnoughtBeam(gentity_t* ent);
 extern void G_MissileImpacted(gentity_t* ent, gentity_t* other, vec3_t impactPos, vec3_t normal, hitLocation_t hitLoc = hitLocation_t::HL_NONE);
@@ -1224,7 +1224,8 @@ bool WP_SaberDamageEffects(trace_t* tr, const vec3_t start, float length, float 
 void WP_SaberKnockaway(gentity_t* attacker, trace_t* tr)
 {
     WP_SaberDrop(attacker, &g_entities[attacker->client->ps.saberEntityNum]);
-    G_Sound(&g_entities[attacker->client->ps.saberEntityNum], G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str()));
+    G_Sound(&g_entities[attacker->client->ps.saberEntityNum], sound::SoundClass::Saber,
+            G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str()));
     G_PlayEffect("saber_block", tr->endpos);
     saberHitFraction = tr->fraction;
 #ifndef FINAL_BUILD
@@ -2920,15 +2921,15 @@ hitOwner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE] - ent->cli
         if (saberHitFraction < 1.0f || collisionResolved) { // either actually hit or locked
             if (ent->client->ps.saberLockTime < level.time) {
                 if (inFlightSaberBlocked) { // FIXME: never hear this sound
-                    G_Sound(&g_entities[ent->client->ps.saberEntityNum],
+                    G_Sound(&g_entities[ent->client->ps.saberEntityNum], sound::SoundClass::Saber,
                             G_SoundIndex(Q_Format("sound/weapons/saber/saberbounce{}.wav", Q_irand(1, 3)).c_str()));
                 }
                 else {
                     if (deflected) {
-                        G_Sound(ent, G_SoundIndex(Q_Format("sound/weapons/saber/saberbounce{}.wav", Q_irand(1, 3)).c_str()));
+                        G_Sound(ent, sound::SoundClass::Saber, G_SoundIndex(Q_Format("sound/weapons/saber/saberbounce{}.wav", Q_irand(1, 3)).c_str()));
                     }
                     else {
-                        G_Sound(ent, G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str()));
+                        G_Sound(ent, sound::SoundClass::Saber, G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str()));
                     }
                 }
                 G_PlayEffect("saber_block", saberHitLocation, saberHitNormal);
@@ -2993,7 +2994,7 @@ hitOwner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE] - ent->cli
                 g_saberFlashTime = level.time - 50;
                 G_PlayEffect("saber_cut", g_saberFlashPos, hitNorm);
             }
-            G_Sound(ent, G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str()));
+            G_Sound(ent, sound::SoundClass::Saber, G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str()));
         }
     }
 
@@ -3003,7 +3004,7 @@ hitOwner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE] - ent->cli
             Q_Println("base damage was {:4.2f}", baseDamage);
         }
 #endif
-        G_Sound(ent, G_SoundIndex(Q_Format("sound/weapons/saber/saberhit{}.wav", Q_irand(1, 3)).c_str()));
+        G_Sound(ent, sound::SoundClass::Saber, G_SoundIndex(Q_Format("sound/weapons/saber/saberhit{}.wav", Q_irand(1, 3)).c_str()));
     }
 
     if (hit_wall) {
@@ -3063,7 +3064,7 @@ void WP_SaberImpact(gentity_t* owner, gentity_t* saber, trace_t* trace)
         // Big flash
         // FIXME: bigger effect/sound?
         // FIXME: STILL DOESNT WORK!!!
-        G_Sound(saber, G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str()));
+        G_Sound(saber, sound::SoundClass::Saber, G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str()));
         G_PlayEffect("saber_block", trace->endpos);
         g_saberFlashTime = level.time - 50;
         VectorCopy(trace->endpos, g_saberFlashPos);
@@ -3129,7 +3130,7 @@ void WP_SaberImpact(gentity_t* owner, gentity_t* saber, trace_t* trace)
 
         if (saber->s.pos.trType == trType_t::TR_GRAVITY) { // bounced
             // play a bounce sound
-            G_Sound(saber, G_SoundIndex(Q_Format("sound/weapons/saber/bounce{}.wav", Q_irand(1, 3)).c_str()));
+            G_Sound(saber, sound::SoundClass::Saber, G_SoundIndex(Q_Format("sound/weapons/saber/bounce{}.wav", Q_irand(1, 3)).c_str()));
             // change rotation
             VectorCopy(saber->currentAngles, saber->s.apos.trBase);
             saber->s.apos.trType = trType_t::TR_LINEAR;
@@ -3139,7 +3140,7 @@ void WP_SaberImpact(gentity_t* owner, gentity_t* saber, trace_t* trace)
         // see if we stopped
         else if (saber->s.pos.trType == trType_t::TR_STATIONARY) { // stopped
             // play a bounce sound
-            G_Sound(saber, G_SoundIndex(Q_Format("sound/weapons/saber/bounce{}.wav", Q_irand(1, 3)).c_str()));
+            G_Sound(saber, sound::SoundClass::Saber, G_SoundIndex(Q_Format("sound/weapons/saber/bounce{}.wav", Q_irand(1, 3)).c_str()));
             // stop rotation
             VectorClear(saber->s.apos.trDelta);
             saber->currentAngles[0] = SABER_PITCH_HACK;
@@ -3154,7 +3155,7 @@ void WP_SaberImpact(gentity_t* owner, gentity_t* saber, trace_t* trace)
               (other->client->NPC_class == class_t::CLASS_GALAKMECH &&
                other->client->ps.powerups[powerup_t::PW_GALAK_SHIELD] > 0))) { // Luke, Desann and Tavion slap thrown sabers aside
         WP_SaberDrop(owner, saber);
-        G_Sound(saber, G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str()));
+        G_Sound(saber, sound::SoundClass::Saber, G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str()));
         G_PlayEffect("saber_block", trace->endpos);
         g_saberFlashTime = level.time - 50;
         VectorCopy(trace->endpos, g_saberFlashPos);
@@ -3268,7 +3269,8 @@ void WP_SaberInFlightReflectCheck(gentity_t* self, usercmd_t* ucmd)
                         VectorNormalize2(missile_list[x]->s.pos.trDelta, fx_dir);
                         G_PlayEffect("saber_block", missile_list[x]->currentOrigin, fx_dir);
                         if (missile_list[x]->owner->client->ps.saberInFlight && self->client->ps.saberInFlight) {
-                            G_Sound(missile_list[x], G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str()));
+                            G_Sound(missile_list[x], sound::SoundClass::Saber,
+                                    G_SoundIndex(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str()));
                             g_saberFlashTime = level.time - 50;
                             gentity_t* saber = &g_entities[self->client->ps.saberEntityNum];
                             vec3_t org;
@@ -3697,7 +3699,7 @@ void WP_SaberCatch(gentity_t* self, gentity_t* saber, bool switchToSaber)
         saber->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
         // play catch sound
-        G_Sound(saber, G_SoundIndex("sound/weapons/saber/saber_catch.wav"));
+        G_Sound(saber, sound::SoundClass::Saber, G_SoundIndex("sound/weapons/saber/saber_catch.wav"));
         // FIXME: if an NPC, don't turn it back on if no enemy or enemy is dead...
         // if it's not our current weapon, make it our current weapon
         if (self->client->ps.weapon == weapon_t::WP_SABER) {
@@ -3758,10 +3760,10 @@ void WP_SaberDrop(gentity_t* self, gentity_t* saber)
     self->client->saberTrail.duration = 75;
     // play the saber turning off sound
     if (self->client->playerTeam == team_t::TEAM_PLAYER) {
-        G_SoundOnEnt(saber, soundChannel_t::CHAN_AUTO, "sound/weapons/saber/saberoff.wav");
+        G_SoundOnEnt(saber, sound::SoundClass::Saber, sound::Slot::None, "sound/weapons/saber/saberoff.wav");
     }
     else {
-        G_SoundOnEnt(saber, soundChannel_t::CHAN_AUTO, "sound/weapons/saber/enemy_saber_off.wav");
+        G_SoundOnEnt(saber, sound::SoundClass::Saber, sound::Slot::None, "sound/weapons/saber/enemy_saber_off.wav");
     }
 
     if (self->health <= 0) {        // owner is dead!
@@ -3780,7 +3782,7 @@ void WP_SaberPull(gentity_t* self, gentity_t* saber)
         // take off bounce
         saber->s.eFlags &= entityFlags_t::EF_BOUNCE_HALF;
         // play sound
-        G_Sound(self, G_SoundIndex("sound/weapons/force/pull.wav"));
+        G_Sound(self, sound::SoundClass::Force, G_SoundIndex("sound/weapons/force/pull.wav"));
     }
 }
 
@@ -4679,7 +4681,7 @@ void WP_KnockdownTurret(gentity_t* self, gentity_t* pas)
     // kill it
     pas->count = 0;
     pas->nextthink = -1;
-    G_Sound(pas, G_SoundIndex("sound/chars/turret/shutdown.wav"));
+    G_Sound(pas, sound::SoundClass::Weapon, G_SoundIndex("sound/chars/turret/shutdown.wav"));
     // push effect?
     pas->forcePushTime = level.time + 600; // let the push effect last for 600 ms
 }
@@ -4928,7 +4930,7 @@ void ForceThrow(gentity_t* self, bool pull)
     // do effect... FIXME: build-up or delay this until in proper part of anim
     self->client->ps.powerups[powerup_t::PW_FORCE_PUSH] = level.time + self->client->ps.torsoAnimTimer + 500;
 
-    G_Sound(self, soundIndex);
+    G_Sound(self, sound::SoundClass::Weapon, soundIndex);
 
     VectorCopy(self->client->ps.viewangles, fwdangles);
     // fwdangles[1] = self->client->ps.viewangles[1];
@@ -5371,8 +5373,8 @@ void ForceThrow(gentity_t* self, bool pull)
                         VectorScale(push_list[x]->s.pos.trDelta, 1.25f, push_list[x]->s.pos.trDelta);
                     }
                     // deflect sound
-                    // G_Sound( push_list[x], G_SoundIndex( Q_Format("sound/weapons/blaster/reflect{}.wav", Q_irand( 1, 3 )).c_str() ) );
-                    // push_list[x]->forcePushTime = level.time + 600; // let the push effect last for 600 ms
+                    // G_Sound(push_list[x], sound::SoundClass::Weapon, G_SoundIndex( Q_Format("sound/weapons/blaster/reflect{}.wav", Q_irand( 1, 3 )).c_str()
+                    // )); push_list[x]->forcePushTime = level.time + 600; // let the push effect last for 600 ms
                 }
             }
             else if (Any(push_list[x]->svFlags & svFlags_t::SVF_GLASS_BRUSH)) { // break the glass
@@ -5650,7 +5652,7 @@ void ForceSpeed(gentity_t* self, int duration)
     if (duration) {
         self->client->ps.forcePowerDuration[forcePowers_t::FP_SPEED] = level.time + duration;
     }
-    G_Sound(self, G_SoundIndex("sound/weapons/force/speed.wav"));
+    G_Sound(self, sound::SoundClass::Force, G_SoundIndex("sound/weapons/force/speed.wav"));
 }
 
 void ForceHeal(gentity_t* self)
@@ -5689,7 +5691,7 @@ void ForceHeal(gentity_t* self)
         }
         self->health += max;
         WP_ForcePowerDrain( self, forcePowers_t::FP_HEAL, max );
-        G_SoundOnEnt( self, soundChannel_t::CHAN_VOICE, Q_Format("sound/weapons/force/heal{}.mp3", Q_irand( 1, 4 )).c_str() );
+        G_SoundOnEnt(self, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/weapons/force/heal{}.mp3", Q_irand( 1, 4 )).c_str());
     }
     else
     */
@@ -5708,10 +5710,10 @@ void ForceHeal(gentity_t* self)
             if (self->client->ps.saberActive) {
                 self->client->ps.saberActive = false; // turn off saber when meditating
                 if (self->client->playerTeam == team_t::TEAM_PLAYER) {
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_WEAPON, "sound/weapons/saber/saberoff.wav");
+                    G_SoundOnEnt(self, sound::SoundClass::Saber, sound::Slot::Weapon, "sound/weapons/saber/saberoff.wav");
                 }
                 else {
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_WEAPON, "sound/weapons/saber/enemy_saber_off.wav");
+                    G_SoundOnEnt(self, sound::SoundClass::Saber, sound::Slot::Weapon, "sound/weapons/saber/enemy_saber_off.wav");
                 }
             }
         }
@@ -5726,7 +5728,7 @@ void ForceHeal(gentity_t* self)
     }
 
     // FIXME: always play healing effect
-    G_SoundOnEnt(self, soundChannel_t::CHAN_ITEM, "sound/weapons/force/heal.mp3");
+    G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::Item, "sound/weapons/force/heal.mp3");
 }
 
 extern void NPC_PlayConfusionSound(gentity_t* self);
@@ -6084,7 +6086,7 @@ void ForceGrip(gentity_t* self)
                 else {
                     // turn it off?
                     traceEnt->client->ps.saberActive = false;
-                    G_SoundOnEnt(traceEnt, soundChannel_t::CHAN_WEAPON, "sound/weapons/saber/saberoffquick.wav");
+                    G_SoundOnEnt(traceEnt, sound::SoundClass::Saber, sound::Slot::Weapon, "sound/weapons/saber/saberoffquick.wav");
                 }
             }
         }
@@ -6154,10 +6156,10 @@ void ForceLightning(gentity_t* self)
     self->client->ps.saberMove = self->client->ps.saberBounceMove = saberMoveName_t::LS_READY; // don't finish whatever saber anim you may have been in
     self->client->ps.saberBlocked = saberBlockedType_t::BLOCKED_NONE;
 
-    G_SoundOnEnt(self, soundChannel_t::CHAN_BODY, "sound/weapons/force/lightning.wav");
+    G_SoundOnEnt(self, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/lightning.wav");
     if (self->client->ps.forcePowerLevel[forcePowers_t::FP_LIGHTNING] <
         forcePowerLevels_t::FORCE_LEVEL_2) { // short burst
-                                             // G_SoundOnEnt( self, soundChannel_t::CHAN_BODY, "sound/weapons/force/lightning.wav" );
+                                             // G_SoundOnEnt(self, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/lightning.wav");
     }
     else { // holding it
         self->s.loopSound = G_SoundIndex("sound/weapons/force/lightning2.wav");
@@ -6229,7 +6231,7 @@ void ForceLightningDamage(gentity_t* self, gentity_t* traceEnt, vec3_t dir, floa
             G_Damage(traceEnt, self, self, dir, impactPoint, dmg, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_ELECTROCUTE);
             if (traceEnt->client) {
                 if (!Q_irand(0, 2)) {
-                    G_Sound(traceEnt, G_SoundIndex(Q_Format("sound/weapons/force/lightninghit{}.wav", Q_irand(1, 3)).c_str()));
+                    G_Sound(traceEnt, sound::SoundClass::Force, G_SoundIndex(Q_Format("sound/weapons/force/lightninghit{}.wav", Q_irand(1, 3)).c_str()));
                 }
                 traceEnt->s.powerups |= Bit(powerup_t::PW_SHOCKED);
 
@@ -6391,7 +6393,7 @@ void ForceJumpCharge(gentity_t* self, usercmd_t* ucmd)
 
     // need to play sound
     if (!self->client->ps.forceJumpCharge) { // FIXME: this should last only as long as the actual charge-up
-        G_SoundOnEnt(self, soundChannel_t::CHAN_BODY, "sound/weapons/force/jumpbuild.wav");
+        G_SoundOnEnt(self, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jumpbuild.wav");
     }
     // Increment
     self->client->ps.forceJumpCharge += forceJumpChargeInterval;
@@ -6488,7 +6490,7 @@ void ForceJump(gentity_t* self, usercmd_t* ucmd)
         return;
     }
 
-    G_SoundOnEnt(self, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+    G_SoundOnEnt(self, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
 
     float forceJumpChargeInterval = forceJumpStrength[self->client->ps.forcePowerLevel[forcePowers_t::FP_LEVITATION]] / (FORCE_JUMP_CHARGE_TIME / FRAMETIME);
 
@@ -6876,7 +6878,7 @@ static void WP_ForcePowerRun(gentity_t* self, forcePowers_t forcePower, usercmd_
         if (self->client->ps.forceHealCount >= MAX_FORCE_HEAL ||
             self->health >= self->client->ps.stats[statIndex_t::STAT_MAX_HEALTH]) { // fully healed or used up all 25
             if (!Q3_TaskIDPending(self, taskID_t::TID_CHAN_VOICE)) {
-                G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, Q_Format("sound/weapons/force/heal{}.mp3", Q_irand(1, 4)).c_str());
+                G_SoundOnEnt(self, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/weapons/force/heal{}.mp3", Q_irand(1, 4)).c_str());
             }
             WP_ForcePowerStop(self, forcePower);
         }

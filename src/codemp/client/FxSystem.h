@@ -68,18 +68,27 @@ public:
     }
     inline void CloseFile(fileHandle_t fh) { FS_FCloseFile(fh); }
 
-    // Sound
-    inline void PlaySound(vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfxHandle, int volume, int radius)
+    // Sound: an effect's sound is a sound of the world, heard from the effect's point; a local one at the listener, at the
+    // volume the listener's own sounds always had
+    inline void PlaySound(const vec3_t origin, sfxHandle_t sfxHandle)
     {
-        // S_StartSound( origin, ENTITYNUM_NONE, soundChannel_t::CHAN_AUTO, sfxHandle, volume, radius );
-        S_StartSound(origin, ENTITYNUM_NONE, soundChannel_t::CHAN_AUTO, sfxHandle);
+        sound::Request request;
+        request.sound = sfxHandle;
+        request.soundClass = sound::SoundClass::World;
+        request.place = sound::Place::Point;
+        request.origin = {origin[0], origin[1], origin[2]};
+        SND_Api().Play(request);
     }
-    inline void PlayLocalSound(sfxHandle_t sfxHandle, soundChannel_t entchannel)
+    inline void PlayLocalSound(sfxHandle_t sfxHandle)
     {
-        // S_StartSound( origin, ENTITYNUM_NONE, soundChannel_t::CHAN_AUTO, sfxHandle, volume, radius );
-        S_StartLocalSound(sfxHandle, entchannel);
+        sound::Request request;
+        request.sound = sfxHandle;
+        request.soundClass = sound::SoundClass::World;
+        request.place = sound::Place::Listener;
+        request.volume = 0.75f;
+        SND_Api().Play(request);
     }
-    inline int RegisterSound(const char* sound) { return S_RegisterSound(sound); }
+    inline int RegisterSound(const char* sound) { return SND_Api().Register(sound); }
 
     // Physics/collision
     inline void Trace(trace_t& tr, vec3_t start, vec3_t min, vec3_t max, vec3_t end, int skipEntNum, contentsFlags_t flags)

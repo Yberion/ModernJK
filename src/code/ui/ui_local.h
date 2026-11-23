@@ -237,9 +237,6 @@ void trap_R_SetColor(const float* rgba);
 void trap_R_ClearScene(void);
 void trap_R_AddRefEntityToScene(const refEntity_t* re);
 void trap_R_RenderScene(const refdef_t* fd);
-void trap_S_StopSounds(void);
-sfxHandle_t trap_S_RegisterSound(const char* sample, bool compressed);
-void trap_S_StartLocalSound(sfxHandle_t sfx, soundChannel_t channelNum);
 
 void _UI_Refresh(int realtime);
 

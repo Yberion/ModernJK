@@ -972,8 +972,8 @@ void target_level_change_use(gentity_t* self, gentity_t* other, gentity_t* activ
             }
         }
         if (self->noise_index) {
-            cgi_S_StopSounds();
-            cgi_S_StartSound(nullptr, 0, soundChannel_t::CHAN_VOICE, cgs.sound_precache[self->noise_index]);
+            gi.sound->StopSounds();
+            CG_StartSound(nullptr, 0, sound::SoundClass::Voice, sound::Slot::Voice, cgs.sound_precache[self->noise_index]);
         }
     }
 
@@ -1146,10 +1146,10 @@ void target_secret_use(gentity_t* self, gentity_t* other, gentity_t* activator)
     gclient_t* const client = &level.clients[0];
     client->sess.missionStats.secretsFound++;
     if (activator) {
-        G_Sound(activator, self->noise_index);
+        G_Sound(activator, sound::SoundClass::World, self->noise_index);
     }
     else {
-        G_Sound(self, self->noise_index);
+        G_Sound(self, sound::SoundClass::World, self->noise_index);
     }
     gi.SendServerCommand(0, "cp @SP_INGAME_SECRET_AREA");
     if (client->sess.missionStats.secretsFound > client->sess.missionStats.totalSecrets)

@@ -251,7 +251,7 @@ void CG_CaptionText(const char* str, int sound)
     //	s="Wp:¼îÅ¸ÀÓÀÌ´Ù ¸Ö¸°. ±×µéÀÌ ¸»ÇÑ´ë·Î ³×°¡ ÀßÇÒÁö ±â´ëÇÏ°Ú´Ù.¼îÅ¸ÀÓÀÌ´Ù ¸Ö¸°. ±×µéÀÌ ¸»ÇÑ´ë·Î ³×°¡ ÀßÇÒÁö ±â´ëÇÏ°Ú´Ù.";
     holds = s;
 
-    int iPlayingTimeMS = cgi_S_GetSampleLength(sound);
+    int iPlayingTimeMS = gi.sound->Length(sound);
     int iLengthInChars = strlen(s); // cgi_R_Font_StrLenChars(s);	// strlen is also good for MBCS in this instance, since it's for timing
     if (iLengthInChars == 0) {
         iLengthInChars = 1;

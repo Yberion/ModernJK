@@ -173,7 +173,7 @@ void Seeker_Strafe(void)
             float vel = SEEKER_STRAFE_VEL;
             float upPush = SEEKER_UPWARD_PUSH;
             if (NPC->client->NPC_class != class_t::CLASS_BOBAFETT) {
-                G_Sound(NPC, G_SoundIndex("sound/chars/seeker/misc/hiss"));
+                G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/seeker/misc/hiss"));
             }
             else {
                 vel *= 3.0f;
@@ -214,7 +214,7 @@ void Seeker_Strafe(void)
 
             float upPush = SEEKER_UPWARD_PUSH;
             if (NPC->client->NPC_class != class_t::CLASS_BOBAFETT) {
-                G_Sound(NPC, G_SoundIndex("sound/chars/seeker/misc/hiss"));
+                G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/seeker/misc/hiss"));
             }
             else {
                 upPush *= 4.0f;
@@ -433,7 +433,7 @@ void Seeker_FollowPlayer(void)
         if (NPC->client->NPC_class != class_t::CLASS_BOBAFETT) {
             if (TIMER_Done(NPC, "seekerhiss")) {
                 TIMER_Set(NPC, "seekerhiss", 1000 + Q_flrand(0.0f, 1.0f) * 1000);
-                G_Sound(NPC, G_SoundIndex("sound/chars/seeker/misc/hiss"));
+                G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/seeker/misc/hiss"));
             }
         }
 

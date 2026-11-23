@@ -1809,7 +1809,7 @@ void thermalDetonatorExplode(gentity_t* ent)
 //---------------------------------------------------------
 {
     if (!ent->count) {
-        G_Sound(ent, soundChannel_t::CHAN_WEAPON, G_SoundIndex("sound/weapons/thermal/warning.wav"));
+        G_Sound(ent, sound::SoundClass::Weapon, sound::Slot::Weapon, G_SoundIndex("sound/weapons/thermal/warning.wav"));
         ent->count = 1;
         ent->genericValue5 = level.time + 500;
         ent->think = thermalThinkStandard;
@@ -2190,7 +2190,7 @@ void laserTrapThink(gentity_t* ent)
 
     // turn on the beam effect
     if (!Any(ent->s.eFlags & entityFlags_t::EF_FIRING)) { // arm me
-        G_Sound(ent, soundChannel_t::CHAN_WEAPON, G_SoundIndex("sound/weapons/laser_trap/warning.wav"));
+        G_Sound(ent, sound::SoundClass::Weapon, sound::Slot::Weapon, G_SoundIndex("sound/weapons/laser_trap/warning.wav"));
         ent->s.eFlags |= entityFlags_t::EF_FIRING;
     }
     ent->think = laserTrapThink;
@@ -2230,7 +2230,7 @@ void laserTrapStick(gentity_t* ent, vec3_t endpos, vec3_t normal)
     VectorCopy(ent->s.apos.trBase, ent->s.angles);
     VectorCopy(ent->s.angles, ent->r.currentAngles);
 
-    G_Sound(ent, soundChannel_t::CHAN_WEAPON, G_SoundIndex("sound/weapons/laser_trap/stick.wav"));
+    G_Sound(ent, sound::SoundClass::Weapon, sound::Slot::Weapon, G_SoundIndex("sound/weapons/laser_trap/stick.wav"));
     if (ent->count) { // a tripwire
         // add draw line flag
         VectorCopy(normal, ent->movedir);
@@ -2268,7 +2268,7 @@ void laserTrapStick(gentity_t* ent, vec3_t endpos, vec3_t normal)
         ent->r.svFlags |= svFlags_t::SVF_OWNERNOTSHARED;
 
         if (!Any(ent->s.eFlags & entityFlags_t::EF_FIRING)) { // arm me
-            G_Sound(ent, soundChannel_t::CHAN_WEAPON, G_SoundIndex("sound/weapons/laser_trap/warning.wav"));
+            G_Sound(ent, sound::SoundClass::Weapon, sound::Slot::Weapon, G_SoundIndex("sound/weapons/laser_trap/warning.wav"));
             ent->s.eFlags |= entityFlags_t::EF_FIRING;
             ent->s.time = -1;
             ent->s.bolt2 = 1;
@@ -2529,7 +2529,7 @@ void charge_stick(gentity_t* self, gentity_t* other, trace_t* trace)
     VectorCopy(trace->plane.normal, self->pos2);
     self->count = -1;
 
-    G_Sound(self, soundChannel_t::CHAN_WEAPON, G_SoundIndex("sound/weapons/detpack/stick.wav"));
+    G_Sound(self, sound::SoundClass::Weapon, sound::Slot::Weapon, G_SoundIndex("sound/weapons/detpack/stick.wav"));
 
     tent = G_TempEntity(self->r.currentOrigin, entity_event_t::EV_MISSILE_MISS);
     tent->s.weapon = weapon_t::WP_NONE;
@@ -2659,7 +2659,7 @@ void BlowDetpacks(gentity_t* ent)
                 VectorCopy(found->r.currentOrigin, found->s.origin);
                 found->think = DetPackBlow;
                 found->nextthink = level.time + 100 + Q_flrand(0.0f, 1.0f) * 200;
-                G_Sound(found, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/detpack/warning.wav"));
+                G_Sound(found, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex("sound/weapons/detpack/warning.wav"));
             }
         }
         ent->client->ps.hasDetPackPlanted = false;
@@ -2675,7 +2675,7 @@ void RemoveDetpacks(gentity_t* ent)
                 VectorCopy(found->r.currentOrigin, found->s.origin);
                 found->think = G_FreeEntity;
                 found->nextthink = level.time;
-                //	G_Sound( found, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/detpack/warning.wav") );
+                //	G_Sound(found, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex("sound/weapons/detpack/warning.wav"));
             }
         }
         ent->client->ps.hasDetPackPlanted = false;
@@ -3094,7 +3094,7 @@ void WP_FireStunBaton(gentity_t* ent, bool alt_fire)
     if (tr_ent && tr_ent->takedamage) {
         G_PlayEffect(effectTypes_t::EFFECT_STUNHIT, tr.endpos, tr.plane.normal);
 
-        G_Sound(tr_ent, soundChannel_t::CHAN_WEAPON, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
+        G_Sound(tr_ent, sound::SoundClass::Weapon, sound::Slot::Weapon, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
         G_Damage(tr_ent, ent, ent, forward, tr.endpos, STUN_BATON_DAMAGE, (damageFlags_t::DAMAGE_NO_KNOCKBACK | damageFlags_t::DAMAGE_HALF_ABSORB),
                  meansOfDeath_t::MOD_STUN_BATON);
 
@@ -3155,7 +3155,7 @@ void WP_FireMelee(gentity_t* ent, bool alt_fire)
     if (tr.entityNum != ENTITYNUM_NONE) { // hit something
         tr_ent = &g_entities[tr.entityNum];
 
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
+        G_Sound(ent, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
 
         if (tr_ent->takedamage && tr_ent->client) { // special duel checks
             if (tr_ent->client->ps.duelInProgress && tr_ent->client->ps.duelIndex != ent->s.number) {

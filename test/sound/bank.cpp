@@ -78,14 +78,14 @@ void TestRegister(const std::filesystem::path& data)
     // one handle per name, whatever its case and extension
     CHECK_EQUAL(bank.Register("SOUND/x/Stereo44k_s16.mp3"), stereo);
 
-    // a missing file: kNoSound and one warning, its name not looked for again
-    const std::size_t warnings = host.Count(sound::Message::Warning);
+    // a missing file: kNoSound and one developer's message, its name not looked for again
+    const std::size_t debugs = host.Count(sound::Message::Debug);
     CHECK_EQUAL(bank.Register("sound/missing"), sound::kNoSound);
-    CHECK_EQUAL(host.Count(sound::Message::Warning), warnings + 1);
+    CHECK_EQUAL(host.Count(sound::Message::Debug), debugs + 1);
     host.asked.clear();
     CHECK_EQUAL(bank.Register("sound/missing"), sound::kNoSound);
     CHECK(host.asked.empty());
-    CHECK_EQUAL(host.Count(sound::Message::Warning), warnings + 1);
+    CHECK_EQUAL(host.Count(sound::Message::Debug), debugs + 1);
     CHECK_EQUAL(bank.Register("*pain"), sound::kNoSound);
 
     // a voice in German looked for in sound/chr_d/ first

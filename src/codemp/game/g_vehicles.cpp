@@ -328,7 +328,7 @@ bool Board(Vehicle_t* pVeh, bgEntity_t* pEnt)
             if ((gParent->spawnflags & 2)) { // was being suspended
                 gParent->spawnflags &= ~2;   // SUSPENDED - clear this spawnflag, no longer docked, okay to free-fall if not in space
                 // gParent->client->ps.eFlags &= ~entityFlags_t::EF_RADAROBJECT;
-                G_Sound(gParent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/vehicles/common/release.wav"));
+                G_Sound(gParent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/vehicles/common/release.wav"));
                 if (gParent->fly_sound_debounce_time) { // we should drop like a rock for a few seconds
                     pVeh->m_iDropTime = level.time + gParent->fly_sound_debounce_time;
                 }
@@ -408,7 +408,7 @@ bool Board(Vehicle_t* pVeh, bgEntity_t* pEnt)
 
     // Play the start sounds
     if (pVeh->m_pVehicleInfo->soundOn) {
-        G_Sound(parent, soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundOn);
+        G_Sound(parent, sound::SoundClass::World, sound::Slot::None, pVeh->m_pVehicleInfo->soundOn);
     }
 
 #ifdef VEH_CONTROL_SCHEME_4
@@ -535,7 +535,7 @@ void G_EjectDroidUnit(Vehicle_t* pVeh, bool kill)
         }
         if (kill) { // Kill them, too
             // FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
-            G_MuteSound(droidEnt->s.number, soundChannel_t::CHAN_VOICE);
+            G_MuteSound(droidEnt->s.number, sound::Slot::Voice);
             G_Damage(droidEnt, nullptr, nullptr, nullptr, droidEnt->s.origin, 10000, damageFlags_t::DAMAGE_NORMAL,
                      meansOfDeath_t::MOD_SUICIDE); // FIXME: proper MOD?  Get from vehicle?
         }
@@ -814,7 +814,7 @@ bool EjectAll(Vehicle_t* pVeh)
 #ifdef _GAME
         if (pVeh->m_pVehicleInfo->killRiderOnDeath && pilot) { // Kill them, too
             // FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
-            G_MuteSound(pilot->s.number, soundChannel_t::CHAN_VOICE);
+            G_MuteSound(pilot->s.number, sound::Slot::Voice);
             G_Damage(pilot, nullptr, nullptr, nullptr, pilot->s.origin, 10000, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_SUICIDE);
         }
 #endif
@@ -827,7 +827,7 @@ bool EjectAll(Vehicle_t* pVeh)
 #ifdef _GAME
         if (pVeh->m_pVehicleInfo->killRiderOnDeath && pilot) { // Kill them, too
             // FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
-            G_MuteSound(pilot->s.number, soundChannel_t::CHAN_VOICE);
+            G_MuteSound(pilot->s.number, sound::Slot::Voice);
             G_Damage(pilot, nullptr, nullptr, nullptr, pilot->s.origin, 10000, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_SUICIDE);
         }
 #endif
@@ -844,7 +844,7 @@ bool EjectAll(Vehicle_t* pVeh)
 #ifdef _GAME
                 if (pVeh->m_pVehicleInfo->killRiderOnDeath && rider) { // Kill them, too
                     // FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
-                    G_MuteSound(rider->s.number, soundChannel_t::CHAN_VOICE);
+                    G_MuteSound(rider->s.number, sound::Slot::Voice);
                     G_Damage(rider, nullptr, nullptr, nullptr, rider->s.origin, 10000, damageFlags_t::DAMAGE_NORMAL,
                              meansOfDeath_t::MOD_SUICIDE); // FIXME: proper MOD?  Get from vehicle?
                 }
@@ -2070,7 +2070,7 @@ bool G_FlyVehicleDestroySurface(gentity_t* veh, int surface)
 
     if (!Any(veh->m_pVehicle->m_iRemovedSurfaces)) { // first time something got blown off
         if (veh->m_pVehicle->m_pPilot) {             // make the pilot scream to his death
-            G_EntitySound((gentity_t*)veh->m_pVehicle->m_pPilot, soundChannel_t::CHAN_VOICE, G_SoundIndex("*falling1.wav"));
+            G_EntitySound((gentity_t*)veh->m_pVehicle->m_pPilot, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("*falling1.wav"));
         }
     }
     // so we can check what's broken

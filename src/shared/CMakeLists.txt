@@ -95,7 +95,7 @@ endif()
 if(modernjk_BUILD_MP_CLIENT OR modernjk_BUILD_SP OR modernjk_BUILD_JK2)
 	add_library(modernjk_sys_client INTERFACE)
 	target_sources(modernjk_sys_client INTERFACE sys/sys_main.cpp sys/sys_event.cpp sys/con_log.cpp sdl/sdl_window.cpp
-		sdl/sdl_input.cpp sdl/sdl_sound.cpp)
+		sdl/sdl_input.cpp)
 	if(WIN32)
 		target_sources(modernjk_sys_client INTERFACE sys/sys_win32.cpp sys/con_passive.cpp sys/win_manifest.manifest)
 		target_link_libraries(modernjk_sys_client INTERFACE SDL2::SDL2main SDL2::SDL2 winmm)

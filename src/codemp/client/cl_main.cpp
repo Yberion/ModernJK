@@ -36,7 +36,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cl_cgameapi.h"
 #include "cl_uiapi.h"
 #include "cl_lan.h"
-#include "snd_local.h"
 #include <shared/sys/sys_loadlib.h>
 
 cvar_t* cl_renderer;
@@ -59,10 +58,6 @@ cvar_t* cl_freezeDemo;
 cvar_t* cl_shownet;
 cvar_t* cl_showSend;
 cvar_t* cl_timedemo;
-cvar_t* cl_aviFrameRate;
-cvar_t* cl_aviMotionJpeg;
-cvar_t* cl_avi2GBLimit;
-cvar_t* cl_forceavidemo;
 
 cvar_t* cl_freelook;
 cvar_t* cl_sensitivity;
@@ -344,7 +339,7 @@ void CL_DemoCompleted(void)
     // I'm not sure why it ever worked in TA, but whatever. This code will bring us back to the main menu
     // after a demo is finished playing instead.
     CL_Disconnect_f();
-    S_StopAllSounds();
+    SND_StopAll();
     UIVM_SetActiveMenu(uiMenuCommand_t::UIMENU_MAIN);
 
     CL_NextDemo();
@@ -529,9 +524,6 @@ CL_ShutdownAll
 */
 void CL_ShutdownAll(bool shutdownRef)
 {
-    if (CL_VideoRecording())
-        CL_CloseAVI();
-
     if (clc.demorecording)
         CL_StopRecord_f();
 
@@ -541,7 +533,7 @@ void CL_ShutdownAll(bool shutdownRef)
 #endif
 
     // clear sounds
-    S_DisableSounds();
+    SND_StopAll();
     // shutdown CGame
     CL_ShutdownCGame();
     // shutdown UI
@@ -647,7 +639,7 @@ Called before parsing a gamestate
 void CL_ClearState(void)
 {
 
-    //	S_StopAllSounds();
+    //	SND_StopAll();
     Com_Memset(&cl, 0, sizeof(cl));
     CL_NetcodecReset(); // its frames point into cl.snapshots and cl.parseEntities
 }
@@ -730,7 +722,6 @@ void CL_Disconnect(bool showMainMenu)
     }
 
     SCR_StopCinematic();
-    S_ClearSoundBuffer();
 
     // send a disconnect message to the server
     // send it a few times in case one is dropped
@@ -757,13 +748,6 @@ void CL_Disconnect(bool showMainMenu)
 
     // not connected to a pure server anymore
     cl_connectedToPureServer = false;
-
-    // Stop recording any video
-    if (CL_VideoRecording()) {
-        // Finish rendering current frame
-        SCR_UpdateScreen();
-        CL_CloseAVI();
-    }
 
     CL_UpdateGUID(nullptr, 0);
 }
@@ -1112,11 +1096,6 @@ doesn't know what graphics to reload
 extern bool g_nOverrideChecked;
 void CL_Vid_Restart_f(void)
 {
-    // Settings may have changed so stop recording now
-    if (CL_VideoRecording()) {
-        CL_CloseAVI();
-    }
-
     if (clc.demorecording)
         CL_StopRecord_f();
 
@@ -1126,7 +1105,7 @@ void CL_Vid_Restart_f(void)
     g_nOverrideChecked = false;
 
     // don't let them loop during the restart
-    S_StopAllSounds();
+    SND_StopAll();
     // shutdown the UI
     CL_ShutdownUI();
     // shutdown the CGame
@@ -1178,27 +1157,12 @@ void CL_Vid_Restart_f(void)
 =================
 CL_Snd_Restart_f
 
-Restart the sound subsystem
-The cgame and game must also be forced to restart because
-handles will be invalid
+Restart the sound subsystem: the sounds registered keep their handles, so the cgame and the UI go on
 =================
 */
-// extern void S_UnCacheDynamicMusic( void );
 void CL_Snd_Restart_f(void)
 {
-    S_Shutdown();
-    S_Init();
-
-    //	S_FreeAllSFXMem();			// These two removed by BTO (VV)
-    //	S_UnCacheDynamicMusic();	// S_Shutdown() already does this!
-
-    //	CL_Vid_Restart_f();
-
-    extern bool s_soundMuted;
-    s_soundMuted = false; // we can play again
-
-    extern void S_RestartMusic(void);
-    S_RestartMusic();
+    SND_Restart();
 }
 
 /*
@@ -2084,8 +2048,6 @@ static float avgFrametime = 0.0;
 extern void SE_CheckForLanguageUpdates(void);
 void CL_Frame(int msec)
 {
-    bool takeVideoFrame = false;
-
     if (!com_cl_running->integer) {
         return;
     }
@@ -2095,20 +2057,8 @@ void CL_Frame(int msec)
 
     if (cls.state == connstate_t::CA_DISCONNECTED && !Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI) && !com_sv_running->integer && cls.uiStarted) {
         // if disconnected, bring up the menu
-        S_StopAllSounds();
+        SND_StopAll();
         UIVM_SetActiveMenu(uiMenuCommand_t::UIMENU_MAIN);
-    }
-
-    // if recording an avi, lock to a fixed fps
-    if (CL_VideoRecording() && cl_aviFrameRate->integer && msec) {
-        if (cls.state == connstate_t::CA_ACTIVE || cl_forceavidemo->integer) {
-            float fps = Q_min(cl_aviFrameRate->value * com_timescale->value, 1000.0f);
-            float frameDuration = Q_max(1000.0f / fps, 1.0f) + clc.aviVideoFrameRemainder;
-            takeVideoFrame = true;
-
-            msec = (int)frameDuration;
-            clc.aviVideoFrameRemainder = frameDuration - msec;
-        }
     }
 
     // save the msec before checking pause
@@ -2155,7 +2105,7 @@ void CL_Frame(int msec)
     SCR_UpdateScreen();
 
     // update audio
-    S_Update();
+    SND_Frame(cls.realtime);
 
     // advance local effects for next frame
     SCR_RunCinematic();
@@ -2168,11 +2118,6 @@ void CL_Frame(int msec)
     }
 
     cls.framecount++;
-
-    if (takeVideoFrame) {
-        // save the current screen
-        CL_TakeVideoFrame();
-    }
 }
 
 //============================================================================
@@ -2246,12 +2191,12 @@ void CL_StartHunkUsers(void)
 
     if (!cls.soundStarted) {
         cls.soundStarted = true;
-        S_Init();
+        SND_Init();
     }
 
     if (!cls.soundRegistered) {
         cls.soundRegistered = true;
-        S_BeginRegistration();
+        SND_BeginRegistration();
     }
 
     if (!cls.uiStarted) {
@@ -2388,12 +2333,9 @@ void CL_InitRef(void)
     ri.CM_PointLeafnum = CM_PointLeafnum;
     ri.CM_PointContents = CM_PointContents;
     ri.Com_TheHunkMarkHasBeenMade = Com_TheHunkMarkHasBeenMade;
-    ri.S_RestartMusic = S_RestartMusic;
-    ri.SND_RegisterAudio_LevelLoadEnd = SND_RegisterAudio_LevelLoadEnd;
     ri.CIN_RunCinematic = CIN_RunCinematic;
     ri.CIN_PlayCinematic = CIN_PlayCinematic;
     ri.CIN_UploadCinematic = CIN_UploadCinematic;
-    ri.CL_WriteAVIVideoFrame = CL_WriteAVIVideoFrame;
 
     // g2 data access
     ri.GetSharedMemory = GetSharedMemory;
@@ -2473,65 +2415,6 @@ void CL_SetModel_f(void)
 void CL_SetForcePowers_f(void)
 {
     return;
-}
-
-/*
-==================
-CL_VideoFilename
-==================
-*/
-void CL_VideoFilename(char* buf, int bufSize)
-{
-    time_t rawtime;
-    char timeStr[32] = {0}; // should really only reach ~19 chars
-
-    time(&rawtime);
-    strftime(timeStr, sizeof(timeStr), "%Y-%m-%d_%H-%M-%S", localtime(&rawtime)); // or gmtime
-
-    Q_FormatTo(std::span(buf, bufSize), "videos/video{}.avi", timeStr);
-}
-
-/*
-===============
-CL_Video_f
-
-video
-video [filename]
-===============
-*/
-void CL_Video_f(void)
-{
-    char filename[MAX_OSPATH];
-
-    if (!clc.demoplaying) {
-        Q_Println("The video command can only be used when playing back demos");
-        return;
-    }
-
-    if (Cmd_Argc() == 2) {
-        // explicit filename
-        Q_FormatTo(std::span(filename, MAX_OSPATH), "videos/{}.avi", Cmd_Argv(1));
-    }
-    else {
-        CL_VideoFilename(filename, MAX_OSPATH);
-
-        if (FS_FileExists(filename)) {
-            Q_Println("Video: Couldn't create a file");
-            return;
-        }
-    }
-
-    CL_OpenAVIForWriting(filename);
-}
-
-/*
-===============
-CL_StopVideo_f
-===============
-*/
-void CL_StopVideo_f(void)
-{
-    CL_CloseAVI();
 }
 
 static void CL_AddFavorite_f(void)
@@ -2646,10 +2529,6 @@ void CL_Init(void)
     cl_activeAction = Cvar_Get("activeAction", "", cvarFlags_t::CVAR_TEMP);
 
     cl_timedemo = Cvar_Get("timedemo", "0", cvarFlags_t::CVAR_NONE);
-    cl_aviFrameRate = Cvar_Get("cl_aviFrameRate", "25", cvarFlags_t::CVAR_ARCHIVE);
-    cl_aviMotionJpeg = Cvar_Get("cl_aviMotionJpeg", "1", cvarFlags_t::CVAR_ARCHIVE);
-    cl_avi2GBLimit = Cvar_Get("cl_avi2GBLimit", "1", cvarFlags_t::CVAR_ARCHIVE);
-    cl_forceavidemo = Cvar_Get("cl_forceavidemo", "0", cvarFlags_t::CVAR_NONE);
 
     rconAddress = Cvar_Get("rconAddress", "", cvarFlags_t::CVAR_NONE, "Alternate server address to remotely access via rcon protocol");
 
@@ -2775,8 +2654,6 @@ void CL_Init(void)
     Cmd_AddCommand("fs_referencedList", CL_ReferencedPK3List_f, "Lists referenced pak files");
     Cmd_AddCommand("model", CL_SetModel_f, "Set the player model");
     Cmd_AddCommand("forcepowers", CL_SetForcePowers_f);
-    Cmd_AddCommand("video", CL_Video_f, "Record demo to avi");
-    Cmd_AddCommand("stopvideo", CL_StopVideo_f, "Stop avi recording");
 
     CL_InitRef();
 
@@ -2822,7 +2699,7 @@ void CL_Shutdown(void)
     // RJ: added the shutdown all to close down the cgame (to free up some memory, such as in the fx system)
     CL_ShutdownAll(true);
 
-    S_Shutdown();
+    SND_Shutdown();
     // CL_ShutdownUI();
 
     Cmd_RemoveCommand("cmd");
@@ -2849,8 +2726,6 @@ void CL_Shutdown(void)
     Cmd_RemoveCommand("fs_referencedList");
     Cmd_RemoveCommand("model");
     Cmd_RemoveCommand("forcepowers");
-    Cmd_RemoveCommand("video");
-    Cmd_RemoveCommand("stopvideo");
 
     CL_ShutdownInput();
     Con_Shutdown();

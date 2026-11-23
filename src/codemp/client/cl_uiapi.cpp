@@ -26,7 +26,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 #include "cl_lan.h"
 #include <botlib/botlib.h>
-#include "snd_ambient.h"
 #include "FXExport.h"
 #include "FxUtil.h"
 
@@ -725,10 +724,7 @@ void CL_BindUI(void)
         uii.LAN_ServerStatus = LAN_GetServerStatus;
         uii.LAN_UpdateVisiblePings = LAN_UpdateVisiblePings;
 
-        uii.S_StartBackgroundTrack = S_StartBackgroundTrack;
-        uii.S_StartLocalSound = S_StartLocalSound;
-        uii.S_StopBackgroundTrack = S_StopBackgroundTrack;
-        uii.S_RegisterSound = S_RegisterSound;
+        uii.sound = &SND_Api();
 
         uii.SE_GetLanguageName = CL_SE_GetLanguageName;
         uii.SE_GetNumLanguages = SE_GetNumLanguages;

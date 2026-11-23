@@ -68,22 +68,6 @@ void trap_R_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs)
     ui.R_ModelBounds(model, mins, maxs);
 }
 
-void trap_S_StartLocalSound(sfxHandle_t sfx, soundChannel_t channelNum)
-{
-    //	syscall( uiImport_t::UI_S_STARTLOCALSOUND, sfx, channelNum );
-    S_StartLocalSound(sfx, channelNum);
-}
-
-void trap_S_StopSounds(void)
-{
-    S_StopSounds();
-}
-
-sfxHandle_t trap_S_RegisterSound(const char* sample, bool compressed)
-{
-    return S_RegisterSound(sample);
-}
-
 void trap_Key_SetBinding(fakeAscii_t keynum, const char* binding)
 {
     Key_SetBinding(keynum, binding);

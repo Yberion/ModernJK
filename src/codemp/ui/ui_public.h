@@ -26,7 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <ghoul2/G2.h>
 
-inline constexpr int UI_API_VERSION = 5;
+#include <shared/sound/sound.h>
+
+inline constexpr int UI_API_VERSION = 6;
 
 enum class fakeAscii_t; // keycodes.h
 
@@ -141,10 +143,8 @@ typedef struct uiImport_s {
     int (*LAN_ServerStatus)(const char* serverAddress, char* serverStatus, int maxLen);
     bool (*LAN_UpdateVisiblePings)(lanSource_t source);
 
-    void (*S_StartBackgroundTrack)(const char* intro, const char* loop, bool bReturnWithoutStarting);
-    void (*S_StartLocalSound)(sfxHandle_t sfx, soundChannel_t channelNum);
-    void (*S_StopBackgroundTrack)(void);
-    sfxHandle_t (*S_RegisterSound)(const char* sample);
+    // the sound's functions, the same object for the whole session
+    sound::Api* sound;
 
     void (*SE_GetLanguageName)(const int languageIndex, char* buffer);
     int (*SE_GetNumLanguages)(void);

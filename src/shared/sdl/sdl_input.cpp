@@ -1113,7 +1113,7 @@ uint8_t ConvertUTF32ToExpectedCharset(uint32_t utf32)
 IN_ProcessEvents
 ===============
 */
-void SNDDMA_Activate(bool activate);
+void SND_SetFocus(bool focused);
 static void IN_ProcessEvents(void)
 {
     SDL_Event e;
@@ -1227,13 +1227,13 @@ static void IN_ProcessEvents(void)
                 break;
             case SDL_WINDOWEVENT_FOCUS_LOST: {
                 Cvar_SetValue("com_unfocused", 1);
-                SNDDMA_Activate(false);
+                SND_SetFocus(false);
                 break;
             }
 
             case SDL_WINDOWEVENT_FOCUS_GAINED: {
                 Cvar_SetValue("com_unfocused", 0);
-                SNDDMA_Activate(true);
+                SND_SetFocus(true);
                 break;
             }
             }

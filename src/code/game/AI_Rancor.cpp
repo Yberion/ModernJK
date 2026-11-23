@@ -456,7 +456,7 @@ void Rancor_Swing(int boltIndex, bool tryGrab)
                 }
             }
             else { // smack
-                G_Sound(radiusEnts[i], G_SoundIndex("sound/chars/rancor/swipehit.wav"));
+                G_Sound(radiusEnts[i], sound::SoundClass::World, G_SoundIndex("sound/chars/rancor/swipehit.wav"));
                 // actually push the enemy
                 vec3_t pushDir;
                 /*
@@ -562,7 +562,7 @@ void Rancor_Smash(void)
         distSq = DistanceSquared(radiusEnts[i]->currentOrigin, boltOrg);
         if (distSq <= radiusSquared) {
             if (distSq < halfRadSquared) { // close enough to do damage, too
-                G_Sound(radiusEnts[i], G_SoundIndex("sound/chars/rancor/swipehit.wav"));
+                G_Sound(radiusEnts[i], sound::SoundClass::World, G_SoundIndex("sound/chars/rancor/swipehit.wav"));
                 if ((NPC->spawnflags & SPF_RANCOR_FASTKILL) && radiusEnts[i]->s.number >= MAX_CLIENTS) {
                     G_Damage(radiusEnts[i], NPC, NPC, vec3_origin, boltOrg, radiusEnts[i]->health + 1000,
                              (damageFlags_t::DAMAGE_NO_KNOCKBACK | damageFlags_t::DAMAGE_NO_PROTECTION), meansOfDeath_t::MOD_MELEE);
@@ -660,7 +660,7 @@ void Rancor_Bite(void)
                     G_DoDismemberment(radiusEnts[i], radiusEnts[i]->currentOrigin, meansOfDeath_t::MOD_SABER, 1000, hitLoc, true);
                 }
             }
-            G_Sound(radiusEnts[i], G_SoundIndex("sound/chars/rancor/chomp.wav"));
+            G_Sound(radiusEnts[i], sound::SoundClass::World, G_SoundIndex("sound/chars/rancor/chomp.wav"));
         }
     }
 }
@@ -736,7 +736,7 @@ void Rancor_Attack(float distance, bool doCharge, bool aimAtBlockedEntity)
                 G_PlayEffect(G_EffectIndex("mrancor/breath"), NPC->playerModel, NPC->gutBolt, NPC->s.number, NPC->currentOrigin,
                              (NPC->client->ps.legsAnimTimer - 500), false);
                 TIMER_Set(NPC, "breathAttack", NPC->client->ps.legsAnimTimer - 500);
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_WEAPON, "sound/chars/rancor/breath_start.wav");
+                G_SoundOnEnt(NPC, sound::SoundClass::Weapon, sound::Slot::Weapon, "sound/chars/rancor/breath_start.wav");
                 NPC->s.loopSound = G_SoundIndex("sound/chars/rancor/breath_loop.wav");
                 if (NPC->enemy && NPC->enemy->s.number == 0) { // don't attack the player again for a bit
                     TIMER_Set(NPC, "attackDebounce", NPC->client->ps.legsAnimTimer + Q_irand(2000, 4000 + ((2 - g_spskill->integer) * 2000)));
@@ -856,7 +856,7 @@ void Rancor_Attack(float distance, bool doCharge, bool aimAtBlockedEntity)
                     NPC_SetAnim(NPC->activator, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_SWIM_IDLE1,
                                 setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
                 }
-                G_Sound(NPC->activator, G_SoundIndex("sound/chars/rancor/chomp.wav"));
+                G_Sound(NPC->activator, sound::SoundClass::World, G_SoundIndex("sound/chars/rancor/chomp.wav"));
             }
             break;
         case animNumber_t::BOTH_ATTACK2:
@@ -882,7 +882,7 @@ void Rancor_Attack(float distance, bool doCharge, bool aimAtBlockedEntity)
                                 setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
                 }
                 TIMER_Set(NPC, "attack_dmg2", 1350);
-                G_Sound(NPC->activator, G_SoundIndex("sound/chars/rancor/swipehit.wav"));
+                G_Sound(NPC->activator, sound::SoundClass::World, G_SoundIndex("sound/chars/rancor/swipehit.wav"));
                 G_AddEvent(NPC->activator, entity_event_t::EV_JUMP, NPC->activator->health);
             }
             break;
@@ -903,7 +903,7 @@ void Rancor_Attack(float distance, bool doCharge, bool aimAtBlockedEntity)
             break;
         case animNumber_t::BOTH_ATTACK3:
             if (NPC->count == 1 && NPC->activator) { // swallow victim
-                G_Sound(NPC->activator, G_SoundIndex("sound/chars/rancor/chomp.wav"));
+                G_Sound(NPC->activator, sound::SoundClass::World, G_SoundIndex("sound/chars/rancor/chomp.wav"));
                 // FIXME: sometimes end up with a live one in our mouths?
                 // just make sure they're dead
                 if (NPC->activator->health > 0) {
@@ -1331,7 +1331,7 @@ void NPC_BSRancor_Default(void)
             G_SetEnemy(NPC->enemy, NPC);
         }
         if (TIMER_Done(NPC, "angrynoise")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/rancor/anger{}.wav", Q_irand(1, 3)).c_str());
+            G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/rancor/anger{}.wav", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPC, "angrynoise", Q_irand(5000, 10000));
         }
@@ -1435,7 +1435,7 @@ void NPC_BSRancor_Default(void)
     }
     else {
         if (TIMER_Done(NPC, "idlenoise")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/rancor/snort_{}.wav", Q_irand(1, 4)).c_str());
+            G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/rancor/snort_{}.wav", Q_irand(1, 4)).c_str());
 
             TIMER_Set(NPC, "idlenoise", Q_irand(2000, 4000));
             AddSoundEvent(NPC, NPC->currentOrigin, 384, alertEventLevel_e::AEL_DANGER, false, false);

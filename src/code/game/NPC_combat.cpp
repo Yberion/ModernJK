@@ -458,13 +458,13 @@ void G_SetEnemy(gentity_t* self, gentity_t* enemy)
                         Q_stricmp("jedi2", self->client->clientInfo.customBasicSoundDir) == 0) {
                         switch (Q_irand(0, 2)) {
                         case 0:
-                            G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, "sound/chars/jedi2/28je2008.wav");
+                            G_SoundOnEnt(self, sound::SoundClass::Voice, sound::Slot::Voice, "sound/chars/jedi2/28je2008.wav");
                             break;
                         case 1:
-                            G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, "sound/chars/jedi2/28je2009.wav");
+                            G_SoundOnEnt(self, sound::SoundClass::Voice, sound::Slot::Voice, "sound/chars/jedi2/28je2009.wav");
                             break;
                         case 2:
-                            G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, "sound/chars/jedi2/28je2012.wav");
+                            G_SoundOnEnt(self, sound::SoundClass::Voice, sound::Slot::Voice, "sound/chars/jedi2/28je2012.wav");
                             break;
                         }
                         self->NPC->blockedSpeechDebounceTime = level.time + 2000;

@@ -37,7 +37,7 @@ extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 // extern void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,setAnimParts_t type,animNumber_t anim,setAnimFlags_t priority,int
 // *torsoAnimTimer,int *legsAnimTimer,gentity_t *gent);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 extern void PM_SetTorsoAnimTimer(gentity_t* ent, int* torsoAnimTimer, int time);
 extern void PM_SetLegsAnimTimer(gentity_t* ent, int* legsAnimTimer, int time);
 extern void NPC_BSNoClip(void);
@@ -1900,19 +1900,19 @@ void NPC_Think(gentity_t* self) //, int msec )
             if (TIMER_Done(self, "patrolNoise") && !Q_irand(0, 20)) {
                 switch (self->client->NPC_class) {
                 case class_t::CLASS_R2D2: // droid
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/r2d2/misc/r2d2talk0{}.wav", Q_irand(1, 3)).c_str());
+                    G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/r2d2/misc/r2d2talk0{}.wav", Q_irand(1, 3)).c_str());
                     break;
                 case class_t::CLASS_R5D2: // droid
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/r5d2/misc/r5talk{}.wav", Q_irand(1, 4)).c_str());
+                    G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/r5d2/misc/r5talk{}.wav", Q_irand(1, 4)).c_str());
                     break;
                 case class_t::CLASS_PROBE: // droid
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/probe/misc/probetalk{}.wav", Q_irand(1, 3)).c_str());
+                    G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/probe/misc/probetalk{}.wav", Q_irand(1, 3)).c_str());
                     break;
                 case class_t::CLASS_MOUSE: // droid
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/mouse/misc/mousego{}.wav", Q_irand(1, 3)).c_str());
+                    G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/mouse/misc/mousego{}.wav", Q_irand(1, 3)).c_str());
                     break;
                 case class_t::CLASS_GONK: // droid
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/gonk/misc/gonktalk{}.wav", Q_irand(1, 2)).c_str());
+                    G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/gonk/misc/gonktalk{}.wav", Q_irand(1, 2)).c_str());
                     break;
                 default:
                     break;

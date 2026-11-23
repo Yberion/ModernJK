@@ -1141,7 +1141,7 @@ void CG_ZoomDown_f( void )
             cg_zoomFov = cg_fov.value;
         }
         cg.zoomTime = cg.time;
-        cgi_S_StartSound( cg.refdef.vieworg, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, cgs.media.zoomStart );
+        CG_StartLocalSound(cgs.media.zoomStart, sound::SoundClass::Interface, sound::Slot::Menu);
         return;
     }
 
@@ -1151,7 +1151,7 @@ void CG_ZoomDown_f( void )
         // Snap out of zoom mode
         cg.zoomMode = 0;
         cg.zoomTime = cg.time;
-        cgi_S_StartSound( cg.refdef.vieworg, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, cgs.media.zoomEnd );
+        CG_StartLocalSound(cgs.media.zoomEnd, sound::SoundClass::Interface, sound::Slot::Menu);
     }
 }
 
@@ -1355,7 +1355,7 @@ static bool CG_CalcFov(void)
                         }
 
                         // huh?  This could probably just be added as a looping sound??
-                        cgi_S_StartSound(cg.refdef.vieworg, ENTITYNUM_WORLD, soundChannel_t::CHAN_LOCAL, snd);
+                        CG_StartLocalSound(snd, sound::SoundClass::Interface, sound::Slot::Menu);
                         zoomSoundTime = cg.time + 150;
                     }
                 }
@@ -1644,7 +1644,7 @@ static void CG_PowerupTimerSounds(void)
             //			switch( i )
             //			{
             //			case PW_WEAPON_OVERCHARGE:
-            //				cgi_S_StartSound( nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_ITEM, cgs.media.overchargeEndSound );
+            //				CG_StartSound(nullptr, cg.snap->ps.clientNum, sound::SoundClass::World, sound::Slot::Item, cgs.media.overchargeEndSound);
             //				break;
             //			}
         }
@@ -1711,10 +1711,6 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView)
     }
 
     CG_RunLightStyles();
-
-    // any looped sounds will be respecified as entities
-    // are added to the render list
-    cgi_S_ClearLoopingSounds();
 
     // clear all the render lists
     cgi_R_ClearScene();
@@ -1869,9 +1865,11 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView)
 
     // update audio positions
     // This is done from the vieworg to get origin for non-attenuated sounds
-    cgi_S_UpdateAmbientSet(CG_ConfigString(CS_AMBIENT_SET), cg.refdef.vieworg);
+    gi.sound->UpdateAmbientSet(CG_ConfigString(CS_AMBIENT_SET), CG_SoundVector(cg.refdef.vieworg));
     // NOTE: if we want to make you be able to hear far away sounds with electrobinoculars, add the hacked-in positional offset here (base on fov)
-    cgi_S_Respatialize(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater);
+    CG_SetSoundListener(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater);
+    // the looping sounds asked for in this frame
+    CG_UpdateLoopingSounds();
 
     // warning sounds when powerup is wearing off
     CG_PowerupTimerSounds();

@@ -2549,7 +2549,7 @@ void ClientBegin(int clientNum, bool allowTeamReset)
     for (trackchan_t ch = trackchan_t::TRACK_CHANNEL_1; ch < trackchan_t::NUM_TRACK_CHANNELS; ch++) {
         const int sound = ent->client->ps.fd.killSoundEntIndex[ch - trackchan_t::TRACK_CHANNEL_NONE];
         if (sound && sound < MAX_GENTITIES && sound > 0) {
-            G_MuteSound(sound, soundChannel_t::CHAN_VOICE);
+            G_MuteSound(sound, sound::Slot::None);
         }
     }
 
@@ -2637,7 +2637,7 @@ void G_BreakArm(gentity_t* ent, brokenLimb_t arm)
     if (arm == brokenLimb_t::BROKENLIMB_LARM) {
         if (ent->client->saber[1].model[0] && ent->client->ps.weapon == weapon_t::WP_SABER && !ent->client->ps.saberHolstered &&
             ent->client->saber[1].soundOff) { // the left arm shuts off its saber upon being broken
-            G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOff);
+            G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[1].soundOff);
         }
     }
 
@@ -2660,9 +2660,9 @@ void G_BreakArm(gentity_t* ent, brokenLimb_t arm)
 
     // This could be combined into a single event. But I guess limbs don't break often enough to
     // worry about it.
-    G_EntitySound(ent, soundChannel_t::CHAN_VOICE, G_SoundIndex("*pain25.wav"));
+    G_EntitySound(ent, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("*pain25.wav"));
     // FIXME: A nice bone snapping sound instead if possible
-    G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/player/bodyfall_human{}.wav", Q_irand(1, 3)).c_str()));
+    G_Sound(ent, sound::SoundClass::Body, sound::Slot::None, G_SoundIndex(Q_Format("sound/player/bodyfall_human{}.wav", Q_irand(1, 3)).c_str()));
 }
 
 // Update the ghoul2 instance anims based on the playerstate values
@@ -3653,7 +3653,7 @@ void ClientDisconnect(int clientNum)
     for (trackchan_t ch = trackchan_t::TRACK_CHANNEL_1; ch < trackchan_t::NUM_TRACK_CHANNELS; ch++) {
         const int sound = ent->client->ps.fd.killSoundEntIndex[ch - trackchan_t::TRACK_CHANNEL_NONE];
         if (sound && sound < MAX_GENTITIES && sound > 0) {
-            G_MuteSound(sound, soundChannel_t::CHAN_VOICE);
+            G_MuteSound(sound, sound::Slot::None);
         }
     }
     i = 0;

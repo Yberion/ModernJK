@@ -186,16 +186,16 @@ void G_RunObject(gentity_t* ent)
                 VectorNormalize2(ent->s.pos.trDelta, fxDir);
                 VectorScale(fxDir, -1, fxDir);
                 G_PlayEffect(G_EffectIndex("melee/kick_impact"), tr.endpos, fxDir);
-                // G_Sound( ent, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str() ) );
+                // G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex( Q_Format("sound/weapons/melee/punch{}", Q_irand( 1, 4 )).c_str() ));
             }
             else {
                 G_PlayEffect(G_EffectIndex("melee/kick_impact_silent"), tr.endpos, tr.plane.normal);
             }
             if (ent->mass > 100) {
-                G_Sound(ent, G_SoundIndex("sound/movers/objects/objectHitHeavy.wav"));
+                G_Sound(ent, sound::SoundClass::World, G_SoundIndex("sound/movers/objects/objectHitHeavy.wav"));
             }
             else {
-                G_Sound(ent, G_SoundIndex("sound/movers/objects/objectHit.wav"));
+                G_Sound(ent, sound::SoundClass::World, G_SoundIndex("sound/movers/objects/objectHit.wav"));
             }
         }
         DoImpact(ent, traceEnt, !Any(tr.surfaceFlags & surfaceFlags_t::SURF_NODAMAGE), &tr);
@@ -203,7 +203,7 @@ void G_RunObject(gentity_t* ent)
 
     if (!ent || (ent->takedamage && ent->health <= 0)) { // been destroyed by impact
         // chunks?
-        G_Sound(ent, G_SoundIndex("sound/movers/objects/objectBreak.wav"));
+        G_Sound(ent, sound::SoundClass::World, G_SoundIndex("sound/movers/objects/objectBreak.wav"));
         return;
     }
 

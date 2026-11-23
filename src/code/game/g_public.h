@@ -28,6 +28,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
+#include <shared/qcommon/q_sound.h>
+
 inline constexpr int GAME_API_VERSION = 12;
 
 // entity->svFlags
@@ -252,8 +254,8 @@ typedef struct game_import_s {
     // perform an exact check against inline brush models of non-square shape
     bool (*EntityContact)(const vec3_t mins, const vec3_t maxs, const gentity_t* ent);
 
-    // sound volume values
-    int* VoiceVolume;
+    // the sound's functions, the same object for the whole session
+    sound::Api* sound;
 
     // dynamic memory allocator for things that need to be freed
     void* (*Malloc)(int iSize, memtag_t eTag, bool bZeroIt); // see qcommon/tags.h for choices

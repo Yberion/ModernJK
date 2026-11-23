@@ -1,9 +1,9 @@
 # stb_image_write and stb_vorbis (vendored files)
 
-- `stb_image_write.h` writes the images the games save: JPEG and PNG screenshots, the JPEG frames of the video capture,
-  the screenshot of a saved game. It is compiled inside `src/shared/rd-common/tr_image_codec.cpp` and nothing else
-  includes it (survey: `docs/modernization/surveys/image-libraries.md`). The images the game loads are decoded by Wuffs
-  (`libs/wuffs`), which writes none.
+- `stb_image_write.h` writes the images the games save: JPEG and PNG screenshots, the screenshot of a saved game. It is
+  compiled inside `src/shared/rd-common/tr_image_codec.cpp` and nothing else includes it (survey:
+  `docs/modernization/surveys/image-libraries.md`). The images the game loads are decoded by Wuffs (`libs/wuffs`), which
+  writes none.
 - `stb_vorbis.c` decodes the sound's Ogg Vorbis files: compiled as a library of its own (`vendored::stb_vorbis`,
   `Dependencies.cmake`, without its file and push-data functions), its declarations included by
   `src/shared/sound/vorbis.cpp` (survey: `docs/modernization/surveys/audio-decoders.md`).

@@ -94,7 +94,7 @@ void CG_CheckAmmo(void)
 
 	// play a sound on transitions
 	if ( cg.lowAmmoWarning != previous ) {
-		trap->S_StartLocalSound( cgs.media.noAmmoSound, soundChannel_t::CHAN_LOCAL_SOUND );
+		CG_StartLocalSound(cgs.media.noAmmoSound, sound::SoundClass::Interface, sound::Slot::Menu);
 	}
 #endif
     // disabled silly ammo warning stuff for now
@@ -339,25 +339,25 @@ void CG_CheckLocalSounds(playerState_t* ps, playerState_t* ops)
         health = ps->persistant[persEnum_t::PERS_ATTACKEE_ARMOR] >> 8;
 
         if (armor > health / 2) { // We also hit shields along the way, so consider them "pierced".
-                                  //			trap->S_StartLocalSound( cgs.media.shieldPierceSound, soundChannel_t::CHAN_LOCAL_SOUND );
+                                  //			CG_StartLocalSound(cgs.media.shieldPierceSound, sound::SoundClass::Interface, sound::Slot::Menu);
         }
         else { // Shields didn't really stand in our way.
-               //			trap->S_StartLocalSound( cgs.media.hitSound, soundChannel_t::CHAN_LOCAL_SOUND );
+               //			CG_StartLocalSound(cgs.media.hitSound, sound::SoundClass::Interface, sound::Slot::Menu);
         }
 
         // FIXME: Hit sounds?
         /*
         if (armor > 50 ) {
-            trap->S_StartLocalSound( cgs.media.hitSoundHighArmor, soundChannel_t::CHAN_LOCAL_SOUND );
+            CG_StartLocalSound(cgs.media.hitSoundHighArmor, sound::SoundClass::Interface, sound::Slot::Menu);
         } else if (armor || health > 100) {
-            trap->S_StartLocalSound( cgs.media.hitSoundLowArmor, soundChannel_t::CHAN_LOCAL_SOUND );
+            CG_StartLocalSound(cgs.media.hitSoundLowArmor, sound::SoundClass::Interface, sound::Slot::Menu);
         } else {
-            trap->S_StartLocalSound( cgs.media.hitSound, soundChannel_t::CHAN_LOCAL_SOUND );
+            CG_StartLocalSound(cgs.media.hitSound, sound::SoundClass::Interface, sound::Slot::Menu);
         }
         */
     }
     else if (ps->persistant[persEnum_t::PERS_HITS] < ops->persistant[persEnum_t::PERS_HITS]) {
-        // trap->S_StartLocalSound( cgs.media.hitTeamSound, soundChannel_t::CHAN_LOCAL_SOUND );
+        // CG_StartLocalSound(cgs.media.hitTeamSound, sound::SoundClass::Interface, sound::Slot::Menu);
     }
 
     // health changes of more than -3 should make pain sounds
@@ -414,11 +414,11 @@ void CG_CheckLocalSounds(playerState_t* ps, playerState_t* ops)
     // if any of the player event bits changed
     if (ps->persistant[persEnum_t::PERS_PLAYEREVENTS] != ops->persistant[persEnum_t::PERS_PLAYEREVENTS]) {
         if ((PS_PlayerEvents(*ps) & playerEventFlags_t::PLAYEREVENT_DENIEDREWARD) != (PS_PlayerEvents(*ops) & playerEventFlags_t::PLAYEREVENT_DENIEDREWARD)) {
-            trap->S_StartLocalSound(cgs.media.deniedSound, soundChannel_t::CHAN_ANNOUNCER);
+            CG_StartLocalSound(cgs.media.deniedSound, sound::SoundClass::Announcer, sound::Slot::Announcer);
         }
         else if ((PS_PlayerEvents(*ps) & playerEventFlags_t::PLAYEREVENT_GAUNTLETREWARD) !=
                  (PS_PlayerEvents(*ops) & playerEventFlags_t::PLAYEREVENT_GAUNTLETREWARD)) {
-            trap->S_StartLocalSound(cgs.media.humiliationSound, soundChannel_t::CHAN_ANNOUNCER);
+            CG_StartLocalSound(cgs.media.humiliationSound, sound::SoundClass::Announcer, sound::Slot::Announcer);
         }
         reward = true;
     }
@@ -460,16 +460,16 @@ void CG_CheckLocalSounds(playerState_t* ps, playerState_t* ops)
         msec = cg.time - cgs.levelStartTime;
         if (!(cg.timelimitWarnings & 4) && msec > (cgs.timelimit * 60 + 2) * 1000) {
             cg.timelimitWarnings |= 1 | 2 | 4;
-            // trap->S_StartLocalSound( cgs.media.suddenDeathSound, soundChannel_t::CHAN_ANNOUNCER );
+            // CG_StartLocalSound(cgs.media.suddenDeathSound, sound::SoundClass::Announcer, sound::Slot::Announcer);
         }
         else if (!(cg.timelimitWarnings & 2) && msec > (cgs.timelimit - 1) * 60 * 1000) {
             cg.timelimitWarnings |= 1 | 2;
-            trap->S_StartLocalSound(cgs.media.oneMinuteSound, soundChannel_t::CHAN_ANNOUNCER);
+            CG_StartLocalSound(cgs.media.oneMinuteSound, sound::SoundClass::Announcer, sound::Slot::Announcer);
             cgAnnouncerTime = cg.time + 3000;
         }
         else if (cgs.timelimit > 5 && !(cg.timelimitWarnings & 1) && msec > (cgs.timelimit - 5) * 60 * 1000) {
             cg.timelimitWarnings |= 1;
-            trap->S_StartLocalSound(cgs.media.fiveMinuteSound, soundChannel_t::CHAN_ANNOUNCER);
+            CG_StartLocalSound(cgs.media.fiveMinuteSound, sound::SoundClass::Announcer, sound::Slot::Announcer);
             cgAnnouncerTime = cg.time + 3000;
         }
     }

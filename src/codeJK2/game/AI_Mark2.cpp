@@ -113,7 +113,7 @@ void NPC_Mark2_Pain(gentity_t* self, gentity_t* inflictor, gentity_t* other, vec
         }
     }
 
-    G_Sound(self, G_SoundIndex("sound/chars/mark2/misc/mark2_pain"));
+    G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/chars/mark2/misc/mark2_pain"));
 
     // If any pods were blown off, kill him
     if (self->count > 0) {
@@ -168,7 +168,7 @@ void Mark2_FireBlaster(bool advance)
 
     G_PlayEffect("bryar/muzzle_flash", muzzle1, forward);
 
-    G_Sound(NPC, G_SoundIndex("sound/chars/mark2/misc/mark2_fire"));
+    G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/mark2/misc/mark2_fire"));
 
     missile = CreateMissile(muzzle1, forward, 1600, 10000, NPC);
 
@@ -290,7 +290,7 @@ Mark2_Patrol
 void Mark2_Patrol(void)
 {
     if (NPC_CheckPlayerTeamStealth()) {
-        //		G_Sound( NPC, G_SoundIndex("sound/chars/mark1/misc/anger.wav"));
+        //		G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/mark1/misc/anger.wav"));
         NPC_UpdateAngles(true, true);
         return;
     }
@@ -305,7 +305,7 @@ void Mark2_Patrol(void)
 
         // randomly talk
         if (TIMER_Done(NPC, "patrolNoise")) {
-            //			G_Sound( NPC, G_SoundIndex(Q_Format("sound/chars/mark1/misc/talk{}.wav", Q_irand(1, 4)).c_str()));
+            //			G_Sound(NPC, sound::SoundClass::World, G_SoundIndex(Q_Format("sound/chars/mark1/misc/talk{}.wav", Q_irand(1, 4)).c_str()));
 
             TIMER_Set(NPC, "patrolNoise", Q_irand(2000, 4000));
         }

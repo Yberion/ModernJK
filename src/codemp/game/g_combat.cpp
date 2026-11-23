@@ -1671,7 +1671,7 @@ void DeathFX(gentity_t* ent)
         VectorCopy(ent->r.currentOrigin, effectPos);
         effectPos[2] -= 20;
         G_PlayEffectID(G_EffectIndex("env/small_explode"), effectPos, defaultDir);
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mouse/misc/death1"));
+        G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/mouse/misc/death1"));
         break;
 
     case class_t::CLASS_PROBE:
@@ -1698,7 +1698,7 @@ void DeathFX(gentity_t* ent)
         VectorCopy(ent->r.currentOrigin, effectPos);
         effectPos[2] -= 5;
         //		statusTextIndex = Q_irand( IGT_RESISTANCEISFUTILE, IGT_NAMEIS8OF12 );
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/chars/gonk/misc/death{}.wav", Q_irand(1, 3)).c_str()));
+        G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex(Q_Format("sound/chars/gonk/misc/death{}.wav", Q_irand(1, 3)).c_str()));
         G_PlayEffectID(G_EffectIndex("env/med_explode"), effectPos, defaultDir);
         break;
 
@@ -1707,7 +1707,7 @@ void DeathFX(gentity_t* ent)
         VectorCopy(ent->r.currentOrigin, effectPos);
         effectPos[2] -= 10;
         G_PlayEffectID(G_EffectIndex("env/med_explode"), effectPos, defaultDir);
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark2/misc/mark2_explo"));
+        G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/mark2/misc/mark2_explo"));
         break;
 
     case class_t::CLASS_PROTOCOL: // c3p0
@@ -1715,21 +1715,21 @@ void DeathFX(gentity_t* ent)
         VectorCopy(ent->r.currentOrigin, effectPos);
         effectPos[2] -= 10;
         G_PlayEffectID(G_EffectIndex("env/med_explode"), effectPos, defaultDir);
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark2/misc/mark2_explo"));
+        G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/mark2/misc/mark2_explo"));
         break;
 
     case class_t::CLASS_MARK2:
         VectorCopy(ent->r.currentOrigin, effectPos);
         effectPos[2] -= 15;
         G_PlayEffectID(G_EffectIndex("explosions/droidexplosion1"), effectPos, defaultDir);
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark2/misc/mark2_explo"));
+        G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/mark2/misc/mark2_explo"));
         break;
 
     case class_t::CLASS_INTERROGATOR:
         VectorCopy(ent->r.currentOrigin, effectPos);
         effectPos[2] -= 15;
         G_PlayEffectID(G_EffectIndex("explosions/droidexplosion1"), effectPos, defaultDir);
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/interrogator/misc/int_droid_explo"));
+        G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/interrogator/misc/int_droid_explo"));
         break;
 
     case class_t::CLASS_MARK1:
@@ -1741,11 +1741,11 @@ void DeathFX(gentity_t* ent)
         G_PlayEffectID(G_EffectIndex("explosions/droidexplosion1"), effectPos, defaultDir);
         VectorMA(effectPos, -20, right, effectPos);
         G_PlayEffectID(G_EffectIndex("explosions/droidexplosion1"), effectPos, defaultDir);
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_explo"));
+        G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/mark1/misc/mark1_explo"));
         break;
 
     case class_t::CLASS_SENTRY:
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/sentry/misc/sentry_explo"));
+        G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/sentry/misc/sentry_explo"));
         VectorCopy(ent->r.currentOrigin, effectPos);
         G_PlayEffectID(G_EffectIndex("env/med_explode"), effectPos, defaultDir);
         break;
@@ -2063,10 +2063,10 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
     // holstering on death like sp)
     if (self->client->ps.weapon == weapon_t::WP_SABER && !self->client->ps.saberHolstered && self->client->ps.saberEntityNum) {
         if (!self->client->ps.saberInFlight && self->client->saber[0].soundOff) {
-            G_Sound(self, soundChannel_t::CHAN_AUTO, self->client->saber[0].soundOff);
+            G_Sound(self, sound::SoundClass::Saber, sound::Slot::None, self->client->saber[0].soundOff);
         }
         if (self->client->saber[1].soundOff && self->client->saber[1].model[0]) {
-            G_Sound(self, soundChannel_t::CHAN_AUTO, self->client->saber[1].soundOff);
+            G_Sound(self, sound::SoundClass::Saber, sound::Slot::None, self->client->saber[1].soundOff);
         }
     }
 
@@ -2108,7 +2108,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
     }
 
     // if he was charging or anything else, kill the sound
-    G_MuteSound(self->s.number, soundChannel_t::CHAN_WEAPON);
+    G_MuteSound(self->s.number, sound::Slot::Weapon);
 
     // FIXME: this may not be enough
     if (level.gametype == gametype_t::GT_SIEGE && meansOfDeath == meansOfDeath_t::MOD_TEAM_CHANGE)
@@ -4551,7 +4551,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, vec3_t
             if (targ->client->ps.fd.forcePower) {
                 int maxtake = take;
 
-                // G_Sound(targ, soundChannel_t::CHAN_AUTO, protectHitSound);
+                // G_Sound(targ, sound::SoundClass::World, sound::Slot::None, protectHitSound);
                 if (targ->client->forcePowerSoundDebounce < level.time) {
                     G_PreDefSound(targ->client->ps.origin, pdSounds_t::PDSOUND_PROTECTHIT);
                     targ->client->forcePowerSoundDebounce = level.time + 400;

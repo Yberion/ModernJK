@@ -62,7 +62,7 @@ extern void PM_SetLegsAnimTimer(gentity_t* ent, int* legsAnimTimer, int time);
 extern void PM_SetTorsoAnimTimer(gentity_t* ent, int* torsoAnimTimer, int time);
 extern animNumber_t PM_PickAnim(gentity_t* self, animNumber_t minAnim, animNumber_t maxAnim);
 extern bool PM_InOnGroundAnim(playerState_t* ps);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 extern void G_ATSTCheckPain(gentity_t* self, gentity_t* other, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc);
 extern bool Jedi_WaitingAmbush(gentity_t* self);
 extern bool G_ClearViewEntity(gentity_t* ent);
@@ -290,7 +290,7 @@ void ExplodeDeath(gentity_t* self)
     //	else
     //	{
     //		CG_SurfaceExplosion( self->currentOrigin, forward, 20.0f, 12.0f, ((self->spawnflags&4)==false) );	//FIXME: This needs to be consistent to all
-    // exploders! 		G_Sound(self, self->sounds );
+    // exploders! 		G_Sound(self, sound::SoundClass::World, self->sounds);
     //	}
 
     if (self->splashDamage > 0 && self->splashRadius > 0) {
@@ -544,7 +544,7 @@ void DeathFX(gentity_t* ent)
         VectorCopy(ent->currentOrigin, effectPos);
         effectPos[2] -= 20;
         G_PlayEffect("env/small_explode", effectPos);
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_AUTO, "sound/chars/mouse/misc/death1");
+        G_SoundOnEnt(ent, sound::SoundClass::World, sound::Slot::None, "sound/chars/mouse/misc/death1");
         break;
 
     case class_t::CLASS_PROBE:
@@ -571,7 +571,7 @@ void DeathFX(gentity_t* ent)
         VectorCopy(ent->currentOrigin, effectPos);
         effectPos[2] -= 5;
         //		statusTextIndex = Q_irand( IGT_RESISTANCEISFUTILE, IGT_NAMEIS8OF12 );
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/gonk/misc/death{}.wav", Q_irand(1, 3)).c_str());
+        G_SoundOnEnt(ent, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/gonk/misc/death{}.wav", Q_irand(1, 3)).c_str());
         G_PlayEffect("env/med_explode", effectPos);
         break;
 
@@ -580,7 +580,7 @@ void DeathFX(gentity_t* ent)
         VectorCopy(ent->currentOrigin, effectPos);
         effectPos[2] -= 10;
         G_PlayEffect("env/med_explode", effectPos);
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_AUTO, "sound/chars/mark2/misc/mark2_explo");
+        G_SoundOnEnt(ent, sound::SoundClass::World, sound::Slot::None, "sound/chars/mark2/misc/mark2_explo");
         break;
 
     case class_t::CLASS_PROTOCOL: //??
@@ -588,21 +588,21 @@ void DeathFX(gentity_t* ent)
         VectorCopy(ent->currentOrigin, effectPos);
         effectPos[2] -= 10;
         G_PlayEffect("env/med_explode", effectPos);
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_AUTO, "sound/chars/mark2/misc/mark2_explo");
+        G_SoundOnEnt(ent, sound::SoundClass::World, sound::Slot::None, "sound/chars/mark2/misc/mark2_explo");
         break;
 
     case class_t::CLASS_MARK2:
         VectorCopy(ent->currentOrigin, effectPos);
         effectPos[2] -= 15;
         G_PlayEffect("droidexplosion1", effectPos);
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_AUTO, "sound/chars/mark2/misc/mark2_explo");
+        G_SoundOnEnt(ent, sound::SoundClass::World, sound::Slot::None, "sound/chars/mark2/misc/mark2_explo");
         break;
 
     case class_t::CLASS_INTERROGATOR:
         VectorCopy(ent->currentOrigin, effectPos);
         effectPos[2] -= 15;
         G_PlayEffect("droidexplosion1", effectPos);
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_AUTO, "sound/chars/interrogator/misc/int_droid_explo");
+        G_SoundOnEnt(ent, sound::SoundClass::World, sound::Slot::None, "sound/chars/interrogator/misc/int_droid_explo");
         break;
 
     case class_t::CLASS_MARK1:
@@ -614,11 +614,11 @@ void DeathFX(gentity_t* ent)
         G_PlayEffect("droidexplosion1", effectPos);
         VectorMA(effectPos, -20, right, effectPos);
         G_PlayEffect("droidexplosion1", effectPos);
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_AUTO, "sound/chars/mark1/misc/mark1_explo");
+        G_SoundOnEnt(ent, sound::SoundClass::World, sound::Slot::None, "sound/chars/mark1/misc/mark1_explo");
         break;
 
     case class_t::CLASS_SENTRY:
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_AUTO, "sound/chars/sentry/misc/sentry_explo");
+        G_SoundOnEnt(ent, sound::SoundClass::World, sound::Slot::None, "sound/chars/sentry/misc/sentry_explo");
         VectorCopy(ent->currentOrigin, effectPos);
         G_PlayEffect("env/med_explode", effectPos);
         break;
@@ -3104,10 +3104,10 @@ void player_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int 
         if (self->client->ps.saberActive) {
             self->client->ps.saberActive = false;
             if (self->client->playerTeam == team_t::TEAM_PLAYER) {
-                G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, "sound/weapons/saber/saberoff.wav");
+                G_SoundOnEnt(self, sound::SoundClass::Saber, sound::Slot::None, "sound/weapons/saber/saberoff.wav");
             }
             else {
-                G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, "sound/weapons/saber/enemy_saber_off.wav");
+                G_SoundOnEnt(self, sound::SoundClass::Saber, sound::Slot::None, "sound/weapons/saber/enemy_saber_off.wav");
             }
         }
     }
@@ -3229,10 +3229,10 @@ void player_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int 
             NPC_SetAnim(self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_FALLDEATH1INAIR,
                         setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
             if (!self->NPC) {
-                G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, "*falling1.wav"); // CHAN_VOICE_ATTEN
+                G_SoundOnEnt(self, sound::SoundClass::Voice, sound::Slot::Voice, "*falling1.wav"); // CHAN_VOICE_ATTEN
             }
             else if (!Any(self->NPC->aiFlags & npcAiFlags_t::NPCAI_DIE_ON_IMPACT)) {
-                G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, "*falling1.wav"); // CHAN_VOICE_ATTEN
+                G_SoundOnEnt(self, sound::SoundClass::Voice, sound::Slot::Voice, "*falling1.wav"); // CHAN_VOICE_ATTEN
                 // so we don't do this again
                 self->NPC->aiFlags |= npcAiFlags_t::NPCAI_DIE_ON_IMPACT;
                 // self->client->ps.gravity *= 0.5;//Fall a bit slower
@@ -3259,10 +3259,10 @@ void player_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int 
             }
             NPC_SetAnim(self, setAnimParts_t::SETANIM_BOTH, deathAnim, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
             // HMM: check for nodrop?
-            G_SoundOnEnt(self, soundChannel_t::CHAN_BODY, "sound/player/fallsplat.wav");
-            if (gi.VoiceVolume[self->s.number] && self->NPC &&
+            G_SoundOnEnt(self, sound::SoundClass::Body, sound::Slot::None, "sound/player/fallsplat.wav");
+            if (gi.sound->GetVoiceState(self->s.number) != sound::VoiceState::NotTalking && self->NPC &&
                 Any(self->NPC->aiFlags & npcAiFlags_t::NPCAI_DIE_ON_IMPACT)) { // I was talking, so cut it off... with a jump sound?
-                G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE_ATTEN, "*pain100.wav");
+                G_SoundOnEnt(self, sound::SoundClass::VoiceQuiet, sound::Slot::Voice, "*pain100.wav");
             }
         }
     }
@@ -3287,10 +3287,10 @@ void player_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int 
                 if (cliff_fall == 2) {
                     if (!FlyingCreature(self) && g_gravity->value > 0) {
                         if (!self->NPC) {
-                            G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, "*falling1.wav"); // CHAN_VOICE_ATTEN
+                            G_SoundOnEnt(self, sound::SoundClass::Voice, sound::Slot::Voice, "*falling1.wav"); // CHAN_VOICE_ATTEN
                         }
                         else if (!Any(self->NPC->aiFlags & npcAiFlags_t::NPCAI_DIE_ON_IMPACT)) {
-                            G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, "*falling1.wav"); // CHAN_VOICE_ATTEN
+                            G_SoundOnEnt(self, sound::SoundClass::Voice, sound::Slot::Voice, "*falling1.wav"); // CHAN_VOICE_ATTEN
                             self->NPC->aiFlags |= npcAiFlags_t::NPCAI_DIE_ON_IMPACT;
                             self->client->ps.friction = 0;
                         }
@@ -3465,8 +3465,8 @@ void player_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int 
                 meansOfDeath != meansOfDeath_t::MOD_EXPLOSIVE &&
                 meansOfDeath != meansOfDeath_t::MOD_EXPLOSIVE_SPLASH) { // no sound when killed by headshot (explosions don't count)
                 G_AlertTeam(self, attacker, 512, 0);
-                if (gi.VoiceVolume[self->s.number]) { // I was talking, so cut it off... with a jump sound?
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, "*jump1.wav");
+                if (gi.sound->GetVoiceState(self->s.number) != sound::VoiceState::NotTalking) { // I was talking, so cut it off... with a jump sound?
+                    G_SoundOnEnt(self, sound::SoundClass::Voice, sound::Slot::Voice, "*jump1.wav");
                 }
             }
             else {

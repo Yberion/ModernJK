@@ -241,7 +241,7 @@ void Wampa_Slash(int boltIndex, bool backhand)
                 AngleVectors(angs, pushDir, nullptr, nullptr);
                 G_Knockdown(radiusEnts[i], NPC, pushDir, 35, true);
             }
-            G_Sound(radiusEnts[i], G_SoundIndex("sound/chars/rancor/swipehit.wav"));
+            G_Sound(radiusEnts[i], sound::SoundClass::World, G_SoundIndex("sound/chars/rancor/swipehit.wav"));
         }
     }
 }
@@ -573,7 +573,7 @@ bool Wampa_TryGrab(void)
         return true;
     }
     else if (enemyDist < radius * 2.0f) { // smack
-        G_Sound(NPC->enemy, G_SoundIndex("sound/chars/rancor/swipehit.wav"));
+        G_Sound(NPC->enemy, sound::SoundClass::World, G_SoundIndex("sound/chars/rancor/swipehit.wav"));
         // actually push the enemy
         vec3_t pushDir;
         vec3_t angs;
@@ -670,7 +670,7 @@ void NPC_BSWampa_Default(void)
                     if (NPC->client->ps.legsAnim == animNumber_t::BOTH_HOLD_ATTACK) {
                         if (NPC->client->ps.legsAnimTimer) {
                             if (TIMER_Done2(NPC, "grabAttackDamage", true)) {
-                                G_Sound(NPC->activator, G_SoundIndex("sound/chars/rancor/swipehit.wav"));
+                                G_Sound(NPC->activator, sound::SoundClass::World, G_SoundIndex("sound/chars/rancor/swipehit.wav"));
                                 G_Damage(NPC->activator, NPC, NPC, vec3_origin, NPC->activator->currentOrigin, Q_irand(25, 40),
                                          (damageFlags_t::DAMAGE_NO_KNOCKBACK | damageFlags_t::DAMAGE_NO_ARMOR), meansOfDeath_t::MOD_MELEE);
                                 if (NPC->activator->health <= 0) { // killed them, chance of dismembering
@@ -735,7 +735,7 @@ void NPC_BSWampa_Default(void)
         }
         else {
             if (TIMER_Done(NPC, "angrynoise")) {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/wampa/misc/anger{}.wav", Q_irand(1, 2)).c_str());
+                G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/wampa/misc/anger{}.wav", Q_irand(1, 2)).c_str());
 
                 TIMER_Set(NPC, "angrynoise", Q_irand(5000, 10000));
             }
@@ -782,7 +782,7 @@ void NPC_BSWampa_Default(void)
     }
     else {
         if (TIMER_Done(NPC, "idlenoise")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, "sound/chars/wampa/misc/anger3.wav");
+            G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, "sound/chars/wampa/misc/anger3.wav");
 
             TIMER_Set(NPC, "idlenoise", Q_irand(2000, 4000));
         }

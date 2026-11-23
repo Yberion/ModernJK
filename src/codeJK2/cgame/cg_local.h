@@ -881,22 +881,30 @@ void cgi_CM_TransformedBoxTrace(trace_t* results, const vec3_t start, const vec3
 int cgi_CM_MarkFragments(int numPoints, const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer, int maxFragments,
                          markFragment_t* fragmentBuffer);
 
-// normal sounds will have their volume dynamically changed as their entity
-// moves and the listener moves
-void cgi_S_StartSound(vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx);
-
-// a local sound is always played full volume
-void cgi_S_StartLocalSound(sfxHandle_t sfx, soundChannel_t channelNum);
-void cgi_S_ClearLoopingSounds(void);
-void cgi_S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, soundChannel_t chan = soundChannel_t::CHAN_AUTO);
-void cgi_S_UpdateEntityPosition(int entityNum, const vec3_t origin);
-
-// repatialize recalculates the volumes of sound as they should be heard by the
-// given entityNum and position
-void cgi_S_Respatialize(int entityNum, const vec3_t origin, vec3_t axis[3], bool inwater);
-sfxHandle_t cgi_S_RegisterSound(const char* sample);                                    // returns buzz if not found
-void cgi_S_StartBackgroundTrack(const char* intro, const char* loop, bool bForceStart); // empty name stops music
-float cgi_S_GetSampleLength(sfxHandle_t sfx);
+//
+// cg_sound.cpp
+//
+// the sounds may play: from the cgame's start to its shutdown
+void CG_StartSounds(bool started);
+// a vec3_t as the sound's vector
+sound::Vector CG_SoundVector(const vec3_t v);
+// how fast an entity moves, for Doppler
+void CG_EntitySoundVelocity(const centity_t* cent, vec3_t velocity);
+// where an entity's sounds are heard from, and how fast it moves
+void CG_SetSoundPosition(int entityNum, const vec3_t origin);
+// a sound heard from a point (origin), or following its entity (origin nullptr), in the entity's slot; entityNum -1 or
+// ENTITYNUM_NONE for no entity
+sound::VoiceHandle CG_StartSound(const vec3_t origin, int entityNum, sound::SoundClass soundClass, sound::Slot slot, sfxHandle_t sfx, float volume = 1.0f);
+// a sound at the listener, not positioned
+sound::VoiceHandle CG_StartLocalSound(sfxHandle_t sfx, sound::SoundClass soundClass, sound::Slot slot, float volume = 1.0f);
+// a looping sound asked for in this frame, heard from origin: kept playing while it is asked for at every frame
+void CG_AddLoopingSound(int entityNum, const vec3_t origin, sfxHandle_t sfx, sound::SoundClass soundClass);
+// at the frame's end: the loops asked for started or moved, the others stopped
+void CG_UpdateLoopingSounds(void);
+// every loop stopped (a level's start, the cgame's shutdown)
+void CG_StopLoopingSounds(void);
+// the ears, once per frame
+void CG_SetSoundListener(int entityNum, const vec3_t origin, const vec3_t axis[3], bool underwater);
 
 void cgi_R_LoadWorldMap(const char* mapname);
 
@@ -974,12 +982,6 @@ bool cgi_GetUserCmd(int cmdNumber, usercmd_t* ucmd);
 // used for the weapon select and zoom
 void cgi_SetUserCmdValue(weapon_t stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride);
 void cgi_SetUserCmdAngles(float pitchOverride, float yawOverride, float rollOverride);
-
-void cgi_S_UpdateAmbientSet(const char* name, vec3_t origin);
-void cgi_AS_ParseSets(void);
-void cgi_AS_AddPrecacheEntry(const char* name);
-int cgi_S_AddLocalSet(const char* name, vec3_t listener_origin, vec3_t origin, int entID, int time);
-sfxHandle_t cgi_AS_GetBModelSound(const char* name, int stage);
 
 //-----------------------------
 // Effects related prototypes

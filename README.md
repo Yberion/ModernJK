@@ -2,7 +2,7 @@
 
 ModernJK is a fork of [OpenJK](https://github.com/JACoders/OpenJK) that modernizes the multiplayer game of Jedi Academy: a new network codec in both directions, a fixed 100 Hz tick with the game's rules kept at their 20 Hz pace, the same results on Windows and Linux (one math library, one random generator), network settings fixed or computed instead of set by the player, and every library built with the project. It is not compatible with OpenJK or the base game: a ModernJK client does not play on their servers, and their demos do not play on ModernJK. **Backward compatibility is not a goal**: the protocol, the file formats, the settings and the game's own code change wherever that gives a better result, and the bugs found on the way are fixed even when the fix changes how the game plays; every change is listed in [CHANGES.md](docs/modernization/CHANGES.md).
 
-The work is in progress and centred on the multiplayer game. The single-player game of Jedi Academy is built too, from the same sources and with the same build changes (C++23, 64-bit, the bugs that the compilers' warnings showed fixed); its game is otherwise OpenJK's, and it is only started and played briefly, not tested in depth. The single-player game of Jedi Outcast is built too, to keep it compiling, and never run.
+The work is in progress and centred on the multiplayer game. The single-player game of Jedi Academy is built too, from the same sources and with the same build changes (C++23, 64-bit, the bugs that the compilers' warnings showed fixed); its game is otherwise OpenJK's, and it is only started and played briefly, not tested in depth. The single-player game of Jedi Outcast is built too, from the same sources; it was first started on 23 November 2026, its story begun, and is not tested in depth.
 
 ## Documentation
 
@@ -84,7 +84,7 @@ sudo apt install libsdl2-dev libgl1-mesa-dev libpipewire-0.3-dev libpulse-dev li
 | `windows-clang-fuzz` | the fuzzers: the network codec's and the sound decoders' |
 | `windows-clang-tidy`, `windows-clang-cppcheck` | everything, with the report of clang-tidy or cppcheck |
 
-The Release presets build with link-time optimization, the Debug and sanitizer presets without. Everything: the multiplayer client and dedicated server with their renderer and modules, the single-player games of Jedi Academy and Jedi Outcast, `modernjk.pk3` (from `assets/`), the tests, the network codec's benchmarks and tools. The full checks (`validate.sh`, `validate.bat`) are in "How to resume" of [the progress page](docs/modernization/progress/README.md).
+The Release presets build with link-time optimization, the Debug and sanitizer presets without. Everything: the multiplayer client and dedicated server with their renderer and modules, the single-player games of Jedi Academy and Jedi Outcast, a `modernjk.pk3` for each game (from `assets/jka`, installed in `JediAcademy/base`, and `assets/jk2`, in `JediOutcast/base`), the tests, the network codec's benchmarks and tools. The full checks (`validate.sh`, `validate.bat`) are in "How to resume" of [the progress page](docs/modernization/progress/README.md).
 
 ### Formatting
 
@@ -110,7 +110,7 @@ The libraries in `libs/`, each under its own licence:
 | [LLVM libc](https://github.com/llvm/llvm-project/tree/main/libc) (its math functions and text-to-float parser) | the LLVM contributors | the same floating-point results on every platform and compiler | Apache 2.0 with LLVM Exceptions |
 | [gsl-lite](https://github.com/gsl-lite/gsl-lite) | Martin Moene | spans in the single-player code | MIT |
 | [{fmt}](https://github.com/fmtlib/fmt) | Victor Zverovich and the {fmt} contributors | every printed and formatted text, its format checked at compile time | MIT |
-| [SDL](https://github.com/libsdl-org/SDL) | Sam Lantinga and the SDL contributors | the window, the input and the sound output (the copy in `libs/` for Windows; Linux uses the system's) | zlib |
+| [SDL](https://github.com/libsdl-org/SDL) | Sam Lantinga and the SDL contributors | the window and the input (the copy in `libs/` for Windows; Linux uses the system's) | zlib |
 | [OpenAL Soft](https://github.com/kcat/openal-soft) | Chris Robinson and the OpenAL Soft contributors | playing the sound: mixing, 3D, reverb, the sound device | LGPL 2 or later |
 | [libFLAC](https://github.com/xiph/flac) | the Xiph.Org Foundation and the FLAC contributors | decoding the FLAC sounds | BSD (Xiph.Org) |
 | [dr_mp3 and dr_wav](https://github.com/mackron/dr_libs) | David Reid (dr_mp3's decoder from lieff's minimp3) | decoding the MP3 and WAV sounds | public domain or MIT-0 |

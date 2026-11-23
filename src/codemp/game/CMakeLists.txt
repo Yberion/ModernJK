@@ -89,6 +89,7 @@ add_library(jampgame MODULE
 	g_saga.cpp
 	g_scenario.cpp
 	g_session.cpp
+	g_sound.cpp
 	g_spawn.cpp
 	g_svcmds.cpp
 	g_target.cpp

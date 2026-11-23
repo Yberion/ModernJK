@@ -476,7 +476,8 @@ int Q3_PlaySound(int taskID, int entID, const char* name, const char* channel)
         }
         else {
             // This the voice channel
-            G_Sound(ent, voice_chan, G_SoundIndex((char*)finalName));
+            const soundUse_t use = BG_SoundUseOfChannel(voice_chan);
+            G_Sound(ent, use.soundClass, use.slot, G_SoundIndex((char*)finalName));
         }
         // Remember we're waiting for this
         trap->ICARUS_TaskIDSet((sharedEntity_t*)ent, taskID_t::TID_CHAN_VOICE, taskID);
@@ -492,7 +493,7 @@ int Q3_PlaySound(int taskID, int entID, const char* name, const char* channel)
         te->r.svFlags |= svFlags_t::SVF_BROADCAST;
     }
     else {
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, soundHandle);
+        G_Sound(ent, sound::SoundClass::World, sound::Slot::None, soundHandle);
     }
 
     return true;

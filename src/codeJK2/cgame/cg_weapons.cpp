@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern void CG_LightningBolt(centity_t* cent, vec3_t origin);
 
 int cgi_UI_GetMenuInfo(const char* menuFile, int* x, int* y);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 const char* CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHeight, const char* psText, int iFontHandle, float fScale, const vec4_t v4Color);
 
 /*
@@ -158,22 +158,22 @@ void CG_RegisterWeapon(weapon_t weaponNum)
 
     // register the sounds for the weapon
     if (weaponData[weaponNum].firingSnd[0]) {
-        weaponInfo->firingSound = cgi_S_RegisterSound(weaponData[weaponNum].firingSnd);
+        weaponInfo->firingSound = gi.sound->Register(weaponData[weaponNum].firingSnd);
     }
     if (weaponData[weaponNum].altFiringSnd[0]) {
-        weaponInfo->altFiringSound = cgi_S_RegisterSound(weaponData[weaponNum].altFiringSnd);
+        weaponInfo->altFiringSound = gi.sound->Register(weaponData[weaponNum].altFiringSnd);
     }
     if (weaponData[weaponNum].stopSnd[0]) {
-        weaponInfo->stopSound = cgi_S_RegisterSound(weaponData[weaponNum].stopSnd);
+        weaponInfo->stopSound = gi.sound->Register(weaponData[weaponNum].stopSnd);
     }
     if (weaponData[weaponNum].chargeSnd[0]) {
-        weaponInfo->chargeSound = cgi_S_RegisterSound(weaponData[weaponNum].chargeSnd);
+        weaponInfo->chargeSound = gi.sound->Register(weaponData[weaponNum].chargeSnd);
     }
     if (weaponData[weaponNum].altChargeSnd[0]) {
-        weaponInfo->altChargeSound = cgi_S_RegisterSound(weaponData[weaponNum].altChargeSnd);
+        weaponInfo->altChargeSound = gi.sound->Register(weaponData[weaponNum].altChargeSnd);
     }
     if (weaponData[weaponNum].selectSnd[0]) {
-        weaponInfo->selectSound = cgi_S_RegisterSound(weaponData[weaponNum].selectSnd);
+        weaponInfo->selectSound = gi.sound->Register(weaponData[weaponNum].selectSnd);
     }
 
     // give us missile models if we should
@@ -184,16 +184,16 @@ void CG_RegisterWeapon(weapon_t weaponNum)
         weaponInfo->alt_missileModel = cgi_R_RegisterModel(weaponData[weaponNum].alt_missileMdl);
     }
     if (weaponData[weaponNum].missileSound[0]) {
-        weaponInfo->missileSound = cgi_S_RegisterSound(weaponData[weaponNum].missileSound);
+        weaponInfo->missileSound = gi.sound->Register(weaponData[weaponNum].missileSound);
     }
     if (weaponData[weaponNum].alt_missileSound[0]) {
-        weaponInfo->alt_missileSound = cgi_S_RegisterSound(weaponData[weaponNum].alt_missileSound);
+        weaponInfo->alt_missileSound = gi.sound->Register(weaponData[weaponNum].alt_missileSound);
     }
     if (weaponData[weaponNum].missileHitSound[0]) {
-        weaponInfo->missileHitSound = cgi_S_RegisterSound(weaponData[weaponNum].missileHitSound);
+        weaponInfo->missileHitSound = gi.sound->Register(weaponData[weaponNum].missileHitSound);
     }
     if (weaponData[weaponNum].altmissileHitSound[0]) {
-        weaponInfo->altmissileHitSound = cgi_S_RegisterSound(weaponData[weaponNum].altmissileHitSound);
+        weaponInfo->altmissileHitSound = gi.sound->Register(weaponData[weaponNum].altmissileHitSound);
     }
     if (weaponData[weaponNum].mMuzzleEffect[0]) {
         weaponData[weaponNum].mMuzzleEffectID = theFxScheduler.RegisterEffect(weaponData[weaponNum].mMuzzleEffect);
@@ -235,61 +235,61 @@ void CG_RegisterWeapon(weapon_t weaponNum)
         cgs.media.HUDSaberStyleStrong = cgi_R_RegisterShader("gfx/hud/saber_stylesStrong");
 
         // saber sounds
-        cgi_S_RegisterSound("sound/weapons/saber/saberon.wav");
-        cgi_S_RegisterSound("sound/weapons/saber/enemy_saber_on.wav");
-        cgi_S_RegisterSound("sound/weapons/saber/saberonquick.wav");
-        cgi_S_RegisterSound("sound/weapons/saber/saberoff.wav");
-        cgi_S_RegisterSound("sound/weapons/saber/enemy_saber_off.wav");
-        cgi_S_RegisterSound("sound/weapons/saber/saberspinoff.wav");
-        cgi_S_RegisterSound("sound/weapons/saber/saberoffquick.wav");
+        gi.sound->Register("sound/weapons/saber/saberon.wav");
+        gi.sound->Register("sound/weapons/saber/enemy_saber_on.wav");
+        gi.sound->Register("sound/weapons/saber/saberonquick.wav");
+        gi.sound->Register("sound/weapons/saber/saberoff.wav");
+        gi.sound->Register("sound/weapons/saber/enemy_saber_off.wav");
+        gi.sound->Register("sound/weapons/saber/saberspinoff.wav");
+        gi.sound->Register("sound/weapons/saber/saberoffquick.wav");
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberbounce{}.wav", i).c_str());
+            gi.sound->Register(Q_Format("sound/weapons/saber/saberbounce{}.wav", i).c_str());
         }
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberhit{}.wav", i).c_str());
+            gi.sound->Register(Q_Format("sound/weapons/saber/saberhit{}.wav", i).c_str());
         }
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberhitwall{}.wav", i).c_str());
+            gi.sound->Register(Q_Format("sound/weapons/saber/saberhitwall{}.wav", i).c_str());
         }
         for (i = 1; i < 10; i++) {
-            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberblock{}.wav", i).c_str());
+            gi.sound->Register(Q_Format("sound/weapons/saber/saberblock{}.wav", i).c_str());
         }
         for (i = 1; i < 6; i++) {
-            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberhum{}.wav", i).c_str());
+            gi.sound->Register(Q_Format("sound/weapons/saber/saberhum{}.wav", i).c_str());
         }
         for (i = 1; i < 10; i++) {
-            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberhup{}.wav", i).c_str());
+            gi.sound->Register(Q_Format("sound/weapons/saber/saberhup{}.wav", i).c_str());
         }
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/saberspin{}.wav", i).c_str());
+            gi.sound->Register(Q_Format("sound/weapons/saber/saberspin{}.wav", i).c_str());
         }
-        cgi_S_RegisterSound("sound/weapons/saber/saber_catch.wav");
+        gi.sound->Register("sound/weapons/saber/saber_catch.wav");
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/bounce{}.wav", i).c_str());
+            gi.sound->Register(Q_Format("sound/weapons/saber/bounce{}.wav", i).c_str());
         }
-        cgi_S_RegisterSound("sound/weapons/saber/hitwater.wav");
-        cgi_S_RegisterSound("sound/weapons/saber/boiling.wav");
+        gi.sound->Register("sound/weapons/saber/hitwater.wav");
+        gi.sound->Register("sound/weapons/saber/boiling.wav");
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(Q_Format("sound/weapons/saber/rainfizz{}.wav", i).c_str());
+            gi.sound->Register(Q_Format("sound/weapons/saber/rainfizz{}.wav", i).c_str());
         }
 
         // force sounds
-        cgi_S_RegisterSound("sound/weapons/force/heal.mp3");
-        cgi_S_RegisterSound("sound/weapons/force/speed.mp3");
-        cgi_S_RegisterSound("sound/weapons/force/speedloop.mp3");
+        gi.sound->Register("sound/weapons/force/heal.mp3");
+        gi.sound->Register("sound/weapons/force/speed.mp3");
+        gi.sound->Register("sound/weapons/force/speedloop.mp3");
         for (i = 1; i < 5; i++) {
-            cgi_S_RegisterSound(Q_Format("sound/weapons/force/heal{}.mp3", i).c_str());
+            gi.sound->Register(Q_Format("sound/weapons/force/heal{}.mp3", i).c_str());
         }
-        cgi_S_RegisterSound("sound/weapons/force/lightning.wav");
-        cgi_S_RegisterSound("sound/weapons/force/lightning2.wav");
+        gi.sound->Register("sound/weapons/force/lightning.wav");
+        gi.sound->Register("sound/weapons/force/lightning2.wav");
         for (i = 1; i < 4; i++) {
-            cgi_S_RegisterSound(Q_Format("sound/weapons/force/lightninghit{}.wav", i).c_str());
+            gi.sound->Register(Q_Format("sound/weapons/force/lightninghit{}.wav", i).c_str());
         }
-        cgi_S_RegisterSound("sound/weapons/force/push.wav");
-        cgi_S_RegisterSound("sound/weapons/force/pull.wav");
-        cgi_S_RegisterSound("sound/weapons/force/jump.wav");
-        cgi_S_RegisterSound("sound/weapons/force/jumpbuild.wav");
-        cgi_S_RegisterSound("sound/weapons/force/grip.mp3");
+        gi.sound->Register("sound/weapons/force/push.wav");
+        gi.sound->Register("sound/weapons/force/pull.wav");
+        gi.sound->Register("sound/weapons/force/jump.wav");
+        gi.sound->Register("sound/weapons/force/jumpbuild.wav");
+        gi.sound->Register("sound/weapons/force/grip.mp3");
 
         // saber graphics
         cgs.media.saberBlurShader = cgi_R_RegisterShader("gfx/effects/sabers/saberBlur");
@@ -354,9 +354,9 @@ void CG_RegisterWeapon(weapon_t weaponNum)
         cgi_R_RegisterShaderNoMip("gfx/2d/crop_charge");
 
         // zoom sounds
-        cgi_S_RegisterSound("sound/weapons/disruptor/zoomstart.wav");
-        cgi_S_RegisterSound("sound/weapons/disruptor/zoomend.wav");
-        cgs.media.disruptorZoomLoop = cgi_S_RegisterSound("sound/weapons/disruptor/zoomloop.wav");
+        gi.sound->Register("sound/weapons/disruptor/zoomstart.wav");
+        gi.sound->Register("sound/weapons/disruptor/zoomend.wav");
+        cgs.media.disruptorZoomLoop = gi.sound->Register("sound/weapons/disruptor/zoomloop.wav");
 
         // Disruptor gun zoom interface
         cgs.media.disruptorMask = cgi_R_RegisterShader("gfx/2d/cropCircle2");
@@ -426,16 +426,16 @@ void CG_RegisterWeapon(weapon_t weaponNum)
         cgi_R_RegisterShaderNoMip("gfx/2d/wedge");
         cgi_R_RegisterShaderNoMip("gfx/2d/lock");
 
-        cgi_S_RegisterSound("sound/weapons/rocket/lock.wav");
-        cgi_S_RegisterSound("sound/weapons/rocket/tick.wav");
+        gi.sound->Register("sound/weapons/rocket/lock.wav");
+        gi.sound->Register("sound/weapons/rocket/tick.wav");
         break;
 
     case weapon_t::WP_THERMAL:
-        cgs.media.grenadeBounce1 = cgi_S_RegisterSound("sound/weapons/thermal/bounce1.wav");
-        cgs.media.grenadeBounce2 = cgi_S_RegisterSound("sound/weapons/thermal/bounce2.wav");
+        cgs.media.grenadeBounce1 = gi.sound->Register("sound/weapons/thermal/bounce1.wav");
+        cgs.media.grenadeBounce2 = gi.sound->Register("sound/weapons/thermal/bounce2.wav");
 
-        cgi_S_RegisterSound("sound/weapons/thermal/thermloop.wav");
-        cgi_S_RegisterSound("sound/weapons/thermal/warning.wav");
+        gi.sound->Register("sound/weapons/thermal/thermloop.wav");
+        gi.sound->Register("sound/weapons/thermal/warning.wav");
         theFxScheduler.RegisterEffect("thermal/explosion");
         theFxScheduler.RegisterEffect("thermal/shockwave");
         break;
@@ -446,18 +446,18 @@ void CG_RegisterWeapon(weapon_t weaponNum)
         theFxScheduler.RegisterEffect("tripMine/laserImpactGlow");
         theFxScheduler.RegisterEffect("tripMine/glowBit");
 
-        cgs.media.tripMineStickSound = cgi_S_RegisterSound("sound/weapons/laser_trap/stick.wav");
-        cgi_S_RegisterSound("sound/weapons/laser_trap/warning.wav");
-        cgi_S_RegisterSound("sound/weapons/laser_trap/hum_loop.wav");
+        cgs.media.tripMineStickSound = gi.sound->Register("sound/weapons/laser_trap/stick.wav");
+        gi.sound->Register("sound/weapons/laser_trap/warning.wav");
+        gi.sound->Register("sound/weapons/laser_trap/hum_loop.wav");
         break;
 
     case weapon_t::WP_DET_PACK:
         theFxScheduler.RegisterEffect("detpack/explosion.efx");
 
-        cgs.media.detPackStickSound = cgi_S_RegisterSound("sound/weapons/detpack/stick.wav");
+        cgs.media.detPackStickSound = gi.sound->Register("sound/weapons/detpack/stick.wav");
         cgi_R_RegisterModel("models/weapons2/detpack/detpack.md3");
-        cgi_S_RegisterSound("sound/weapons/detpack/warning.wav");
-        cgi_S_RegisterSound("sound/weapons/explosions/explode5.wav");
+        gi.sound->Register("sound/weapons/detpack/warning.wav");
+        gi.sound->Register("sound/weapons/explosions/explode5.wav");
         break;
 
     case weapon_t::WP_EMPLACED_GUN:
@@ -475,21 +475,21 @@ void CG_RegisterWeapon(weapon_t weaponNum)
 
     case weapon_t::WP_MELEE:
         // TEMP
-        cgi_S_RegisterSound("sound/weapons/melee/punch1.mp3");
-        cgi_S_RegisterSound("sound/weapons/melee/punch2.mp3");
-        cgi_S_RegisterSound("sound/weapons/melee/punch3.mp3");
-        cgi_S_RegisterSound("sound/weapons/melee/punch4.mp3");
+        gi.sound->Register("sound/weapons/melee/punch1.mp3");
+        gi.sound->Register("sound/weapons/melee/punch2.mp3");
+        gi.sound->Register("sound/weapons/melee/punch3.mp3");
+        gi.sound->Register("sound/weapons/melee/punch4.mp3");
         break;
 
     case weapon_t::WP_STUN_BATON:
         cgi_R_RegisterShader("gfx/effects/stunPass");
         theFxScheduler.RegisterEffect("stunBaton/flesh_impact");
         // TEMP
-        cgi_S_RegisterSound("sound/weapons/melee/punch1.mp3");
-        cgi_S_RegisterSound("sound/weapons/melee/punch2.mp3");
-        cgi_S_RegisterSound("sound/weapons/melee/punch3.mp3");
-        cgi_S_RegisterSound("sound/weapons/melee/punch4.mp3");
-        cgi_S_RegisterSound("sound/weapons/baton/fire");
+        gi.sound->Register("sound/weapons/melee/punch1.mp3");
+        gi.sound->Register("sound/weapons/melee/punch2.mp3");
+        gi.sound->Register("sound/weapons/melee/punch3.mp3");
+        gi.sound->Register("sound/weapons/melee/punch4.mp3");
+        gi.sound->Register("sound/weapons/baton/fire");
         break;
 
     case weapon_t::WP_TURRET:
@@ -569,8 +569,8 @@ void CG_RegisterItemVisuals(itemNum_t itemNum)
         // This should be set up to actually work.
         switch (GI_Inventory(*item)) {
         case inventory_t::INV_SEEKER:
-            cgi_S_RegisterSound("sound/chars/seeker/misc/fire.wav");
-            cgi_S_RegisterSound("sound/chars/seeker/misc/hiss.wav");
+            gi.sound->Register("sound/chars/seeker/misc/fire.wav");
+            gi.sound->Register("sound/chars/seeker/misc/hiss.wav");
             theFxScheduler.RegisterEffect("env/small_explode");
 
             CG_RegisterWeapon(weapon_t::WP_BLASTER);
@@ -578,7 +578,7 @@ void CG_RegisterItemVisuals(itemNum_t itemNum)
 
         case inventory_t::INV_SENTRY:
             CG_RegisterWeapon(weapon_t::WP_TURRET);
-            cgi_S_RegisterSound("sound/player/use_sentry");
+            gi.sound->Register("sound/player/use_sentry");
             break;
 
         case inventory_t::INV_ELECTROBINOCULARS:
@@ -602,7 +602,7 @@ void CG_RegisterItemVisuals(itemNum_t itemNum)
 
         case inventory_t::INV_BACTA_CANISTER:
             for (int i = 1; i < 5; i++) {
-                cgi_S_RegisterSound(Q_Format("sound/weapons/force/heal{}.mp3", i).c_str());
+                gi.sound->Register(Q_Format("sound/weapons/force/heal{}.mp3", i).c_str());
             }
             break;
         default:
@@ -966,7 +966,7 @@ void CG_AddViewWeapon(playerState_t* ps)
     memset(&hand, 0, sizeof(hand));
 
     if (ps->weapon == weapon_t::WP_STUN_BATON) {
-        cgi_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound);
+        CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, weapon->firingSound, sound::SoundClass::Weapon);
     }
 
     if (ps->weapon == weapon_t::WP_NONE) {
@@ -1928,14 +1928,14 @@ void CG_PlayerLockedWeaponSpeech(int jumping)
             if (!Q3_TaskIDPending(&g_entities[0], taskID_t::TID_CHAN_VOICE)) { // not waiting on a scripted sound to finish
                 if (!jumping) {
                     if (Q_flrand(0.0f, 1.0f) > 0.5) {
-                        G_SoundOnEnt(player, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/kyle/09kyk015.wav").c_str());
+                        G_SoundOnEnt(player, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/chars/kyle/09kyk015.wav").c_str());
                     }
                     else {
-                        G_SoundOnEnt(player, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/kyle/09kyk016.wav").c_str());
+                        G_SoundOnEnt(player, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/chars/kyle/09kyk016.wav").c_str());
                     }
                 }
                 else {
-                    G_SoundOnEnt(player, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/kyle/16kyk007.wav").c_str());
+                    G_SoundOnEnt(player, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/chars/kyle/16kyk007.wav").c_str());
                 }
                 speechDebounceTime = cg.time + 3000;
             }
@@ -2244,14 +2244,14 @@ void CG_Weapon_f(void)
                     if (cg_entities[0].currentState.saberActive) {
                         cg_entities[0].gent->client->ps.saberActive = false;
                         if (cg_entities[0].currentState.saberInFlight) { // play it on the saber
-                            cgi_S_UpdateEntityPosition(cg_entities[0].gent->client->ps.saberEntityNum,
-                                                       g_entities[cg_entities[0].gent->client->ps.saberEntityNum].currentOrigin);
-                            cgi_S_StartSound(nullptr, cg_entities[0].gent->client->ps.saberEntityNum, soundChannel_t::CHAN_AUTO,
-                                             cgi_S_RegisterSound("sound/weapons/saber/saberoff.wav"));
+                            CG_SetSoundPosition(cg_entities[0].gent->client->ps.saberEntityNum,
+                                                g_entities[cg_entities[0].gent->client->ps.saberEntityNum].currentOrigin);
+                            CG_StartSound(nullptr, cg_entities[0].gent->client->ps.saberEntityNum, sound::SoundClass::Saber, sound::Slot::None,
+                                          gi.sound->Register("sound/weapons/saber/saberoff.wav"));
                         }
                         else {
-                            cgi_S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO,
-                                             cgi_S_RegisterSound("sound/weapons/saber/saberoff.wav"));
+                            CG_StartSound(nullptr, cg.snap->ps.clientNum, sound::SoundClass::Saber, sound::Slot::None,
+                                          gi.sound->Register("sound/weapons/saber/saberoff.wav"));
                         }
                     }
                     else {
@@ -2420,11 +2420,11 @@ void CG_FireWeapon(centity_t* cent, bool alt_fire)
                     break;
 
                 case weapon_t::WP_BLASTER:
-                    cgi_S_StartSound( nullptr, ent->number, soundChannel_t::CHAN_AUTO, cgs.media.overchargeFastSound );
+                    CG_StartSound(nullptr, ent->number, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.overchargeFastSound);
                     break;
 
                 default:
-                    cgi_S_StartSound( nullptr, ent->number, soundChannel_t::CHAN_AUTO, cgs.media.overchargeSlowSound );
+                    CG_StartSound(nullptr, ent->number, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.overchargeSlowSound);
                     break;
                 }
             }
@@ -2440,11 +2440,11 @@ void CG_FireWeapon(centity_t* cent, bool alt_fire)
                     break;
 
                 case weapon_t::WP_REPEATER:
-                    cgi_S_StartSound( nullptr, ent->number, soundChannel_t::CHAN_AUTO, cgs.media.overchargeFastSound );
+                    CG_StartSound(nullptr, ent->number, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.overchargeFastSound);
                     break;
 
                 default:
-                    cgi_S_StartSound( nullptr, ent->number, soundChannel_t::CHAN_AUTO, cgs.media.overchargeSlowSound );
+                    CG_StartSound(nullptr, ent->number, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.overchargeSlowSound);
                     break;
                 }
             }
@@ -2463,10 +2463,10 @@ void CG_BounceEffect(centity_t* cent, weapon_t weapon, vec3_t origin, vec3_t nor
     switch (weapon) {
     case weapon_t::WP_THERMAL:
         if (Q_irand(0, 1)) {
-            cgi_S_StartSound(origin, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, cgs.media.grenadeBounce1);
+            CG_StartSound(origin, ENTITYNUM_WORLD, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.grenadeBounce1);
         }
         else {
-            cgi_S_StartSound(origin, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, cgs.media.grenadeBounce2);
+            CG_StartSound(origin, ENTITYNUM_WORLD, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.grenadeBounce2);
         }
         break;
 
@@ -2480,10 +2480,10 @@ void CG_BounceEffect(centity_t* cent, weapon_t weapon, vec3_t origin, vec3_t nor
 
     default:
         if (Q_irand(0, 1)) {
-            cgi_S_StartSound(origin, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, cgs.media.grenadeBounce1);
+            CG_StartSound(origin, ENTITYNUM_WORLD, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.grenadeBounce1);
         }
         else {
-            cgi_S_StartSound(origin, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, cgs.media.grenadeBounce2);
+            CG_StartSound(origin, ENTITYNUM_WORLD, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.grenadeBounce2);
         }
         break;
     }
@@ -2512,7 +2512,7 @@ void CG_MissileStick(centity_t* cent, weapon_t weapon, vec3_t position)
     }
 
     if (snd) {
-        cgi_S_StartSound(nullptr, cent->currentState.number, soundChannel_t::CHAN_AUTO, snd);
+        CG_StartSound(nullptr, cent->currentState.number, sound::SoundClass::World, sound::Slot::None, snd);
     }
 }
 

@@ -894,7 +894,7 @@ void HolocronTouch(gentity_t* self, gentity_t* other, trace_t* trace)
         // NOTE: No longer valid as we are now always giving a force level 1 saber attack level in holocron
     }
 
-    // G_Sound(other, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/weapons/w_pkup.wav"));
+    // G_Sound(other, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/weapons/w_pkup.wav"));
     G_AddEvent(other, entity_event_t::EV_ITEM_PICKUP, self->s.number);
 
     other->client->ps.holocronsCarried[HolocronPower(self)] = level.time;
@@ -1186,7 +1186,7 @@ void check_recharge(gentity_t* ent)
     if (ent->fly_sound_debounce_time < level.time || !ent->activator || !ent->activator->client ||
         !Any(ent->activator->client->pers.cmd.buttons & buttonFlags_t::BUTTON_USE)) {
         if (ent->activator) {
-            G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->genericValue7);
+            G_Sound(ent, sound::SoundClass::World, sound::Slot::None, ent->genericValue7);
         }
         ent->s.loopSound = 0;
         ent->s.loopIsSoundset = false;
@@ -1238,7 +1238,7 @@ void shield_power_converter_use(gentity_t* self, gentity_t* other, gentity_t* ac
 
     if (level.gametype == gametype_t::GT_SIEGE && other && other->client && other->client->siegeClass) {
         if (!bgSiegeClasses[other->client->siegeClass].maxarmor) { // can't use it!
-            G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/interface/shieldcon_empty"));
+            G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/interface/shieldcon_empty"));
             return;
         }
     }
@@ -1290,10 +1290,10 @@ void shield_power_converter_use(gentity_t* self, gentity_t* other, gentity_t* ac
     if (stop || self->count <= 0) {
         if (self->s.loopSound && self->setTime < level.time) {
             if (self->count <= 0) {
-                G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/interface/shieldcon_empty"));
+                G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/interface/shieldcon_empty"));
             }
             else {
-                G_Sound(self, soundChannel_t::CHAN_AUTO, self->genericValue7);
+                G_Sound(self, sound::SoundClass::World, sound::Slot::None, self->genericValue7);
             }
         }
         self->s.loopSound = 0;
@@ -1447,10 +1447,10 @@ void ammo_generic_power_converter_use(gentity_t* self, gentity_t* other, gentity
     if (stop || self->count <= 0) {
         if (self->s.loopSound && self->setTime < level.time) {
             if (self->count <= 0) {
-                G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/interface/ammocon_empty"));
+                G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/interface/ammocon_empty"));
             }
             else {
-                G_Sound(self, soundChannel_t::CHAN_AUTO, self->genericValue7);
+                G_Sound(self, sound::SoundClass::World, sound::Slot::None, self->genericValue7);
             }
         }
         self->s.loopSound = 0;
@@ -2714,8 +2714,8 @@ void faller_touch(gentity_t* self, gentity_t* other, trace_t* trace)
             self->genericValue11 = G_SoundIndex("sound/chars/stofficer1/misc/pain75");
         }
 
-        G_EntitySound(self, soundChannel_t::CHAN_VOICE, self->genericValue11);
-        G_EntitySound(self, soundChannel_t::CHAN_AUTO, self->genericValue10);
+        G_EntitySound(self, sound::SoundClass::Voice, sound::Slot::Voice, self->genericValue11);
+        G_EntitySound(self, sound::SoundClass::World, sound::Slot::None, self->genericValue10);
 
         self->genericValue6 = level.time + 3000;
 
@@ -2737,7 +2737,7 @@ void faller_think(gentity_t* ent)
 
     if (ent->epVelocity[2] < -100) {
         if (!ent->genericValue8) {
-            G_EntitySound(ent, soundChannel_t::CHAN_VOICE, ent->genericValue9);
+            G_EntitySound(ent, sound::SoundClass::Voice, sound::Slot::Voice, ent->genericValue9);
             ent->genericValue8 = 1;
         }
     }

@@ -27,7 +27,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 #include "cl_uiapi.h"
 #include <botlib/botlib.h>
-#include "snd_ambient.h"
 #include "FXExport.h"
 #include "FxUtil.h"
 
@@ -288,17 +287,6 @@ static void CL_AddReliableCommand2(const char* cmd)
 static int CL_CM_RegisterTerrain(const char* config)
 {
     return 0;
-}
-
-extern int s_entityWavVol[MAX_GENTITIES];
-static int CL_S_GetVoiceVolume(int entID)
-{
-    return s_entityWavVol[entID];
-}
-
-static void CL_S_Shutup(bool shutup)
-{
-    s_shutUp = shutup;
 }
 
 static int CL_GetCurrentCmdNumber(void)
@@ -965,24 +953,7 @@ void CL_BindCGame(void)
         cgi.CM_TransformedPointContents = CM_TransformedPointContents;
         cgi.CM_TransformedTrace = CM_TransformedBoxTrace;
         cgi.RMG_Init = CL_RMG_Init;
-        cgi.S_AddLocalSet = S_AddLocalSet;
-        cgi.S_AddLoopingSound = S_AddLoopingSound;
-        cgi.S_ClearLoopingSounds = S_ClearLoopingSounds;
-        cgi.S_GetVoiceVolume = CL_S_GetVoiceVolume;
-        cgi.S_MuteSound = S_MuteSound;
-        cgi.S_RegisterSound = S_RegisterSound;
-        cgi.S_Respatialize = S_Respatialize;
-        cgi.S_Shutup = CL_S_Shutup;
-        cgi.S_StartBackgroundTrack = S_StartBackgroundTrack;
-        cgi.S_StartLocalSound = S_StartLocalSound;
-        cgi.S_StartSound = S_StartSound;
-        cgi.S_StopBackgroundTrack = S_StopBackgroundTrack;
-        cgi.S_StopLoopingSound = S_StopLoopingSound;
-        cgi.S_UpdateEntityPosition = S_UpdateEntityPosition;
-        cgi.S_UpdateAmbientSet = S_UpdateAmbientSet;
-        cgi.AS_AddPrecacheEntry = AS_AddPrecacheEntry;
-        cgi.AS_GetBModelSound = AS_GetBModelSound;
-        cgi.AS_ParseSets = AS_ParseSets;
+        cgi.sound = &SND_Api();
         cgi.R_AddAdditiveLightToScene = re->AddAdditiveLightToScene;
         cgi.R_AddDecalToScene = re->AddDecalToScene;
         cgi.R_AddLightToScene = re->AddLightToScene;

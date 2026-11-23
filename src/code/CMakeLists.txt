@@ -33,37 +33,10 @@ target_sources(sp_engine_common INTERFACE
 	client/cl_input.cpp
 	client/cl_keys.cpp
 	client/cl_main.cpp
-	client/cl_mp3.cpp
 	client/cl_parse.cpp
 	client/cl_scrn.cpp
 	client/cl_ui.cpp
-	client/snd_ambient.cpp
-	client/snd_dma.cpp
-	client/snd_mem.cpp
-	client/snd_mix.cpp
-	client/snd_music.cpp
 	client/vmachine.cpp
-	game/genericparser2.cpp
-	mp3code/cdct.c
-	mp3code/csbt.c
-	mp3code/csbtb.c
-	mp3code/csbtl3.c
-	mp3code/cup.c
-	mp3code/cupini.c
-	mp3code/cupl1.c
-	mp3code/cupl3.c
-	mp3code/cwin.c
-	mp3code/cwinb.c
-	mp3code/cwinm.c
-	mp3code/hwin.c
-	mp3code/l3dq.c
-	mp3code/l3init.c
-	mp3code/mdct.c
-	mp3code/mhead.c
-	mp3code/msis.c
-	mp3code/towave.c
-	mp3code/uph.c
-	mp3code/upsf.c
 	qcommon/cm_load.cpp
 	qcommon/cm_patch.cpp
 	qcommon/cm_polylib.cpp
@@ -101,7 +74,7 @@ target_include_directories(sp_engine_common INTERFACE "${CMAKE_CURRENT_SOURCE_DI
 # _JK2EXE: the single player's engine (Jedi Academy's as well as Jedi Outcast's)
 target_compile_definitions(sp_engine_common INTERFACE _JK2EXE)
 target_link_libraries(sp_engine_common INTERFACE modernjk_version vendored::gsl_lite modernjk_shared_common
-	modernjk_filesystem modernjk_safe_string modernjk_safe_files modernjk_sys_client)
+	modernjk_filesystem modernjk_safe_string modernjk_safe_files modernjk_sys_client modernjk_sound_engine)
 
 if(modernjk_BUILD_SP)
 	add_executable(modernjk_sp WIN32)

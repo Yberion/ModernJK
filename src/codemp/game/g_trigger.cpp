@@ -75,7 +75,7 @@ void multi_trigger_run(gentity_t* ent)
 
     G_UseTargets(ent, ent->activator);
     if (ent->noise_index) {
-        G_Sound(ent->activator, soundChannel_t::CHAN_AUTO, ent->noise_index);
+        G_Sound(ent->activator, sound::SoundClass::World, sound::Slot::None, ent->noise_index);
     }
 
     if (ent->target2 && ent->target2[0] && ent->wait >= 0) {
@@ -1038,7 +1038,7 @@ void Use_target_push(gentity_t* self, gentity_t* other, gentity_t* activator)
     if (activator->fly_sound_debounce_time < level.time) {
         activator->fly_sound_debounce_time = level.time + 1500;
         if (self->noise_index) {
-            G_Sound(activator, soundChannel_t::CHAN_AUTO, self->noise_index);
+            G_Sound(activator, sound::SoundClass::World, sound::Slot::None, self->noise_index);
         }
     }
 }
@@ -1229,7 +1229,7 @@ void hurt_touch(gentity_t* self, gentity_t* other, trace_t* trace)
     // play sound
     /*
     if ( !(self->spawnflags & 4) && self->damage != -1 ) {
-        G_Sound( other, soundChannel_t::CHAN_AUTO, self->noise_index );
+        G_Sound(other, sound::SoundClass::World, sound::Slot::None, self->noise_index);
     }
     */
 
@@ -1258,7 +1258,7 @@ void hurt_touch(gentity_t* self, gentity_t* other, trace_t* trace)
             G_Damage(other, other, other, vDir, other->client->ps.origin, Q3_INFINITE, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_FALLING);
         }
         else {
-            G_EntitySound(other, soundChannel_t::CHAN_VOICE, G_SoundIndex("*falling1.wav"));
+            G_EntitySound(other, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("*falling1.wav"));
         }
 
         self->timestamp = 0; // do not ignore others
@@ -1496,7 +1496,7 @@ void hyperspace_touch(gentity_t* self, gentity_t* other, trace_t* trace)
                 // other->client->ps.hyperSpaceIndex = ent->s.number;
                 VectorCopy(ent->s.angles, other->client->ps.hyperSpaceAngles);
                 // sound
-                G_Sound(other, soundChannel_t::CHAN_LOCAL, G_SoundIndex("sound/vehicles/common/hyperend.wav"));
+                G_Sound(other, sound::SoundClass::Interface, sound::Slot::Menu, G_SoundIndex("sound/vehicles/common/hyperend.wav"));
             }
         }
         return;

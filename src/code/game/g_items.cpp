@@ -782,7 +782,7 @@ void Touch_Item(gentity_t* ent, gentity_t* other, trace_t* trace)
     if (!other->s.number && g_timescale->value < 1.0f) { // SIGH... with timescale on, you lose events left and right
         extern void CG_ItemPickup(itemNum_t itemNum, bool bHadItem);
         // but we're SP so we'll cheat
-        cgi_S_StartSound(nullptr, other->s.number, soundChannel_t::CHAN_AUTO, cgi_S_RegisterSound(ent->item->pickup_sound));
+        CG_StartSound(nullptr, other->s.number, sound::SoundClass::World, sound::Slot::None, gi.sound->Register(ent->item->pickup_sound));
         // show icon and name on status bar
         CG_ItemPickup(ES_ItemNum(ent->s), bHadWeapon);
     }
@@ -1473,5 +1473,5 @@ void ItemUse_Bacta(gentity_t* ent)
 
     ent->client->ps.inventory[inventory_t::INV_BACTA_CANISTER]--;
 
-    G_SoundOnEnt(ent, soundChannel_t::CHAN_VOICE, Q_Format("sound/weapons/force/heal{}_{}.mp3", Q_irand(1, 4), g_sex->string[0]).c_str());
+    G_SoundOnEnt(ent, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/weapons/force/heal{}_{}.mp3", Q_irand(1, 4), g_sex->string[0]).c_str());
 }

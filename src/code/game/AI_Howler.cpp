@@ -317,7 +317,7 @@ static void Howler_Attack(float enemyDist, bool howl)
             attackAnim = animNumber_t::BOTH_ATTACK2;
         }
         else if (!Q_irand(0, 4) || howl) { // howl attack
-                                           // G_SoundOnEnt( NPC, soundChannel_t::CHAN_VOICE, "sound/chars/howler/howl.mp3" );
+                                           // G_SoundOnEnt(NPC, sound::SoundClass::Voice, sound::Slot::Voice, "sound/chars/howler/howl.mp3");
         }
         else if (enemyDist > MIN_DISTANCE && Q_irand(0, 1)) { // lunge attack
             // jump foward
@@ -376,7 +376,7 @@ static void Howler_Attack(float enemyDist, bool howl)
             Howler_Howl();
             if (!NPC->count) {
                 G_PlayEffect(G_EffectIndex("howler/sonic"), NPC->playerModel, NPC->genericBolt1, NPC->s.number, NPC->currentOrigin, 4750, true);
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_VOICE, "sound/chars/howler/howl.mp3");
+                G_SoundOnEnt(NPC, sound::SoundClass::Voice, sound::Slot::Voice, "sound/chars/howler/howl.mp3");
                 NPC->count = 1;
             }
         }
@@ -651,13 +651,13 @@ void NPC_BSHowler_Default(void)
         Howler_Combat();
         if (TIMER_Done(NPC, "speaking")) {
             if (!TIMER_Done(NPC, "standing") || !TIMER_Done(NPC, "retreating")) {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/howler/idle_hiss{}.mp3", Q_irand(1, 2)).c_str());
+                G_SoundOnEnt(NPC, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/chars/howler/idle_hiss{}.mp3", Q_irand(1, 2)).c_str());
             }
             else if (!TIMER_Done(NPC, "walking") || NPC_LocalState<howlerLocalState_t>(*NPCInfo) == howlerLocalState_t::LSTATE_FLEE) {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/howler/howl_talk{}.mp3", Q_irand(1, 5)).c_str());
+                G_SoundOnEnt(NPC, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/chars/howler/howl_talk{}.mp3", Q_irand(1, 5)).c_str());
             }
             else {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/howler/howl_yell{}.mp3", Q_irand(1, 5)).c_str());
+                G_SoundOnEnt(NPC, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/chars/howler/howl_yell{}.mp3", Q_irand(1, 5)).c_str());
             }
             if (NPC_LocalState<howlerLocalState_t>(*NPCInfo) == howlerLocalState_t::LSTATE_BERZERK ||
                 NPC_LocalState<howlerLocalState_t>(*NPCInfo) == howlerLocalState_t::LSTATE_FLEE) {
@@ -672,10 +672,10 @@ void NPC_BSHowler_Default(void)
     else {
         if (TIMER_Done(NPC, "speaking")) {
             if (!Q_irand(0, 3)) {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/howler/idle_hiss{}.mp3", Q_irand(1, 2)).c_str());
+                G_SoundOnEnt(NPC, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/chars/howler/idle_hiss{}.mp3", Q_irand(1, 2)).c_str());
             }
             else {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/howler/howl_talk{}.mp3", Q_irand(1, 5)).c_str());
+                G_SoundOnEnt(NPC, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/chars/howler/howl_talk{}.mp3", Q_irand(1, 5)).c_str());
             }
             TIMER_Set(NPC, "speaking", Q_irand(4000, 12000));
         }

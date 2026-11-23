@@ -258,7 +258,7 @@ void CG_CaptionText(const char* str, int sound)
     //	s="Wp:쇼타임이다 멀린. 그들이 말한대로 네가 잘할지 기대하겠다.쇼타임이다 멀린. 그들이 말한대로 네가 잘할지 기대하겠다.";
     holds = s;
 
-    int iPlayingTimeMS = cgi_S_GetSampleLength(sound);
+    int iPlayingTimeMS = gi.sound->Length(sound);
     int iLengthInChars = strlen(s); // cgi_R_Font_StrLenChars(s);	// strlen is also good for MBCS in this instance, since it's for timing
     if (iLengthInChars == 0) {
         iLengthInChars = 1;

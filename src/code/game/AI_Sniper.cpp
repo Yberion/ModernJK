@@ -781,7 +781,7 @@ void NPC_BSSniper_Attack(void)
         if (TIMER_Done(NPC, "attackDelay")) {
             WeaponThink(true);
             if (Any(ucmd.buttons & (buttonFlags_t::BUTTON_ATTACK | buttonFlags_t::BUTTON_ALT_ATTACK))) {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_WEAPON, "sound/null.wav");
+                G_SoundOnEnt(NPC, sound::SoundClass::Weapon, sound::Slot::Weapon, "sound/null.wav");
             }
 
             // took a shot, now hide

@@ -2972,7 +2972,8 @@ void G_RunFrame(int levelTime)
 
                                 if (ent->health > 0) { // did that last one kill them?
                                     // play the choking sound
-                                    G_EntitySound(ent, soundChannel_t::CHAN_VOICE, G_SoundIndex(Q_Format("*choke{}.wav", Q_irand(1, 3)).c_str()));
+                                    G_EntitySound(ent, sound::SoundClass::Voice, sound::Slot::Voice,
+                                                  G_SoundIndex(Q_Format("*choke{}.wav", Q_irand(1, 3)).c_str()));
 
                                     // make them grasp their throat
                                     ent->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_CHOKE;

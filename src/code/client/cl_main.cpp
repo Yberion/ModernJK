@@ -51,7 +51,6 @@ cvar_t* cl_showTimeDelta;
 cvar_t* cl_newClock = nullptr;
 
 cvar_t* cl_shownet;
-cvar_t* cl_avidemo;
 
 cvar_t* cl_pano;
 cvar_t* cl_panoNumShots;
@@ -147,7 +146,7 @@ void CL_FlushMemory(void)
 {
 
     // clear sounds (moved higher up within this func to avoid the odd sound stutter)
-    S_DisableSounds();
+    SND_StopAll();
 
     // unload the old VM
     CL_ShutdownCGame();
@@ -223,7 +222,7 @@ void CL_ClearState(void)
 {
     CL_ShutdownCGame();
 
-    S_StopAllSounds();
+    SND_StopAll();
 
     memset(&cl, 0, sizeof(cl));
 }
@@ -266,7 +265,6 @@ void CL_Disconnect(void)
         UI_SetActiveMenu(nullptr, nullptr);
 
     SCR_StopCinematic();
-    S_ClearSoundBuffer();
 
     // send a disconnect message to the server
     // send it a few times in case one is dropped
@@ -383,8 +381,8 @@ Restart the video subsystem
 */
 void CL_Vid_Restart_f(void)
 {
-    S_StopAllSounds();     // don't let them loop during the restart
-    S_BeginRegistration(); // all sound handles are now invalid
+    SND_StopAll(); // don't let them loop during the restart
+    SND_BeginRegistration();
     CL_ShutdownRef(true);
     CL_ShutdownUI();
     CL_ShutdownCGame();
@@ -409,29 +407,47 @@ void CL_Vid_Restart_f(void)
 =================
 CL_Snd_Restart_f
 
-Restart the sound subsystem
-The cgame and game must also be forced to restart because
-handles will be invalid
+Restart the sound subsystem: the sounds registered keep their handles, the ambient sets and the music come back
 =================
 */
 void CL_Snd_Restart_f(void)
 {
-    S_Shutdown();
+    SND_Restart();
+}
 
-    S_Init();
+/*
+=================
+CL_UpdateMusicState
 
-    //	CL_Vid_Restart_f();
+The dynamic music's state the game asks for, at every frame (a music started again goes back to explore until it is given
+the state again)
+=================
+*/
+static void CL_UpdateMusicState(void)
+{
+    const int offset = cl.gameState.stringOffsets[CS_DYNAMIC_MUSIC_STATE];
 
-    extern bool s_soundMuted;
-    s_soundMuted = false; // we can play again
+    if (!offset) {
+        return;
+    }
 
-    S_RestartMusic();
+    const char* request = cl.gameState.stringData + offset;
+    sound::MusicState state = sound::MusicState::Explore;
 
-    extern void S_ReloadAllUsedSounds(void);
-    S_ReloadAllUsedSounds();
+    if (!Q_stricmpn(request, "silence", 7)) {
+        state = sound::MusicState::Silence;
+    }
+    else if (!Q_stricmpn(request, "action", 6)) {
+        state = sound::MusicState::Action;
+    }
+    else if (!Q_stricmpn(request, "boss", 4)) {
+        state = sound::MusicState::Boss;
+    }
+    else if (!Q_stricmpn(request, "death", 5)) {
+        state = sound::MusicState::Death;
+    }
 
-    extern void AS_ParseSets(void);
-    AS_ParseSets();
+    SND_SetMusicState(state);
 }
 /*
 ==================
@@ -789,26 +805,6 @@ void CL_Frame(int msec, float fractionMsec)
         }
     }
 
-    // if recording an avi, lock to a fixed fps
-    if (cl_avidemo->integer) {
-        // save the current screen
-        if (cls.state == connstate_t::CA_ACTIVE) {
-            if (cl_avidemo->integer > 0) {
-                Cbuf_ExecuteText(cbufExec_t::EXEC_NOW, "screenshot silent\n");
-            }
-            else {
-                Cbuf_ExecuteText(cbufExec_t::EXEC_NOW, "screenshot_tga silent\n");
-            }
-        }
-        // fixed time for next frame
-        if (cl_avidemo->integer > 0) {
-            msec = 1000 / cl_avidemo->integer;
-        }
-        else {
-            msec = 1000 / -cl_avidemo->integer;
-        }
-    }
-
     // save the msec before checking pause
     cls.realFrametime = msec;
 
@@ -871,7 +867,7 @@ void CL_Frame(int msec, float fractionMsec)
 
     if (cl_skippingcin->integer && !cl_endcredits->integer && !com_developer->integer) {
         if (cl_skippingcin->modified) {
-            S_StopSounds(); // kill em all but music
+            SND_StopSounds(); // kill em all but music
             cl_skippingcin->modified = false;
             Q_Print(S_COLOR_YELLOW "{}", SE_GetString("CON_TEXT_SKIPPING"));
             SCR_UpdateScreen();
@@ -881,8 +877,9 @@ void CL_Frame(int msec, float fractionMsec)
         // update the screen
         SCR_UpdateScreen();
     }
-    // update audio
-    S_Update();
+    // update audio: the dynamic music's state the game asks for in its configstring, then the sound's frame
+    CL_UpdateMusicState();
+    SND_Frame(cls.realtime);
 
     // advance local effects for next frame
     SCR_RunCinematic();
@@ -925,12 +922,12 @@ void CL_StartSound(void)
 {
     if (!cls.soundStarted) {
         cls.soundStarted = true;
-        S_Init();
+        SND_Init();
     }
 
     if (!cls.soundRegistered) {
         cls.soundRegistered = true;
-        S_BeginRegistration();
+        SND_BeginRegistration();
     }
 }
 
@@ -974,12 +971,12 @@ void CL_StartHunkUsers(void)
 
     if (!cls.soundStarted) {
         cls.soundStarted = true;
-        S_Init();
+        SND_Init();
     }
 
     if (!cls.soundRegistered) {
         cls.soundRegistered = true;
-        S_BeginRegistration();
+        SND_BeginRegistration();
     }
 
     // we require the ui to be loaded here or else it crashes trying to access the ui on command line map loads
@@ -1052,9 +1049,20 @@ void* CL_Malloc(int iSize, memtag_t eTag, bool bZeroit, int iAlign)
 CL_InitRef
 ============
 */
-extern bool S_FileExists(const char* psFilename);
+// whether a file can be read, from a pak or a folder (the file system's FS_FileExists looks only in the folder written to)
+bool CL_FileExists(const char* psFilename)
+{
+    fileHandle_t fhTemp;
+
+    FS_FOpenFileRead(psFilename, &fhTemp, true); // true so I can fclose the handle without closing a PAK
+    if (!fhTemp)
+        return false;
+
+    FS_FCloseFile(fhTemp);
+    return true;
+}
+
 extern bool CM_CullWorldBox(const cplane_t* frustum, const vec3pair_t bounds);
-extern bool SND_RegisterAudio_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* 99% false */);
 extern cvar_t* Cvar_Set2(const char* var_name, const char* value, bool force);
 extern CMiniHeap* G2VertSpaceServer;
 static CMiniHeap* GetG2VertSpaceServer(void)
@@ -1142,10 +1150,8 @@ void CL_InitRef(void)
     RIT(FS_Write);
     RIT(FS_WriteFile);
     RIT(Hunk_ClearToMark);
-    RIT(SND_RegisterAudio_LevelLoadEnd);
     // RIT(SV_PointContents);
     RIT(SV_Trace);
-    RIT(S_RestartMusic);
     RIT(Z_Free);
     rit.Malloc = CL_Malloc;
     RIT(Z_MemSize);
@@ -1164,7 +1170,7 @@ void CL_InitRef(void)
     rit.PD_Store = PD_Store;
 
     rit.Error = Q_VError;
-    rit.FS_FileExists = S_FileExists;
+    rit.FS_FileExists = CL_FileExists;
     rit.GetG2VertSpaceServer = GetG2VertSpaceServer;
     rit.LowPhysicalMemory = Sys_LowPhysicalMemory;
     rit.Milliseconds = Sys_Milliseconds2;
@@ -1239,7 +1245,6 @@ void CL_Init(void)
     cl_newClock = Cvar_Get("cl_newClock", "1", cvarFlags_t::CVAR_NONE);
     cl_activeAction = Cvar_Get("activeAction", "", cvarFlags_t::CVAR_TEMP);
 
-    cl_avidemo = Cvar_Get("cl_avidemo", "0", cvarFlags_t::CVAR_NONE);
     cl_pano = Cvar_Get("pano", "0", cvarFlags_t::CVAR_NONE);
     cl_panoNumShots = Cvar_Get("panoNumShots", "10", cvarFlags_t::CVAR_ARCHIVE_ND);
     cl_skippingcin = Cvar_Get("skippingCinematic", "0", cvarFlags_t::CVAR_ROM);
@@ -1351,7 +1356,7 @@ void CL_Shutdown(void)
     CL_ShutdownUI();
     CL_Disconnect();
 
-    S_Shutdown();
+    SND_Shutdown();
     CL_ShutdownRef(false);
 
     Cmd_RemoveCommand("cmd");

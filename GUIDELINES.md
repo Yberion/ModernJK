@@ -12,7 +12,7 @@ The rules for the project's code, documents and changes. They hold for every tre
 
 ## 2. Languages and platforms
 
-- C++23 everywhere, netcodec included; C (C17) only in FreeAmp's MP3 decoder (`mp3code`).
+- C++23 everywhere, netcodec included. No C is left in the project's own code since FreeAmp's MP3 decoder (`mp3code`) was removed with the old sound on 23 November 2026; C only in the libraries of `libs/`.
 - 64-bit Windows, Linux and macOS (macOS is not built for now; its code stays portable), on x86-64 and arm64. 32-bit and the other platforms were removed on 16 November 2026 and do not come back.
 - The compilers: MSVC (Visual Studio 2026), GCC 15 and clang 23. Every change builds on the three without a warning.
 - No exceptions in netcodec.

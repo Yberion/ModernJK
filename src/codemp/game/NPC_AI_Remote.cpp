@@ -87,7 +87,7 @@ void Remote_MaintainHeight(void)
                 dif *= 10;
                 NPCS.NPC->client->ps.velocity[2] = (NPCS.NPC->client->ps.velocity[2] + dif) / 2;
                 //	NPC->fx_time = level.time;
-                G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/remote/misc/hiss.wav"));
+                G_Sound(NPCS.NPC, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/remote/misc/hiss.wav"));
             }
         }
     }
@@ -157,7 +157,7 @@ void Remote_Strafe(void)
     if (tr.fraction > 0.9f) {
         VectorMA(NPCS.NPC->client->ps.velocity, REMOTE_STRAFE_VEL * dir, right, NPCS.NPC->client->ps.velocity);
 
-        G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/remote/misc/hiss.wav"));
+        G_Sound(NPCS.NPC, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/remote/misc/hiss.wav"));
 
         // Add a slight upward push
         NPCS.NPC->client->ps.velocity[2] += REMOTE_UPWARD_PUSH;

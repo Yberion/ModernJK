@@ -696,7 +696,7 @@ void CFxScheduler::CreateEffect(CPrimitiveTemplate* fx, int clientID, int delay)
         //---------
 
         // bolted sounds actually play on the client....
-        theFxHelper.PlaySound(nullptr, clientID, soundChannel_t::CHAN_WEAPON, fx->mMediaHandles.GetHandle());
+        theFxHelper.PlaySound(nullptr, clientID, sound::SoundClass::Weapon, sound::Slot::Weapon, fx->mMediaHandles.GetHandle());
         break;
 
     //---------
@@ -1339,10 +1339,10 @@ void CFxScheduler::CreateEffect(CPrimitiveTemplate* fx, const vec3_t origin, vec
         //---------
 
         if (Any(fx->mSpawnFlags & fxSpawnFlags_t::FX_SND_LESS_ATTENUATION)) {
-            theFxHelper.PlaySound(org, ENTITYNUM_NONE, soundChannel_t::CHAN_LESS_ATTEN, fx->mMediaHandles.GetHandle());
+            theFxHelper.PlaySound(org, ENTITYNUM_NONE, sound::SoundClass::Vehicle, sound::Slot::None, fx->mMediaHandles.GetHandle());
         }
         else {
-            theFxHelper.PlaySound(org, ENTITYNUM_NONE, soundChannel_t::CHAN_AUTO, fx->mMediaHandles.GetHandle());
+            theFxHelper.PlaySound(org, ENTITYNUM_NONE, sound::SoundClass::World, sound::Slot::None, fx->mMediaHandles.GetHandle());
         }
         break;
 

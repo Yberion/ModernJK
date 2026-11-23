@@ -1,6 +1,6 @@
 # What this branch changes compared with OpenJK
 
-Last update: 15 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses); single player is not built.
+Last update: 23 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (section 33), which concerns the single-player games of Jedi Academy and Jedi Outcast too.
 
 This page lists every change of the branch, with its reason and what it gives. The work follows the goals stated in the [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, a netcode other JKA forks can reuse, Windows and Linux. The measurements in full, and the history of each change, are in the step documents of [progress/](progress/README.md).
 
@@ -24,7 +24,8 @@ This page lists every change of the branch, with its reason and what it gives. T
 7. **Windows and Linux compute the same game, bit for bit**: the same math functions, random numbers and roundings on every system and compiler.
 8. **Messages are about 2.5 times smaller**, which pays for most of the higher rate.
 9. **No network setting is left**: `rate`, `snaps`, `cl_maxpackets`, `cl_packetdup` and `cl_timeNudge` are gone; the game computes or fixes their values.
-10. **The price**: a branch client and an OpenJK server (or the reverse) do not understand each other, and demos of one do not play on the other.
+10. **The sound is played by OpenAL Soft**, in the multiplayer and both single-player games: up to 64 sounds heard at once, chosen by how loud they are where you stand, instead of 32 channels where a new sound cut the oldest; every saber, shot and footstep from its own place, real Doppler, nothing played twice, `s_volume` the volume of everything (section [33](#33-the-sound-on-openal-soft)).
+11. **The price**: a branch client and an OpenJK server (or the reverse) do not understand each other, and demos of one do not play on the other.
 
 ### Delays before and now
 
@@ -158,6 +159,12 @@ Each line links to its section.
 | [24. Game](#24-game-fixes) | three random choices differed between compilers; a zoomed animation restarted at every step; the rocket launcher's homing lock took cloaked players and refused pulled ones; an idle animation went on through a deflected shot; the selected force power lost after a map change; the single player's absorb gave back the wrong amount; a character typed in a menu's field also moved the focus; a menu's command without its argument read a pointer never set; logs with "(null)"; a weapon picked up gave the wrong amount of ammo; an unknown weapon name in a script or a map; an NPC's pain delay while gripped, and a creature's twice its animation; the single player's vehicle flashes and datapad weapons; a weapon's charge counted with the ping's gap, then up to 50 ms short | fixed; a charge is exactly the time held |
 | [25. Client](#25-client-fixes-outside-the-netcode) | shots louder at a high frame rate, menu cursor too fast, keypad binds, servers hidden from the browser; images decoded by another library on Windows and on Linux; the pk3 archives read through libraries of 2010 and 2013, the system's on Linux; every texture compressed by the graphics driver as it loads | fixed; one image decoder everywhere, more than twice as fast; one reader of the archives everywhere, 1.8 times as fast; a player's model loaded in 20 ms instead of 71 |
 | [26. Shots](#26-the-shots-towards-the-point-aimed-at) | from a fixed point beside the eyes, parallel to the view; the NPCs and the bots fire beside what they aim at, the emplaced gun beside its crosshair | from the same point towards the point the eyes aim at, for every shooter; the crosshair where the shot lands |
+
+**The sound**
+
+| change | before | now |
+|---|---|---|
+| [33. The sound on OpenAL Soft](#33-the-sound-on-openal-soft) | a software mixer with 32 channels shared by every sound, a 1995 MP3 decoder, SDL 2's device | OpenAL Soft: 64 voices mixed, chosen by loudness, the others followed silently; real Doppler; the reference decoders; the system's device followed |
 
 **Reference**: [27. Settings and commands](#27-settings-and-commands), [28. Build, tests and repository](#28-build-tests-and-repository), [29. Name: ModernJK](#29-name-modernjk), [30. Compatibility](#30-compatibility), [31. C++20, 64-bit Windows, Linux and macOS](#31-c20-64-bit-windows-linux-and-macos), [32. Not changed yet](#32-not-changed-yet).
 
@@ -1083,6 +1090,10 @@ Removed cvars. A removed cvar keeps the behaviour of its default, except `cg_smo
 | `g_randFix` | the default's correct range | 12 |
 | `sv_padPackets` | nothing: it padded only OpenJK's format | 13 |
 | `cg_dynamicCrosshairPrecision` | the crosshair's ray traced against the players' models | 26 |
+| `s_khz`, `s_mixahead`, `s_mixPreStep`, `s_separation`, `s_testsound`, `s_soundpoolmegs`, `s_sdlBits`, `s_sdlChannels`, `s_sdlDevSamps`, `s_sdlMixSamps` (and the menus' `s_UseOpenAL`) | OpenAL Soft mixes at the device's rate and pans in 3D; every sound decoded when registered, outside the zone | 33 |
+| `s_doppler` | Doppler on, for every moving sound | 33 |
+| `s_threshold1` to `s_threshold4` | the lip sync's levels, Jedi Academy's (0.3, 4, 6, 8) for every game | 33 |
+| `cl_aviFrameRate`, `cl_aviMotionJpeg`, `cl_avi2GBLimit`, `cl_forceavidemo`, `r_aviMotionJpegQuality`, and the single player's `cl_avidemo` | no video recorder: a player records with a program made for it | 33 |
 
 Changed: `cl_shownet` has levels 1, 2 and 3 (section 13). `g_userinfoValidate` has a new default (section 8). `r_ext_compress_textures` defaults to 0: the graphics driver no longer compresses the textures (section 25); a configuration file holds it only where a player had set 0, so nothing is to reset.
 
@@ -1108,6 +1119,7 @@ Added cvars, all for debugging or measuring:
 | `sv_netcodecCompare` | server | also codes each message and each client packet in OpenJK's format and prints the byte ratios, every 10 s (1) or every message (2) |
 | `sv_netcodecMaxBytes` | server | the largest message the server codes (0: 49,152 bytes), to test what happens to larger ones (section 19) |
 | `cl_debugInterpForce`, `cl_debugInterpDelay` | client, cheat-protected | force a display delay (section 4) |
+| `s_muteWhenUnfocused` | client, archived, default 1 | the sound muted while the window has not the focus (section 33) |
 | `g_debugSeed` | server (game module) | a non-zero value replaces the game's start seed: with `fixedtime` set before the map loads, a run replays the same game |
 
 Added commands. The statistics commands print their counters since the previous call.
@@ -1121,6 +1133,8 @@ Added commands. The statistics commands print their counters since the previous 
 | `scenario` | server (game module), cheat | `scenario saber <repetitions> <fast\|medium\|strong\|dual\|staff> <mode> [distance]` (the modes `idle`, `attack` and the special moves: `throw`, `lock`, `kata`, `back`, `backcrouch`, `jump`, `lunge`, `cartwheel`, `backflip`, `kick`, `airkick`, `rollstab`, `stabdown`), `scenario force <repetitions> <power> [level] [distance] [the defender's level]`, `scenario weapon <repetitions> <weapon number> <0\|1\|2> [distance]`, `scenario turret <repetitions> <g2\|hoth> [distance]`, `scenario off`, with the options `hold=`, `rep=`, `pickup=` (a holocron or the Jedi Master's saber in front of the attacker, which walks onto it first) and `target=ally` (the attacker's teammate as the target) (the syntax in full at the top of `game/g_scenario.cpp`): two or three bots that are not spectators, placed face to face and reset every 2 s, play a fixed script of commands timed in milliseconds; `gamestats` is printed at the end. With `scenario_trace <n>` the two bots' state at every 20 Hz instant and every health loss are printed for the first n repetitions. Every reset puts the bots back in a state that does not depend on what came before |
 
 `cg_showmiss` prints two more kinds of lines (section 2).
+
+Removed commands: `video`, `stopvideo` (the video recorder), `mp3_calcvols` (section 33). Changed: `s_show 1` (cheat) writes the sound log, one `SNDLOG` line per sound started, replaced, merged or ended and the voices playing (section 33).
 
 ### 28. Build, tests and repository
 
@@ -1198,6 +1212,70 @@ Top-level `CMakeLists.txt`: `CMAKE_CXX_STANDARD` 20, required, without extension
 | The delay the other players are drawn with depends on your frame rate: about 2 ms at 100 frames per second, 7 at 125, 11 at 333 | kept as it is (15 November 2026): extrapolating would make the delay equal but guess the positions and the angles; a fixed delay would add a few milliseconds at 100 and 125 frames per second |
 | Encryption, or a replacement for the removed obfuscation; several download blocks per message | plan step 12 |
 | Tables retrained on games of this build; the force power levels the prediction lacks; a wider `saberAttackChainCount` | plan step 13 |
-| The client's window, input and sound device rewritten on SDL 3 | plan step 15 |
+| The client's window and input rewritten on SDL 3; the sound's reverb by zones, as the original game's EAX path played it | plan steps 15 and 21 (part 4) |
 | Protocol number, handshake, support of the old protocol, old demos | end of the plan |
 | An acknowledgement bitfield, a snapshot history sized from the round trip | not planned (reasons in [progress/step-10-acks-reliable.md](progress/step-10-acks-reliable.md)) |
+
+## F. The sound
+
+### 33. The sound on OpenAL Soft
+
+**Before.** OpenJK plays the sound with the base game's software mixer, one copy in each engine: 32 channels shared by every sound, the looping ones included; a new sound takes a free channel or the oldest one, whatever its loudness or distance; the looping sounds are added again at every frame and those of one file are merged into one channel; the mixer paints 150 ms ahead in 16-bit integers with hard clipping, takes the nearest sample when it resamples and pans only left and right; SDL 2 plays the result. MP3 files are decoded by FreeAmp's decoder of 1995. Settings choose the mixing rate (`s_khz`, the menu's "sound quality") and EAX, which OpenJK cannot play.
+
+**Now.** One sound module for the multiplayer and both single-player games (`src/shared/sound`), on OpenAL Soft 1.25.2:
+
+- every sound is played with a class (voice, weapon, saber, force, vehicle, world, body, ambient, interface, announcer) that gives its distances, its volume (voices or effects) and its priority, and, where one sound must replace another, a slot of its entity (a new line cuts the character's last one, a shot cuts the weapon's charge);
+- at every frame the 64 sounds loudest where you stand are mixed, four at most of one file; the others are followed silently and heard again from where they have got to when they become loud enough;
+- the looping sounds are started once, moved and stopped;
+- real Doppler for every moving sound; under water, every sound muffled;
+- the system's default device followed (headphones plugged in, a device removed); the sound muted, not paused, while the window has not the focus (`s_muteWhenUnfocused`);
+- the files decoded by the reference decoders: dr_mp3, dr_wav, libFLAC and stb_vorbis; a sound's name is looked for as `.flac`, `.wav`, `.ogg`, then `.mp3`; every sound decoded when it is registered;
+- the music and the single player's dynamic music streamed, the cinematics' sound on a stream of their own;
+- the video recorder removed;
+- the "sound quality" and "EAX" items removed from both games' menus (a `modernjk.pk3` for each game).
+
+**Why.** The defects below, each shown in game on the old mixer by a sound log first; one code for the three games instead of two copies; a library that mixes on its own thread in floating point, with a good resampler, and that follows the system's devices.
+
+**Gain.**
+
+| fix | before | now |
+|---|---|---|
+| Several sabers at once | their hums merged into one channel, their volumes added and clipped, heard from one blended direction (free play with ten bots: at 9,391 of 11,250 frames; a crowd of fifteen: up to 17 hums of one file) | each hum its own sound, from its own blade; the four loudest of one file mixed |
+| A crowded fight | the 32 channels full: a new sound cut the oldest still playing, a near hit as well as a far footstep (crowd: 4,932 sounds cut in 90 s) | 64 sounds mixed, the quietest followed silently; none cut (crowd: the 64 full at 57 % of the frames, up to 147 more followed) |
+| A sound that starts out of range | stopped for good at its first silent frame, even if its source comes closer (free play: 812 in 90 s) | followed silently, heard when it comes in range (none lost) |
+| Doppler | on the multiplayer's missiles only, with a wrong formula: your own rocket started 2.76 times higher (about 18 semitones) for 70 ms, a missile passing close chirped as it left | real Doppler for every moving sound, the speed of sound about 12,000 units per second: a rocket about one semitone lower going away, higher coming |
+| The rocket launcher's lock | its ticks and tone played at the target, at 0.41 to 0.48 of their volume 900 units away, silent beyond 1,506 | at your ears, as a cue of the screen |
+| "No force" (multiplayer) | played at the first player's position (entity 0), faint or silent for everyone else | at your ears |
+| Shots (multiplayer) | every shot played twice, by the weapon's sound and by its muzzle effect, 6 dB louder than in the single player; an alternate shot played the regular shot's sound beside its own | once, the muzzle effect's, as in the single player; the alternate shots their alternate effect's own sound; your own shot heard with the gun hidden or zoomed |
+| The rocket's explosion | two copies of one sound at the same instant (its effect asks for two) | one sound at twice the volume: as loud, one voice |
+| Sabers hitting walls | every hit on a wall anywhere in the level cut the one playing elsewhere (crowd: 2,527 cut) | each hit its own sound |
+| Debris | each chunk of a breaking object cut the previous one | each chunk its own sound |
+| The volume | `s_volume` left the voices at `s_volumeVoice` alone: at 0 every line and pain was still heard | `s_volume` the volume of everything, the voices and the music relative to it |
+| The ambient sets' calls (Yavin's creatures) | the delay before the next call drawn again at every frame: nearly always the shortest, about every 10 s where the set asks for 10 to 50 | the delay drawn once, between the set's two times |
+| The MP3 files | the old decoder inverted the polarity, decoded 50 files wrongly and cut the end of 3,054 sounds | the reference's samples; the sounds start 26 to 38 ms earlier (the encoder's header skipped) |
+| The mixing | nearest-sample resampling, 16-bit integers clipped, left and right only | OpenAL Soft: the bsinc24 resampler, floating point, 3D panning |
+| A cinematic's mono sound | queued as mono though decoded as stereo pairs: its first half at half speed (read in the code) | queued as stereo |
+| Under water | nothing (only the EAX path, which OpenJK cannot play, muffled the sound) | every sound muffled, -30 dB at 5 kHz |
+| The window loses the focus | the device paused, the sound's clock frozen | muted, the sound going on (`s_muteWhenUnfocused 0` keeps it) |
+| Another sound device | the device chosen at the start kept | the system's default device followed |
+
+Costs: a level's sounds take 36 to 44 MB as decoded samples (measured on `mp/ffa3` and `yavin1`), where the old zone held 15 to 31 MB with the voices kept as MP3; the video recorder is gone (a program made for it records the game); the single player's saved games of OpenJK are refused (their version raised: a character's voice is written as its state). The mixing's CPU and latency are measured with the reverb in plan step 21, part 5.
+
+<details>
+<summary>Technical details</summary>
+
+| | OpenJK | this branch |
+|---|---|---|
+| Code | `client/snd_*.cpp`, `snd_mp3.cpp` or `cl_mp3.cpp`, `mp3code/` in each engine; `sdl/sdl_sound.cpp` | `src/shared/sound` (a static library, its tests `modernjk.sound` and three fuzzers), `engine/` compiled by each engine |
+| The modules' access | the multiplayer's import tables (`S_*`, `AS_*`); the single player's numbered system calls; `gi.VoiceVolume` | one `sound::Api*` in every import table (`trap->sound`, `gi.sound`) |
+| A sound sent by the server (multiplayer) | its channel in the event | its class, slot and loop flag packed in the same field (`BG_PackSoundEvent`, `src/shared/qcommon/q_sound.h`) |
+| The data's channels (animation events, scripts, effects) | played on that channel | turned into a class and a slot (`BG_SoundUseOfChannel`) |
+| Lip sync | an integer: -1, 0, 1 to 4 | an explicit state (not talking, silent, levels 1 to 4) |
+| Voices | positioned, 768 to 2,018 units; quiet ones 346 to 596; the howler's and the sand creature's as normal voices | the same distances; the howler's and the sand creature's as quiet voices, as the EAX path played them |
+| `CHAN_LESS_ATTEN` | 2,048 units in the multiplayer, 1,280 in the single player | the vehicle class, 2,048 to 3,298 everywhere |
+| The listener's own sounds | not positioned, at 0.75 | the same |
+| Latency | the mixer painting 150 ms ahead (about 70 ms estimated) | OpenAL Soft's default, 3 periods of 512 frames (about 32 ms reported on Windows) |
+
+The work, its decisions, the inventory of every call and the sound logs: [progress/step-21-sound.md](progress/step-21-sound.md).
+
+</details>

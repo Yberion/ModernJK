@@ -537,7 +537,7 @@ void CG_RegisterItemSounds(itemNum_t itemNum)
     item = &bg_itemlist[itemNum];
 
     if (item->pickup_sound) {
-        cgi_S_RegisterSound(item->pickup_sound);
+        gi.sound->Register(item->pickup_sound);
     }
 
     // parse the space seperated precache string for other media
@@ -563,7 +563,7 @@ void CG_RegisterItemSounds(itemNum_t itemNum)
         }
 
         if (!strcmp(data + len - 3, "wav")) {
-            cgi_S_RegisterSound(data);
+            gi.sound->Register(data);
         }
     }
 }
@@ -586,15 +586,15 @@ static void CG_AS_Register(void)
 
     // Load the ambient sets
 
-    cgi_AS_AddPrecacheEntry("#clear"); // ;-)
+    gi.sound->ClearPrecachedSets(); // ;-)
     // FIXME: Don't ask... I had to get around a really nasty MS error in the templates with this...
     namePrecache_m::iterator pi;
     STL_ITERATE(pi, (*as_preCacheMap))
     {
-        cgi_AS_AddPrecacheEntry(((*pi).first).c_str());
+        gi.sound->PrecacheSet(((*pi).first).c_str());
     }
 
-    cgi_AS_ParseSets();
+    gi.sound->ParseSets();
 }
 
 /*
@@ -615,69 +615,69 @@ static void CG_RegisterSounds(void)
     CG_LoadingString("general sounds");
 
     // FIXME: add to cg.media?
-    cgi_S_RegisterSound("sound/player/fallsplat.wav");
+    gi.sound->Register("sound/player/fallsplat.wav");
 
-    cgs.media.selectSound = cgi_S_RegisterSound("sound/weapons/change.wav");
-    cgs.media.selectSound2 = cgi_S_RegisterSound("sound/interface/button1.wav");
-    //	cgs.media.useNothingSound = cgi_S_RegisterSound( "sound/items/use_nothing.wav" );
+    cgs.media.selectSound = gi.sound->Register("sound/weapons/change.wav");
+    cgs.media.selectSound2 = gi.sound->Register("sound/interface/button1.wav");
+    //	cgs.media.useNothingSound = gi.sound->Register( "sound/items/use_nothing.wav" );
 
-    cgs.media.noAmmoSound = cgi_S_RegisterSound("sound/weapons/noammo.wav");
-    //	cgs.media.talkSound = 	cgi_S_RegisterSound( "sound/interface/communicator.wav" );
-    cgs.media.landSound = cgi_S_RegisterSound("sound/player/land1.wav");
-    cgs.media.rollSound = cgi_S_RegisterSound("sound/player/roll1.wav");
+    cgs.media.noAmmoSound = gi.sound->Register("sound/weapons/noammo.wav");
+    //	cgs.media.talkSound = 	gi.sound->Register( "sound/interface/communicator.wav" );
+    cgs.media.landSound = gi.sound->Register("sound/player/land1.wav");
+    cgs.media.rollSound = gi.sound->Register("sound/player/roll1.wav");
 
-    cgs.media.overchargeFastSound = cgi_S_RegisterSound("sound/weapons/overchargeFast.wav");
-    cgs.media.overchargeSlowSound = cgi_S_RegisterSound("sound/weapons/overchargeSlow.wav");
-    cgs.media.overchargeLoopSound = cgi_S_RegisterSound("sound/weapons/overchargeLoop.wav");
-    cgs.media.overchargeEndSound = cgi_S_RegisterSound("sound/weapons/overchargeEnd.wav");
+    cgs.media.overchargeFastSound = gi.sound->Register("sound/weapons/overchargeFast.wav");
+    cgs.media.overchargeSlowSound = gi.sound->Register("sound/weapons/overchargeSlow.wav");
+    cgs.media.overchargeLoopSound = gi.sound->Register("sound/weapons/overchargeLoop.wav");
+    cgs.media.overchargeEndSound = gi.sound->Register("sound/weapons/overchargeEnd.wav");
 
-    cgs.media.batteryChargeSound = cgi_S_RegisterSound("sound/interface/pickup_battery.wav");
+    cgs.media.batteryChargeSound = gi.sound->Register("sound/interface/pickup_battery.wav");
 
-    //	cgs.media.tedTextSound = cgi_S_RegisterSound( "sound/interface/tedtext.wav" );
-    cgs.media.messageLitSound = cgi_S_RegisterSound("sound/interface/update");
+    //	cgs.media.tedTextSound = gi.sound->Register( "sound/interface/tedtext.wav" );
+    cgs.media.messageLitSound = gi.sound->Register("sound/interface/update");
     cg.messageLitActive = false;
 
-    //	cgs.media.interfaceSnd1 = cgi_S_RegisterSound( "sound/interface/button4.wav" );
-    //	cgs.media.interfaceSnd2 = cgi_S_RegisterSound( "sound/interface/button2.wav" );
-    //	cgs.media.interfaceSnd3 = cgi_S_RegisterSound( "sound/interface/button1.wav" );
+    //	cgs.media.interfaceSnd1 = gi.sound->Register( "sound/interface/button4.wav" );
+    //	cgs.media.interfaceSnd2 = gi.sound->Register( "sound/interface/button2.wav" );
+    //	cgs.media.interfaceSnd3 = gi.sound->Register( "sound/interface/button1.wav" );
 
-    cgs.media.watrInSound = cgi_S_RegisterSound("sound/player/watr_in.wav");
-    cgs.media.watrOutSound = cgi_S_RegisterSound("sound/player/watr_out.wav");
-    cgs.media.watrUnSound = cgi_S_RegisterSound("sound/player/watr_un.wav");
+    cgs.media.watrInSound = gi.sound->Register("sound/player/watr_in.wav");
+    cgs.media.watrOutSound = gi.sound->Register("sound/player/watr_out.wav");
+    cgs.media.watrUnSound = gi.sound->Register("sound/player/watr_un.wav");
 
     // Zoom
-    cgs.media.zoomStart = cgi_S_RegisterSound("sound/interface/zoomstart.wav");
-    cgs.media.zoomLoop = cgi_S_RegisterSound("sound/interface/zoomloop.wav");
-    cgs.media.zoomEnd = cgi_S_RegisterSound("sound/interface/zoomend.wav");
+    cgs.media.zoomStart = gi.sound->Register("sound/interface/zoomstart.wav");
+    cgs.media.zoomLoop = gi.sound->Register("sound/interface/zoomloop.wav");
+    cgs.media.zoomEnd = gi.sound->Register("sound/interface/zoomend.wav");
 
-    cgi_S_RegisterSound("sound/chars/turret/startup.wav");
-    cgi_S_RegisterSound("sound/chars/turret/shutdown.wav");
-    cgi_S_RegisterSound("sound/chars/turret/ping.wav");
-    cgi_S_RegisterSound("sound/chars/turret/move.wav");
-    cgi_S_RegisterSound("sound/player/use_sentry");
+    gi.sound->Register("sound/chars/turret/startup.wav");
+    gi.sound->Register("sound/chars/turret/shutdown.wav");
+    gi.sound->Register("sound/chars/turret/ping.wav");
+    gi.sound->Register("sound/chars/turret/move.wav");
+    gi.sound->Register("sound/player/use_sentry");
     cgi_R_RegisterModel("models/items/psgun.glm");
     theFxScheduler.RegisterEffect("turret/explode");
     theFxScheduler.RegisterEffect("spark_exp_nosnd");
 
     for (i = 0; i < 4; i++) {
         Q_FormatTo(name, "sound/player/footsteps/stone_step{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_NORMAL][i] = cgi_S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_NORMAL][i] = gi.sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/metal_step{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_METAL][i] = cgi_S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_METAL][i] = gi.sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/water_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][i] = cgi_S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][i] = gi.sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/water_walk{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_WADE][i] = cgi_S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_WADE][i] = gi.sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/water_wade_0{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_SWIM][i] = cgi_S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_SWIM][i] = gi.sound->Register(name);
 
         // should these always be registered??
         Q_FormatTo(name, "sound/player/footsteps/boot{}.wav", i + 1);
-        cgi_S_RegisterSound(name);
+        gi.sound->Register(name);
     }
     theFxScheduler.RegisterEffect("water_impact");
 
@@ -710,7 +710,7 @@ static void CG_RegisterSounds(void)
         if (i & 31) {
             CG_LoadingString(soundName);
         }
-        cgs.sound_precache[i] = cgi_S_RegisterSound(soundName);
+        cgs.sound_precache[i] = gi.sound->Register(soundName);
     }
 }
 
@@ -1149,16 +1149,16 @@ static void CG_RegisterGraphics(void)
         cgs.media.chunkModels[chunkType_t::CHUNK_WHITE_METAL][i] = cgi_R_RegisterModel(Q_Format("models/chunks/metal/wmetal1_{}.md3", i + 1).c_str());
     }
 
-    cgs.media.chunkSound = cgi_S_RegisterSound("sound/weapons/explosions/glasslcar");
-    cgs.media.grateSound = cgi_S_RegisterSound("sound/effects/grate_destroy");
-    cgs.media.rockBreakSound = cgi_S_RegisterSound("sound/effects/wall_smash");
-    cgs.media.rockBounceSound[0] = cgi_S_RegisterSound("sound/effects/stone_bounce");
-    cgs.media.rockBounceSound[1] = cgi_S_RegisterSound("sound/effects/stone_bounce2");
-    cgs.media.metalBounceSound[0] = cgi_S_RegisterSound("sound/effects/metal_bounce");
-    cgs.media.metalBounceSound[1] = cgi_S_RegisterSound("sound/effects/metal_bounce2");
-    cgs.media.glassChunkSound = cgi_S_RegisterSound("sound/weapons/explosions/glassbreak1");
-    cgs.media.crateBreakSound[0] = cgi_S_RegisterSound("sound/weapons/explosions/crateBust1");
-    cgs.media.crateBreakSound[1] = cgi_S_RegisterSound("sound/weapons/explosions/crateBust2");
+    cgs.media.chunkSound = gi.sound->Register("sound/weapons/explosions/glasslcar");
+    cgs.media.grateSound = gi.sound->Register("sound/effects/grate_destroy");
+    cgs.media.rockBreakSound = gi.sound->Register("sound/effects/wall_smash");
+    cgs.media.rockBounceSound[0] = gi.sound->Register("sound/effects/stone_bounce");
+    cgs.media.rockBounceSound[1] = gi.sound->Register("sound/effects/stone_bounce2");
+    cgs.media.metalBounceSound[0] = gi.sound->Register("sound/effects/metal_bounce");
+    cgs.media.metalBounceSound[1] = gi.sound->Register("sound/effects/metal_bounce2");
+    cgs.media.glassChunkSound = gi.sound->Register("sound/weapons/explosions/glassbreak1");
+    cgs.media.crateBreakSound[0] = gi.sound->Register("sound/weapons/explosions/crateBust1");
+    cgs.media.crateBreakSound[1] = gi.sound->Register("sound/weapons/explosions/crateBust2");
 
     cgs.media.weaponbox = cgi_R_RegisterShaderNoMip("gfx/interface/weapon_box");
 
@@ -1230,7 +1230,7 @@ static void CG_RegisterGraphics(void)
 
     cgs.media.shadowMarkShader = cgi_R_RegisterShader("markShadow");
     cgs.media.wakeMarkShader = cgi_R_RegisterShader("wake");
-    cgi_S_RegisterSound("sound/effects/energy_crackle.wav");
+    gi.sound->Register("sound/effects/energy_crackle.wav");
 
     CG_LoadingString("map brushes");
     // register the inline models
@@ -1377,7 +1377,12 @@ void CG_StartMusic(bool bForceStart)
     Q_strncpyz(parm2, COM_Parse(&s), sizeof(parm2));
     COM_EndParseSession();
 
-    cgi_S_StartBackgroundTrack(parm1, parm2, !bForceStart);
+    gi.sound->StartMusic(parm1, parm2);
+
+    // at the level's start the music waits for its first snapshot, which starts it again from its beginning
+    if (!bForceStart) {
+        gi.sound->StopMusic();
+    }
 }
 
 /*
@@ -1570,6 +1575,7 @@ Called after every level change or subsystem restart
 void CG_Init(int serverCommandSequence)
 {
     cgs.serverCommandSequence = serverCommandSequence;
+    CG_StartSounds(true);
 
     cgi_Cvar_Set("cg_drawHUD", "1");
 
@@ -1623,6 +1629,8 @@ void CG_Shutdown(void)
 {
     in_camera = false;
     FX_Free();
+    CG_StopLoopingSounds();
+    CG_StartSounds(false);
 }
 
 //// DEBUG STUFF
@@ -2370,7 +2378,7 @@ void CG_NextInventory_f(void)
         }
 
         if (CG_InventorySelectable(cg.inventorySelect) && (inv_icons[cg.inventorySelect])) {
-            cgi_S_StartSound(nullptr, 0, soundChannel_t::CHAN_AUTO, cgs.media.selectSound2);
+            CG_StartSound(nullptr, 0, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.selectSound2);
             SetInventoryTime();
             return;
         }
@@ -2419,7 +2427,7 @@ void CG_PrevInventory_f(void)
         }
 
         if (CG_InventorySelectable(cg.inventorySelect) && (inv_icons[cg.inventorySelect])) {
-            cgi_S_StartSound(nullptr, 0, soundChannel_t::CHAN_AUTO, cgs.media.selectSound2);
+            CG_StartSound(nullptr, 0, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.selectSound2);
             SetInventoryTime();
             return;
         }
@@ -2933,7 +2941,7 @@ void CG_NextForcePower_f(void)
 
         if (ForcePower_Valid(cg.forcepowerSelect)) // Does he have the force power?
         {
-            cgi_S_StartSound(nullptr, 0, soundChannel_t::CHAN_AUTO, cgs.media.selectSound2);
+            CG_StartSound(nullptr, 0, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.selectSound2);
             return;
         }
     }
@@ -2971,7 +2979,7 @@ void CG_PrevForcePower_f(void)
 
         if (ForcePower_Valid(cg.forcepowerSelect)) // Does he have the force power?
         {
-            cgi_S_StartSound(nullptr, 0, soundChannel_t::CHAN_AUTO, cgs.media.selectSound2);
+            CG_StartSound(nullptr, 0, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.selectSound2);
             return;
         }
     }

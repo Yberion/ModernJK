@@ -100,6 +100,7 @@ add_library(jagame MODULE
 	g_roff.cpp
 	g_savegame.cpp
 	g_session.cpp
+	g_sound.cpp
 	g_spawn.cpp
 	g_svcmds.cpp
 	g_target.cpp
@@ -168,6 +169,7 @@ add_library(jagame MODULE
 	../cgame/cg_lights.cpp
 	../cgame/cg_localents.cpp
 	../cgame/cg_main.cpp
+	../cgame/cg_sound.cpp
 	../cgame/cg_marks.cpp
 	../cgame/cg_players.cpp
 	../cgame/cg_playerstate.cpp

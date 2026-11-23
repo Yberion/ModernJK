@@ -196,14 +196,6 @@ void* Z_Malloc(int iSize, memtag_t eTag, bool bZeroit /* = false */, int iUnused
                 continue; // we've just ditched a whole load of memory, so try again with the malloc
             }
 
-            // ditch any sounds not used on this level...
-            //
-            extern bool SND_RegisterAudio_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel);
-            if (SND_RegisterAudio_LevelLoadEnd(true)) {
-                gbMemFreeupOccured = true;
-                continue; // we've dropped at least one sound, so try again with the malloc
-            }
-
 #ifndef DEDICATED
             // ditch any image_t's (and associated GL memory) not used on this level...
             //
@@ -218,32 +210,6 @@ void* Z_Malloc(int iSize, memtag_t eTag, bool bZeroit /* = false */, int iUnused
             if (re->RegisterModels_LevelLoadEnd(true)) {
                 gbMemFreeupOccured = true;
                 continue;
-            }
-
-            // as a last panic measure, dump all the audio memory, but not if we're in the audio loader
-            //	(which is annoying, but I'm not sure how to ensure we're not dumping any memory needed by the sound
-            //	currently being loaded if that was the case)...
-            //
-            // note that this keeps querying until it's freed up as many bytes as the requested size, but freeing
-            //	several small blocks might not mean that one larger one is satisfiable after freeup, however that'll
-            //	just make it go round again and try for freeing up another bunch of blocks until the total is satisfied
-            //	again (though this will have freed twice the requested amount in that case), so it'll either work
-            //	eventually or not free up enough and drop through to the final ERR_DROP. No worries...
-            //
-            extern bool gbInsideLoadSound;
-            extern int SND_FreeOldestSound();
-            if (!gbInsideLoadSound) {
-                int iBytesFreed = SND_FreeOldestSound();
-                if (iBytesFreed) {
-                    int iTheseBytesFreed = 0;
-                    while ((iTheseBytesFreed = SND_FreeOldestSound()) != 0) {
-                        iBytesFreed += iTheseBytesFreed;
-                        if (iBytesFreed >= iRealSize)
-                            break; // early opt-out since we've managed to recover enough (mem-contiguity issues aside)
-                    }
-                    gbMemFreeupOccured = true;
-                    continue;
-                }
             }
 
             // sigh, dunno what else to try, I guess we'll have to give up and report this as an out-of-mem error...

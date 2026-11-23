@@ -702,7 +702,7 @@ void camera_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int 
     if (player && player->client && player->client->ps.viewEntity == self->s.number) {
         G_UseTargets2(self, player, self->target4);
         G_ClearViewEntity(player);
-        G_Sound(player, self->soundPos2);
+        G_Sound(player, sound::SoundClass::World, self->soundPos2);
     }
     G_UseTargets2(self, player, self->closetarget);
     // FIXME: explosion fx/sound
@@ -747,7 +747,7 @@ void camera_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         {    // I was the last (only?) one, clear out the viewentity
             G_UseTargets2(self, activator, self->target4);
             G_ClearViewEntity(activator);
-            G_Sound(activator, self->soundPos2);
+            G_Sound(activator, sound::SoundClass::World, self->soundPos2);
         }
     }
     else { // set me as view entity
@@ -755,7 +755,7 @@ void camera_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         self->s.eFlags |= entityFlags_t::EF_NODRAW;
         self->s.modelindex = 0;
         G_SetViewEntity(activator, self);
-        G_Sound(activator, self->soundPos1);
+        G_Sound(activator, sound::SoundClass::World, self->soundPos1);
     }
 }
 
@@ -766,7 +766,7 @@ void camera_aim(gentity_t* self)
         if (player->client->usercmd.forwardmove || player->client->usercmd.rightmove || player->client->usercmd.upmove) { // player wants to back out of camera
             G_UseTargets2(self, player, self->target4);
             G_ClearViewEntity(player);
-            G_Sound(player, self->soundPos2);
+            G_Sound(player, sound::SoundClass::World, self->soundPos2);
             self->painDebounceTime = level.time + (self->wait * 1000); // FRAMETIME*5;//don't check for player buttons for 500 ms
             if (player->client->usercmd.upmove > 0) {                  // stop player from doing anything for a half second after
                 player->aimDebounceTime = level.time + 500;
@@ -1131,7 +1131,7 @@ void health_shutdown(gentity_t* self)
         }
         else if (!Q_stricmp(self->model, "models/mapobjects/stasis/plugin2_floor.md3")) {
             self->s.modelindex = self->s.modelindex2;
-            //			G_Sound(self, G_SoundIndex("sound/ambience/stasis/shrinkage1.wav") );
+            //			G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/ambience/stasis/shrinkage1.wav"));
         }
         else if (!Q_stricmp(self->model, "models/mapobjects/forge/panels.md3")) {
             self->s.modelindex = self->s.modelindex2;
@@ -1275,7 +1275,7 @@ void health_use(gentity_t* self, gentity_t* other, gentity_t* activator)
 
         // Does player already have full health and full armor?
         if (dif > 0) {
-            //			G_Sound(self, G_SoundIndex("sound/player/suithealth.wav") );
+            //			G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/player/suithealth.wav"));
 
             if ((dif >= self->count) || (self->count < 1)) // use it all up?
             {
@@ -1292,7 +1292,7 @@ void health_use(gentity_t* self, gentity_t* other, gentity_t* activator)
             self->nextthink = level.time + 50;
         }
         else {
-            //			G_Sound(self, G_SoundIndex("sound/weapons/noammo.wav") );
+            //			G_Sound(self, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/noammo.wav"));
         }
     }
 }
@@ -1374,7 +1374,7 @@ void ammo_use(gentity_t* self, gentity_t* other, gentity_t* activator)
 
         // Does player already have full ammo?
         if (dif > 0) {
-            //			G_Sound(self, G_SoundIndex("sound/player/suitenergy.wav") );
+            //			G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/player/suitenergy.wav"));
 
             if ((dif >= self->count) || (self->count < 1)) // use it all up?
             {
@@ -1382,7 +1382,7 @@ void ammo_use(gentity_t* self, gentity_t* other, gentity_t* activator)
             }
         }
         else {
-            //			G_Sound(self, G_SoundIndex("sound/weapons/noammo.wav") );
+            //			G_Sound(self, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/noammo.wav"));
         }
         // Use target when used
         if (self->spawnflags & 8) {
@@ -1414,7 +1414,7 @@ void mega_ammo_use(gentity_t* self, gentity_t* other, gentity_t* activator)
     else
         self->count = ammoData[ammo_t::AMMO_POWERCELL].max - other->client->ps.ammo[ammo_t::AMMO_POWERCELL];
 
-    //	G_Sound( self, G_SoundIndex("sound/player/superenergy.wav") );
+    //	G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/player/superenergy.wav"));
 
     // Clear our usefunc, then think until our ammo is full
     self->e_UseFunc = useFunc_t::useF_NULL;
@@ -1922,7 +1922,7 @@ void shield_power_converter_use(gentity_t* self, gentity_t* other, gentity_t* ac
         if (self->count <= 0) {
             // play empty sound
             self->setTime = level.time + 1000; // extra debounce so that the sounds don't overlap too much
-            G_Sound(self, G_SoundIndex("sound/interface/shieldcon_empty.mp3"));
+            G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/interface/shieldcon_empty.mp3"));
             self->s.loopSound = 0;
 
             if (Any(self->s.eFlags & entityFlags_t::EF_SHADER_ANIM)) {
@@ -1932,7 +1932,7 @@ void shield_power_converter_use(gentity_t* self, gentity_t* other, gentity_t* ac
         else if (activator->client->ps.stats[statIndex_t::STAT_ARMOR] >= 100) // FIXME: define for max
         {
             // play full sound
-            G_Sound(self, G_SoundIndex("sound/interface/shieldcon_done.mp3"));
+            G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/interface/shieldcon_done.mp3"));
             self->setTime = level.time + 1000; // extra debounce so that the sounds don't overlap too much
             self->s.loopSound = 0;
         }
@@ -1996,7 +1996,7 @@ void bomb_planted_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         self->count = 0;
         // play disarm sound
         self->setTime = level.time + 1000; // extra debounce so that the sounds don't overlap too much
-        G_Sound(self, G_SoundIndex("sound/weapons/overchargeend"));
+        G_Sound(self, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/overchargeend"));
         self->s.loopSound = 0;
 
         // this pauses the shader on one frame (more or less)
@@ -2275,7 +2275,7 @@ void ammo_power_converter_use(gentity_t* self, gentity_t* other, gentity_t* acti
         if (self->count <= 0) {
             // play empty sound
             self->setTime = level.time + 1000; // extra debounce so that the sounds don't overlap too much
-            G_Sound(self, G_SoundIndex("sound/interface/ammocon_empty.mp3"));
+            G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/interface/ammocon_empty.mp3"));
             self->s.loopSound = 0;
 
             if (Any(self->s.eFlags & entityFlags_t::EF_SHADER_ANIM)) {
@@ -2286,7 +2286,7 @@ void ammo_power_converter_use(gentity_t* self, gentity_t* other, gentity_t* acti
                  ps->ammo[ammo_t::AMMO_POWERCELL] >= ammoData[ammo_t::AMMO_POWERCELL].max &&
                  ps->ammo[ammo_t::AMMO_METAL_BOLTS] >= ammoData[ammo_t::AMMO_METAL_BOLTS].max) {
             // play full sound
-            G_Sound(self, G_SoundIndex("sound/interface/ammocon_done.wav"));
+            G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/interface/ammocon_done.wav"));
             self->setTime = level.time + 1000; // extra debounce so that the sounds don't overlap too much
             self->s.loopSound = 0;
         }
@@ -2388,7 +2388,7 @@ void welder_think(gentity_t* self)
     //	newBolt = gi.G2API_AddBolt( &self->ghoul2[self->playerModel], "*flash01" );
 
     if (newBolt != -1) {
-        G_Sound(self, self->noise_index);
+        G_Sound(self, sound::SoundClass::World, self->noise_index);
         //	G_PlayEffect( "blueWeldSparks", self->playerModel, newBolt, self->s.number);
         // The welder gets rotated around a lot, and since the origin is offset by 352 I have to make this super expensive call to position the hurt...
         gi.G2API_GetBoltMatrix(self->ghoul2, self->playerModel, newBolt, &boltMatrix, self->currentAngles, self->currentOrigin,
@@ -2864,7 +2864,7 @@ void misc_atst_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         // open the hatch
         misc_atst_setanim(self, self->craniumBone, animNumber_t::BOTH_STAND2);
         gi.G2API_SetSurfaceOnOff(&self->ghoul2[self->playerModel], "head_hatchcover", g2SurfaceFlags_t::G2SURFACEFLAG_NONE);
-        G_Sound(self, G_SoundIndex("sound/chars/atst/atst_hatch_open"));
+        G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/chars/atst/atst_hatch_open"));
     }
 }
 

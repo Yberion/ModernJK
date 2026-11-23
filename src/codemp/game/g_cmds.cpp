@@ -2620,19 +2620,19 @@ void Cmd_ToggleSaber_f(gentity_t* ent)
             ent->client->ps.saberHolstered = 0;
 
             if (ent->client->saber[0].soundOn) {
-                G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[0].soundOn);
+                G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[0].soundOn);
             }
             if (ent->client->saber[1].soundOn) {
-                G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOn);
+                G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[1].soundOn);
             }
         }
         else {
             ent->client->ps.saberHolstered = 2;
             if (ent->client->saber[0].soundOff) {
-                G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[0].soundOff);
+                G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[0].soundOff);
             }
             if (ent->client->saber[1].soundOff && ent->client->saber[1].model[0]) {
-                G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOff);
+                G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[1].soundOff);
             }
             // prevent anything from being done for 400ms after holster
             ent->client->ps.weaponTime = 400;
@@ -2677,7 +2677,7 @@ void Cmd_SaberAttackCycle_f(gentity_t* ent)
         if (WP_SaberCanTurnOffSomeBlades(&ent->client->saber[1])) {         // can turn second saber off
             if (ent->client->ps.saberHolstered == 1) {                      // have one holstered
                 // unholster it
-                G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOn);
+                G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[1].soundOn);
                 ent->client->ps.saberHolstered = 0;
                 // g_active should take care of this, but...
                 ent->client->ps.fd.saberAnimLevel = saber_styles_t::SS_DUAL;
@@ -2690,7 +2690,7 @@ void Cmd_SaberAttackCycle_f(gentity_t* ent)
                 }
                 else {
                     // turn it off
-                    G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOff);
+                    G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[1].soundOff);
                     ent->client->ps.saberHolstered = 1;
                     // g_active should take care of this, but...
                     ent->client->ps.fd.saberAnimLevel = saber_styles_t::SS_FAST;
@@ -2712,7 +2712,7 @@ void Cmd_SaberAttackCycle_f(gentity_t* ent)
                 return;
             }
             // turn it on
-            G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[0].soundOn);
+            G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[0].soundOn);
             ent->client->ps.saberHolstered = 0;
             // g_active should take care of this, but...
             if (ent->client->saber[0].stylesForbidden) { // have a style we have to use
@@ -2733,7 +2733,7 @@ void Cmd_SaberAttackCycle_f(gentity_t* ent)
             }
             else {
                 // turn second one off
-                G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[0].soundOff);
+                G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[0].soundOff);
                 ent->client->ps.saberHolstered = 1;
                 // g_active should take care of this, but...
                 if (ent->client->saber[0].singleBladeStyle != saber_styles_t::SS_NONE) {
@@ -2932,20 +2932,20 @@ void Cmd_EngageDuel_f(gentity_t* ent)
 
             if (!ent->client->ps.saberHolstered) {
                 if (ent->client->saber[0].soundOff) {
-                    G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[0].soundOff);
+                    G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[0].soundOff);
                 }
                 if (ent->client->saber[1].soundOff && ent->client->saber[1].model[0]) {
-                    G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOff);
+                    G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[1].soundOff);
                 }
                 ent->client->ps.weaponTime = 400;
                 ent->client->ps.saberHolstered = 2;
             }
             if (!challenged->client->ps.saberHolstered) {
                 if (challenged->client->saber[0].soundOff) {
-                    G_Sound(challenged, soundChannel_t::CHAN_AUTO, challenged->client->saber[0].soundOff);
+                    G_Sound(challenged, sound::SoundClass::Saber, sound::Slot::None, challenged->client->saber[0].soundOff);
                 }
                 if (challenged->client->saber[1].soundOff && challenged->client->saber[1].model[0]) {
-                    G_Sound(challenged, soundChannel_t::CHAN_AUTO, challenged->client->saber[1].soundOff);
+                    G_Sound(challenged, sound::SoundClass::Saber, sound::Slot::None, challenged->client->saber[1].soundOff);
                 }
                 challenged->client->ps.weaponTime = 400;
                 challenged->client->ps.saberHolstered = 2;

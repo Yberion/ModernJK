@@ -2576,7 +2576,7 @@ saberMoveName_t PM_SaberJumpForwardAttackMove(void)
 
         // FIXME: NPCs yell?
         PM_AddEvent(entity_event_t::EV_JUMP);
-        G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+        G_SoundOnEnt(pm->gent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
         pm->cmd.upmove = 0;
 
         return saberMoveName_t::LS_A_JUMP_T__B_;
@@ -2744,7 +2744,7 @@ saberMoveName_t PM_SaberFlipOverAttackMove(void)
 
     // FIXME: NPCs yell?
     PM_AddEvent(entity_event_t::EV_JUMP);
-    G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+    G_SoundOnEnt(pm->gent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
     pm->cmd.upmove = 0;
     // FIXME: don't allow this to land on other people
 
@@ -3121,7 +3121,7 @@ saberMoveName_t PM_CheckPullAttack(void)
                     // do effect and sound on me
                     pm->ps->powerups[powerup_t::PW_FORCE_PUSH] = level.time + 1000;
                     if (pm->gent) {
-                        G_Sound(pm->gent, G_SoundIndex("sound/weapons/force/pull.wav"));
+                        G_Sound(pm->gent, sound::SoundClass::Force, G_SoundIndex("sound/weapons/force/pull.wav"));
                     }
                     doMove = true;
                 }

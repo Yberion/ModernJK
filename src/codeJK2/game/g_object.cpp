@@ -184,16 +184,16 @@ void G_RunObject(gentity_t* ent)
     if (tr.fraction || (traceEnt && traceEnt->takedamage)) {
         if (!VectorCompare(ent->currentOrigin, oldOrg)) { // moved and impacted
             if ((traceEnt && traceEnt->takedamage)) {     // hurt someone
-                G_Sound(ent, G_SoundIndex("sound/movers/objects/objectHurt.wav"));
+                G_Sound(ent, sound::SoundClass::World, G_SoundIndex("sound/movers/objects/objectHurt.wav"));
             }
-            G_Sound(ent, G_SoundIndex("sound/movers/objects/objectHit.wav"));
+            G_Sound(ent, sound::SoundClass::World, G_SoundIndex("sound/movers/objects/objectHit.wav"));
         }
         DoImpact(ent, traceEnt, (!Any(tr.surfaceFlags & surfaceFlags_t::SURF_NODAMAGE)));
     }
 
     if (!ent || (ent->takedamage && ent->health <= 0)) { // been destroyed by impact
         // chunks?
-        G_Sound(ent, G_SoundIndex("sound/movers/objects/objectBreak.wav"));
+        G_Sound(ent, sound::SoundClass::World, G_SoundIndex("sound/movers/objects/objectBreak.wav"));
         return;
     }
 

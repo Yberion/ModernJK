@@ -35,7 +35,7 @@ extern bool missionInfo_Updated;
 extern void CrystalAmmoSettings(gentity_t* ent);
 extern void G_CreateG2AttachedWeaponModel(gentity_t* ent, const char* weaponModel);
 extern void ChangeWeapon(gentity_t* ent, weapon_t newWeapon);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 extern bool PM_InKnockDown(playerState_t* ps);
 extern bool PM_InGetUp(playerState_t* ps);
 
@@ -544,7 +544,7 @@ void Touch_Item(gentity_t* ent, gentity_t* other, trace_t* trace)
     if (!other->s.number && g_timescale->value < 1.0f) { // SIGH... with timescale on, you lose events left and right
         extern void CG_ItemPickup(itemNum_t itemNum, bool bHadItem);
         // but we're SP so we'll cheat
-        cgi_S_StartSound(nullptr, other->s.number, soundChannel_t::CHAN_AUTO, cgi_S_RegisterSound(ent->item->pickup_sound));
+        CG_StartSound(nullptr, other->s.number, sound::SoundClass::World, sound::Slot::None, gi.sound->Register(ent->item->pickup_sound));
         // show icon and name on status bar
         CG_ItemPickup(ES_ItemNum(ent->s), bHadWeapon);
     }
@@ -1123,5 +1123,5 @@ void ItemUse_Bacta(gentity_t* ent)
 
     ent->client->ps.inventory[inventory_t::INV_BACTA_CANISTER]--;
 
-    G_SoundOnEnt(ent, soundChannel_t::CHAN_VOICE, Q_Format("sound/weapons/force/heal{}.mp3", Q_irand(1, 4)).c_str());
+    G_SoundOnEnt(ent, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/weapons/force/heal{}.mp3", Q_irand(1, 4)).c_str());
 }

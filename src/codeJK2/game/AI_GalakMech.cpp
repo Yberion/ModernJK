@@ -34,8 +34,8 @@ extern void NPC_AimAdjust(int change);
 extern bool WP_LobFire(gentity_t* self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, contentsFlags_t clipmask, vec3_t velocity, bool tracePath,
                        int ignoreEntNum, int enemyNum, float minSpeed, float maxSpeed, float idealSpeed, bool mustHit);
 extern bool InFront(vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f);
-extern void G_SoundAtSpot(vec3_t org, int soundIndex);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundAtSpot(vec3_t org, sound::SoundClass soundClass, int soundIndex);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 extern bool PM_CrouchAnim(animNumber_t anim);
 // extern void NPC_Mark1_Part_Explode(gentity_t *self,int bolt);
 
@@ -516,7 +516,7 @@ void NPC_GM_StartLaser(void)
         NPC->lockCount = 1;
         // turn on warmup effect
         G_PlayEffect("galak/beam_warmup", NPC->s.number);
-        G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, "sound/weapons/galak/lasercharge.wav");
+        G_SoundOnEnt(NPC, sound::SoundClass::Weapon, sound::Slot::None, "sound/weapons/galak/lasercharge.wav");
     }
 }
 
@@ -624,7 +624,7 @@ void NPC_BSGM_Attack(void)
                 smackDir[2] += 30;
                 VectorNormalize(smackDir);
                 // hurt them
-                G_Sound(NPC->enemy, G_SoundIndex("sound/weapons/galak/skewerhit.wav"));
+                G_Sound(NPC->enemy, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/galak/skewerhit.wav"));
                 G_Damage(NPC->enemy, NPC, NPC, smackDir, NPC->currentOrigin, (g_spskill->integer + 1) * Q_irand(5, 10),
                          damageFlags_t::DAMAGE_NO_ARMOR | damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_CRUSH);
                 if (NPC->client->ps.torsoAnim == animNumber_t::BOTH_ATTACK4) { // smackdown
@@ -702,7 +702,7 @@ void NPC_BSGM_Attack(void)
                     if (trace.fraction < 1.0f) { // hit something
                         gentity_t* traceEnt = &g_entities[trace.entityNum];
                         if (traceEnt && traceEnt->takedamage) { // damage it
-                            G_SoundAtSpot(trace.endpos, G_SoundIndex("sound/weapons/galak/laserdamage.wav"));
+                            G_SoundAtSpot(trace.endpos, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/galak/laserdamage.wav"));
                             G_Damage(traceEnt, NPC, NPC, NPC->client->renderInfo.muzzleDir, trace.endpos, 10, damageFlags_t::DAMAGE_NORMAL,
                                      meansOfDeath_t::MOD_ENERGY);
                         }
@@ -711,7 +711,7 @@ void NPC_BSGM_Attack(void)
                         G_SetOrigin(NPCInfo->coverTarg, trace.endpos);
                     }
                     if (!Q_irand(0, 5)) {
-                        G_SoundAtSpot(trace.endpos, G_SoundIndex("sound/weapons/galak/laserdamage.wav"));
+                        G_SoundAtSpot(trace.endpos, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/galak/laserdamage.wav"));
                     }
                 }
             }

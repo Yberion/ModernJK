@@ -31,6 +31,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "menudef.h"
 
+#include <shared/sound/sound.h>
+
 inline constexpr int MAX_MENUDEFFILE = 8192; // 4096
 inline constexpr int MAX_MENUFILE = 65536;   // 32768
 inline constexpr int MAX_MENUS = 128;        // 64
@@ -440,7 +442,6 @@ typedef struct displayContextDef_s {
                                menuFont_t iFontIndex);
     void (*setOverstrikeMode)(bool b);
     bool (*getOverstrikeMode)(void);
-    void (*startLocalSound)(sfxHandle_t sfx, soundChannel_t channelNum);
     bool (*ownerDrawHandleKey)(int ownerDraw, int flags, float* special, fakeAscii_t key);
     int (*feederCount)(float feederID);
     const char* (*feederItemText)(float feederID, int index, int column, qhandle_t* handle1, qhandle_t* handle2, qhandle_t* handle3);
@@ -452,9 +453,7 @@ typedef struct displayContextDef_s {
     void (*executeText)(cbufExec_t exec_when, const char* text);
     void (*Pause)(bool b);
     int (*ownerDrawWidth)(int ownerDraw, float scale);
-    sfxHandle_t (*registerSound)(const char* name);
-    void (*startBackgroundTrack)(const char* intro, const char* loop, bool bReturnWithoutStarting);
-    void (*stopBackgroundTrack)(void);
+    sound::Api* sound;
     int (*playCinematic)(const char* name, float x, float y, float w, float h);
     void (*stopCinematic)(int handle);
     void (*drawCinematic)(int handle, float x, float y, float w, float h);
@@ -536,6 +535,8 @@ void Menu_Paint(menuDef_t* menu, bool forcePaint);
 void Menu_SetFeederSelection(menuDef_t* menu, int feeder, int index, const char* name);
 void Display_CacheAll();
 void Menu_SetItemBackground(const menuDef_t* menu, const char* itemName, const char* background);
+// a menu's sound at the listener; in the menus' slot, one at a time, unless another slot is given
+void Menu_PlaySound(sfxHandle_t sfx, sound::Slot slot = sound::Slot::Menu, float volume = 1.0f);
 
 void* UI_Alloc(int size);
 void UI_InitMemory(void);

@@ -42,7 +42,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "client.h"
 #include "client_ui.h" // CHC
-#include "snd_local.h"
 #include <qcommon/stringed_ingame.h>
 
 constexpr int MAXSIZE = 8;
@@ -62,7 +61,6 @@ constexpr int ZA_SOUND_STEREO = 0x1021;
 
 constexpr int MAX_VIDEO_HANDLES = 16;
 
-extern void S_CIN_StopSound(sfxHandle_t sfxHandle);
 static void RoQ_init(void);
 
 /******************************************************************************
@@ -135,8 +133,9 @@ typedef struct {
     int playonwalls;
     byte* buf;
     long drawX, drawY;
-    sfxHandle_t hSFX;     // 0 = none
-    qhandle_t hCRAWLTEXT; // 0 = none
+    sfxHandle_t hSFX;            // 0 = none
+    sound::VoiceHandle voiceSFX; // the voice playing hSFX
+    qhandle_t hCRAWLTEXT;        // 0 = none
 } cin_cache;
 
 static cinematics_t cin;
@@ -144,9 +143,6 @@ static cin_cache cinTable[MAX_VIDEO_HANDLES];
 static int currentHandle = -1;
 static int CL_handle = -1;
 static int CL_iPlaybackStartTime; // so I can stop users quitting playback <1 second after it starts
-
-extern int s_soundtime;   // sample PAIRS
-extern int s_paintedtime; // sample PAIRS
 
 void CIN_CloseAllVideos(void)
 {
@@ -1212,18 +1208,21 @@ redump:
         break;
     case ZA_SOUND_MONO:
         if (!cinTable[currentHandle].silent) {
+            // the mono samples decoded as stereo pairs: ssize frames of two samples
             ssize = RllDecodeMonoToStereo(framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, (unsigned short)cinTable[currentHandle].roq_flags);
-            S_RawSamples(ssize, 22050, 2, 1, (byte*)sbuf, s_volume->value, true);
+            SND_OpenStream(22050, 2);
+            SND_QueueStream(std::span<const std::int16_t>(sbuf, static_cast<std::size_t>(ssize) * 2));
         }
         break;
     case ZA_SOUND_STEREO:
         if (!cinTable[currentHandle].silent) {
             if (cinTable[currentHandle].numQuads == -1) {
-                S_Update();
-                s_rawend = s_soundtime;
+                // the first sound of the cinematic: nothing of an earlier one left waiting
+                SND_CloseStream();
             }
             ssize = RllDecodeStereoToStereo(framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, (unsigned short)cinTable[currentHandle].roq_flags);
-            S_RawSamples(ssize, 22050, 2, 2, (byte*)sbuf, s_volume->value, true);
+            SND_OpenStream(22050, 2);
+            SND_QueueStream(std::span<const std::int16_t>(sbuf, static_cast<std::size_t>(ssize) * 2));
         }
         break;
     case ROQ_QUAD_INFO:
@@ -1326,7 +1325,13 @@ static void RoQ_init(void)
     }
 
     if (cinTable[currentHandle].hSFX) {
-        S_StartLocalSound(cinTable[currentHandle].hSFX, soundChannel_t::CHAN_AUTO);
+        // the cinematic's sound file at the listener, at the volume of the listener's own sounds
+        sound::Request request;
+        request.sound = cinTable[currentHandle].hSFX;
+        request.soundClass = sound::SoundClass::Interface;
+        request.place = sound::Place::Listener;
+        request.volume = 0.75f;
+        cinTable[currentHandle].voiceSFX = SND_Api().Play(request);
     }
 }
 
@@ -1348,7 +1353,7 @@ static void RoQShutdown(void)
             FS_FCloseFile(cinTable[currentHandle].iFile);
             cinTable[currentHandle].iFile = 0;
             if (cinTable[currentHandle].hSFX) {
-                S_CIN_StopSound(cinTable[currentHandle].hSFX);
+                SND_Api().Stop(cinTable[currentHandle].voiceSFX);
             }
         }
         return;
@@ -1365,7 +1370,7 @@ static void RoQShutdown(void)
         FS_FCloseFile(cinTable[currentHandle].iFile);
         cinTable[currentHandle].iFile = 0;
         if (cinTable[currentHandle].hSFX) {
-            S_CIN_StopSound(cinTable[currentHandle].hSFX);
+            SND_Api().Stop(cinTable[currentHandle].voiceSFX);
         }
     }
 
@@ -1408,7 +1413,7 @@ e_status CIN_StopCinematic(int handle)
             cinTable[currentHandle].iFile = 0;
             cinTable[currentHandle].fileName[0] = 0;
             if (cinTable[currentHandle].hSFX) {
-                S_CIN_StopSound(cinTable[currentHandle].hSFX);
+                SND_Api().Stop(cinTable[currentHandle].voiceSFX);
             }
         }
         return e_status::FMV_EOF;
@@ -1559,7 +1564,7 @@ int CIN_PlayCinematic(const char* arg, int x, int y, int w, int h, cinematicFlag
     cinTable[currentHandle].silent = Any(systemBits & cinematicFlags_t::CIN_silent);
     cinTable[currentHandle].shader = Any(systemBits & cinematicFlags_t::CIN_shader);
     if (psAudioFile) {
-        cinTable[currentHandle].hSFX = S_RegisterSound(psAudioFile);
+        cinTable[currentHandle].hSFX = SND_Api().Register(psAudioFile);
     }
     else {
         cinTable[currentHandle].hSFX = 0;
@@ -1597,7 +1602,7 @@ int CIN_PlayCinematic(const char* arg, int x, int y, int w, int h, cinematicFlag
         Con_Close();
 
         if (!cinTable[currentHandle].silent)
-            s_rawend = s_soundtime;
+            SND_CloseStream();
 
         return currentHandle;
     }
@@ -1870,8 +1875,7 @@ static void PlayCinematic(const char* arg, const char* s, bool qbInGame)
     COM_DefaultExtension(sTemp, sizeof(sTemp), ".roq");
     arg = &sTemp[0];
 
-    extern bool S_FileExists(const char* psFilename);
-    if (S_FileExists(arg)) {
+    if (CL_FileExists(arg)) {
         SCR_StopCinematic();
         // command-line hack to avoid problems when playing intro video before app is fully setup...
         //
@@ -1891,14 +1895,14 @@ static void PlayCinematic(const char* arg, const char* s, bool qbInGame)
             bits |= cinematicFlags_t::CIN_loop;
         }
 
-        S_StopAllSounds();
+        SND_StopAll();
 
         ////////////////////////////////////////////////////////////////////
         //
         // work out associated audio-overlay file, if any...
         //
-        extern cvar_t* s_language;
-        bool bIsForeign = (s_language && Q_stricmp(s_language->string, "english") && Q_stricmp(s_language->string, ""));
+        const char* language = Cvar_VariableString("s_language");
+        bool bIsForeign = (Q_stricmp(language, "english") && Q_stricmp(language, ""));
         const char* psAudioFile = nullptr;
         qhandle_t hCrawl = 0;
         if (!Q_stricmp(arg, "video/jk0101_sw.roq")) {
@@ -1958,7 +1962,7 @@ static void PlayCinematic(const char* arg, const char* s, bool qbInGame)
 
     if (bFailed) {
         Q_Println(S_COLOR_RED "PlayCinematic(): Failed to open \"{}\"", arg);
-        // S_RestartMusic();	//restart the level music
+        // SND_RestartMusic();	//restart the level music
         SCR_StopCinematic(); // I know this seems pointless, but it clears a bunch of vars as well
     }
     else {
@@ -2064,7 +2068,7 @@ void SCR_StopCinematic(bool bAllowRefusal /* = false */)
 
     if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES && stopCinematicCallCount != 1) { // hello no, don't want this plz
         CIN_StopCinematic(CL_handle);
-        S_StopAllSounds();
+        SND_StopAll();
         CL_handle = -1;
         if (CL_IsRunningInGameCinematic()) {
             re.InitDissolve(false); // dissolve from cinematic to underlying ingame
@@ -2099,7 +2103,7 @@ void SCR_StopCinematic(bool bAllowRefusal /* = false */)
     }
     if (cls.state != connstate_t::CA_DISCONNECTED) // cut down on needless calls to music code
     {
-        S_RestartMusic(); // restart the level music
+        SND_RestartMusic(); // restart the level music
     }
 }
 

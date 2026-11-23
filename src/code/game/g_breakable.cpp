@@ -545,12 +545,12 @@ void misc_model_breakable_die(gentity_t* self, gentity_t* inflictor, gentity_t* 
             if (self->model && (Q_stricmp("models/map_objects/ships/tie_fighter.md3", self->model) == 0 ||
                                 Q_stricmp("models/map_objects/ships/tie_bomber.md3", self->model) == 0)) { // TEMP HACK for Tie Fighters- they're HUGE
                 G_PlayEffect("explosions/fighter_explosion2", self->currentOrigin);
-                G_Sound(self, G_SoundIndex("sound/weapons/tie_fighter/TIEexplode.wav"));
+                G_Sound(self, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/tie_fighter/TIEexplode.wav"));
                 self->s.loopSound = 0;
             }
             else {
                 CG_MiscModelExplosion(self->absmin, self->absmax, size, self->material);
-                G_Sound(self, G_SoundIndex("sound/weapons/explosions/cargoexplode.wav"));
+                G_Sound(self, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/explosions/cargoexplode.wav"));
                 self->s.loopSound = 0;
             }
         }
@@ -559,7 +559,7 @@ void misc_model_breakable_die(gentity_t* self, gentity_t* inflictor, gentity_t* 
             AddSoundEvent(attacker, self->currentOrigin, 64, alertEventLevel_e::AEL_SUSPICIOUS, false, true); // FIXME: am I on ground or not?
             // This is the default explosion
             CG_MiscModelExplosion(self->absmin, self->absmax, size, self->material);
-            G_Sound(self, G_SoundIndex("sound/weapons/explosions/cargoexplode.wav"));
+            G_Sound(self, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/explosions/cargoexplode.wav"));
         }
     }
 
@@ -789,10 +789,11 @@ void TieFighterThink(gentity_t* self)
                         VectorCopy(self->currentOrigin, bolt->currentOrigin);
 
                         if (!Q_irand(0, 2)) {
-                            G_SoundOnEnt(bolt, soundChannel_t::CHAN_VOICE, "sound/weapons/tie_fighter/tie_fire.wav");
+                            G_SoundOnEnt(bolt, sound::SoundClass::Voice, sound::Slot::Voice, "sound/weapons/tie_fighter/tie_fire.wav");
                         }
                         else {
-                            G_SoundOnEnt(bolt, soundChannel_t::CHAN_VOICE, Q_Format("sound/weapons/tie_fighter/tie_fire{}.wav", Q_irand(2, 3)).c_str());
+                            G_SoundOnEnt(bolt, sound::SoundClass::Voice, sound::Slot::Voice,
+                                         Q_Format("sound/weapons/tie_fighter/tie_fire{}.wav", Q_irand(2, 3)).c_str());
                         }
                         self->attackDebounceTime = level.time + Q_irand(300, 2000);
                     }
@@ -804,7 +805,8 @@ void TieFighterThink(gentity_t* self)
         {                      // within range to start our sound
             if (dot > 0) {
                 if (!self->fly_sound_debounce_time) { // start sound
-                    G_SoundOnEnt(self, soundChannel_t::CHAN_VOICE, Q_Format("sound/weapons/tie_fighter/tiepass{}.wav", Q_irand(1, 5)).c_str());
+                    G_SoundOnEnt(self, sound::SoundClass::Voice, sound::Slot::Voice,
+                                 Q_Format("sound/weapons/tie_fighter/tiepass{}.wav", Q_irand(1, 5)).c_str());
                     self->fly_sound_debounce_time = 2000;
                 }
                 else { // sound already started

@@ -438,7 +438,7 @@ static void CG_RegisterCustomSounds(clientInfo_t* ci, int setType, const char* p
         }
 
         s++;
-        hSFX = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", psDir, s).c_str());
+        hSFX = trap->sound->Register(Q_Format("sound/chars/{}/misc/{}", psDir, s).c_str());
 
         if (hSFX == 0) {
             char modifiedSound[MAX_QPATH];
@@ -461,7 +461,7 @@ static void CG_RegisterCustomSounds(clientInfo_t* ci, int setType, const char* p
 
                     strcat(modifiedSound, "1.wav");
 
-                    hSFX = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", psDir, modifiedSound).c_str());
+                    hSFX = trap->sound->Register(Q_Format("sound/chars/{}/misc/{}", psDir, modifiedSound).c_str());
                 }
             }
         }
@@ -501,9 +501,7 @@ void CG_PrecacheNPCSounds(const char* str)
                 }
                 sEnd[k - 1] = 0;
 
-                trap->S_Shutup(true);
-                trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", pEnd, sEnd).c_str());
-                trap->S_Shutup(false);
+                trap->sound->Register(Q_Format("sound/chars/{}/misc/{}", pEnd, sEnd).c_str());
             }
             else { // move onto the next set
                 break;
@@ -822,7 +820,7 @@ static void CG_ConfigStringModified(void)
     }
     else if (num >= CS_SOUNDS && num < CS_SOUNDS + MAX_SOUNDS) {
         if (str[0] != '*') { // player specific sounds don't register here
-            cgs.gameSounds[num - CS_SOUNDS] = trap->S_RegisterSound(str);
+            cgs.gameSounds[num - CS_SOUNDS] = trap->sound->Register(str);
         }
         else if (str[1] == '$') { // an NPC soundset
             CG_PrecacheNPCSounds(str);
@@ -1027,13 +1025,13 @@ static void CG_MapRestart(void)
 
     CG_StartMusic(true);
 
-    trap->S_ClearLoopingSounds();
+    CG_StopLoopingSounds();
 
     // we really should clear more parts of cg here and stop sounds
 
     // play the "fight" sound if this is a restart without warmup
     if (cg.warmup == 0 && cgs.gametype != gametype_t::GT_SIEGE && cgs.gametype != gametype_t::GT_POWERDUEL /* && cgs.gametype == gametype_t::GT_DUEL */) {
-        trap->S_StartLocalSound(cgs.media.countFightSound, soundChannel_t::CHAN_ANNOUNCER);
+        CG_StartLocalSound(cgs.media.countFightSound, sound::SoundClass::Announcer, sound::Slot::Announcer);
         CG_CenterPrint(CG_GetStringEdString("MP_SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH * 2);
     }
     /*
@@ -1444,7 +1442,7 @@ static void CG_Chat_f(void)
     if (!strcmp(cmd, "chat")) {
         if (!cg_teamChatsOnly.integer) {
             if (cg_chatBeep.integer)
-                trap->S_StartLocalSound(cgs.media.talkSound, soundChannel_t::CHAN_LOCAL_SOUND);
+                CG_StartLocalSound(cgs.media.talkSound, sound::SoundClass::Interface, sound::Slot::Menu);
             trap->Cmd_Argv(1, text, sizeof(text));
             CG_RemoveChatEscapeChar(text);
             CG_ChatBox_AddString(text);
@@ -1468,7 +1466,7 @@ static void CG_Chat_f(void)
                 trap->SE_GetStringTextString(loc + 1, loc, sizeof(loc));
 
             if (cg_chatBeep.integer)
-                trap->S_StartLocalSound(cgs.media.talkSound, soundChannel_t::CHAN_LOCAL_SOUND);
+                CG_StartLocalSound(cgs.media.talkSound, sound::SoundClass::Interface, sound::Slot::Menu);
             Q_FormatTo(text, "{}^7<{}> ^{}{}", name, loc, color, message);
             CG_RemoveChatEscapeChar(text);
             CG_ChatBox_AddString(text);
@@ -1477,7 +1475,7 @@ static void CG_Chat_f(void)
     }
     else if (!strcmp(cmd, "tchat")) {
         if (cg_teamChatBeep.integer)
-            trap->S_StartLocalSound(cgs.media.talkSound, soundChannel_t::CHAN_LOCAL_SOUND);
+            CG_StartLocalSound(cgs.media.talkSound, sound::SoundClass::Interface, sound::Slot::Menu);
         trap->Cmd_Argv(1, text, sizeof(text));
         CG_RemoveChatEscapeChar(text);
         CG_ChatBox_AddString(text);
@@ -1499,7 +1497,7 @@ static void CG_Chat_f(void)
             trap->SE_GetStringTextString(loc + 1, loc, sizeof(loc));
 
         if (cg_teamChatBeep.integer)
-            trap->S_StartLocalSound(cgs.media.talkSound, soundChannel_t::CHAN_LOCAL_SOUND);
+            CG_StartLocalSound(cgs.media.talkSound, sound::SoundClass::Interface, sound::Slot::Menu);
         Q_FormatTo(text, "{}^7<{}> ^{}{}", name, loc, color, message);
         CG_RemoveChatEscapeChar(text);
         CG_ChatBox_AddString(text);

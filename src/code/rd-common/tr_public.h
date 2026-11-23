@@ -85,8 +85,6 @@ typedef struct {
     bool (*CM_CullWorldBox)(const cplane_t* frustrum, const vec3pair_t bounds);
     byte* (*CM_ClusterPVS)(int cluster);
     contentsFlags_t (*CM_PointContents)(const vec3_t p, clipHandle_t model);
-    void (*S_RestartMusic)(void);
-    bool (*SND_RegisterAudio_LevelLoadEnd)(bool bDeleteEverythingNotUsedThisLevel);
 
     e_status (*CIN_RunCinematic)(int handle);
     int (*CIN_PlayCinematic)(const char* arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits, const char* psAudioFile /* = nullptr */);

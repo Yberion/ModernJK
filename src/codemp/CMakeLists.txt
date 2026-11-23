@@ -106,7 +106,6 @@ if(modernjk_BUILD_MP_CLIENT)
 		client/FxSystem.cpp
 		client/FxTemplate.cpp
 		client/FxUtil.cpp
-		client/cl_avi.cpp
 		client/cl_cgame.cpp
 		client/cl_cgameapi.cpp
 		client/cl_cin.cpp
@@ -120,38 +119,12 @@ if(modernjk_BUILD_MP_CLIENT)
 		client/cl_parse.cpp
 		client/cl_scrn.cpp
 		client/cl_ui.cpp
-		client/cl_uiapi.cpp
-		client/snd_ambient.cpp
-		client/snd_dma.cpp
-		client/snd_mem.cpp
-		client/snd_mix.cpp
-		client/snd_mp3.cpp
-		client/snd_music.cpp
-		mp3code/cdct.c
-		mp3code/csbt.c
-		mp3code/csbtb.c
-		mp3code/csbtl3.c
-		mp3code/cup.c
-		mp3code/cupini.c
-		mp3code/cupl1.c
-		mp3code/cupl3.c
-		mp3code/cwin.c
-		mp3code/cwinb.c
-		mp3code/cwinm.c
-		mp3code/hwin.c
-		mp3code/l3dq.c
-		mp3code/l3init.c
-		mp3code/mdct.c
-		mp3code/mhead.c
-		mp3code/msis.c
-		mp3code/towave.c
-		mp3code/uph.c
-		mp3code/upsf.c)
+		client/cl_uiapi.cpp)
 	if(WIN32)
 		target_sources(modernjk PRIVATE win32/modernjk.rc)
 	endif()
-	target_link_libraries(modernjk PRIVATE mp_engine_common modernjk_sys_client modernjk_options modernjk_warnings
-		modernjk_defines)
+	target_link_libraries(modernjk PRIVATE mp_engine_common modernjk_sys_client modernjk_sound_engine modernjk_options
+		modernjk_warnings modernjk_defines)
 	modernjk_copy_runtime_dlls(modernjk)
 	install(TARGETS modernjk RUNTIME DESTINATION "${modernjk_INSTALL_JKA}")
 	if(WIN32)
@@ -168,7 +141,6 @@ if(modernjk_BUILD_MP_SERVER)
 		null/null_client.cpp
 		null/null_input.cpp
 		null/null_renderer.cpp
-		null/null_snddma.cpp
 		rd-dedicated/G2_API.cpp
 		rd-dedicated/G2_bolts.cpp
 		rd-dedicated/G2_bones.cpp

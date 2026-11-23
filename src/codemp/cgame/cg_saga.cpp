@@ -80,10 +80,10 @@ void CG_PrecacheSiegeObjectiveAssetsForTeam(team_t myTeam)
                 char str[MAX_QPATH];
 
                 if (BG_SiegeGetPairedValue(foundobjective, "sound_team1", str)) {
-                    trap->S_RegisterSound(str);
+                    trap->sound->Register(str);
                 }
                 if (BG_SiegeGetPairedValue(foundobjective, "sound_team2", str)) {
-                    trap->S_RegisterSound(str);
+                    trap->sound->Register(str);
                 }
                 if (BG_SiegeGetPairedValue(foundobjective, "objgfx", str)) {
                     trap->R_RegisterShaderNoMip(str);
@@ -567,7 +567,7 @@ void CG_SiegeRoundOver(centity_t* ent, team_t won)
         */
 
         if (soundstr[0]) {
-            trap->S_StartLocalSound(trap->S_RegisterSound(soundstr), soundChannel_t::CHAN_ANNOUNCER);
+            CG_StartLocalSound(trap->sound->Register(soundstr), sound::SoundClass::Announcer, sound::Slot::Announcer);
         }
     }
 }
@@ -834,7 +834,7 @@ void CG_SiegeObjectiveCompleted(centity_t* ent, team_t won, int objectivenum)
             */
 
             if (soundstr[0]) {
-                trap->S_StartLocalSound(trap->S_RegisterSound(soundstr), soundChannel_t::CHAN_ANNOUNCER);
+                CG_StartLocalSound(trap->sound->Register(soundstr), sound::SoundClass::Announcer, sound::Slot::Announcer);
             }
         }
     }

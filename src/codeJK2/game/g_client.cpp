@@ -1333,7 +1333,7 @@ void G_DriveATST(gentity_t* ent, gentity_t* atst)
             G_SetG2PlayerModelInfo(ent, "atst", nullptr, nullptr, nullptr);
             // turn off hatch underside
             gi.G2API_SetSurfaceOnOff(&ent->ghoul2[ent->playerModel], "head_hatchcover_off", g2SurfaceFlags_t::G2SURFACEFLAG_OFF);
-            G_Sound(ent, G_SoundIndex("sound/chars/atst/atst_hatch_close"));
+            G_Sound(ent, sound::SoundClass::World, G_SoundIndex("sound/chars/atst/atst_hatch_close"));
         }
         ent->s.radius = 320;
         // weapon

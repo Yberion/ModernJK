@@ -1526,7 +1526,7 @@ bool PM_AdjustAngleForWallJump(playerState_t* ps, usercmd_t* ucmd, bool doMove)
             VectorScale(checkDir, -JUMP_OFF_WALL_SPEED, ps->velocity);
             ps->velocity[2] = BG_ForceWallJumpStrength();
             ps->pm_flags |= pmoveFlags_t::PMF_JUMP_HELD; // PMF_JUMPING|pmoveFlags_t::PMF_JUMP_HELD;
-            // G_SoundOnEnt( ent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav" );
+            // G_SoundOnEnt(ent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
             ps->fd.forceJumpSound = 1; // this is a stupid thing, i should fix it.
             // ent->client->ps.forcePowersActive |= Bit( forcePowers_t::FP_LEVITATION );
             if (ps->origin[2] < ps->fd.forceJumpZStart) {
@@ -2255,7 +2255,7 @@ static bool PM_CheckJump(void)
                             PM_SetAnim(parts, wallWalkAnim, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
                             //						pm->ps->pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
                             // again with the flags!
-                            // G_SoundOnEnt( pm->gent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav" );
+                            // G_SoundOnEnt(pm->gent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                             // yucky!
                             PM_SetForceJumpZStart(pm->ps->origin[2]); // so we don't take damage if we land at same height
                             pm->cmd.upmove = 0;
@@ -8431,7 +8431,7 @@ static QINLINE void PM_CmdForSaberMoves(usercmd_t* ucmd)
                         // pm->ps->pm_flags |= PMF_JUMPING;
                         // FIXME: NPCs yell?
                         PM_AddEvent(entity_event_t::EV_JUMP);
-                        // G_SoundOnEnt( ent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav" );
+                        // G_SoundOnEnt(ent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                     }
                 }
                 else { // FIXME: if this is the second jump, maybe we should just stop the anim?
@@ -8486,7 +8486,7 @@ static QINLINE void PM_CmdForSaberMoves(usercmd_t* ucmd)
                     // pm->ps->pm_flags |= PMF_JUMPING;//|PMF_SLOW_MO_FALL;
                     // FIXME: NPCs yell?
                     PM_AddEvent(entity_event_t::EV_JUMP);
-                    // G_SoundOnEnt( ent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav" );
+                    // G_SoundOnEnt(ent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                 }
                 else { // FIXME: if this is the second jump, maybe we should just stop the anim?
                 }
@@ -8522,7 +8522,7 @@ static QINLINE void PM_CmdForSaberMoves(usercmd_t* ucmd)
 
                 // FIXME: NPCs yell?
                 PM_AddEvent(entity_event_t::EV_JUMP);
-                // G_SoundOnEnt( ent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav" );
+                // G_SoundOnEnt(ent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                 ucmd->upmove = 0; // clear any actual jump command
             }
         }

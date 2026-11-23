@@ -769,7 +769,7 @@ FUNCTIONS CALLED EVERY FRAME
 static void G_CheckTasksCompleted(gentity_t* ent)
 {
     if (Q3_TaskIDPending(ent, taskID_t::TID_CHAN_VOICE)) {
-        if (!gi.VoiceVolume[ent->s.number]) { // not playing a voice sound
+        if (gi.sound->GetVoiceState(ent->s.number) == sound::VoiceState::NotTalking) { // not playing a voice sound
             // return task_complete
             Q3_TaskIDComplete(ent, taskID_t::TID_CHAN_VOICE);
         }
@@ -1018,14 +1018,14 @@ void UpdateTeamCounters( gentity_t *ent )
     teamEnemyCount[ent->client->playerTeam]++;
 }
 */
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 void G_PlayerGuiltDeath(void)
 {
     if (player && player->client) { // simulate death
         player->client->ps.stats[statIndex_t::STAT_HEALTH] = 0;
         // turn off saber
         if (player->client->ps.weapon == weapon_t::WP_SABER && player->client->ps.saberActive) {
-            G_SoundOnEnt(player, soundChannel_t::CHAN_WEAPON, "sound/weapons/saber/saberoff.wav");
+            G_SoundOnEnt(player, sound::SoundClass::Saber, sound::Slot::Weapon, "sound/weapons/saber/saberoff.wav");
             player->client->ps.saberActive = false;
         }
         // play the "what have I done?!" anim

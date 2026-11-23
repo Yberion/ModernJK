@@ -241,9 +241,9 @@ static int CG_RagCallback(ragCallbackType_t callType)
     case ragCallbackType_t::RAG_CALLBACK_BONESNAP: {
         ragCallbackBoneSnap_t* callData = &cg.sharedBuffer.rcbBoneSnap;
         centity_t* cent = &cg_entities[callData->entNum];
-        int snapSound = trap->S_RegisterSound(Q_Format("sound/player/bodyfall_human{}.wav", Q_irand(1, 3)).c_str());
+        int snapSound = trap->sound->Register(Q_Format("sound/player/bodyfall_human{}.wav", Q_irand(1, 3)).c_str());
 
-        trap->S_StartSound(cent->lerpOrigin, callData->entNum, soundChannel_t::CHAN_AUTO, snapSound);
+        CG_StartSound(cent->lerpOrigin, callData->entNum, sound::SoundClass::World, sound::Slot::None, snapSound);
     }
     case ragCallbackType_t::RAG_CALLBACK_BONEIMPACT:
         break;
@@ -419,7 +419,7 @@ static void CG_RegisterItemSounds(int itemNum)
     item = &bg_itemlist[itemNum];
 
     if (item->pickup_sound) {
-        trap->S_RegisterSound(item->pickup_sound);
+        trap->sound->Register(item->pickup_sound);
     }
 
     // parse the space seperated precache string for other media
@@ -444,7 +444,7 @@ static void CG_RegisterItemSounds(int itemNum)
             s++;
         }
 
-        trap->S_RegisterSound(data);
+        trap->sound->Register(data);
     }
 
     // parse the space seperated precache string for other media
@@ -484,15 +484,15 @@ static void CG_AS_Register(void)
 
     // Load the ambient sets
 #if 0 // as_preCacheMap was game-side.. that is evil.
-	trap->AS_AddPrecacheEntry( "#clear" );	// ;-)
+	trap->sound->ClearPrecachedSets();
 	//FIXME: Don't ask... I had to get around a really nasty MS error in the templates with this...
 	namePrecache_m::iterator	pi;
 	STL_ITERATE( pi, as_preCacheMap )
 	{
-		cgi_AS_AddPrecacheEntry( ((*pi).first).c_str() );
+		trap->sound->PrecacheSet( ((*pi).first).c_str() );
 	}
 #else
-    trap->AS_AddPrecacheEntry("#clear");
+    trap->sound->ClearPrecachedSets();
 
     for (i = 1; i < MAX_AMBIENT_SETS; i++) {
         soundName = CG_ConfigString(CS_AMBIENT_SET + i);
@@ -500,15 +500,15 @@ static void CG_AS_Register(void)
             break;
         }
 
-        trap->AS_AddPrecacheEntry(soundName);
+        trap->sound->PrecacheSet(soundName);
     }
     soundName = CG_ConfigString(CS_GLOBAL_AMBIENT_SET);
     if (soundName && soundName[0] && Q_stricmp(soundName, "default")) { // global soundset
-        trap->AS_AddPrecacheEntry(soundName);
+        trap->sound->PrecacheSet(soundName);
     }
 #endif
 
-    trap->AS_ParseSets();
+    trap->sound->ParseSets();
 }
 
 // a global weather effect (rain, snow, etc)
@@ -579,29 +579,29 @@ static void CG_RegisterSounds(void)
 
     //	CG_LoadingString( "sounds" );
 
-    trap->S_RegisterSound("sound/weapons/melee/punch1.mp3");
-    trap->S_RegisterSound("sound/weapons/melee/punch2.mp3");
-    trap->S_RegisterSound("sound/weapons/melee/punch3.mp3");
-    trap->S_RegisterSound("sound/weapons/melee/punch4.mp3");
-    trap->S_RegisterSound("sound/movers/objects/saber_slam");
+    trap->sound->Register("sound/weapons/melee/punch1.mp3");
+    trap->sound->Register("sound/weapons/melee/punch2.mp3");
+    trap->sound->Register("sound/weapons/melee/punch3.mp3");
+    trap->sound->Register("sound/weapons/melee/punch4.mp3");
+    trap->sound->Register("sound/movers/objects/saber_slam");
 
-    trap->S_RegisterSound("sound/player/bodyfall_human1.wav");
-    trap->S_RegisterSound("sound/player/bodyfall_human2.wav");
-    trap->S_RegisterSound("sound/player/bodyfall_human3.wav");
+    trap->sound->Register("sound/player/bodyfall_human1.wav");
+    trap->sound->Register("sound/player/bodyfall_human2.wav");
+    trap->sound->Register("sound/player/bodyfall_human3.wav");
 
     // test effects
     trap->FX_RegisterEffect("effects/mp/test_sparks.efx");
     trap->FX_RegisterEffect("effects/mp/test_wall_impact.efx");
 
-    cgs.media.oneMinuteSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM004");
-    cgs.media.fiveMinuteSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM005");
-    cgs.media.oneFragSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM001");
-    cgs.media.twoFragSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM002");
-    cgs.media.threeFragSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM003");
-    cgs.media.count3Sound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM035");
-    cgs.media.count2Sound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM036");
-    cgs.media.count1Sound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM037");
-    cgs.media.countFightSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM038");
+    cgs.media.oneMinuteSound = trap->sound->Register("sound/chars/protocol/misc/40MOM004");
+    cgs.media.fiveMinuteSound = trap->sound->Register("sound/chars/protocol/misc/40MOM005");
+    cgs.media.oneFragSound = trap->sound->Register("sound/chars/protocol/misc/40MOM001");
+    cgs.media.twoFragSound = trap->sound->Register("sound/chars/protocol/misc/40MOM002");
+    cgs.media.threeFragSound = trap->sound->Register("sound/chars/protocol/misc/40MOM003");
+    cgs.media.count3Sound = trap->sound->Register("sound/chars/protocol/misc/40MOM035");
+    cgs.media.count2Sound = trap->sound->Register("sound/chars/protocol/misc/40MOM036");
+    cgs.media.count1Sound = trap->sound->Register("sound/chars/protocol/misc/40MOM037");
+    cgs.media.countFightSound = trap->sound->Register("sound/chars/protocol/misc/40MOM038");
 
     cgs.media.hackerIconShader = trap->R_RegisterShaderNoMip("gfx/mp/c_icon_tech");
 
@@ -640,151 +640,151 @@ static void CG_RegisterSounds(void)
     trap->R_RegisterShader("models/map_objects/imp_mine/turret_chair_dmg.tga");
 
     for (i = 1; i < 9; i++) {
-        trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberhup{}.wav", i).c_str());
+        trap->sound->Register(Q_Format("sound/weapons/saber/saberhup{}.wav", i).c_str());
     }
 
     for (i = 1; i < 10; i++) {
-        trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberblock{}.wav", i).c_str());
+        trap->sound->Register(Q_Format("sound/weapons/saber/saberblock{}.wav", i).c_str());
     }
 
     for (i = 1; i < 4; i++) {
-        trap->S_RegisterSound(Q_Format("sound/weapons/saber/bounce{}.wav", i).c_str());
+        trap->sound->Register(Q_Format("sound/weapons/saber/bounce{}.wav", i).c_str());
     }
 
-    trap->S_RegisterSound("sound/weapons/saber/enemy_saber_on.wav");
-    trap->S_RegisterSound("sound/weapons/saber/enemy_saber_off.wav");
+    trap->sound->Register("sound/weapons/saber/enemy_saber_on.wav");
+    trap->sound->Register("sound/weapons/saber/enemy_saber_off.wav");
 
-    trap->S_RegisterSound("sound/weapons/saber/saberhum1.wav");
-    trap->S_RegisterSound("sound/weapons/saber/saberon.wav");
-    trap->S_RegisterSound("sound/weapons/saber/saberoffquick.wav");
-    trap->S_RegisterSound("sound/weapons/saber/saberhitwall1");
-    trap->S_RegisterSound("sound/weapons/saber/saberhitwall2");
-    trap->S_RegisterSound("sound/weapons/saber/saberhitwall3");
-    trap->S_RegisterSound("sound/weapons/saber/saberhit.wav");
-    trap->S_RegisterSound("sound/weapons/saber/saberhit1.wav");
-    trap->S_RegisterSound("sound/weapons/saber/saberhit2.wav");
-    trap->S_RegisterSound("sound/weapons/saber/saberhit3.wav");
+    trap->sound->Register("sound/weapons/saber/saberhum1.wav");
+    trap->sound->Register("sound/weapons/saber/saberon.wav");
+    trap->sound->Register("sound/weapons/saber/saberoffquick.wav");
+    trap->sound->Register("sound/weapons/saber/saberhitwall1");
+    trap->sound->Register("sound/weapons/saber/saberhitwall2");
+    trap->sound->Register("sound/weapons/saber/saberhitwall3");
+    trap->sound->Register("sound/weapons/saber/saberhit.wav");
+    trap->sound->Register("sound/weapons/saber/saberhit1.wav");
+    trap->sound->Register("sound/weapons/saber/saberhit2.wav");
+    trap->sound->Register("sound/weapons/saber/saberhit3.wav");
 
-    trap->S_RegisterSound("sound/weapons/saber/saber_catch.wav");
+    trap->sound->Register("sound/weapons/saber/saber_catch.wav");
 
-    cgs.media.teamHealSound = trap->S_RegisterSound("sound/weapons/force/teamheal.wav");
-    cgs.media.teamRegenSound = trap->S_RegisterSound("sound/weapons/force/teamforce.wav");
+    cgs.media.teamHealSound = trap->sound->Register("sound/weapons/force/teamheal.wav");
+    cgs.media.teamRegenSound = trap->sound->Register("sound/weapons/force/teamforce.wav");
 
-    trap->S_RegisterSound("sound/weapons/force/heal.wav");
-    trap->S_RegisterSound("sound/weapons/force/speed.wav");
-    trap->S_RegisterSound("sound/weapons/force/see.wav");
-    trap->S_RegisterSound("sound/weapons/force/rage.wav");
-    trap->S_RegisterSound("sound/weapons/force/lightning");
-    trap->S_RegisterSound("sound/weapons/force/lightninghit1");
-    trap->S_RegisterSound("sound/weapons/force/lightninghit2");
-    trap->S_RegisterSound("sound/weapons/force/lightninghit3");
-    trap->S_RegisterSound("sound/weapons/force/drain.wav");
-    trap->S_RegisterSound("sound/weapons/force/jumpbuild.wav");
-    trap->S_RegisterSound("sound/weapons/force/distract.wav");
-    trap->S_RegisterSound("sound/weapons/force/distractstop.wav");
-    trap->S_RegisterSound("sound/weapons/force/pull.wav");
-    trap->S_RegisterSound("sound/weapons/force/push.wav");
+    trap->sound->Register("sound/weapons/force/heal.wav");
+    trap->sound->Register("sound/weapons/force/speed.wav");
+    trap->sound->Register("sound/weapons/force/see.wav");
+    trap->sound->Register("sound/weapons/force/rage.wav");
+    trap->sound->Register("sound/weapons/force/lightning");
+    trap->sound->Register("sound/weapons/force/lightninghit1");
+    trap->sound->Register("sound/weapons/force/lightninghit2");
+    trap->sound->Register("sound/weapons/force/lightninghit3");
+    trap->sound->Register("sound/weapons/force/drain.wav");
+    trap->sound->Register("sound/weapons/force/jumpbuild.wav");
+    trap->sound->Register("sound/weapons/force/distract.wav");
+    trap->sound->Register("sound/weapons/force/distractstop.wav");
+    trap->sound->Register("sound/weapons/force/pull.wav");
+    trap->sound->Register("sound/weapons/force/push.wav");
 
     for (i = 1; i < 3; i++) {
-        trap->S_RegisterSound(Q_Format("sound/weapons/thermal/bounce{}.wav", i).c_str());
+        trap->sound->Register(Q_Format("sound/weapons/thermal/bounce{}.wav", i).c_str());
     }
 
-    trap->S_RegisterSound("sound/movers/switches/switch2.wav");
-    trap->S_RegisterSound("sound/movers/switches/switch3.wav");
-    trap->S_RegisterSound("sound/ambience/spark5.wav");
-    trap->S_RegisterSound("sound/chars/turret/ping.wav");
-    trap->S_RegisterSound("sound/chars/turret/startup.wav");
-    trap->S_RegisterSound("sound/chars/turret/shutdown.wav");
-    trap->S_RegisterSound("sound/chars/turret/move.wav");
-    trap->S_RegisterSound("sound/player/pickuphealth.wav");
-    trap->S_RegisterSound("sound/player/pickupshield.wav");
+    trap->sound->Register("sound/movers/switches/switch2.wav");
+    trap->sound->Register("sound/movers/switches/switch3.wav");
+    trap->sound->Register("sound/ambience/spark5.wav");
+    trap->sound->Register("sound/chars/turret/ping.wav");
+    trap->sound->Register("sound/chars/turret/startup.wav");
+    trap->sound->Register("sound/chars/turret/shutdown.wav");
+    trap->sound->Register("sound/chars/turret/move.wav");
+    trap->sound->Register("sound/player/pickuphealth.wav");
+    trap->sound->Register("sound/player/pickupshield.wav");
 
-    trap->S_RegisterSound("sound/effects/glassbreak1.wav");
+    trap->sound->Register("sound/effects/glassbreak1.wav");
 
-    trap->S_RegisterSound("sound/weapons/rocket/tick.wav");
-    trap->S_RegisterSound("sound/weapons/rocket/lock.wav");
+    trap->sound->Register("sound/weapons/rocket/tick.wav");
+    trap->sound->Register("sound/weapons/rocket/lock.wav");
 
-    trap->S_RegisterSound("sound/weapons/force/speedloop.wav");
+    trap->sound->Register("sound/weapons/force/speedloop.wav");
 
-    trap->S_RegisterSound("sound/weapons/force/protecthit.mp3"); // PDSOUND_PROTECTHIT
-    trap->S_RegisterSound("sound/weapons/force/protect.mp3");    // PDSOUND_PROTECT
-    trap->S_RegisterSound("sound/weapons/force/absorbhit.mp3");  // PDSOUND_ABSORBHIT
-    trap->S_RegisterSound("sound/weapons/force/absorb.mp3");     // PDSOUND_ABSORB
-    trap->S_RegisterSound("sound/weapons/force/jump.mp3");       // PDSOUND_FORCEJUMP
-    trap->S_RegisterSound("sound/weapons/force/grip.mp3");       // PDSOUND_FORCEGRIP
+    trap->sound->Register("sound/weapons/force/protecthit.mp3"); // PDSOUND_PROTECTHIT
+    trap->sound->Register("sound/weapons/force/protect.mp3");    // PDSOUND_PROTECT
+    trap->sound->Register("sound/weapons/force/absorbhit.mp3");  // PDSOUND_ABSORBHIT
+    trap->sound->Register("sound/weapons/force/absorb.mp3");     // PDSOUND_ABSORB
+    trap->sound->Register("sound/weapons/force/jump.mp3");       // PDSOUND_FORCEJUMP
+    trap->sound->Register("sound/weapons/force/grip.mp3");       // PDSOUND_FORCEGRIP
 
     if (cgs.gametype >= gametype_t::GT_TEAM || com_buildScript.integer) {
 
 #ifdef JK2AWARDS
-        cgs.media.captureAwardSound = trap->S_RegisterSound("sound/teamplay/flagcapture_yourteam.wav");
+        cgs.media.captureAwardSound = trap->sound->Register("sound/teamplay/flagcapture_yourteam.wav");
 #endif
-        cgs.media.redLeadsSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM046");
-        cgs.media.blueLeadsSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM045");
-        cgs.media.teamsTiedSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM032");
+        cgs.media.redLeadsSound = trap->sound->Register("sound/chars/protocol/misc/40MOM046");
+        cgs.media.blueLeadsSound = trap->sound->Register("sound/chars/protocol/misc/40MOM045");
+        cgs.media.teamsTiedSound = trap->sound->Register("sound/chars/protocol/misc/40MOM032");
 
-        cgs.media.redScoredSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM044");
-        cgs.media.blueScoredSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM043");
+        cgs.media.redScoredSound = trap->sound->Register("sound/chars/protocol/misc/40MOM044");
+        cgs.media.blueScoredSound = trap->sound->Register("sound/chars/protocol/misc/40MOM043");
 
         if (cgs.gametype == gametype_t::GT_CTF || com_buildScript.integer) {
-            cgs.media.redFlagReturnedSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM042");
-            cgs.media.blueFlagReturnedSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM041");
-            cgs.media.redTookFlagSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM040");
-            cgs.media.blueTookFlagSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM039");
+            cgs.media.redFlagReturnedSound = trap->sound->Register("sound/chars/protocol/misc/40MOM042");
+            cgs.media.blueFlagReturnedSound = trap->sound->Register("sound/chars/protocol/misc/40MOM041");
+            cgs.media.redTookFlagSound = trap->sound->Register("sound/chars/protocol/misc/40MOM040");
+            cgs.media.blueTookFlagSound = trap->sound->Register("sound/chars/protocol/misc/40MOM039");
         }
         if (cgs.gametype == gametype_t::GT_CTY /*|| com_buildScript.integer*/) {
-            cgs.media.redYsalReturnedSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM050");
-            cgs.media.blueYsalReturnedSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM049");
-            cgs.media.redTookYsalSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM048");
-            cgs.media.blueTookYsalSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM047");
+            cgs.media.redYsalReturnedSound = trap->sound->Register("sound/chars/protocol/misc/40MOM050");
+            cgs.media.blueYsalReturnedSound = trap->sound->Register("sound/chars/protocol/misc/40MOM049");
+            cgs.media.redTookYsalSound = trap->sound->Register("sound/chars/protocol/misc/40MOM048");
+            cgs.media.blueTookYsalSound = trap->sound->Register("sound/chars/protocol/misc/40MOM047");
         }
     }
 
-    cgs.media.drainSound = trap->S_RegisterSound("sound/weapons/force/drained.mp3");
+    cgs.media.drainSound = trap->sound->Register("sound/weapons/force/drained.mp3");
 
-    cgs.media.happyMusic = trap->S_RegisterSound("music/goodsmall.mp3");
-    cgs.media.dramaticFailure = trap->S_RegisterSound("music/badsmall.mp3");
+    cgs.media.happyMusic = trap->sound->Register("music/goodsmall.mp3");
+    cgs.media.dramaticFailure = trap->sound->Register("music/badsmall.mp3");
 
     // PRECACHE ALL MUSIC HERE (don't need to precache normally because it's streamed off the disk)
     if (com_buildScript.integer) {
-        trap->S_StartBackgroundTrack("music/mp/duel.mp3", "music/mp/duel.mp3", false);
+        trap->sound->StartMusic("music/mp/duel.mp3", "music/mp/duel.mp3");
     }
 
     cg.loadLCARSStage = 1;
 
-    cgs.media.selectSound = trap->S_RegisterSound("sound/weapons/change.wav");
+    cgs.media.selectSound = trap->sound->Register("sound/weapons/change.wav");
 
-    cgs.media.teleInSound = trap->S_RegisterSound("sound/player/telein.wav");
-    cgs.media.teleOutSound = trap->S_RegisterSound("sound/player/teleout.wav");
-    cgs.media.respawnSound = trap->S_RegisterSound("sound/items/respawn1.wav");
+    cgs.media.teleInSound = trap->sound->Register("sound/player/telein.wav");
+    cgs.media.teleOutSound = trap->sound->Register("sound/player/teleout.wav");
+    cgs.media.respawnSound = trap->sound->Register("sound/items/respawn1.wav");
 
-    trap->S_RegisterSound("sound/movers/objects/objectHit.wav");
+    trap->sound->Register("sound/movers/objects/objectHit.wav");
 
-    cgs.media.talkSound = trap->S_RegisterSound("sound/player/talk.wav");
-    cgs.media.landSound = trap->S_RegisterSound("sound/player/land1.wav");
-    cgs.media.fallSound = trap->S_RegisterSound("sound/player/fallsplat.wav");
+    cgs.media.talkSound = trap->sound->Register("sound/player/talk.wav");
+    cgs.media.landSound = trap->sound->Register("sound/player/land1.wav");
+    cgs.media.fallSound = trap->sound->Register("sound/player/fallsplat.wav");
 
-    cgs.media.crackleSound = trap->S_RegisterSound("sound/effects/energy_crackle.wav");
+    cgs.media.crackleSound = trap->sound->Register("sound/effects/energy_crackle.wav");
 #ifdef JK2AWARDS
-    cgs.media.impressiveSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM025");
-    cgs.media.excellentSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM053");
-    cgs.media.deniedSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM017");
-    cgs.media.humiliationSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM019");
-    cgs.media.defendSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM024");
+    cgs.media.impressiveSound = trap->sound->Register("sound/chars/protocol/misc/40MOM025");
+    cgs.media.excellentSound = trap->sound->Register("sound/chars/protocol/misc/40MOM053");
+    cgs.media.deniedSound = trap->sound->Register("sound/chars/protocol/misc/40MOM017");
+    cgs.media.humiliationSound = trap->sound->Register("sound/chars/protocol/misc/40MOM019");
+    cgs.media.defendSound = trap->sound->Register("sound/chars/protocol/misc/40MOM024");
 #endif
 
     /*
-    cgs.media.takenLeadSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM051");
-    cgs.media.tiedLeadSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM032");
-    cgs.media.lostLeadSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM052");
+    cgs.media.takenLeadSound = trap->sound->Register( "sound/chars/protocol/misc/40MOM051");
+    cgs.media.tiedLeadSound = trap->sound->Register( "sound/chars/protocol/misc/40MOM032");
+    cgs.media.lostLeadSound = trap->sound->Register( "sound/chars/protocol/misc/40MOM052");
     */
 
-    cgs.media.rollSound = trap->S_RegisterSound("sound/player/roll1.wav");
+    cgs.media.rollSound = trap->sound->Register("sound/player/roll1.wav");
 
-    cgs.media.noforceSound = trap->S_RegisterSound("sound/weapons/force/noforce");
+    cgs.media.noforceSound = trap->sound->Register("sound/weapons/force/noforce");
 
-    cgs.media.watrInSound = trap->S_RegisterSound("sound/player/watr_in.wav");
-    cgs.media.watrOutSound = trap->S_RegisterSound("sound/player/watr_out.wav");
-    cgs.media.watrUnSound = trap->S_RegisterSound("sound/player/watr_un.wav");
+    cgs.media.watrInSound = trap->sound->Register("sound/player/watr_in.wav");
+    cgs.media.watrOutSound = trap->sound->Register("sound/player/watr_out.wav");
+    cgs.media.watrUnSound = trap->sound->Register("sound/player/watr_un.wav");
 
     cgs.media.explosionModel = trap->R_RegisterModel("models/map_objects/mp/sphere.md3");
     cgs.media.surfaceExplosionShader = trap->R_RegisterShader("surfaceExplosion");
@@ -803,77 +803,77 @@ static void CG_RegisterSounds(void)
     trap->R_RegisterModel("models/map_objects/mp/sphere.md3");
     trap->R_RegisterModel("models/items/remote.md3");
 
-    cgs.media.holocronPickup = trap->S_RegisterSound("sound/player/holocron.wav");
+    cgs.media.holocronPickup = trap->sound->Register("sound/player/holocron.wav");
 
     // Zoom
-    cgs.media.zoomStart = trap->S_RegisterSound("sound/interface/zoomstart.wav");
-    cgs.media.zoomLoop = trap->S_RegisterSound("sound/interface/zoomloop.wav");
-    cgs.media.zoomEnd = trap->S_RegisterSound("sound/interface/zoomend.wav");
+    cgs.media.zoomStart = trap->sound->Register("sound/interface/zoomstart.wav");
+    cgs.media.zoomLoop = trap->sound->Register("sound/interface/zoomloop.wav");
+    cgs.media.zoomEnd = trap->sound->Register("sound/interface/zoomend.wav");
 
     for (i = 0; i < 4; i++) {
         Q_FormatTo(name, "sound/player/footsteps/stone_step{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_STONEWALK][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_STONEWALK][i] = trap->sound->Register(name);
         Q_FormatTo(name, "sound/player/footsteps/stone_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_STONERUN][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_STONERUN][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/metal_step{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_METALWALK][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_METALWALK][i] = trap->sound->Register(name);
         Q_FormatTo(name, "sound/player/footsteps/metal_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_METALRUN][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_METALRUN][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/pipe_step{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_PIPEWALK][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_PIPEWALK][i] = trap->sound->Register(name);
         Q_FormatTo(name, "sound/player/footsteps/pipe_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_PIPERUN][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_PIPERUN][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/water_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/water_walk{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_WADE][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_WADE][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/water_wade_0{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_SWIM][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_SWIM][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/snow_step{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_SNOWWALK][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_SNOWWALK][i] = trap->sound->Register(name);
         Q_FormatTo(name, "sound/player/footsteps/snow_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_SNOWRUN][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_SNOWRUN][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/sand_walk{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_SANDWALK][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_SANDWALK][i] = trap->sound->Register(name);
         Q_FormatTo(name, "sound/player/footsteps/sand_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_SANDRUN][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_SANDRUN][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/grass_step{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_GRASSWALK][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_GRASSWALK][i] = trap->sound->Register(name);
         Q_FormatTo(name, "sound/player/footsteps/grass_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_GRASSRUN][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_GRASSRUN][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/dirt_step{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_DIRTWALK][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_DIRTWALK][i] = trap->sound->Register(name);
         Q_FormatTo(name, "sound/player/footsteps/dirt_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_DIRTRUN][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_DIRTRUN][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/mud_walk{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_MUDWALK][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_MUDWALK][i] = trap->sound->Register(name);
         Q_FormatTo(name, "sound/player/footsteps/mud_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_MUDRUN][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_MUDRUN][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/gravel_walk{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_GRAVELWALK][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_GRAVELWALK][i] = trap->sound->Register(name);
         Q_FormatTo(name, "sound/player/footsteps/gravel_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_GRAVELRUN][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_GRAVELRUN][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/rug_step{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_RUGWALK][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_RUGWALK][i] = trap->sound->Register(name);
         Q_FormatTo(name, "sound/player/footsteps/rug_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_RUGRUN][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_RUGRUN][i] = trap->sound->Register(name);
 
         Q_FormatTo(name, "sound/player/footsteps/wood_walk{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_WOODWALK][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_WOODWALK][i] = trap->sound->Register(name);
         Q_FormatTo(name, "sound/player/footsteps/wood_run{}.wav", i + 1);
-        cgs.media.footsteps[footstep_t::FOOTSTEP_WOODRUN][i] = trap->S_RegisterSound(name);
+        cgs.media.footsteps[footstep_t::FOOTSTEP_WOODRUN][i] = trap->sound->Register(name);
     }
 
     // only register the items that the server says we need
@@ -896,7 +896,7 @@ static void CG_RegisterSounds(void)
             }
             continue; // custom sound
         }
-        cgs.gameSounds[i] = trap->S_RegisterSound(soundName);
+        cgs.gameSounds[i] = trap->sound->Register(soundName);
     }
 
     for (i = 1; i < MAX_FX; i++) {
@@ -949,11 +949,11 @@ static void CG_RegisterSounds(void)
     cg.loadLCARSStage = 2;
 
     // FIXME: only needed with item
-    cgs.media.deploySeeker = trap->S_RegisterSound("sound/chars/seeker/misc/hiss");
-    cgs.media.medkitSound = trap->S_RegisterSound("sound/items/use_bacta.wav");
+    cgs.media.deploySeeker = trap->sound->Register("sound/chars/seeker/misc/hiss");
+    cgs.media.medkitSound = trap->sound->Register("sound/items/use_bacta.wav");
 
-    cgs.media.winnerSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM006");
-    cgs.media.loserSound = trap->S_RegisterSound("sound/chars/protocol/misc/40MOM010");
+    cgs.media.winnerSound = trap->sound->Register("sound/chars/protocol/misc/40MOM006");
+    cgs.media.loserSound = trap->sound->Register("sound/chars/protocol/misc/40MOM010");
 }
 
 //-------------------------------------
@@ -1247,16 +1247,16 @@ static void CG_RegisterGraphics(void)
         cgs.media.chunkModels[chunkType_t::CHUNK_WHITE_METAL][i] = trap->R_RegisterModel(Q_Format("models/chunks/metal/wmetal1_{}.md3", i + 1).c_str());
     }
 
-    cgs.media.chunkSound = trap->S_RegisterSound("sound/weapons/explosions/glasslcar");
-    cgs.media.grateSound = trap->S_RegisterSound("sound/effects/grate_destroy");
-    cgs.media.rockBreakSound = trap->S_RegisterSound("sound/effects/wall_smash");
-    cgs.media.rockBounceSound[0] = trap->S_RegisterSound("sound/effects/stone_bounce");
-    cgs.media.rockBounceSound[1] = trap->S_RegisterSound("sound/effects/stone_bounce2");
-    cgs.media.metalBounceSound[0] = trap->S_RegisterSound("sound/effects/metal_bounce");
-    cgs.media.metalBounceSound[1] = trap->S_RegisterSound("sound/effects/metal_bounce2");
-    cgs.media.glassChunkSound = trap->S_RegisterSound("sound/weapons/explosions/glassbreak1");
-    cgs.media.crateBreakSound[0] = trap->S_RegisterSound("sound/weapons/explosions/crateBust1");
-    cgs.media.crateBreakSound[1] = trap->S_RegisterSound("sound/weapons/explosions/crateBust2");
+    cgs.media.chunkSound = trap->sound->Register("sound/weapons/explosions/glasslcar");
+    cgs.media.grateSound = trap->sound->Register("sound/effects/grate_destroy");
+    cgs.media.rockBreakSound = trap->sound->Register("sound/effects/wall_smash");
+    cgs.media.rockBounceSound[0] = trap->sound->Register("sound/effects/stone_bounce");
+    cgs.media.rockBounceSound[1] = trap->sound->Register("sound/effects/stone_bounce2");
+    cgs.media.metalBounceSound[0] = trap->sound->Register("sound/effects/metal_bounce");
+    cgs.media.metalBounceSound[1] = trap->sound->Register("sound/effects/metal_bounce2");
+    cgs.media.glassChunkSound = trap->sound->Register("sound/weapons/explosions/glassbreak1");
+    cgs.media.crateBreakSound[0] = trap->sound->Register("sound/weapons/explosions/crateBust1");
+    cgs.media.crateBreakSound[1] = trap->sound->Register("sound/weapons/explosions/crateBust2");
 
     /*
     Ghoul2 Insert Start
@@ -1568,7 +1568,12 @@ void CG_StartMusic(bool bForceStart)
     Q_strncpyz(parm1, COM_Parse((const char**)&s), sizeof(parm1));
     Q_strncpyz(parm2, COM_Parse((const char**)&s), sizeof(parm2));
 
-    trap->S_StartBackgroundTrack(parm1, parm2, !bForceStart);
+    trap->sound->StartMusic(parm1, parm2);
+
+    // at the level's start the music waits for its first snapshot, which starts it again from its beginning
+    if (!bForceStart) {
+        trap->sound->StopMusic();
+    }
 }
 
 char* CG_GetMenuBuffer(const char* filename)
@@ -1677,7 +1682,7 @@ bool CG_Asset_Parse(int handle)
             if (!trap->PC_ReadToken(handle, &token)) {
                 return false;
             }
-            cgDC.Assets.menuEnterSound = trap->S_RegisterSound(token.string);
+            cgDC.Assets.menuEnterSound = trap->sound->Register(token.string);
             continue;
         }
 
@@ -1686,7 +1691,7 @@ bool CG_Asset_Parse(int handle)
             if (!trap->PC_ReadToken(handle, &token)) {
                 return false;
             }
-            cgDC.Assets.menuExitSound = trap->S_RegisterSound(token.string);
+            cgDC.Assets.menuExitSound = trap->sound->Register(token.string);
             continue;
         }
 
@@ -1695,7 +1700,7 @@ bool CG_Asset_Parse(int handle)
             if (!trap->PC_ReadToken(handle, &token)) {
                 return false;
             }
-            cgDC.Assets.itemFocusSound = trap->S_RegisterSound(token.string);
+            cgDC.Assets.itemFocusSound = trap->sound->Register(token.string);
             continue;
         }
 
@@ -1704,7 +1709,7 @@ bool CG_Asset_Parse(int handle)
             if (!trap->PC_ReadToken(handle, &token)) {
                 return false;
             }
-            cgDC.Assets.menuBuzzSound = trap->S_RegisterSound(token.string);
+            cgDC.Assets.menuBuzzSound = trap->sound->Register(token.string);
             continue;
         }
 
@@ -2211,7 +2216,6 @@ void CG_LoadHudMenu()
     cgDC.drawTextWithCursor = &CG_Text_PaintWithCursor;
     // cgDC.setOverstrikeMode			= &trap->Key_SetOverstrikeMode;
     // cgDC.getOverstrikeMode			= &trap->Key_GetOverstrikeMode;
-    cgDC.startLocalSound = trap->S_StartLocalSound;
     cgDC.ownerDrawHandleKey = &CG_OwnerDrawHandleKey;
     cgDC.feederCount = &CG_FeederCount;
     cgDC.feederItemImage = &CG_FeederItemImage;
@@ -2223,9 +2227,7 @@ void CG_LoadHudMenu()
     // cgDC.executeText					= &trap->Cmd_ExecuteText;
     cgDC.ownerDrawWidth = &CG_OwnerDrawWidth;
     // cgDC.Pause						= &CG_Pause;
-    cgDC.registerSound = trap->S_RegisterSound;
-    cgDC.startBackgroundTrack = trap->S_StartBackgroundTrack;
-    cgDC.stopBackgroundTrack = trap->S_StopBackgroundTrack;
+    cgDC.sound = trap->sound;
     cgDC.playCinematic = &CG_PlayCinematic;
     cgDC.stopCinematic = &CG_StopCinematic;
     cgDC.drawCinematic = &CG_DrawCinematic;
@@ -2544,7 +2546,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
     CG_ShaderStateChanged();
 
-    trap->S_ClearLoopingSounds();
+    CG_StopLoopingSounds();
 
     cg.distanceCull = trap->R_GetDistanceCull();
 

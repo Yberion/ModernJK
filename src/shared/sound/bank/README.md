@@ -14,7 +14,7 @@ What a name finds:
 - the name is keyed in lower case, with `/`, without its extension: `Sound\Weapons\Fire.WAV` and `sound/weapons/fire.mp3` are one sound;
 - the file is the first of `.flac`, `.wav` (both lossless), `.ogg`, `.mp3`, from the best format to the least good (`../names.h`); the game's own files are WAV or MP3, so `.wav` comes before `.mp3` as it always did;
 - a character's voice (`sound/chars/`) is looked for in the player's language first, `sound/chr_d/`, `chr_f/` or `chr_e/`, then in English;
-- a missing file gives `kNoSound` and one warning, its name never looked for again; a name starting with `*` stands for a character's own sound, which the game resolves before registering it.
+- a missing file gives `kNoSound` and one message shown only to a developer (`developer 1`, as the old mixers did), its name never looked for again; a name starting with `*` stands for a character's own sound, which the game resolves before registering it.
 
 The lip sync measures what Jedi Academy's mixer measured at 44,100 Hz: every 800 samples, the mean of ten samples taken 100 apart, each divided by 256 and squared; a voice's level compares its block with the sound's peak by Jedi Academy's thresholds (0.3, 4, 6, 8). The samples themselves are not kept: OpenAL Soft holds the buffer, the bank keeps a few bytes per second of loudness.
 
@@ -31,4 +31,4 @@ bank.Free(bank.Unused());                   // what it did not use
 
 ## Tests
 
-`test/sound/bank.cpp`: the names, the best format first, a stereo file mixed to mono, a missing file warned once, the language, the length, the freeing and the loading again; the lip sync on a signal of silence, then loud, then quiet.
+`test/sound/bank.cpp`: the names, the best format first, a stereo file mixed to mono, a missing file reported once, the language, the length, the freeing and the loading again; the lip sync on a signal of silence, then loud, then quiet.

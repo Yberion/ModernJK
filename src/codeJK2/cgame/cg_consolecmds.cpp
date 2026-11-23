@@ -132,12 +132,12 @@ void CG_ToggleBinoculars(void)
             cg_zoomFov = cg_fov.value;
         }
 
-        cgi_S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO, cgs.media.zoomStart);
+        CG_StartSound(nullptr, cg.snap->ps.clientNum, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.zoomStart);
     }
     else {
         cg.zoomMode = 0;
         cg.zoomTime = cg.time;
-        cgi_S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO, cgs.media.zoomEnd);
+        CG_StartSound(nullptr, cg.snap->ps.clientNum, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.zoomEnd);
     }
 }
 
@@ -170,12 +170,12 @@ void CG_ToggleLAGoggles(void)
             cg_zoomFov = cg_fov.value; // does not zoom!!
         }
 
-        cgi_S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO, cgs.media.zoomStart);
+        CG_StartSound(nullptr, cg.snap->ps.clientNum, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.zoomStart);
     }
     else {
         cg.zoomMode = 0;
         cg.zoomTime = cg.time;
-        cgi_S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO, cgs.media.zoomEnd);
+        CG_StartSound(nullptr, cg.snap->ps.clientNum, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.zoomEnd);
     }
 }
 

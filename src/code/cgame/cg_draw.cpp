@@ -97,7 +97,7 @@ static void CG_DrawMessageLit(centity_t* cent, int x, int y)
 
                 if (cg_neverHearThatDumbBeepingSoundAgain.integer == 0)
                 {
-                    cgi_S_StartSound( nullptr, 0, soundChannel_t::CHAN_AUTO, cgs.media.messageLitSound );
+                    CG_StartSound(nullptr, 0, sound::SoundClass::World, sound::Slot::None, cgs.media.messageLitSound);
                 }
                 */
                 cg.messageLitActive = true;
@@ -139,7 +139,7 @@ static void CG_DrawForcePower(const centity_t* cent, const int xPos, const int y
         flash = true;
         if (cg.forceHUDNextFlashTime < cg.time) {
             cg.forceHUDNextFlashTime = cg.time + 400;
-            cgi_S_StartSound(nullptr, 0, soundChannel_t::CHAN_AUTO, cgs.media.noforceSound);
+            CG_StartLocalSound(cgs.media.noforceSound, sound::SoundClass::Interface, sound::Slot::None, 0.75f);
             if (cg.forceHUDActive) {
                 cg.forceHUDActive = false;
             }
@@ -1339,7 +1339,7 @@ static void CG_DrawSimpleForcePower(const centity_t* cent)
         flash = true;
         if (cg.forceHUDNextFlashTime < cg.time) {
             cg.forceHUDNextFlashTime = cg.time + 400;
-            cgi_S_StartSound(nullptr, 0, soundChannel_t::CHAN_AUTO, cgs.media.noforceSound);
+            CG_StartLocalSound(cgs.media.noforceSound, sound::SoundClass::Interface, sound::Slot::None, 0.75f);
             if (cg.forceHUDActive) {
                 cg.forceHUDActive = false;
             }
@@ -2684,10 +2684,10 @@ static void CG_DrawRocketLocking(int lockEntNum, int lockTime)
         // do sounds
         if (oldDif != dif) {
             if (dif == 8) {
-                cgi_S_StartSound(org, 0, soundChannel_t::CHAN_AUTO, cgi_S_RegisterSound("sound/weapons/rocket/lock.wav"));
+                CG_StartLocalSound(gi.sound->Register("sound/weapons/rocket/lock.wav"), sound::SoundClass::Interface, sound::Slot::None, 0.75f);
             }
             else {
-                cgi_S_StartSound(org, 0, soundChannel_t::CHAN_AUTO, cgi_S_RegisterSound("sound/weapons/rocket/tick.wav"));
+                CG_StartLocalSound(gi.sound->Register("sound/weapons/rocket/tick.wav"), sound::SoundClass::Interface, sound::Slot::None, 0.75f);
             }
         }
 

@@ -820,7 +820,7 @@ void emplaced_gun_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         }
 #endif
 
-        G_Sound(self, G_SoundIndex("sound/weapons/emplaced/emplaced_mount.mp3"));
+        G_Sound(self, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/emplaced/emplaced_mount.mp3"));
     }
 }
 

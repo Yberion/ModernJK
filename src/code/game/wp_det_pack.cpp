@@ -122,7 +122,7 @@ void WP_FireDetPack(gentity_t* ent, bool alt_fire)
                     VectorCopy(found->currentOrigin, found->s.origin);
                     found->e_ThinkFunc = thinkFunc_t::thinkF_WP_Explode;
                     found->nextthink = level.time + 100 + Q_flrand(0.0f, 1.0f) * 100;
-                    G_Sound(found, G_SoundIndex("sound/weapons/detpack/warning.wav"));
+                    G_Sound(found, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/detpack/warning.wav"));
 
                     // would be nice if this actually worked?
                     AddSoundEvent(nullptr, found->currentOrigin, found->splashRadius * 2, alertEventLevel_e::AEL_DANGER, false,

@@ -86,10 +86,10 @@ void G_ATSTCheckPain(gentity_t* self, gentity_t* other, const vec3_t point, int 
     int newBolt;
 
     if (Q_irand(0, 1)) {
-        G_SoundOnEnt(self, soundChannel_t::CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged1");
+        G_SoundOnEnt(self, sound::SoundClass::Vehicle, sound::Slot::None, "sound/chars/atst/atst_damaged1");
     }
     else {
-        G_SoundOnEnt(self, soundChannel_t::CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged2");
+        G_SoundOnEnt(self, sound::SoundClass::Vehicle, sound::Slot::None, "sound/chars/atst/atst_damaged2");
     }
 
     if ((hitLoc == hitLocation_t::HL_ARM_LT) && (self->locationDamage[hitLocation_t::HL_ARM_LT] > LEFT_ARM_HEALTH)) {

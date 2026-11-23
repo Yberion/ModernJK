@@ -481,7 +481,7 @@ static void ProcessMoveCommands(Vehicle_t* pVeh)
             // NOTE: turbo sound can't be part of effect if effect is played on every muzzle!
             if (pVeh->m_pVehicleInfo->soundTurbo) {
 #ifndef _JK2MP // SP
-                G_SoundIndexOnEnt(pVeh->m_pParentEntity, soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo);
+                G_SoundIndexOnEnt(pVeh->m_pParentEntity, sound::SoundClass::World, sound::Slot::None, pVeh->m_pVehicleInfo->soundTurbo);
 #elif defined QAGAME // MP GAME-side
                 G_EntitySound(((gentity_t*)(pVeh->m_pParentEntity)), soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo);
 #elif defined CGAME  // MP CGAME-side

@@ -39,7 +39,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 // Externs & Fwd Decl.
 ////////////////////////////////////////////////////////////////////////////////////////
-extern void G_SoundAtSpot(vec3_t org, int soundIndex, bool broadcast);
+extern void G_SoundAtSpot(vec3_t org, sound::SoundClass soundClass, int soundIndex, bool broadcast);
 extern void CG_DrawEdge(vec3_t start, vec3_t end, edgeType_t type);
 
 class CRailTrack;
@@ -650,7 +650,7 @@ void Rail_Update()
                         // If A Woosh Sound Was Selected, Play It Now
                         //--------------------------------------------
                         if (wooshSound) {
-                            G_SoundAtSpot(wooshSoundPos, wooshSound, false);
+                            G_SoundAtSpot(wooshSoundPos, sound::SoundClass::World, wooshSound, false);
                             if (WOOSH_DEBUG) {
                                 CG_DrawEdge(player->currentOrigin, wooshSoundPos, edgeType_t::EDGE_WHITE_TWOSECOND);
                             }

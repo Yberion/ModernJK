@@ -479,10 +479,10 @@ void CG_ToggleBinoculars(centity_t* cent, int forceZoom)
     }
 
     if (cg.snap->ps.zoomMode == 0) {
-        trap->S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO, cgs.media.zoomStart);
+        CG_StartSound(nullptr, cg.snap->ps.clientNum, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.zoomStart);
     }
     else if (cg.snap->ps.zoomMode == 2) {
-        trap->S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO, cgs.media.zoomEnd);
+        CG_StartSound(nullptr, cg.snap->ps.clientNum, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.zoomEnd);
     }
 }
 
@@ -530,7 +530,7 @@ static void CG_UseItem(centity_t* cent)
     switch (item) {
     default:
     case holdable_t::HI_NONE:
-        // trap->S_StartSound (nullptr, es->number, soundChannel_t::CHAN_BODY, cgs.media.useNothingSound );
+        // CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.useNothingSound);
         break;
 
     case holdable_t::HI_BINOCULARS:
@@ -538,7 +538,7 @@ static void CG_UseItem(centity_t* cent)
         break;
 
     case holdable_t::HI_SEEKER:
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.deploySeeker);
+        CG_StartSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::None, cgs.media.deploySeeker);
         break;
 
     case holdable_t::HI_SHIELD:
@@ -554,7 +554,7 @@ static void CG_UseItem(centity_t* cent)
             ci->medkitUsageTime = cg.time;
         }
         // Different sound for big bacta?
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.medkitSound);
+        CG_StartSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::None, cgs.media.medkitSound);
         break;
     case holdable_t::HI_JETPACK:
         break; // Do something?
@@ -683,7 +683,7 @@ void CG_PainEvent(centity_t* cent, int health)
     else {
         snd = "*pain100.wav";
     }
-    trap->S_StartSound(nullptr, cent->currentState.number, soundChannel_t::CHAN_VOICE, CG_CustomSound(cent->currentState.number, snd));
+    CG_StartSound(nullptr, cent->currentState.number, sound::SoundClass::Voice, sound::Slot::Voice, CG_CustomSound(cent->currentState.number, snd));
 
     // save pain time for programitic twitch animation
     cent->pe.painTime = cg.time;
@@ -882,32 +882,34 @@ void DoFall(centity_t* cent, entityState_t* es, int clientNum)
 
     if (Any(cent->currentState.eFlags & entityFlags_t::EF_DEAD)) { // corpses crack into the ground ^_^
         if (delta > 25) {
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.fallSound);
+            CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.fallSound);
         }
         else {
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound("sound/movers/objects/objectHit.wav"));
+            CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, trap->sound->Register("sound/movers/objects/objectHit.wav"));
         }
     }
     else if (BG_InKnockDownOnly(ES_LegsAnim(*es))) {
         if (delta > 14) {
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.fallSound);
+            CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.fallSound);
         }
         else {
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound("sound/movers/objects/objectHit.wav"));
+            CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, trap->sound->Register("sound/movers/objects/objectHit.wav"));
         }
     }
     else if (delta > 50) {
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.fallSound);
-        trap->S_StartSound(nullptr, cent->currentState.number, soundChannel_t::CHAN_VOICE, CG_CustomSound(cent->currentState.number, "*land1.wav"));
+        CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.fallSound);
+        CG_StartSound(nullptr, cent->currentState.number, sound::SoundClass::Voice, sound::Slot::Voice,
+                      CG_CustomSound(cent->currentState.number, "*land1.wav"));
         cent->pe.painTime = cg.time; // don't play a pain sound right after this
     }
     else if (delta > 44) {
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.fallSound);
-        trap->S_StartSound(nullptr, cent->currentState.number, soundChannel_t::CHAN_VOICE, CG_CustomSound(cent->currentState.number, "*land1.wav"));
+        CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.fallSound);
+        CG_StartSound(nullptr, cent->currentState.number, sound::SoundClass::Voice, sound::Slot::Voice,
+                      CG_CustomSound(cent->currentState.number, "*land1.wav"));
         cent->pe.painTime = cg.time; // don't play a pain sound right after this
     }
     else {
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.landSound);
+        CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.landSound);
     }
 
     if (clientNum == cg.predictedPlayerState.clientNum) {
@@ -954,7 +956,7 @@ int CG_InClientBitflags(entityState_t* ent, int client)
 void CG_PlayDoorLoopSound(centity_t* cent);
 void CG_PlayDoorSound(centity_t* cent, int type);
 
-void CG_TryPlayCustomSound(vec3_t origin, int entityNum, soundChannel_t channel, const char* soundName)
+void CG_TryPlayCustomSound(vec3_t origin, int entityNum, sound::SoundClass soundClass, sound::Slot slot, const char* soundName)
 {
     sfxHandle_t cSound = CG_CustomSound(entityNum, soundName);
 
@@ -962,7 +964,7 @@ void CG_TryPlayCustomSound(vec3_t origin, int entityNum, soundChannel_t channel,
         return;
     }
 
-    trap->S_StartSound(origin, entityNum, channel, cSound);
+    CG_StartSound(origin, entityNum, soundClass, slot, cSound);
 }
 
 void CG_G2MarkEvent(entityState_t* es)
@@ -1330,31 +1332,31 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
                 break;
             }
 
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_BODY, cgs.media.footsteps[soundType][Q_irand(0, 3)]);
+            CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.footsteps[soundType][Q_irand(0, 3)]);
         }
         break;
     case entity_event_t::EV_FOOTSTEP_METAL:
         DEBUGNAME("EV_FOOTSTEP_METAL");
         if (cg_footsteps.integer) {
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_BODY, cgs.media.footsteps[footstep_t::FOOTSTEP_METALWALK][Q_irand(0, 3)]);
+            CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.footsteps[footstep_t::FOOTSTEP_METALWALK][Q_irand(0, 3)]);
         }
         break;
     case entity_event_t::EV_FOOTSPLASH:
         DEBUGNAME("EV_FOOTSPLASH");
         if (cg_footsteps.integer) {
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_BODY, cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][Q_irand(0, 3)]);
+            CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][Q_irand(0, 3)]);
         }
         break;
     case entity_event_t::EV_FOOTWADE:
         DEBUGNAME("EV_FOOTWADE");
         if (cg_footsteps.integer) {
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_BODY, cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][Q_irand(0, 3)]);
+            CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][Q_irand(0, 3)]);
         }
         break;
     case entity_event_t::EV_SWIM:
         DEBUGNAME("EV_SWIM");
         if (cg_footsteps.integer) {
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_BODY, cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][Q_irand(0, 3)]);
+            CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][Q_irand(0, 3)]);
         }
         break;
 
@@ -1420,7 +1422,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
         if (es->otherEntityNum == cg.predictedPlayerState.clientNum || es->otherEntityNum2 == cg.predictedPlayerState.clientNum ||
             es->groundEntityNum == cg.predictedPlayerState.clientNum) {
             CG_CenterPrint(CG_GetStringEdString("MP_SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH * 2);
-            trap->S_StartLocalSound(cgs.media.countFightSound, soundChannel_t::CHAN_ANNOUNCER);
+            CG_StartLocalSound(cgs.media.countFightSound, sound::SoundClass::Announcer, sound::Slot::Announcer);
         }
         break;
 
@@ -1434,10 +1436,10 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
         if (es->eventParm) { // starting the duel
             if (es->eventParm == 2) {
                 CG_CenterPrint(CG_GetStringEdString("MP_SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH * 2);
-                trap->S_StartLocalSound(cgs.media.countFightSound, soundChannel_t::CHAN_ANNOUNCER);
+                CG_StartLocalSound(cgs.media.countFightSound, sound::SoundClass::Announcer, sound::Slot::Announcer);
             }
             else {
-                trap->S_StartBackgroundTrack("music/mp/duel.mp3", "music/mp/duel.mp3", false);
+                trap->sound->StartMusic("music/mp/duel.mp3", "music/mp/duel.mp3");
             }
         }
         else { // ending the duel
@@ -1448,7 +1450,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_JUMP:
         DEBUGNAME("EV_JUMP");
         if (cg_jumpSounds.integer) {
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, CG_CustomSound(es->number, "*jump1.wav"));
+            CG_StartSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice, CG_CustomSound(es->number, "*jump1.wav"));
         }
         break;
     case entity_event_t::EV_ROLL:
@@ -1460,8 +1462,8 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             DoFall(cent, es, clientNum);
         }
 
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, CG_CustomSound(es->number, "*jump1.wav"));
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_BODY, cgs.media.rollSound);
+        CG_StartSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice, CG_CustomSound(es->number, "*jump1.wav"));
+        CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.rollSound);
 
         // FIXME: need some sort of body impact on ground sound and maybe kick up some dust?
         break;
@@ -1527,7 +1529,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
                 soundIndex = CG_CustomSound(es->number, "*taunt.wav");
             }
             if (soundIndex) {
-                trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, soundIndex);
+                CG_StartSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice, soundIndex);
             }
         }
         break;
@@ -1537,45 +1539,50 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_ANGER2:
     case entity_event_t::EV_ANGER3:
         DEBUGNAME("EV_ANGERx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*anger{}.wav", event - entity_event_t::EV_ANGER1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*anger{}.wav", event - entity_event_t::EV_ANGER1 + 1).c_str());
         break;
 
     case entity_event_t::EV_VICTORY1: // Say when killed an enemy
     case entity_event_t::EV_VICTORY2:
     case entity_event_t::EV_VICTORY3:
         DEBUGNAME("EV_VICTORYx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*victory{}.wav", event - entity_event_t::EV_VICTORY1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*victory{}.wav", event - entity_event_t::EV_VICTORY1 + 1).c_str());
         break;
 
     case entity_event_t::EV_CONFUSE1: // Say when confused
     case entity_event_t::EV_CONFUSE2:
     case entity_event_t::EV_CONFUSE3:
         DEBUGNAME("EV_CONFUSEDx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*confuse{}.wav", event - entity_event_t::EV_CONFUSE1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*confuse{}.wav", event - entity_event_t::EV_CONFUSE1 + 1).c_str());
         break;
 
     case entity_event_t::EV_PUSHED1: // Say when pushed
     case entity_event_t::EV_PUSHED2:
     case entity_event_t::EV_PUSHED3:
         DEBUGNAME("EV_PUSHEDx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*pushed{}.wav", event - entity_event_t::EV_PUSHED1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*pushed{}.wav", event - entity_event_t::EV_PUSHED1 + 1).c_str());
         break;
 
     case entity_event_t::EV_CHOKE1: // Say when choking
     case entity_event_t::EV_CHOKE2:
     case entity_event_t::EV_CHOKE3:
         DEBUGNAME("EV_CHOKEx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*choke{}.wav", event - entity_event_t::EV_CHOKE1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*choke{}.wav", event - entity_event_t::EV_CHOKE1 + 1).c_str());
         break;
 
     case entity_event_t::EV_FFWARN: // Warn ally to stop shooting you
         DEBUGNAME("EV_FFWARN");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, "*ffwarn.wav");
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice, "*ffwarn.wav");
         break;
 
     case entity_event_t::EV_FFTURN: // Turn on ally after being shot by them
         DEBUGNAME("EV_FFTURN");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, "*ffturn.wav");
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice, "*ffturn.wav");
         break;
 
     // extra sounds for ST
@@ -1583,7 +1590,8 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_CHASE2:
     case entity_event_t::EV_CHASE3:
         DEBUGNAME("EV_CHASEx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*chase{}.wav", event - entity_event_t::EV_CHASE1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*chase{}.wav", event - entity_event_t::EV_CHASE1 + 1).c_str());
         break;
     case entity_event_t::EV_COVER1:
     case entity_event_t::EV_COVER2:
@@ -1591,7 +1599,8 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_COVER4:
     case entity_event_t::EV_COVER5:
         DEBUGNAME("EV_COVERx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*cover{}.wav", event - entity_event_t::EV_COVER1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*cover{}.wav", event - entity_event_t::EV_COVER1 + 1).c_str());
         break;
     case entity_event_t::EV_DETECTED1:
     case entity_event_t::EV_DETECTED2:
@@ -1599,46 +1608,53 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_DETECTED4:
     case entity_event_t::EV_DETECTED5:
         DEBUGNAME("EV_DETECTEDx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*detected{}.wav", event - entity_event_t::EV_DETECTED1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*detected{}.wav", event - entity_event_t::EV_DETECTED1 + 1).c_str());
         break;
     case entity_event_t::EV_GIVEUP1:
     case entity_event_t::EV_GIVEUP2:
     case entity_event_t::EV_GIVEUP3:
     case entity_event_t::EV_GIVEUP4:
         DEBUGNAME("EV_GIVEUPx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*giveup{}.wav", event - entity_event_t::EV_GIVEUP1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*giveup{}.wav", event - entity_event_t::EV_GIVEUP1 + 1).c_str());
         break;
     case entity_event_t::EV_LOOK1:
     case entity_event_t::EV_LOOK2:
         DEBUGNAME("EV_LOOKx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*look{}.wav", event - entity_event_t::EV_LOOK1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*look{}.wav", event - entity_event_t::EV_LOOK1 + 1).c_str());
         break;
     case entity_event_t::EV_LOST1:
         DEBUGNAME("EV_LOST1");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, "*lost1.wav");
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice, "*lost1.wav");
         break;
     case entity_event_t::EV_OUTFLANK1:
     case entity_event_t::EV_OUTFLANK2:
         DEBUGNAME("EV_OUTFLANKx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*outflank{}.wav", event - entity_event_t::EV_OUTFLANK1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*outflank{}.wav", event - entity_event_t::EV_OUTFLANK1 + 1).c_str());
         break;
     case entity_event_t::EV_ESCAPING1:
     case entity_event_t::EV_ESCAPING2:
     case entity_event_t::EV_ESCAPING3:
         DEBUGNAME("EV_ESCAPINGx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*escaping{}.wav", event - entity_event_t::EV_ESCAPING1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*escaping{}.wav", event - entity_event_t::EV_ESCAPING1 + 1).c_str());
         break;
     case entity_event_t::EV_SIGHT1:
     case entity_event_t::EV_SIGHT2:
     case entity_event_t::EV_SIGHT3:
         DEBUGNAME("EV_SIGHTx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*sight{}.wav", event - entity_event_t::EV_SIGHT1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*sight{}.wav", event - entity_event_t::EV_SIGHT1 + 1).c_str());
         break;
     case entity_event_t::EV_SOUND1:
     case entity_event_t::EV_SOUND2:
     case entity_event_t::EV_SOUND3:
         DEBUGNAME("EV_SOUNDx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*sound{}.wav", event - entity_event_t::EV_SOUND1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*sound{}.wav", event - entity_event_t::EV_SOUND1 + 1).c_str());
         break;
     case entity_event_t::EV_SUSPICIOUS1:
     case entity_event_t::EV_SUSPICIOUS2:
@@ -1646,7 +1662,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_SUSPICIOUS4:
     case entity_event_t::EV_SUSPICIOUS5:
         DEBUGNAME("EV_SUSPICIOUSx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE,
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
                               Q_Format("*suspicious{}.wav", event - entity_event_t::EV_SUSPICIOUS1 + 1).c_str());
         break;
     // extra sounds for Jedi
@@ -1654,47 +1670,54 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_COMBAT2:
     case entity_event_t::EV_COMBAT3:
         DEBUGNAME("EV_COMBATx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*combat{}.wav", event - entity_event_t::EV_COMBAT1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*combat{}.wav", event - entity_event_t::EV_COMBAT1 + 1).c_str());
         break;
     case entity_event_t::EV_JDETECTED1:
     case entity_event_t::EV_JDETECTED2:
     case entity_event_t::EV_JDETECTED3:
         DEBUGNAME("EV_JDETECTEDx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*jdetected{}.wav", event - entity_event_t::EV_JDETECTED1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*jdetected{}.wav", event - entity_event_t::EV_JDETECTED1 + 1).c_str());
         break;
     case entity_event_t::EV_TAUNT1:
     case entity_event_t::EV_TAUNT2:
     case entity_event_t::EV_TAUNT3:
         DEBUGNAME("EV_TAUNTx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*taunt{}.wav", event - entity_event_t::EV_TAUNT1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*taunt{}.wav", event - entity_event_t::EV_TAUNT1 + 1).c_str());
         break;
     case entity_event_t::EV_JCHASE1:
     case entity_event_t::EV_JCHASE2:
     case entity_event_t::EV_JCHASE3:
         DEBUGNAME("EV_JCHASEx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*jchase{}.wav", event - entity_event_t::EV_JCHASE1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*jchase{}.wav", event - entity_event_t::EV_JCHASE1 + 1).c_str());
         break;
     case entity_event_t::EV_JLOST1:
     case entity_event_t::EV_JLOST2:
     case entity_event_t::EV_JLOST3:
         DEBUGNAME("EV_JLOSTx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*jlost{}.wav", event - entity_event_t::EV_JLOST1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*jlost{}.wav", event - entity_event_t::EV_JLOST1 + 1).c_str());
         break;
     case entity_event_t::EV_DEFLECT1:
     case entity_event_t::EV_DEFLECT2:
     case entity_event_t::EV_DEFLECT3:
         DEBUGNAME("EV_DEFLECTx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*deflect{}.wav", event - entity_event_t::EV_DEFLECT1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*deflect{}.wav", event - entity_event_t::EV_DEFLECT1 + 1).c_str());
         break;
     case entity_event_t::EV_GLOAT1:
     case entity_event_t::EV_GLOAT2:
     case entity_event_t::EV_GLOAT3:
         DEBUGNAME("EV_GLOATx");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, Q_Format("*gloat{}.wav", event - entity_event_t::EV_GLOAT1 + 1).c_str());
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                              Q_Format("*gloat{}.wav", event - entity_event_t::EV_GLOAT1 + 1).c_str());
         break;
     case entity_event_t::EV_PUSHFAIL:
         DEBUGNAME("EV_PUSHFAIL");
-        CG_TryPlayCustomSound(nullptr, es->number, soundChannel_t::CHAN_VOICE, "*pushfail.wav");
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice, "*pushfail.wav");
         break;
         // End NPC sounds
 
@@ -1708,19 +1731,19 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
     case entity_event_t::EV_WATER_TOUCH:
         DEBUGNAME("EV_WATER_TOUCH");
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.watrInSound);
+        CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.watrInSound);
         break;
     case entity_event_t::EV_WATER_LEAVE:
         DEBUGNAME("EV_WATER_LEAVE");
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.watrOutSound);
+        CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.watrOutSound);
         break;
     case entity_event_t::EV_WATER_UNDER:
         DEBUGNAME("EV_WATER_UNDER");
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.watrUnSound);
+        CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.watrUnSound);
         break;
     case entity_event_t::EV_WATER_CLEAR:
         DEBUGNAME("EV_WATER_CLEAR");
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, CG_CustomSound(es->number, "*gasp.wav"));
+        CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, CG_CustomSound(es->number, "*gasp.wav"));
         break;
 
     case entity_event_t::EV_ITEM_PICKUP:
@@ -1734,7 +1757,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
             if (index < 1 && cg_entities[es->eventParm].currentState.isJediMaster) { // a holocron most likely
                 const forcePowers_t power = static_cast<forcePowers_t>(cg_entities[es->eventParm].currentState.trickedentindex4);
-                trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.holocronPickup);
+                CG_StartSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::None, cgs.media.holocronPickup);
 
                 if (es->number == cg.snap->ps.clientNum && showPowersName[power]) {
                     const char* strText = CG_GetStringEdString("MP_INGAME", "PICKUPLINE");
@@ -1780,7 +1803,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
             if (/*item->giType != itemType_t::IT_POWERUP && */ item->giType != itemType_t::IT_TEAM) {
                 if (item->pickup_sound && item->pickup_sound[0]) {
-                    trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound(item->pickup_sound));
+                    CG_StartSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::None, trap->sound->Register(item->pickup_sound));
                 }
             }
 
@@ -1805,7 +1828,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             item = &bg_itemlist[index];
             // powerup pickups are global
             if (item->pickup_sound && item->pickup_sound[0]) {
-                trap->S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound(item->pickup_sound));
+                CG_StartSound(nullptr, cg.snap->ps.clientNum, sound::SoundClass::World, sound::Slot::None, trap->sound->Register(item->pickup_sound));
             }
 
             // show icon and name on status bar
@@ -1828,18 +1851,18 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     //
     case entity_event_t::EV_NOAMMO:
         DEBUGNAME("EV_NOAMMO");
-        //		trap->S_StartSound (nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.noAmmoSound );
+        //		CG_StartSound(nullptr, es->number, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.noAmmoSound);
         if (es->number == cg.snap->ps.clientNum) {
             if (CG_InFighter() || CG_InATST() || cg.snap->ps.weapon == weapon_t::WP_NONE) { // just letting us know our vehicle is out of ammo
                 // FIXME: flash something on HUD or give some message so we know we have no ammo
                 centity_t* localCent = &cg_entities[cg.snap->ps.clientNum];
                 if (localCent->m_pVehicle && localCent->m_pVehicle->m_pVehicleInfo &&
                     localCent->m_pVehicle->m_pVehicleInfo->weapon[es->eventParm].soundNoAmmo) { // play the "no Ammo" sound for this weapon
-                    trap->S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO,
-                                       localCent->m_pVehicle->m_pVehicleInfo->weapon[es->eventParm].soundNoAmmo);
+                    CG_StartSound(nullptr, cg.snap->ps.clientNum, sound::SoundClass::Weapon, sound::Slot::None,
+                                  localCent->m_pVehicle->m_pVehicleInfo->weapon[es->eventParm].soundNoAmmo);
                 }
                 else { // play the default "no ammo" sound
-                    trap->S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO, cgs.media.noAmmoSound);
+                    CG_StartSound(nullptr, cg.snap->ps.clientNum, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.noAmmoSound);
                 }
                 // flash the HUD so they associate the sound with the visual indicator that they don't have enough ammo
                 if (cg_vehicleAmmoWarningTime < cg.time ||
@@ -1879,10 +1902,10 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             assert(weaponInfo);
 
             if (weaponInfo->selectSound) {
-                trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, weaponInfo->selectSound);
+                CG_StartSound(nullptr, es->number, sound::SoundClass::Weapon, sound::Slot::None, weaponInfo->selectSound);
             }
             else if (weapon != weapon_t::WP_SABER) { // not sure what SP is doing for this but I don't want a select sound for saber (it has the saber-turn-on)
-                trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.selectSound);
+                CG_StartSound(nullptr, es->number, sound::SoundClass::Weapon, sound::Slot::None, cgs.media.selectSound);
             }
         }
         break;
@@ -1966,7 +1989,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_SABER_ATTACK:
         DEBUGNAME("EV_SABER_ATTACK");
         {
-            qhandle_t swingSound = trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(1, 8)).c_str());
+            qhandle_t swingSound = trap->sound->Register(Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(1, 8)).c_str());
             clientInfo_t* client = nullptr;
             if (cg_entities[es->number].currentState.eType == entityType_t::ET_NPC) {
                 client = cg_entities[es->number].npcClient;
@@ -1977,7 +2000,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             if (client && client->infoValid && client->saber[0].swingSound[0]) { // custom swing sound
                 swingSound = client->saber[0].swingSound[Q_irand(0, 2)];
             }
-            trap->S_StartSound(es->pos.trBase, es->number, soundChannel_t::CHAN_WEAPON, swingSound);
+            CG_StartSound(es->pos.trBase, es->number, sound::SoundClass::Saber, sound::Slot::Weapon, swingSound);
         }
         break;
 
@@ -1988,7 +2011,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             int hitPersonSmallFxID = cgs.effects.mSaberBloodSparksSmall;
             int hitPersonMidFxID = cgs.effects.mSaberBloodSparksMid;
             int hitOtherFxID = cgs.effects.mSaberCut;
-            int hitSound = trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberhit{}.wav", Q_irand(1, 3)).c_str());
+            int hitSound = trap->sound->Register(Q_Format("sound/weapons/saber/saberhit{}.wav", Q_irand(1, 3)).c_str());
 
             if (es->otherEntityNum2 >= 0 &&
                 es->otherEntityNum2 <
@@ -2034,7 +2057,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
                 if (!fxDir[0] && !fxDir[1] && !fxDir[2]) {
                     fxDir[1] = 1;
                 }
-                trap->S_StartSound(es->origin, es->number, soundChannel_t::CHAN_AUTO, hitSound);
+                CG_StartSound(es->origin, es->number, sound::SoundClass::Saber, sound::Slot::None, hitSound);
                 trap->FX_PlayEffectID(hitPersonFxID, es->origin, fxDir, -1, -1, false);
                 trap->FX_PlayEffectID(hitPersonFxID, es->origin, fxDir, -1, -1, false);
                 trap->FX_PlayEffectID(hitPersonFxID, es->origin, fxDir, -1, -1, false);
@@ -2048,7 +2071,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
                 if (!fxDir[0] && !fxDir[1] && !fxDir[2]) {
                     fxDir[1] = 1;
                 }
-                trap->S_StartSound(es->origin, es->number, soundChannel_t::CHAN_AUTO, hitSound);
+                CG_StartSound(es->origin, es->number, sound::SoundClass::Saber, sound::Slot::None, hitSound);
                 if (es->eventParm == 3) { // moderate or big hits.
                     trap->FX_PlayEffectID(hitPersonSmallFxID, es->origin, fxDir, -1, -1, false);
                 }
@@ -2069,7 +2092,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
                 }
                 // old jk2mp method
                 /*
-                trap->S_StartSound(es->origin, es->number, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound("sound/weapons/saber/saberhit.wav"));
+                CG_StartSound(es->origin, es->number, sound::SoundClass::Saber, sound::Slot::None, trap->sound->Register("sound/weapons/saber/saberhit.wav"));
                 trap->FX_PlayEffectID( trap->FX_RegisterEffect("saber/spark.efx"), es->origin, fxDir, -1, -1, false );
                 */
 
@@ -2103,7 +2126,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
         {
             if (es->eventParm) { // saber block
                 int blockFXID = cgs.effects.mSaberBlock;
-                qhandle_t blockSound = trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str());
+                qhandle_t blockSound = trap->sound->Register(Q_Format("sound/weapons/saber/saberblock{}.wav", Q_irand(1, 9)).c_str());
                 bool noFlare = false;
 
                 if (es->otherEntityNum2 >= 0 && es->otherEntityNum2 < ENTITYNUM_NONE) { // we have a specific person who is causing this effect, see if we
@@ -2147,7 +2170,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
                     if (!fxDir[0] && !fxDir[1] && !fxDir[2]) {
                         fxDir[1] = 1;
                     }
-                    trap->S_StartSound(es->origin, es->number, soundChannel_t::CHAN_AUTO, blockSound);
+                    CG_StartSound(es->origin, es->number, sound::SoundClass::Saber, sound::Slot::None, blockSound);
                     trap->FX_PlayEffectID(blockFXID, es->origin, fxDir, -1, -1, false);
 
                     if (!noFlare) {
@@ -2172,8 +2195,8 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
         {
             cg_saberFlashTime = cg.time - 50;
             VectorCopy(es->origin, cg_saberFlashPos);
-            trap->S_StartSound(es->origin, -1, soundChannel_t::CHAN_WEAPON,
-                               trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberhitwall{}", Q_irand(1, 3)).c_str()));
+            CG_StartSound(es->origin, -1, sound::SoundClass::Saber, sound::Slot::None,
+                          trap->sound->Register(Q_Format("sound/weapons/saber/saberhitwall{}", Q_irand(1, 3)).c_str()));
         }
         break;
 
@@ -2191,10 +2214,10 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
             if (ci) {
                 if (ci->saber[0].soundOn) {
-                    trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, ci->saber[0].soundOn);
+                    CG_StartSound(nullptr, es->number, sound::SoundClass::Saber, sound::Slot::None, ci->saber[0].soundOn);
                 }
                 if (ci->saber[1].soundOn) {
-                    trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, ci->saber[1].soundOn);
+                    CG_StartSound(nullptr, es->number, sound::SoundClass::Saber, sound::Slot::None, ci->saber[1].soundOn);
                 }
             }
         }
@@ -2222,10 +2245,10 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             }
             trap->FX_PlayEffectID(cgs.effects.mJediSpawn, pos, ang, -1, -1, false);
 
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound("sound/weapons/saber/saberon.wav"));
+            CG_StartSound(nullptr, es->number, sound::SoundClass::Saber, sound::Slot::None, trap->sound->Register("sound/weapons/saber/saberon.wav"));
 
             if (cg.snap->ps.clientNum == es->number) {
-                trap->S_StartLocalSound(cgs.media.happyMusic, soundChannel_t::CHAN_LOCAL);
+                CG_StartLocalSound(cgs.media.happyMusic, sound::SoundClass::Interface, sound::Slot::Menu, 0.75f);
                 CGCam_SetMusicMult(0.3f, 5000);
             }
         }
@@ -2285,10 +2308,10 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
         DEBUGNAME("EV_DISRUPTOR_ZOOMSOUND");
         if (es->number == cg.snap->ps.clientNum) {
             if (cg.snap->ps.zoomMode) {
-                trap->S_StartLocalSound(trap->S_RegisterSound("sound/weapons/disruptor/zoomstart.wav"), soundChannel_t::CHAN_AUTO);
+                CG_StartLocalSound(trap->sound->Register("sound/weapons/disruptor/zoomstart.wav"), sound::SoundClass::Interface, sound::Slot::None, 0.75f);
             }
             else {
-                trap->S_StartLocalSound(trap->S_RegisterSound("sound/weapons/disruptor/zoomend.wav"), soundChannel_t::CHAN_AUTO);
+                CG_StartLocalSound(trap->sound->Register("sound/weapons/disruptor/zoomend.wav"), sound::SoundClass::Interface, sound::Slot::None, 0.75f);
             }
         }
         break;
@@ -2299,13 +2322,13 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
             switch (static_cast<pdSounds_t>(es->eventParm)) {
             case pdSounds_t::PDSOUND_PROTECTHIT:
-                sID = trap->S_RegisterSound("sound/weapons/force/protecthit.mp3");
+                sID = trap->sound->Register("sound/weapons/force/protecthit.mp3");
                 break;
             case pdSounds_t::PDSOUND_PROTECT:
-                sID = trap->S_RegisterSound("sound/weapons/force/protect.mp3");
+                sID = trap->sound->Register("sound/weapons/force/protect.mp3");
                 break;
             case pdSounds_t::PDSOUND_ABSORBHIT:
-                sID = trap->S_RegisterSound("sound/weapons/force/absorbhit.mp3");
+                sID = trap->sound->Register("sound/weapons/force/absorbhit.mp3");
                 if (es->trickedentindex >= 0 && es->trickedentindex < MAX_CLIENTS) {
                     int clnum = es->trickedentindex;
 
@@ -2314,20 +2337,20 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
                 }
                 break;
             case pdSounds_t::PDSOUND_ABSORB:
-                sID = trap->S_RegisterSound("sound/weapons/force/absorb.mp3");
+                sID = trap->sound->Register("sound/weapons/force/absorb.mp3");
                 break;
             case pdSounds_t::PDSOUND_FORCEJUMP:
-                sID = trap->S_RegisterSound("sound/weapons/force/jump.mp3");
+                sID = trap->sound->Register("sound/weapons/force/jump.mp3");
                 break;
             case pdSounds_t::PDSOUND_FORCEGRIP:
-                sID = trap->S_RegisterSound("sound/weapons/force/grip.mp3");
+                sID = trap->sound->Register("sound/weapons/force/grip.mp3");
                 break;
             default:
                 break;
             }
 
             if (sID != 1) {
-                trap->S_StartSound(es->origin, es->number, soundChannel_t::CHAN_AUTO, sID);
+                CG_StartSound(es->origin, es->number, sound::SoundClass::Force, sound::Slot::None, sID);
             }
         }
         break;
@@ -2340,12 +2363,12 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             while (clnum < MAX_CLIENTS) {
                 if (CG_InClientBitflags(es, clnum)) {
                     if (es->eventParm == 1) { // eventParm 1 is heal
-                        trap->S_StartSound(nullptr, clnum, soundChannel_t::CHAN_AUTO, cgs.media.teamHealSound);
+                        CG_StartSound(nullptr, clnum, sound::SoundClass::Force, sound::Slot::None, cgs.media.teamHealSound);
                         cg_entities[clnum].teamPowerEffectTime = cg.time + 1000;
                         cg_entities[clnum].teamPowerType = 1;
                     }
                     else { // eventParm 2 is force regen
-                        trap->S_StartSound(nullptr, clnum, soundChannel_t::CHAN_AUTO, cgs.media.teamRegenSound);
+                        CG_StartSound(nullptr, clnum, sound::SoundClass::Force, sound::Slot::None, cgs.media.teamRegenSound);
                         cg_entities[clnum].teamPowerEffectTime = cg.time + 1000;
                         cg_entities[clnum].teamPowerType = 0;
                     }
@@ -2480,7 +2503,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             CG_Trace(&tr, position, playerMins, playerMaxs, dpos, es->number, MASK_SOLID);
             VectorCopy(tr.endpos, pos);
 
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.teleInSound);
+            CG_StartSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::None, cgs.media.teleInSound);
 
             if (tr.fraction == 1) {
                 break;
@@ -2506,7 +2529,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             CG_Trace(&tr, position, playerMins, playerMaxs, dpos, es->number, MASK_SOLID);
             VectorCopy(tr.endpos, pos);
 
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.teleOutSound);
+            CG_StartSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::None, cgs.media.teleOutSound);
 
             if (tr.fraction == 1) {
                 break;
@@ -2517,12 +2540,12 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
     case entity_event_t::EV_ITEM_POP:
         DEBUGNAME("EV_ITEM_POP");
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.respawnSound);
+        CG_StartSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::None, cgs.media.respawnSound);
         break;
     case entity_event_t::EV_ITEM_RESPAWN:
         DEBUGNAME("EV_ITEM_RESPAWN");
         cent->miscTime = cg.time; // scale up from this
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.respawnSound);
+        CG_StartSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::None, cgs.media.respawnSound);
         break;
 
     case entity_event_t::EV_GRENADE_BOUNCE:
@@ -2640,7 +2663,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
     case entity_event_t::EV_MISSILE_STICK:
         DEBUGNAME("EV_MISSILE_STICK");
-        //		trap->S_StartSound (nullptr, es->number, soundChannel_t::CHAN_AUTO, cgs.media.missileStick );
+        //		CG_StartSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::None, cgs.media.missileStick);
         break;
 
     case entity_event_t::EV_MISSILE_HIT:
@@ -2835,13 +2858,13 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
                 break;
             }
 
-            sfx = trap->AS_GetBModelSound(soundSet, es->eventParm);
+            sfx = trap->sound->BrushModelSound(soundSet, static_cast<sound::BrushModelStage>(es->eventParm));
 
             if (sfx == -1) {
                 break;
             }
 
-            trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_AUTO, sfx);
+            CG_StartSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::None, sfx);
         }
         break;
 
@@ -2850,7 +2873,17 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
         if (Any(cg_entities[es->trickedentindex2].currentState.eFlags & entityFlags_t::EF_SOUNDTRACKER)) {
             cg_entities[es->trickedentindex2].currentState.eFlags &= ~entityFlags_t::EF_SOUNDTRACKER;
         }
-        trap->S_MuteSound(es->trickedentindex2, static_cast<soundChannel_t>(es->trickedentindex));
+        {
+            // a slot named stops the sound in it, none every sound of the entity (a sound tracker's)
+            const sound::Slot slot = BG_UnpackSoundEvent(es->trickedentindex).slot;
+
+            if (slot == sound::Slot::None) {
+                trap->sound->StopEntity(es->trickedentindex2);
+            }
+            else {
+                trap->sound->StopSlot(es->trickedentindex2, slot);
+            }
+        }
         CG_S_StopLoopingSound(es->trickedentindex2, -1);
         break;
 
@@ -2874,7 +2907,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
                 if (clientNum != cg.predictedPlayerState.clientNum) {   // play on the head as well to simulate hearing in radio and in world
                     if (ci->team == PS_Team(cg.predictedPlayerState)) { // don't hear it if this person is on the other team, but they can still
                         // hear it in the world spot.
-                        trap->S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_MENU1, sfx);
+                        CG_StartLocalSound(sfx, sound::SoundClass::Interface, sound::Slot::Menu);
                     }
                 }
                 if (ci->team == PS_Team(cg.predictedPlayerState)) { // add to the chat box
@@ -2886,39 +2919,40 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
                 }
 
                 // and play in world for everyone
-                trap->S_StartSound(nullptr, clientNum, soundChannel_t::CHAN_VOICE, sfx);
+                CG_StartSound(nullptr, clientNum, sound::SoundClass::Voice, sound::Slot::Voice, sfx);
                 vChatEnt->vChatTime = cg.time + 1000;
             }
         }
         break;
 
-    case entity_event_t::EV_GENERAL_SOUND:
+    case entity_event_t::EV_GENERAL_SOUND: {
         DEBUGNAME("EV_GENERAL_SOUND");
-        if (es->saberEntityNum == std::to_underlying(trackchan_t::TRACK_CHANNEL_2) || es->saberEntityNum == std::to_underlying(trackchan_t::TRACK_CHANNEL_3) ||
-            es->saberEntityNum == std::to_underlying(trackchan_t::TRACK_CHANNEL_5)) { // channels 2 and 3 are for speed and rage, 5 for sight
+        const soundEvent_t soundEvent = BG_UnpackSoundEvent(es->saberEntityNum);
+
+        if (soundEvent.loop) { // the force powers' speed, rage and sight, looping on their tracker
             if (cgs.gameSounds[es->eventParm]) {
-                CG_S_AddRealLoopingSound(es->number, es->pos.trBase, vec3_origin, cgs.gameSounds[es->eventParm]);
+                CG_S_AddRealLoopingSound(es->number, es->pos.trBase, cgs.gameSounds[es->eventParm], soundEvent.soundClass);
             }
         }
         else {
             if (cgs.gameSounds[es->eventParm]) {
-                trap->S_StartSound(nullptr, es->number, static_cast<soundChannel_t>(es->saberEntityNum), cgs.gameSounds[es->eventParm]);
+                CG_StartSound(nullptr, es->number, soundEvent.soundClass, soundEvent.slot, cgs.gameSounds[es->eventParm]);
             }
             else {
                 s = CG_ConfigString(CS_SOUNDS + es->eventParm);
-                trap->S_StartSound(nullptr, es->number, static_cast<soundChannel_t>(es->saberEntityNum), CG_CustomSound(es->number, s));
+                CG_StartSound(nullptr, es->number, soundEvent.soundClass, soundEvent.slot, CG_CustomSound(es->number, s));
             }
         }
-        break;
+    } break;
 
     case entity_event_t::EV_GLOBAL_SOUND: // play from the player's head so it never diminishes
         DEBUGNAME("EV_GLOBAL_SOUND");
         if (cgs.gameSounds[es->eventParm]) {
-            trap->S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_MENU1, cgs.gameSounds[es->eventParm]);
+            CG_StartLocalSound(cgs.gameSounds[es->eventParm], sound::SoundClass::Interface, sound::Slot::Menu);
         }
         else {
             s = CG_ConfigString(CS_SOUNDS + es->eventParm);
-            trap->S_StartSound(nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_MENU1, CG_CustomSound(es->number, s));
+            CG_StartLocalSound(CG_CustomSound(es->number, s), sound::SoundClass::Interface, sound::Slot::Menu);
         }
         break;
 
@@ -2990,13 +3024,17 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
     case entity_event_t::EV_ENTITY_SOUND:
         DEBUGNAME("EV_ENTITY_SOUND");
-        // somewhat of a hack - weapon is the caller entity's index, trickedentindex is the proper sound channel
-        if (cgs.gameSounds[es->eventParm]) {
-            trap->S_StartSound(nullptr, es->clientNum, static_cast<soundChannel_t>(es->trickedentindex), cgs.gameSounds[es->eventParm]);
-        }
-        else {
-            s = CG_ConfigString(CS_SOUNDS + es->eventParm);
-            trap->S_StartSound(nullptr, es->clientNum, static_cast<soundChannel_t>(es->trickedentindex), CG_CustomSound(es->clientNum, s));
+        // somewhat of a hack - clientNum is the caller entity's index, trickedentindex the sound's class and slot
+        {
+            const soundEvent_t soundEvent = BG_UnpackSoundEvent(es->trickedentindex);
+
+            if (cgs.gameSounds[es->eventParm]) {
+                CG_StartSound(nullptr, es->clientNum, soundEvent.soundClass, soundEvent.slot, cgs.gameSounds[es->eventParm]);
+            }
+            else {
+                s = CG_ConfigString(CS_SOUNDS + es->eventParm);
+                CG_StartSound(nullptr, es->clientNum, soundEvent.soundClass, soundEvent.slot, CG_CustomSound(es->clientNum, s));
+            }
         }
         break;
 
@@ -3035,10 +3073,10 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     case entity_event_t::EV_DEATH2:
     case entity_event_t::EV_DEATH3:
         DEBUGNAME("EV_DEATHx");
-        trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_VOICE,
-                           CG_CustomSound(es->number, Q_Format("*death{}.wav", event - entity_event_t::EV_DEATH1 + 1).c_str()));
+        CG_StartSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::Voice,
+                      CG_CustomSound(es->number, Q_Format("*death{}.wav", event - entity_event_t::EV_DEATH1 + 1).c_str()));
         if (es->eventParm && es->number == cg.snap->ps.clientNum) {
-            trap->S_StartLocalSound(cgs.media.dramaticFailure, soundChannel_t::CHAN_LOCAL);
+            CG_StartLocalSound(cgs.media.dramaticFailure, sound::SoundClass::Interface, sound::Slot::Menu, 0.75f);
             CGCam_SetMusicMult(0.3f, 5000);
         }
         break;
@@ -3057,7 +3095,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             cg.powerupActive = powerup_t::PW_QUAD;
             cg.powerupTime = cg.time;
         }
-        // trap->S_StartSound (nullptr, es->number, soundChannel_t::CHAN_ITEM, cgs.media.quadSound );
+        // CG_StartSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::Item, cgs.media.quadSound);
         break;
     case entity_event_t::EV_POWERUP_BATTLESUIT:
         DEBUGNAME("EV_POWERUP_BATTLESUIT");
@@ -3065,21 +3103,21 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             cg.powerupActive = powerup_t::PW_BATTLESUIT;
             cg.powerupTime = cg.time;
         }
-        // trap->S_StartSound (nullptr, es->number, soundChannel_t::CHAN_ITEM, cgs.media.protectSound );
+        // CG_StartSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::Item, cgs.media.protectSound);
         break;
 
     case entity_event_t::EV_FORCE_DRAINED:
         DEBUGNAME("EV_FORCE_DRAINED");
         ByteToDir(es->eventParm, dir);
         // FX_ForceDrained(position, dir);
-        trap->S_StartSound(nullptr, es->owner, soundChannel_t::CHAN_AUTO, cgs.media.drainSound);
+        CG_StartSound(nullptr, es->owner, sound::SoundClass::Force, sound::Slot::None, cgs.media.drainSound);
         cg_entities[es->owner].teamPowerEffectTime = cg.time + 1000;
         cg_entities[es->owner].teamPowerType = 2;
         break;
 
     case entity_event_t::EV_GIB_PLAYER:
         DEBUGNAME("EV_GIB_PLAYER");
-        // trap->S_StartSound( nullptr, es->number, soundChannel_t::CHAN_BODY, cgs.media.gibSound );
+        // CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.gibSound);
         // CG_GibPlayer( cent->lerpOrigin );
         break;
 
@@ -3093,7 +3131,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             isnd = CG_CustomSound(es->number, s);
         }
 
-        CG_S_AddRealLoopingSound(es->number, es->pos.trBase, vec3_origin, isnd);
+        CG_S_AddRealLoopingSound(es->number, es->pos.trBase, isnd, sound::SoundClass::World);
         es->loopSound = isnd;
         break;
 
@@ -3109,10 +3147,10 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             const weapon_t weapon = static_cast<weapon_t>(es->eventParm);
             assert(weapon > weapon_t::WP_NONE && weapon < weapon_t::WP_NUM_WEAPONS);
             if (cg_weapons[weapon].chargeSound) {
-                trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_WEAPON, cg_weapons[weapon].chargeSound);
+                CG_StartSound(nullptr, es->number, sound::SoundClass::Weapon, sound::Slot::Weapon, cg_weapons[weapon].chargeSound);
             }
             else if (weapon == weapon_t::WP_DISRUPTOR) {
-                trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_WEAPON, cgs.media.disruptorZoomLoop);
+                CG_StartSound(nullptr, es->number, sound::SoundClass::Weapon, sound::Slot::Weapon, cgs.media.disruptorZoomLoop);
             }
         }
         break;
@@ -3123,7 +3161,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             const weapon_t weapon = static_cast<weapon_t>(es->eventParm);
             assert(weapon > weapon_t::WP_NONE && weapon < weapon_t::WP_NUM_WEAPONS);
             if (cg_weapons[weapon].altChargeSound) {
-                trap->S_StartSound(nullptr, es->number, soundChannel_t::CHAN_WEAPON, cg_weapons[weapon].altChargeSound);
+                CG_StartSound(nullptr, es->number, sound::SoundClass::Weapon, sound::Slot::Weapon, cg_weapons[weapon].altChargeSound);
             }
         }
         break;

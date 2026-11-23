@@ -944,7 +944,7 @@ bool PM_AdjustAngleForWallJump(gentity_t* ent, usercmd_t* ucmd, bool doMove)
             VectorScale(checkDir, -JUMP_OFF_WALL_SPEED, ent->client->ps.velocity);
             ent->client->ps.velocity[2] = G_ForceWallJumpStrength();
             ent->client->ps.pm_flags |= pmoveFlags_t::PMF_JUMPING | pmoveFlags_t::PMF_JUMP_HELD;
-            G_SoundOnEnt(ent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+            G_SoundOnEnt(ent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
             ent->client->ps.forcePowersActive |= Bit(forcePowers_t::FP_LEVITATION);
             WP_ForcePowerDrain(ent, forcePowers_t::FP_LEVITATION, 10);
             if (PM_InReboundHold(ent->client->ps.legsAnim)) { // if was in hold pose, release now

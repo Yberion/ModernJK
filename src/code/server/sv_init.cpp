@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "exe_headers.h"
 
-#include <client/snd_music.h> // didn't want to put this in snd_local because of rebuild times etc.
+#include <shared/sound/engine/engine.h>
 #include "server.h"
 
 #if !defined(MINIHEAP_H_INC)
@@ -261,7 +261,7 @@ void SV_SpawnServer(const char* server, ForceReload_e eForceReload, bool bAllowS
     // allocate the snapshot entities
     svs.snapshotEntities = (entityState_t*)Z_Malloc(sizeof(entityState_t) * svs.numSnapshotEntities, memtag::TAG_CLIENTS, true);
 
-    Music_SetLevelName(server);
+    SND_SetMusicLevel(server);
 
     // toggle the server bit so clients can detect that a
     // server has changed

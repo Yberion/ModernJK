@@ -93,7 +93,7 @@ void Saboteur_Decloak(gentity_t* self, int uncloakTime)
             self->client->ps.powerups[powerup_t::PW_CLOAKED] = 0;
             self->client->ps.powerups[powerup_t::PW_UNCLOAKING] = level.time + 2000;
             // FIXME: temp sound
-            G_SoundOnEnt(self, soundChannel_t::CHAN_ITEM, "sound/chars/shadowtrooper/decloak.wav");
+            G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::Item, "sound/chars/shadowtrooper/decloak.wav");
             TIMER_Set(self, "nocloak", uncloakTime);
 
             // Can't Recloak
@@ -114,7 +114,7 @@ void Saboteur_Cloak(gentity_t* self)
                 self->client->ps.powerups[powerup_t::PW_UNCLOAKING] = level.time + 2000;
                 // FIXME: debounce attacks?
                 // FIXME: temp sound
-                G_SoundOnEnt(self, soundChannel_t::CHAN_ITEM, "sound/chars/shadowtrooper/cloak.wav");
+                G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::Item, "sound/chars/shadowtrooper/cloak.wav");
             }
         }
     }
@@ -390,11 +390,11 @@ static void NPC_ST_SleepShuffle(void)
         switch ( soundIndex )
         {
         case 0:
-            G_Sound( NPC, G_SoundIndex("sound/chars/imperialsleeper1/scav4/hunh.mp3") );
+            G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/imperialsleeper1/scav4/hunh.mp3"));
             break;
 
         case 1:
-            G_Sound( NPC, G_SoundIndex("sound/chars/imperialsleeper3/scav4/tryingtosleep.wav") );
+            G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/imperialsleeper3/scav4/tryingtosleep.wav"));
             break;
         }
         */
@@ -1966,7 +1966,7 @@ void Noghri_StickTrace(void)
                 if (traceEnt->takedamage && (!traceEnt->client || traceEnt == NPC->enemy || traceEnt->client->NPC_class != NPC->client->NPC_class)) { // smack
                     int dmg = Q_irand(12, 20); // FIXME: base on skill!
                     // FIXME: debounce?
-                    G_Sound(traceEnt, G_SoundIndex(Q_Format("sound/weapons/tusken_staff/stickhit{}.wav", Q_irand(1, 4)).c_str()));
+                    G_Sound(traceEnt, sound::SoundClass::Weapon, G_SoundIndex(Q_Format("sound/weapons/tusken_staff/stickhit{}.wav", Q_irand(1, 4)).c_str()));
                     G_Damage(traceEnt, NPC, NPC, vec3_origin, trace.endpos, dmg, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE);
                     if (traceEnt->health > 0 && dmg > 17) { // do pain on enemy
                         G_Knockdown(traceEnt, NPC, dir, 300, true);

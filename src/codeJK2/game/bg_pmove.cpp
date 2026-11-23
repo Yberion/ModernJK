@@ -48,7 +48,7 @@ extern void G_AddVoiceEvent(gentity_t* self, entity_event_t event, int speakDebo
 extern bool Q3_TaskIDPending(gentity_t* ent, taskID_t taskType);
 extern void WP_SaberInitBladeData(gentity_t* ent);
 extern bool WP_SaberLose(gentity_t* self, vec3_t throwDir);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 extern int Jedi_ReCalcParryTime(gentity_t* self, evasionType_t evasionType);
 extern bool PM_HasAnimation(gentity_t* ent, animNumber_t animation);
 extern saberMoveName_t PM_SaberAnimTransitionAnim(saberMoveName_t curmove, saberMoveName_t newmove);
@@ -616,7 +616,7 @@ static bool PM_CheckJump(void)
                             // start force jump
                             pm->ps->forcePowersActive |= Bit(forcePowers_t::FP_LEVITATION);
                             if (pm->gent) {
-                                G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                                G_SoundOnEnt(pm->gent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                             }
                             // play flip
                             // FIXME: do this only when they stop the jump (below) or when they're just about to hit the peak of the jump
@@ -1001,7 +1001,7 @@ static bool PM_CheckJump(void)
                                     NPC_SetAnim(traceEnt, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_KNOCKDOWN2,
                                                 setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
                                     G_Throw(traceEnt, oppDir, strength);
-                                    G_Sound(traceEnt, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
+                                    G_Sound(traceEnt, sound::SoundClass::Weapon, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
                                 }
                             }
                         }
@@ -1034,7 +1034,7 @@ static bool PM_CheckJump(void)
                         pm->ps->forceJumpZStart = pm->ps->origin[2]; // so we don't take damage if we land at same height
                         pm->ps->pm_flags |= (pmoveFlags_t::PMF_JUMPING | pmoveFlags_t::PMF_SLOW_MO_FALL);
                         pm->cmd.upmove = 0;
-                        G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                        G_SoundOnEnt(pm->gent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                         WP_ForcePowerDrain(pm->gent, forcePowers_t::FP_LEVITATION, 0);
                     }
                 }
@@ -1115,8 +1115,8 @@ static bool PM_CheckJump(void)
                 }
                 PM_SetAnim( pm, parts, PM_PickAnim( pm->gent, animNumber_t::BOTH_FLIP_BACK1, animNumber_t::BOTH_FLIP_BACK3 ),
             setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD, 0 ); pm->ps->forceJumpZStart = pm->ps->origin[2];//so we don't take damage
-            if we land at same height pm->ps->pm_flags |= pmoveFlags_t::PMF_JUMPING|pmoveFlags_t::PMF_SLOW_MO_FALL; pm->cmd.upmove = 0; G_SoundOnEnt( pm->gent,
-            soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav" ); WP_ForcePowerDrain( pm->gent, forcePowers_t::FP_LEVITATION, 0 );
+            if we land at same height pm->ps->pm_flags |= pmoveFlags_t::PMF_JUMPING|pmoveFlags_t::PMF_SLOW_MO_FALL; pm->cmd.upmove = 0; G_SoundOnEnt(pm->gent,
+            sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav"); WP_ForcePowerDrain( pm->gent, forcePowers_t::FP_LEVITATION, 0 );
             }
             */
             else if (pm->cmd.forwardmove > 0 // pushing forward
@@ -1154,7 +1154,7 @@ static bool PM_CheckJump(void)
                         pm->ps->forceJumpZStart = pm->ps->origin[2]; // so we don't take damage if we land at same height
                         pm->ps->pm_flags |= pmoveFlags_t::PMF_JUMPING | pmoveFlags_t::PMF_SLOW_MO_FALL;
                         pm->cmd.upmove = 0;
-                        G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                        G_SoundOnEnt(pm->gent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                         WP_ForcePowerDrain(pm->gent, forcePowers_t::FP_LEVITATION, 0);
                     }
                 }
@@ -2385,11 +2385,11 @@ static void PM_CrashLand(void)
                 (!Any(pm->pointcontents(pm->ps->origin, pm->ps->clientNum) & contentsFlags_t::CONTENTS_NODROP))) {
                 if (pm->waterlevel < 2) { // don't play fallsplat when impact in the water
                     deadFallSound = true;
-                    G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, "sound/player/fallsplat.wav");
+                    G_SoundOnEnt(pm->gent, sound::SoundClass::Body, sound::Slot::None, "sound/player/fallsplat.wav");
                 }
-                if (gi.VoiceVolume[pm->ps->clientNum] && pm->gent->NPC &&
+                if (gi.sound->GetVoiceState(pm->ps->clientNum) != sound::VoiceState::NotTalking && pm->gent->NPC &&
                     Any(pm->gent->NPC->aiFlags & npcAiFlags_t::NPCAI_DIE_ON_IMPACT)) { // I was talking, so cut it off... with a jump sound?
-                    G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_VOICE_ATTEN, "*pain100.wav");
+                    G_SoundOnEnt(pm->gent, sound::SoundClass::VoiceQuiet, sound::Slot::Voice, "*pain100.wav");
                 }
             }
         }
@@ -2534,7 +2534,7 @@ static void PM_FallToDeath(void)
     else {
         PM_SetAnim(pm, setAnimParts_t::SETANIM_LEGS, animNumber_t::BOTH_DEATH1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
     }
-    G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_VOICE, "*falling1.wav"); // CHAN_VOICE_ATTEN
+    G_SoundOnEnt(pm->gent, sound::SoundClass::Voice, sound::Slot::Voice, "*falling1.wav"); // CHAN_VOICE_ATTEN
     if (pm->gent->NPC) {
         pm->gent->NPC->aiFlags |= npcAiFlags_t::NPCAI_DIE_ON_IMPACT;
         pm->gent->NPC->nextBStateThink = Q3_INFINITE;
@@ -3506,7 +3506,7 @@ bool PM_GettingUpFromKnockDown(float standheight, float crouchheight)
                             PM_AddEvent(Q_irand(entity_event_t::EV_COMBAT1, entity_event_t::EV_COMBAT3));
                             pm->gent->NPC->blockedSpeechDebounceTime = level.time + 1000;
                         }
-                        G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+                        G_SoundOnEnt(pm->gent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
                         // launch off ground?
                         pm->ps->weaponTime = 300; // just to make sure it's cleared
                     }
@@ -5021,7 +5021,7 @@ static void PM_BeginWeaponChange(weapon_t weapon)
     else {
         if (pm->ps->weapon == weapon_t::WP_SABER) { // going to switch away from saber
             if (pm->gent) {
-                G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, "sound/weapons/saber/saberoffquick.wav");
+                G_SoundOnEnt(pm->gent, sound::SoundClass::Saber, sound::Slot::Weapon, "sound/weapons/saber/saberoffquick.wav");
             }
             PM_SetSaberMove(saberMoveName_t::LS_PUTAWAY);
         }
@@ -5222,20 +5222,24 @@ void PM_SetSaberMove(saberMoveName_t newMove)
             if (PM_SaberInAttack(newMove) || PM_SaberInSpecialAttack(anim)) { // playing an attack
                 if (pm->ps->saberMove != newMove) {                           // wasn't playing that attack before
                     if (PM_SaberInSpecialAttack(anim)) {
-                        G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(1, 3)).c_str());
+                        G_SoundOnEnt(pm->gent, sound::SoundClass::Saber, sound::Slot::Weapon,
+                                     Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(1, 3)).c_str());
                     }
                     else {
                         switch (pm->ps->saberAnimLevel) {
                         case forcePowerLevels_t::FORCE_LEVEL_4:
                         case forcePowerLevels_t::FORCE_LEVEL_3:
-                            G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(7, 9)).c_str());
+                            G_SoundOnEnt(pm->gent, sound::SoundClass::Saber, sound::Slot::Weapon,
+                                         Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(7, 9)).c_str());
                             break;
                         case forcePowerLevels_t::FORCE_LEVEL_2:
-                            G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(4, 6)).c_str());
+                            G_SoundOnEnt(pm->gent, sound::SoundClass::Saber, sound::Slot::Weapon,
+                                         Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(4, 6)).c_str());
                             break;
                         case forcePowerLevels_t::FORCE_LEVEL_5:
                         case forcePowerLevels_t::FORCE_LEVEL_1:
-                            G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(1, 3)).c_str());
+                            G_SoundOnEnt(pm->gent, sound::SoundClass::Saber, sound::Slot::Weapon,
+                                         Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(1, 3)).c_str());
                             break;
                         default:
                             break;
@@ -5244,7 +5248,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
                 }
             }
             else if (PM_SaberInStart(newMove) && pm->ps->saberAnimLevel == forcePowerLevels_t::FORCE_LEVEL_3) {
-                G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(1, 3)).c_str());
+                G_SoundOnEnt(pm->gent, sound::SoundClass::Saber, sound::Slot::Weapon, Q_Format("sound/weapons/saber/saberhup{}.wav", Q_irand(1, 3)).c_str());
             }
         }
 
@@ -6817,7 +6821,7 @@ static bool PM_DoChargedWeapons(void)
                 pm->ps->weaponChargeTime = level.time;
 
                 if (cg_weapons[pm->ps->weapon].altChargeSound) {
-                    G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, weaponData[pm->ps->weapon].altChargeSnd);
+                    G_SoundOnEnt(pm->gent, sound::SoundClass::Weapon, sound::Slot::Weapon, weaponData[pm->ps->weapon].altChargeSnd);
                 }
             }
         }
@@ -6835,7 +6839,7 @@ static bool PM_DoChargedWeapons(void)
 
                 if (cg_weapons[pm->ps->weapon].chargeSound && pm->gent && !pm->gent->NPC) // HACK: !NPC mostly for bowcaster and weequay
                 {
-                    G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, weaponData[pm->ps->weapon].chargeSnd);
+                    G_SoundOnEnt(pm->gent, sound::SoundClass::Weapon, sound::Slot::Weapon, weaponData[pm->ps->weapon].chargeSnd);
                 }
             }
         }
@@ -7069,7 +7073,7 @@ static void PM_Weapon(void)
         pm->gent->client->fireDelay -= pml.msec;
         if (pm->gent->client->fireDelay <= 0) { // just finished delay timer
             if (pm->ps->clientNum && pm->ps->weapon == weapon_t::WP_ROCKET_LAUNCHER) {
-                G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, "sound/weapons/rocket/lock.wav");
+                G_SoundOnEnt(pm->gent, sound::SoundClass::Weapon, sound::Slot::Weapon, "sound/weapons/rocket/lock.wav");
                 pm->cmd.buttons |= buttonFlags_t::BUTTON_ALT_ATTACK;
             }
             pm->gent->client->fireDelay = 0;
@@ -7077,7 +7081,7 @@ static void PM_Weapon(void)
         }
         else {
             if (pm->ps->clientNum && pm->ps->weapon == weapon_t::WP_ROCKET_LAUNCHER && Q_irand(0, 1)) {
-                G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_WEAPON, "sound/weapons/rocket/tick.wav");
+                G_SoundOnEnt(pm->gent, sound::SoundClass::Weapon, sound::Slot::Weapon, "sound/weapons/rocket/tick.wav");
             }
         }
     }
@@ -7583,14 +7587,14 @@ void PM_AdjustAttackStates(pmove_t* pm)
             (pm->cmd.upmove < 0 || (!pm->cmd.forwardmove && !pm->cmd.rightmove))) {
             // We just pressed the alt-fire key
             if (cg.zoomMode == 0 || cg.zoomMode == 3) {
-                G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_AUTO, "sound/weapons/disruptor/zoomstart.wav");
+                G_SoundOnEnt(pm->gent, sound::SoundClass::Weapon, sound::Slot::None, "sound/weapons/disruptor/zoomstart.wav");
                 // not already zooming, so do it now
                 cg.zoomMode = 2;
                 cg.zoomLocked = false;
                 cg_zoomFov = 80.0f; // Any(cg.overrides.active&cgOverrideFlags_t::CG_OVERRIDE_FOV) ? cg.overrides.fov : cg_fov.value;
             }
             else if (cg.zoomMode == 2) {
-                G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_AUTO, "sound/weapons/disruptor/zoomend.wav");
+                G_SoundOnEnt(pm->gent, sound::SoundClass::Weapon, sound::Slot::None, "sound/weapons/disruptor/zoomend.wav");
                 // already zooming, so must be wanting to turn it off
                 cg.zoomMode = 0;
                 cg.zoomTime = cg.time;

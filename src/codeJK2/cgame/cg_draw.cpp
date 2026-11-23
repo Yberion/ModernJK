@@ -122,7 +122,7 @@ void CG_DrawHead(float x, float y, float w, float h, int speaker_i, vec3_t headA
             if (hm) {
                 hs = ent->client->clientInfo.headSkin;
                 extensions = ent->client->clientInfo.extensions;
-                talking = gi.VoiceVolume[ent->s.number];
+                talking = BG_VoiceLevel(gi.sound->GetVoiceState(ent->s.number));
             }
         }
     }
@@ -246,7 +246,7 @@ static void CG_DrawMessageLit(centity_t* cent, int x, int y)
     if (cg.missionInfoFlashTime > cg.time) {
         if (!((cg.time / 600) & 1)) {
             if (!cg.messageLitActive) {
-                cgi_S_StartSound(nullptr, 0, soundChannel_t::CHAN_AUTO, cgs.media.messageLitSound);
+                CG_StartSound(nullptr, 0, sound::SoundClass::World, sound::Slot::None, cgs.media.messageLitSound);
                 cg.messageLitActive = true;
             }
 
@@ -1816,10 +1816,10 @@ static void CG_DrawRocketLocking(int lockEntNum, int lockTime)
         // do sounds
         if (oldDif != dif) {
             if (dif == 8) {
-                cgi_S_StartSound(org, 0, soundChannel_t::CHAN_AUTO, cgi_S_RegisterSound("sound/weapons/rocket/lock.wav"));
+                CG_StartLocalSound(gi.sound->Register("sound/weapons/rocket/lock.wav"), sound::SoundClass::Interface, sound::Slot::None, 0.75f);
             }
             else {
-                cgi_S_StartSound(org, 0, soundChannel_t::CHAN_AUTO, cgi_S_RegisterSound("sound/weapons/rocket/tick.wav"));
+                CG_StartLocalSound(gi.sound->Register("sound/weapons/rocket/tick.wav"), sound::SoundClass::Interface, sound::Slot::None, 0.75f);
             }
         }
 

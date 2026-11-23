@@ -1490,7 +1490,7 @@ void NPC_JawaFleeSound(void)
     if (NPC && NPC->client && NPC->client->NPC_class == class_t::CLASS_JAWA && !Q_irand(0, 3) && NPCInfo->blockedSpeechDebounceTime < level.time &&
         !Q3_TaskIDPending(NPC, taskID_t::TID_CHAN_VOICE)) { // ooteenee!!!!
         // Q_Println("ooteenee!!!!");
-        G_SoundOnEnt(NPC, soundChannel_t::CHAN_VOICE, "sound/chars/jawa/misc/ooh-tee-nee.wav");
+        G_SoundOnEnt(NPC, sound::SoundClass::Voice, sound::Slot::Voice, "sound/chars/jawa/misc/ooh-tee-nee.wav");
         NPCInfo->blockedSpeechDebounceTime = level.time + 2000;
     }
 }

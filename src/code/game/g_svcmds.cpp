@@ -362,7 +362,7 @@ void Svcmd_SaberAttackCycle_f(void)
                     }
                     if (!skipThisBlade) {
                         self->client->ps.saber[1].BladeActivate(bladeNum, false);
-                        G_SoundIndexOnEnt(self, soundChannel_t::CHAN_WEAPON, self->client->ps.saber[1].soundOff);
+                        G_SoundIndexOnEnt(self, sound::SoundClass::Saber, sound::Slot::Weapon, self->client->ps.saber[1].soundOff);
                     }
                 }
             }
@@ -416,7 +416,7 @@ void Svcmd_SaberAttackCycle_f(void)
                 if (!skipThisBlade) {
                     self->client->ps.saber[0].BladeActivate(bladeNum, false);
                     if (!playedSound) {
-                        G_SoundIndexOnEnt(self, soundChannel_t::CHAN_WEAPON, self->client->ps.saber[0].soundOff);
+                        G_SoundIndexOnEnt(self, sound::SoundClass::Saber, sound::Slot::Weapon, self->client->ps.saber[0].soundOff);
                         playedSound = true;
                     }
                 }

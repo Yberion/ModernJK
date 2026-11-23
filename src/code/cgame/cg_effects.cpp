@@ -410,7 +410,7 @@ void CG_Chunks(int owner, vec3_t origin, const vec3_t normal, const vec3_t mins,
 
     if (customSound) {
         if (cgs.sound_precache[customSound]) {
-            cgi_S_StartSound(nullptr, owner, soundChannel_t::CHAN_BODY, cgs.sound_precache[customSound]);
+            CG_StartSound(nullptr, owner, sound::SoundClass::World, sound::Slot::None, cgs.sound_precache[customSound]);
         }
     }
     // Set up our chunk sound info...breaking sounds are done here so they are done once on breaking..some return instantly because the chunks are done with
@@ -418,19 +418,20 @@ void CG_Chunks(int owner, vec3_t origin, const vec3_t normal, const vec3_t mins,
     switch (chunkType) {
     case material_t::MAT_GLASS:
         if (!customSound) {
-            cgi_S_StartSound(nullptr, owner, soundChannel_t::CHAN_BODY, cgs.media.glassChunkSound);
+            CG_StartSound(nullptr, owner, sound::SoundClass::World, sound::Slot::None, cgs.media.glassChunkSound);
         }
         return;
         break;
     case material_t::MAT_GRATE1:
         if (!customSound) {
-            cgi_S_StartSound(nullptr, owner, soundChannel_t::CHAN_BODY, cgs.media.grateSound);
+            CG_StartSound(nullptr, owner, sound::SoundClass::World, sound::Slot::None, cgs.media.grateSound);
         }
         return;
         break;
     case material_t::MAT_ELECTRICAL: // (sparks)
         if (!customSound) {
-            cgi_S_StartSound(nullptr, owner, soundChannel_t::CHAN_BODY, cgi_S_RegisterSound(Q_Format("sound/ambience/spark{}.wav", Q_irand(1, 6)).c_str()));
+            CG_StartSound(nullptr, owner, sound::SoundClass::World, sound::Slot::None,
+                          gi.sound->Register(Q_Format("sound/ambience/spark{}.wav", Q_irand(1, 6)).c_str()));
         }
         return;
         break;
@@ -439,21 +440,21 @@ void CG_Chunks(int owner, vec3_t origin, const vec3_t normal, const vec3_t mins,
     case material_t::MAT_GREY_STONE:
     case material_t::MAT_WHITE_METAL: // not quite sure what this stuff is supposed to be...it's for Stu
         if (!customSound) {
-            cgi_S_StartSound(nullptr, owner, soundChannel_t::CHAN_BODY, cgs.media.rockBreakSound);
+            CG_StartSound(nullptr, owner, sound::SoundClass::World, sound::Slot::None, cgs.media.rockBreakSound);
             bounce = leBounceSound_t::LEBS_ROCK;
         }
         speedMod = 0.5f; // rock blows up less
         break;
     case material_t::MAT_GLASS_METAL:
         if (!customSound) {
-            cgi_S_StartSound(nullptr, owner, soundChannel_t::CHAN_BODY, cgs.media.glassChunkSound); // FIXME: should probably have a custom sound
+            CG_StartSound(nullptr, owner, sound::SoundClass::World, sound::Slot::None, cgs.media.glassChunkSound); // FIXME: should probably have a custom sound
             bounce = leBounceSound_t::LEBS_METAL;
         }
         break;
     case material_t::MAT_CRATE1:
     case material_t::MAT_CRATE2:
         if (!customSound) {
-            cgi_S_StartSound(nullptr, owner, soundChannel_t::CHAN_BODY, cgs.media.crateBreakSound[Q_irand(0, 1)]);
+            CG_StartSound(nullptr, owner, sound::SoundClass::World, sound::Slot::None, cgs.media.crateBreakSound[Q_irand(0, 1)]);
         }
         break;
     case material_t::MAT_METAL:
@@ -461,7 +462,7 @@ void CG_Chunks(int owner, vec3_t origin, const vec3_t normal, const vec3_t mins,
     case material_t::MAT_METAL3:
     case material_t::MAT_ELEC_METAL: // FIXME: maybe have its own sound?
         if (!customSound) {
-            cgi_S_StartSound(nullptr, owner, soundChannel_t::CHAN_BODY, cgs.media.chunkSound);
+            CG_StartSound(nullptr, owner, sound::SoundClass::World, sound::Slot::None, cgs.media.chunkSound);
             bounce = leBounceSound_t::LEBS_METAL;
         }
         speedMod = 0.8f; // metal blows up a bit more
@@ -470,7 +471,7 @@ void CG_Chunks(int owner, vec3_t origin, const vec3_t normal, const vec3_t mins,
         /*
         if ( !customSound )
         {
-            cgi_S_StartSound( nullptr, owner, soundChannel_t::CHAN_BODY, cgi_S_RegisterSound( "" ));  FIXME:  needs a sound
+            CG_StartSound(nullptr, owner, sound::SoundClass::World, sound::Slot::None, gi.sound->Register( "" ));  FIXME:  needs a sound
         }
         */
         return;
@@ -772,7 +773,7 @@ void CG_DoGlass(vec3_t verts[4], vec3_t normal, vec3_t dmgPt, vec3_t dmgDir, flo
     //	hopefully be sufficient.
     CG_CalcHeightWidth(verts, &height, &width);
 
-    cgi_S_StartSound(dmgPt, -1, soundChannel_t::CHAN_AUTO, cgi_S_RegisterSound("sound/effects/glassbreak1.wav"));
+    CG_StartSound(dmgPt, -1, sound::SoundClass::World, sound::Slot::None, gi.sound->Register("sound/effects/glassbreak1.wav"));
 
     // Pick "LOD" for height
     if (height < 100) {

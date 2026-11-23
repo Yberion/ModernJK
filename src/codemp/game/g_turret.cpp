@@ -346,7 +346,7 @@ static void turret_turnoff(gentity_t* self)
 
     self->s.loopSound = 0;
     // shut-down sound
-    // G_Sound( self, soundChannel_t::CHAN_BODY, G_SoundIndex( "sound/chars/turret/shutdown.wav" ));
+    // G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex( "sound/chars/turret/shutdown.wav" ));
 
     // Clear enemy
     self->enemy = nullptr;
@@ -388,7 +388,7 @@ static bool turret_find_enemies(gentity_t* self)
     {
         // We were active and alert, i.e. had an enemy in the last 3 secs
         if (self->timestamp < level.time) {
-            // G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex( "sound/chars/turret/ping.wav" ));
+            // G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex( "sound/chars/turret/ping.wav" ));
             self->timestamp = level.time + 1000;
         }
     }
@@ -445,7 +445,7 @@ static bool turret_find_enemies(gentity_t* self)
             {
                 if (self->attackDebounceTime < level.time) {
                     // We haven't fired or acquired an enemy in the last 2 seconds-start-up sound
-                    // G_Sound( self, soundChannel_t::CHAN_BODY, G_SoundIndex( "sound/chars/turret/startup.wav" ));
+                    // G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex( "sound/chars/turret/startup.wav" ));
 
                     // Wind up turrets for a bit
                     self->attackDebounceTime = level.time + 1400;

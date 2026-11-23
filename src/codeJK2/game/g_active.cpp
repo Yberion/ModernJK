@@ -1606,7 +1606,7 @@ void RunEmplacedWeapon(gentity_t* ent, usercmd_t** ucmd)
         ExitEmplacedWeapon(ent);
         (*ucmd)->buttons &= ~buttonFlags_t::BUTTON_USE;
 
-        G_Sound(ent, G_SoundIndex("sound/weapons/emplaced/emplaced_dismount.mp3"));
+        G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/emplaced/emplaced_dismount.mp3"));
     }
     else {
         // this is a crappy way to put sounds on a moving emplaced gun....
@@ -1905,7 +1905,7 @@ void ClientThink_real(gentity_t* ent, usercmd_t* ucmd)
                 ucmd->upmove > 0 // jumping not allowed
             ) {
                 // already zooming, so must be wanting to turn it off
-                G_Sound(ent, G_SoundIndex("sound/weapons/disruptor/zoomend.wav"));
+                G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex("sound/weapons/disruptor/zoomend.wav"));
                 cg.zoomMode = 0;
                 cg.zoomTime = cg.time;
                 cg.zoomLocked = false;

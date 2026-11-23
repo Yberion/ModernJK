@@ -111,7 +111,7 @@ void NPC_Mark2_Pain(gentity_t* self, gentity_t* attacker, int damage)
         }
     }
 
-    G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark2/misc/mark2_pain"));
+    G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/mark2/misc/mark2_pain"));
 
     // If any pods were blown off, kill him
     if (self->count > 0) {
@@ -168,7 +168,7 @@ void Mark2_FireBlaster(bool advance)
 
     G_PlayEffectID(G_EffectIndex("bryar/muzzle_flash"), muzzle1, forward);
 
-    G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark2/misc/mark2_fire"));
+    G_Sound(NPCS.NPC, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex("sound/chars/mark2/misc/mark2_fire"));
 
     missile = CreateMissile(muzzle1, forward, 1600, 10000, NPCS.NPC, false);
 

@@ -106,7 +106,7 @@ void CG_CheckAmmo(void)
 
     // play a sound on transitions
     if (cg.lowAmmoWarning != previous) {
-        cgi_S_StartLocalSound(cgs.media.noAmmoSound, soundChannel_t::CHAN_LOCAL_SOUND); //"sound/weapons/noammo.wav"
+        CG_StartLocalSound(cgs.media.noAmmoSound, sound::SoundClass::Interface, sound::Slot::Menu); //"sound/weapons/noammo.wav"
     }
 }
 

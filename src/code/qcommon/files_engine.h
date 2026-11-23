@@ -32,12 +32,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define Q3CONFIG_CFG Q3CONFIG_NAME                  // the name the file system knows this engine's configuration file by
 inline constexpr bool FS_MODULES_FROM_PAKS = false; // the modules are loaded from folders only
 
-// before a file is read whole, and before a saved game is renamed: stops the sound from repeating meanwhile
-static inline void FS_QuietSound(void)
-{
-    S_ClearSoundBuffer();
-}
-
 // the memory of a file read whole carries the file's name (in the builds that label memory)
 static inline void FS_LabelFile(const void* buffer, const char* name)
 {

@@ -171,7 +171,7 @@ static void turret_fire(gentity_t* ent, vec3_t start, vec3_t dir)
     if ((ent->spawnflags & SPF_TURRETG2_TURBO)) {
         // muzzle flash
         G_PlayEffect(G_EffectIndex("turret/turb_muzzle_flash"), org, ang);
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_LESS_ATTEN, "sound/vehicles/weapons/turbolaser/fire1");
+        G_SoundOnEnt(ent, sound::SoundClass::Vehicle, sound::Slot::None, "sound/vehicles/weapons/turbolaser/fire1");
 
         WP_FireTurboLaserMissile(ent, start, dir);
         if (ent->alt_fire) {
@@ -372,7 +372,7 @@ static void turret_turnoff(gentity_t* self)
     }
 
     // shut-down sound
-    G_Sound(self, G_SoundIndex("sound/chars/turret/shutdown.wav"));
+    G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/chars/turret/shutdown.wav"));
 
     // make turret play ping sound for 5 seconds
     self->aimDebounceTime = level.time + 5000;
@@ -400,7 +400,7 @@ static bool turret_find_enemies(gentity_t* self)
     {
         // We were active and alert, i.e. had an enemy in the last 3 secs
         if (self->painDebounceTime < level.time) {
-            G_Sound(self, G_SoundIndex("sound/chars/turret/ping.wav"));
+            G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/chars/turret/ping.wav"));
             self->painDebounceTime = level.time + 1000;
         }
     }
@@ -454,7 +454,7 @@ static bool turret_find_enemies(gentity_t* self)
             {
                 if (self->attackDebounceTime < level.time) {
                     // We haven't fired or acquired an enemy in the last 2 seconds-start-up sound
-                    G_Sound(self, G_SoundIndex("sound/chars/turret/startup.wav"));
+                    G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/chars/turret/startup.wav"));
 
                     // Wind up turrets for a bit
                     self->attackDebounceTime = level.time + 1400;
@@ -1066,7 +1066,7 @@ void laser_arm_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         // For 3 seconds
         self->lastEnemy->lastEnemy->alt_fire = true; // Let 'er rip!
         self->lastEnemy->lastEnemy->attackDebounceTime = level.time + self->lastEnemy->lastEnemy->wait;
-        G_Sound(self->lastEnemy->lastEnemy, G_SoundIndex("sound/chars/l_arm/fire.wav"));
+        G_Sound(self->lastEnemy->lastEnemy, sound::SoundClass::World, G_SoundIndex("sound/chars/l_arm/fire.wav"));
         break;
     case 1:
         // Yaw left
@@ -1075,7 +1075,7 @@ void laser_arm_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         newAngles[1] += self->speed;
         G_SetAngles(self->lastEnemy, newAngles);
         //		bolt_head_to_arm( self->lastEnemy, self->lastEnemy->lastEnemy, LARM_FOFS, LARM_ROFS, LARM_UOFS );
-        G_Sound(self->lastEnemy, G_SoundIndex("sound/chars/l_arm/move.wav"));
+        G_Sound(self->lastEnemy, sound::SoundClass::World, G_SoundIndex("sound/chars/l_arm/move.wav"));
         break;
     case 2:
         // Yaw right
@@ -1084,7 +1084,7 @@ void laser_arm_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         newAngles[1] -= self->speed;
         G_SetAngles(self->lastEnemy, newAngles);
         //		bolt_head_to_arm( self->lastEnemy, self->lastEnemy->lastEnemy, LARM_FOFS, LARM_ROFS, LARM_UOFS );
-        G_Sound(self->lastEnemy, G_SoundIndex("sound/chars/l_arm/move.wav"));
+        G_Sound(self->lastEnemy, sound::SoundClass::World, G_SoundIndex("sound/chars/l_arm/move.wav"));
         break;
     case 3:
         // pitch up
@@ -1096,7 +1096,7 @@ void laser_arm_use(gentity_t* self, gentity_t* other, gentity_t* activator)
             newAngles[0] = -45;
         }
         G_SetAngles(self->lastEnemy->lastEnemy, newAngles);
-        G_Sound(self->lastEnemy->lastEnemy, G_SoundIndex("sound/chars/l_arm/move.wav"));
+        G_Sound(self->lastEnemy->lastEnemy, sound::SoundClass::World, G_SoundIndex("sound/chars/l_arm/move.wav"));
         break;
     case 4:
         // pitch down
@@ -1108,7 +1108,7 @@ void laser_arm_use(gentity_t* self, gentity_t* other, gentity_t* activator)
             newAngles[0] = 90;
         }
         G_SetAngles(self->lastEnemy->lastEnemy, newAngles);
-        G_Sound(self->lastEnemy->lastEnemy, G_SoundIndex("sound/chars/l_arm/move.wav"));
+        G_Sound(self->lastEnemy->lastEnemy, sound::SoundClass::World, G_SoundIndex("sound/chars/l_arm/move.wav"));
         break;
     }
 }
@@ -1327,7 +1327,7 @@ static bool pas_find_enemies(gentity_t* self)
     {
         // We were active and alert, i.e. had an enemy in the last 3 secs
         if (self->painDebounceTime < level.time) {
-            G_Sound(self, G_SoundIndex("sound/chars/turret/ping.wav"));
+            G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/chars/turret/ping.wav"));
             self->painDebounceTime = level.time + 1000;
         }
     }
@@ -1384,7 +1384,7 @@ static bool pas_find_enemies(gentity_t* self)
             {
                 if (self->attackDebounceTime + 2000 < level.time) {
                     // We haven't fired or acquired an enemy in the last 2 seconds-start-up sound
-                    G_Sound(self, G_SoundIndex("sound/chars/turret/startup.wav"));
+                    G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/chars/turret/startup.wav"));
 
                     // Wind up turrets for a bit
                     self->attackDebounceTime = level.time + 900 + Q_flrand(0.0f, 1.0f) * 200;
@@ -1449,7 +1449,7 @@ void pas_adjust_enemy(gentity_t* ent)
     {
         ent->enemy = nullptr;
         // shut-down sound
-        G_Sound(ent, G_SoundIndex("sound/chars/turret/shutdown.wav"));
+        G_Sound(ent, sound::SoundClass::World, G_SoundIndex("sound/chars/turret/shutdown.wav"));
 
         // make turret play ping sound for 5 seconds
         ent->aimDebounceTime = level.time + 5000;
@@ -1568,7 +1568,7 @@ void pas_think(gentity_t* ent)
         }
         else {
             ent->nextthink = 0;
-            G_Sound(ent, G_SoundIndex("sound/chars/turret/shutdown.wav"));
+            G_Sound(ent, sound::SoundClass::World, G_SoundIndex("sound/chars/turret/shutdown.wav"));
         }
     }
 }
@@ -1724,7 +1724,7 @@ bool place_portable_assault_sentry(gentity_t* self, vec3_t origin, vec3_t angs)
                 pas->noDamageTeam = self->client->playerTeam;
             }
 
-            G_Sound(self, G_SoundIndex("sound/player/use_sentry"));
+            G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/player/use_sentry"));
             pas->activator = self;
             return true;
         }
@@ -2096,7 +2096,7 @@ void panel_turret_shoot(gentity_t* self, vec3_t org, vec3_t dir)
     missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
     missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
-    G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, "sound/movers/objects/ladygun_fire");
+    G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::None, "sound/movers/objects/ladygun_fire");
 
     VectorMA(org, 32, dir, org);
     org[2] -= 4;
@@ -2173,7 +2173,7 @@ void panel_turret_think(gentity_t* self)
 
             G_UseTargets2(self, player, self->target2);
             G_ClearViewEntity(player);
-            G_Sound(player, self->soundPos2);
+            G_Sound(player, sound::SoundClass::World, self->soundPos2);
 
             cg.overrides.active &= ~cgOverrideFlags_t::CG_OVERRIDE_FOV;
             cg.overrides.fov = 0;
@@ -2227,7 +2227,7 @@ void panel_turret_use(gentity_t* self, gentity_t* other, gentity_t* activator)
 
     if (self->spawnflags & 1) // health...presumably the lady luck gun
     {
-        G_Sound(self, G_SoundIndex("sound/movers/objects/ladygun_on"));
+        G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/movers/objects/ladygun_on"));
     }
 
     self->useDebounceTime = level.time + 200;
@@ -2241,7 +2241,7 @@ void panel_turret_use(gentity_t* self, gentity_t* other, gentity_t* activator)
     G_UseTargets2(self, activator, self->target);
     G_SetViewEntity(activator, self);
 
-    G_Sound(activator, self->soundPos1);
+    G_Sound(activator, sound::SoundClass::World, self->soundPos1);
 
     self->e_ThinkFunc = thinkFunc_t::thinkF_panel_turret_think;
     //	panel_turret_think( self );

@@ -44,7 +44,7 @@ extern cvar_t* g_saberAnimSpeed;
 extern cvar_t* g_saberAutoAim;
 
 extern bool InFront(vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 
 extern bool ValidAnimFileIndex(int index);
 extern bool PM_ControlledByPlayer(void);
@@ -1373,7 +1373,7 @@ saberMoveName_t PM_SaberJumpAttackMove(void)
 
     // FIXME: NPCs yell?
     PM_AddEvent(entity_event_t::EV_JUMP);
-    G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+    G_SoundOnEnt(pm->gent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
     pm->cmd.upmove = 0;
 
     return saberMoveName_t::LS_A_JUMP_T__B_;
@@ -1413,7 +1413,7 @@ saberMoveName_t PM_SaberFlipOverAttackMove(void)
 
     // FIXME: NPCs yell?
     PM_AddEvent(entity_event_t::EV_JUMP);
-    G_SoundOnEnt(pm->gent, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+    G_SoundOnEnt(pm->gent, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
     pm->cmd.upmove = 0;
     // FIXME: don't allow this to land on other people
 

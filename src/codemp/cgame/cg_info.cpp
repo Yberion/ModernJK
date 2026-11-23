@@ -113,7 +113,7 @@ void CG_LoadingClient(int clientNum)
 
     /*
     if( cgs.gametype == gametype_t::GT_SINGLE_PLAYER ) {
-        trap->S_RegisterSound( Q_Format("sound/player/announce/{}.wav", personality).c_str());
+        trap->sound->Register( Q_Format("sound/player/announce/{}.wav", personality).c_str());
     }
     */
 

@@ -1389,7 +1389,7 @@ void CL_KeyDownEvent(fakeAscii_t key, unsigned time)
                 UIVM_SetActiveMenu(uiMenuCommand_t::UIMENU_INGAME);
             else {
                 CL_Disconnect_f();
-                S_StopAllSounds();
+                SND_StopAll();
                 UIVM_SetActiveMenu(uiMenuCommand_t::UIMENU_MAIN);
             }
             return;

@@ -390,7 +390,7 @@ The following fields are for lightning:
 //----------------------------------------------------------
 
 //----------------------------------------------------------
-extern void G_SoundAtSpot(vec3_t org, int soundIndex, bool broadcast);
+extern void G_SoundAtSpot(vec3_t org, sound::SoundClass soundClass, int soundIndex, bool broadcast);
 
 void fx_rain_think(gentity_t* ent)
 {
@@ -429,7 +429,7 @@ void fx_rain_think(gentity_t* ent)
             //----------------
             if (PlaySound && !PlayEffect) {
                 VectorMA(player->currentOrigin, 250.0f, effectDir, effectPos);
-                G_SoundAtSpot(effectPos, G_SoundIndex(Q_Format("sound/ambience/thunder{}", Q_irand(1, 4)).c_str()), true);
+                G_SoundAtSpot(effectPos, sound::SoundClass::World, G_SoundIndex(Q_Format("sound/ambience/thunder{}", Q_irand(1, 4)).c_str()), true);
             }
 
             // Play The Effect
@@ -437,7 +437,7 @@ void fx_rain_think(gentity_t* ent)
             if (PlayEffect) {
                 VectorMA(player->currentOrigin, 400.0f, effectDir, effectPos);
                 if (PlaySound) {
-                    G_Sound(player, G_SoundIndex(Q_Format("sound/ambience/thunder_close{}", Q_irand(1, 2)).c_str()));
+                    G_Sound(player, sound::SoundClass::World, G_SoundIndex(Q_Format("sound/ambience/thunder_close{}", Q_irand(1, 2)).c_str()));
                 }
 
                 // Raise It Up Into The Sky

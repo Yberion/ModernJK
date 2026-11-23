@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern bool G_CheckForStrongAttackMomentum(gentity_t* self);
 extern void G_AddVoiceEvent(gentity_t* self, entity_event_t event, int speakDebounceTime);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 extern void cgi_S_StartSound(vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx);
 extern bool Q3_TaskIDPending(gentity_t* ent, taskID_t taskType);
 extern bool NPC_CheckLookTarget(gentity_t* self);
@@ -808,16 +808,16 @@ void NPC_Respond(gentity_t* self, int userNum)
         }
         break;
     case class_t::CLASS_R2D2: // droid
-        G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/chars/r2d2/misc/r2d2talk0{}.wav", Q_irand(1, 3)).c_str()));
+        G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex(Q_Format("sound/chars/r2d2/misc/r2d2talk0{}.wav", Q_irand(1, 3)).c_str()));
         break;
     case class_t::CLASS_R5D2: // droid
-        G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/chars/r5d2/misc/r5talk{}.wav", Q_irand(1, 4)).c_str()));
+        G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex(Q_Format("sound/chars/r5d2/misc/r5talk{}.wav", Q_irand(1, 4)).c_str()));
         break;
     case class_t::CLASS_MOUSE: // droid
-        G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/chars/mouse/misc/mousego{}.wav", Q_irand(1, 3)).c_str()));
+        G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex(Q_Format("sound/chars/mouse/misc/mousego{}.wav", Q_irand(1, 3)).c_str()));
         break;
     case class_t::CLASS_GONK: // droid
-        G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/chars/gonk/misc/gonktalk{}.wav", Q_irand(1, 2)).c_str()));
+        G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex(Q_Format("sound/chars/gonk/misc/gonktalk{}.wav", Q_irand(1, 2)).c_str()));
         break;
     default:
         break;

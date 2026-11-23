@@ -1,8 +1,9 @@
 #!/bin/bash
-# A silent multiplayer client session that writes the sound log (the SNDLOG lines of soundlog.patch, while s_log is
-# set): a listen server on mp/ffa3, its bots, the client a spectator following the first bot, whose ears are the
-# listener's. Silent: s_volume, s_musicvolume and s_volumeVoice 0 (the sound is loaded and mixed, nothing is heard; the
-# voices follow s_volumeVoice alone, not s_volume).
+# A silent multiplayer client session that writes the sound log (the SNDLOG lines, while the log's cvar is set: s_show on
+# this build's sound, LOGCVAR=s_log for the old mixer's build with soundlog.patch): a listen server on mp/ffa3, its
+# bots, the client a spectator following the first bot, whose ears are the listener's. Silent: s_volume, s_musicvolume
+# and s_volumeVoice 0 (the sound is loaded and mixed, nothing is heard; on the old mixer the voices follow s_volumeVoice
+# alone, not s_volume).
 #
 # usage: soundlog_session.sh <bin folder> <work folder> <scenarios|freeplay|crowd> [com_maxfps, 125]
 #   scenarios: two bots, the attacker followed: its rockets fired 600 units from the defender (the missile's looping
@@ -47,7 +48,7 @@ cp "$BIN/cgamex86_64.dll" "$BIN/jampgamex86_64.dll" "$BIN/uix86_64.dll" "$R/base
 	echo "wait 100"
 	echo "follow 1"
 	echo "wait 100"
-	echo "s_log 1"
+	echo "${LOGCVAR:-s_show} 1"
 	if [ "$KIND" = scenarios ]; then
 		# 6 repetitions of 3 s each and the uncounted first: 21 s; wait counts the command buffer's runs, two per frame
 		echo "scenario weapon 6 11 0 600 rep=3000"
@@ -60,7 +61,7 @@ cp "$BIN/cgamex86_64.dll" "$BIN/jampgamex86_64.dll" "$BIN/uix86_64.dll" "$R/base
 	else
 		echo "wait $(( 180 * FPS ))"
 	fi
-	echo "s_log 0"
+	echo "${LOGCVAR:-s_show} 0"
 	echo "wait 50"
 	echo "quit"
 } > "$R/base/session.cfg"

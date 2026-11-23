@@ -100,7 +100,7 @@ sfxHandle_t CG_CustomSound(int clientNum, const char* soundName)
     char lSoundName[MAX_QPATH];
 
     if (soundName[0] != '*') {
-        return trap->S_RegisterSound(soundName);
+        return trap->sound->Register(soundName);
     }
 
     COM_StripExtension(soundName, lSoundName, sizeof(lSoundName));
@@ -711,8 +711,6 @@ void CG_LoadCISounds(clientInfo_t* ci, bool modelloaded)
             isFemale = false;
     }
 
-    trap->S_Shutup(true);
-
     for (i = 0; i < MAX_CUSTOM_SOUNDS; i++) {
         s = cg_customSoundNames[i];
         if (!s) {
@@ -726,20 +724,20 @@ void CG_LoadCISounds(clientInfo_t* ci, bool modelloaded)
         ci->sounds[i] = 0;
         // if the model didn't load use the sounds of the default model
         if (soundpath[0]) {
-            ci->sounds[i] = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", soundpath, soundName).c_str());
+            ci->sounds[i] = trap->sound->Register(Q_Format("sound/chars/{}/misc/{}", soundpath, soundName).c_str());
         }
         else {
             if (modelloaded) {
-                ci->sounds[i] = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", dir, soundName).c_str());
+                ci->sounds[i] = trap->sound->Register(Q_Format("sound/chars/{}/misc/{}", dir, soundName).c_str());
             }
         }
 
         if (!ci->sounds[i]) { // failed the load, try one out of the generic path
             if (isFemale) {
-                ci->sounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", DEFAULT_FEMALE_SOUNDPATH, soundName).c_str());
+                ci->sounds[i] = trap->sound->Register(Q_Format("sound/{}/{}", DEFAULT_FEMALE_SOUNDPATH, soundName).c_str());
             }
             else {
-                ci->sounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", DEFAULT_MALE_SOUNDPATH, soundName).c_str());
+                ci->sounds[i] = trap->sound->Register(Q_Format("sound/{}/{}", DEFAULT_MALE_SOUNDPATH, soundName).c_str());
             }
         }
     }
@@ -758,22 +756,22 @@ void CG_LoadCISounds(clientInfo_t* ci, bool modelloaded)
             ci->siegeSounds[i] = 0;
             // if the model didn't load use the sounds of the default model
             if (soundpath[0]) {
-                ci->siegeSounds[i] = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", soundpath, soundName).c_str());
+                ci->siegeSounds[i] = trap->sound->Register(Q_Format("sound/chars/{}/misc/{}", soundpath, soundName).c_str());
                 if (!ci->siegeSounds[i])
-                    ci->siegeSounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", soundpath, soundName).c_str());
+                    ci->siegeSounds[i] = trap->sound->Register(Q_Format("sound/{}/{}", soundpath, soundName).c_str());
             }
             else {
                 if (modelloaded) {
-                    ci->siegeSounds[i] = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", dir, soundName).c_str());
+                    ci->siegeSounds[i] = trap->sound->Register(Q_Format("sound/chars/{}/misc/{}", dir, soundName).c_str());
                 }
             }
 
             if (!ci->siegeSounds[i]) { // failed the load, try one out of the generic path
                 if (isFemale) {
-                    ci->siegeSounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", DEFAULT_FEMALE_SOUNDPATH, soundName).c_str());
+                    ci->siegeSounds[i] = trap->sound->Register(Q_Format("sound/{}/{}", DEFAULT_FEMALE_SOUNDPATH, soundName).c_str());
                 }
                 else {
-                    ci->siegeSounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", DEFAULT_MALE_SOUNDPATH, soundName).c_str());
+                    ci->siegeSounds[i] = trap->sound->Register(Q_Format("sound/{}/{}", DEFAULT_MALE_SOUNDPATH, soundName).c_str());
                 }
             }
         }
@@ -793,26 +791,24 @@ void CG_LoadCISounds(clientInfo_t* ci, bool modelloaded)
             ci->duelSounds[i] = 0;
             // if the model didn't load use the sounds of the default model
             if (soundpath[0]) {
-                ci->duelSounds[i] = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", soundpath, soundName).c_str());
+                ci->duelSounds[i] = trap->sound->Register(Q_Format("sound/chars/{}/misc/{}", soundpath, soundName).c_str());
             }
             else {
                 if (modelloaded) {
-                    ci->duelSounds[i] = trap->S_RegisterSound(Q_Format("sound/chars/{}/misc/{}", dir, soundName).c_str());
+                    ci->duelSounds[i] = trap->sound->Register(Q_Format("sound/chars/{}/misc/{}", dir, soundName).c_str());
                 }
             }
 
             if (!ci->duelSounds[i]) { // failed the load, try one out of the generic path
                 if (isFemale) {
-                    ci->duelSounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", DEFAULT_FEMALE_SOUNDPATH, soundName).c_str());
+                    ci->duelSounds[i] = trap->sound->Register(Q_Format("sound/{}/{}", DEFAULT_FEMALE_SOUNDPATH, soundName).c_str());
                 }
                 else {
-                    ci->duelSounds[i] = trap->S_RegisterSound(Q_Format("sound/{}/{}", DEFAULT_MALE_SOUNDPATH, soundName).c_str());
+                    ci->duelSounds[i] = trap->sound->Register(Q_Format("sound/{}/{}", DEFAULT_MALE_SOUNDPATH, soundName).c_str());
                 }
             }
         }
     }
-
-    trap->S_Shutup(false);
 }
 
 /*
@@ -1900,7 +1896,7 @@ static void _PlayerFootStep(const vec3_t origin, const float orientation, const 
         break;
     }
     if (soundType < footstep_t::FOOTSTEP_TOTAL) {
-        trap->S_StartSound(nullptr, cent->currentState.clientNum, soundChannel_t::CHAN_BODY, cgs.media.footsteps[soundType][Q_irand(0, 3)]);
+        CG_StartSound(nullptr, cent->currentState.clientNum, sound::SoundClass::Body, sound::Slot::None, cgs.media.footsteps[soundType][Q_irand(0, 3)]);
     }
 
     if (cg_footsteps.integer < 4) {   // debugging - 4 always does footstep effect
@@ -2006,7 +2002,8 @@ void CG_PlayerAnimEventDo(centity_t* cent, animevent_t* animEvent)
     case animEventType_t::AEV_SOUND: { // are there variations on the sound?
         const int holdSnd = animEvent->eventData[AED_SOUNDINDEX_START + Q_irand(0, animEvent->eventData[AED_SOUND_NUMRANDOMSNDS])];
         if (holdSnd > 0) {
-            trap->S_StartSound(nullptr, cent->currentState.number, channel, holdSnd);
+            const soundUse_t use = BG_SoundUseOfChannel(channel);
+            CG_StartSound(nullptr, cent->currentState.number, use.soundClass, use.slot, holdSnd);
         }
     } break;
     case animEventType_t::AEV_SABER_SWING:
@@ -2034,9 +2031,9 @@ void CG_PlayerAnimEventDo(centity_t* cent, animevent_t* animEvent)
                 randomSwing = Q_irand(7, 9);
                 break;
             }
-            swingSound = trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberhup{}.wav", randomSwing).c_str());
+            swingSound = trap->sound->Register(Q_Format("sound/weapons/saber/saberhup{}.wav", randomSwing).c_str());
         }
-        trap->S_StartSound(cent->currentState.pos.trBase, cent->currentState.number, soundChannel_t::CHAN_AUTO, swingSound);
+        CG_StartSound(cent->currentState.pos.trBase, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, swingSound);
         break;
     case animEventType_t::AEV_SABER_SPIN:
         if (cent->currentState.eType == entityType_t::ET_NPC) {
@@ -2052,27 +2049,27 @@ void CG_PlayerAnimEventDo(centity_t* cent, animevent_t* animEvent)
         else {
             switch (animEvent->eventData[AED_SABER_SPIN_TYPE]) {
             case 0: // saberspinoff
-                spinSound = trap->S_RegisterSound("sound/weapons/saber/saberspinoff.wav");
+                spinSound = trap->sound->Register("sound/weapons/saber/saberspinoff.wav");
                 break;
             case 1: // saberspin
-                spinSound = trap->S_RegisterSound("sound/weapons/saber/saberspin.wav");
+                spinSound = trap->sound->Register("sound/weapons/saber/saberspin.wav");
                 break;
             case 2: // saberspin1
-                spinSound = trap->S_RegisterSound("sound/weapons/saber/saberspin1.wav");
+                spinSound = trap->sound->Register("sound/weapons/saber/saberspin1.wav");
                 break;
             case 3: // saberspin2
-                spinSound = trap->S_RegisterSound("sound/weapons/saber/saberspin2.wav");
+                spinSound = trap->sound->Register("sound/weapons/saber/saberspin2.wav");
                 break;
             case 4: // saberspin3
-                spinSound = trap->S_RegisterSound("sound/weapons/saber/saberspin3.wav");
+                spinSound = trap->sound->Register("sound/weapons/saber/saberspin3.wav");
                 break;
             default: // random saberspin1-3
-                spinSound = trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberspin{}.wav", Q_irand(1, 3)).c_str());
+                spinSound = trap->sound->Register(Q_Format("sound/weapons/saber/saberspin{}.wav", Q_irand(1, 3)).c_str());
                 break;
             }
         }
         if (spinSound) {
-            trap->S_StartSound(nullptr, cent->currentState.clientNum, soundChannel_t::CHAN_AUTO, spinSound);
+            CG_StartSound(nullptr, cent->currentState.clientNum, sound::SoundClass::Saber, sound::Slot::None, spinSound);
         }
         break;
     case animEventType_t::AEV_FOOTSTEP:
@@ -3644,7 +3641,7 @@ bool CG_G2PlayerHeadAnims(centity_t* cent)
 {
     clientInfo_t* ci = nullptr;
     std::optional<animNumber_t> anim;
-    int voiceVolume = 0;
+    sound::VoiceState voiceState = sound::VoiceState::NotTalking;
 
     if (cent->localAnimIndex > 1) { // only do this for humanoids
         return false;
@@ -3697,18 +3694,18 @@ bool CG_G2PlayerHeadAnims(centity_t* cent)
             }
         }
 
-        voiceVolume = trap->S_GetVoiceVolume(cent->currentState.number);
+        voiceState = trap->sound->GetVoiceState(cent->currentState.number);
 
-        if (voiceVolume > 0) // if we aren't talking, then it will be 0, -1 for talking but paused
+        if (voiceState >= sound::VoiceState::Level1) // talking: the face by the voice's loudness
         {
-            anim = animNumber_t::FACE_TALK1 + voiceVolume - 1;
+            anim = animNumber_t::FACE_TALK1 + (std::to_underlying(voiceState) - std::to_underlying(sound::VoiceState::Level1));
         }
-        else if (voiceVolume == 0)               // don't do aux if in a slient part of speech
-        {                                        // not talking
-            if (ci->facial_aux < 0)              // are we auxing ?
-            {                                    // yes
-                if (-(ci->facial_aux) < cg.time) // are we done auxing ?
-                {                                // yes, reset aux timer
+        else if (voiceState == sound::VoiceState::NotTalking) // don't do aux if in a slient part of speech
+        {                                                     // not talking
+            if (ci->facial_aux < 0)                           // are we auxing ?
+            {                                                 // yes
+                if (-(ci->facial_aux) < cg.time)              // are we done auxing ?
+                {                                             // yes, reset aux timer
                     ci->facial_aux = cg.time + Q_flrand(7000.0, 10000.0);
                 }
                 else { // not yet, so choose aux
@@ -5124,8 +5121,8 @@ void CG_G2SaberEffects(vec3_t start, vec3_t end, centity_t* owner)
 
             if (trace.entityNum != ENTITYNUM_NONE) { // it succeeded with the ghoul2 trace
                 trap->FX_PlayEffectID(cgs.effects.mSaberBloodSparks, trace.endpos, trace.plane.normal, -1, -1, false);
-                trap->S_StartSound(trace.endpos, trace.entityNum, soundChannel_t::CHAN_AUTO,
-                                   trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberhit{}.wav", Q_irand(1, 3)).c_str()));
+                CG_StartSound(trace.endpos, trace.entityNum, sound::SoundClass::Saber, sound::Slot::None,
+                              trap->sound->Register(Q_Format("sound/weapons/saber/saberhit{}.wav", Q_irand(1, 3)).c_str()));
             }
         }
 
@@ -5327,8 +5324,8 @@ void CG_SaberCompWork(vec3_t start, vec3_t end, centity_t* owner, int saberNum, 
 
                 if (owner->serverSaberFleshImpact) { // do standard player/live ent hit sparks
                     trap->FX_PlayEffectID(hitPersonFxID, trace.endpos, trace.plane.normal, -1, -1, false);
-                    // trap->S_StartSound(trace.endpos, trace.entityNum, soundChannel_t::CHAN_AUTO,
-                    // trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberhit{}.wav", Q_irand(1, 3)).c_str()));
+                    // CG_StartSound(trace.endpos, trace.entityNum, sound::SoundClass::Saber, sound::Slot::None,
+                    // trap->sound->Register(Q_Format("sound/weapons/saber/saberhit{}.wav", Q_irand(1, 3)).c_str()));
                 }
                 else { // do the cut effect
                     trap->FX_PlayEffectID(hitOtherFxID, trace.endpos, trace.plane.normal, -1, -1, false);
@@ -5535,8 +5532,8 @@ void CG_AddSaberBlade(centity_t* cent, centity_t* scent, refEntity_t* saber, ren
                             if (cg.time - client->saber[saberNum].blade[bladeNum].hitWallDebounceTime >=
                                 100) { // ugh, need to have a real sound debouncer... or do this game-side
                                 client->saber[saberNum].blade[bladeNum].hitWallDebounceTime = cg.time;
-                                trap->S_StartSound(trace.endpos, -1, soundChannel_t::CHAN_WEAPON,
-                                                   trap->S_RegisterSound(Q_Format("sound/weapons/saber/saberhitwall{}", Q_irand(1, 3)).c_str()));
+                                CG_StartSound(trace.endpos, -1, sound::SoundClass::Saber, sound::Slot::None,
+                                              trap->sound->Register(Q_Format("sound/weapons/saber/saberhitwall{}", Q_irand(1, 3)).c_str()));
                             }
                         }
                     }
@@ -6336,7 +6333,7 @@ void CG_G2AnimEntModelLoad(centity_t* cent)
             strcpy(modelName, Q_Format("models/players/{}/model.glm", modelName).c_str());
 
             // this sound is *only* used for vehicles now
-            cgs.media.noAmmoSound = trap->S_RegisterSound("sound/weapons/noammo.wav");
+            cgs.media.noAmmoSound = trap->sound->Register("sound/weapons/noammo.wav");
         }
         else {
             skinID = CG_HandleAppendedSkin(modelName); // get the skin if there is one.
@@ -6499,9 +6496,7 @@ void CG_G2AnimEntModelLoad(centity_t* cent)
         }
     }
 
-    trap->S_Shutup(true);
     CG_HandleNPCSounds(cent); // handle sound loading here as well.
-    trap->S_Shutup(false);
 }
 
 // for now this is just gonna create a big explosion on the area of the surface,
@@ -6702,7 +6697,8 @@ void CG_G2Animated(centity_t* cent)
 
         if (cent->currentState.weapon == weapon_t::WP_SABER)
         {
-            trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound( "sound/weapons/saber/saberon.wav"
+            CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, trap->sound->Register(
+    "sound/weapons/saber/saberon.wav"
     ));
         }
     }
@@ -7186,7 +7182,7 @@ static QINLINE void CG_VehicleEffects(centity_t* cent)
                         {
                             flyBySound = pVehNPC->m_pVehicleInfo->soundFlyBy2;
                         }
-                        trap->S_StartSound(nullptr, cent->currentState.clientNum, soundChannel_t::CHAN_LESS_ATTEN, flyBySound);
+                        CG_StartSound(nullptr, cent->currentState.clientNum, sound::SoundClass::Vehicle, sound::Slot::None, flyBySound);
                         lastFlyBySound[cent->currentState.clientNum] = cg.time;
                     }
                 }
@@ -7197,7 +7193,7 @@ static QINLINE void CG_VehicleEffects(centity_t* cent)
     if (!cent->currentState.speed                                // was stopped
         && cent->nextState.speed > 0                             // now moving forward
         && cent->m_pVehicle->m_pVehicleInfo->soundEngineStart) { // engines rev up for the first time
-        trap->S_StartSound(nullptr, cent->currentState.clientNum, soundChannel_t::CHAN_LESS_ATTEN, cent->m_pVehicle->m_pVehicleInfo->soundEngineStart);
+        CG_StartSound(nullptr, cent->currentState.clientNum, sound::SoundClass::Vehicle, sound::Slot::None, cent->m_pVehicle->m_pVehicleInfo->soundEngineStart);
     }
     // Animals don't exude any effects...
     if (pVehNPC->m_pVehicleInfo->type != vehicleType_t::VH_ANIMAL) {
@@ -7787,7 +7783,7 @@ void CG_Player(centity_t* cent)
                     trap->FX_PlayEffectID(cgs.effects.mBobaJet, flamePos, flameDir, -1, -1, false);
 
                     // Keep the jet fire sound looping
-                    trap->S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, trap->S_RegisterSound("sound/effects/fire_lp"));
+                    CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, trap->sound->Register("sound/effects/fire_lp"), sound::SoundClass::Body);
                 }
                 else { // just idling
                     // FIXME: Different smaller effect for idle
@@ -7798,7 +7794,7 @@ void CG_Player(centity_t* cent)
                 n++;
             }
 
-            trap->S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, trap->S_RegisterSound("sound/boba/JETHOVER"));
+            CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, trap->sound->Register("sound/boba/JETHOVER"), sound::SoundClass::Body);
         }
     }
     else if (trap->G2API_HasGhoul2ModelOnIndex(&(cent->ghoul2), 3)) { // fixme: would be good if this could be done not every frame
@@ -7931,26 +7927,26 @@ void CG_Player(centity_t* cent)
             if (cent->currentState.eType != entityType_t::ET_NPC) {
                 if (cent->weapon == weapon_t::WP_SABER && cent->weapon != cent->currentState.weapon &&
                     !cent->currentState.saberHolstered) { // switching away from the saber
-                    // trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound(
+                    // CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, trap->sound->Register(
                     // "sound/weapons/saber/saberoffquick.wav" ));
                     if (ci->saber[0].soundOff && !cent->currentState.saberHolstered) {
-                        trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, ci->saber[0].soundOff);
+                        CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, ci->saber[0].soundOff);
                     }
 
                     if (ci->saber[1].soundOff && ci->saber[1].model[0] && !cent->currentState.saberHolstered) {
-                        trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, ci->saber[1].soundOff);
+                        CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, ci->saber[1].soundOff);
                     }
                 }
                 else if (cent->currentState.weapon == weapon_t::WP_SABER && cent->weapon != cent->currentState.weapon &&
                          !cent->saberWasInFlight) { // switching to the saber
-                    // trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound(
+                    // CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, trap->sound->Register(
                     // "sound/weapons/saber/saberon.wav" ));
                     if (ci->saber[0].soundOn) {
-                        trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, ci->saber[0].soundOn);
+                        CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, ci->saber[0].soundOn);
                     }
 
                     if (ci->saber[1].soundOn) {
-                        trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, ci->saber[1].soundOn);
+                        CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, ci->saber[1].soundOn);
                     }
 
                     BG_SI_SetDesiredLength(&ci->saber[0], 0, -1);
@@ -8370,7 +8366,8 @@ void CG_Player(centity_t* cent)
         if (cent->bolt4 < cg.time)
         {
             cent->bolt4 = cg.time + 100;
-            trap->S_StartSound(nullptr, cent->currentState.number, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound("sound/weapons/force/drain.wav") );
+            CG_StartSound(nullptr, cent->currentState.number, sound::SoundClass::Force, sound::Slot::None,
+        trap->sound->Register("sound/weapons/force/drain.wav"));
         }
         */
     }
@@ -8413,7 +8410,8 @@ void CG_Player(centity_t* cent)
         if (cent->bolt4 < cg.time)
         {
             cent->bolt4 = cg.time + 100;
-            trap->S_StartSound(nullptr, cent->currentState.number, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound("sound/weapons/force/lightning.wav") );
+            CG_StartSound(nullptr, cent->currentState.number, sound::SoundClass::Force, sound::Slot::None,
+        trap->sound->Register("sound/weapons/force/lightning.wav"));
         }
         */
     }
@@ -8545,7 +8543,7 @@ void CG_Player(centity_t* cent)
     }
 
     if (cent->currentState.weapon == weapon_t::WP_STUN_BATON && cent->currentState.number == cg.snap->ps.clientNum) {
-        trap->S_AddLoopingSound(cent->currentState.number, cg.refdef.vieworg, vec3_origin, trap->S_RegisterSound("sound/weapons/baton/idle.wav"));
+        CG_AddLoopingSound(cent->currentState.number, cg.refdef.vieworg, trap->sound->Register("sound/weapons/baton/idle.wav"), sound::SoundClass::Weapon);
     }
 
     // NOTE: All effects that should be visible during mindtrick should go above here
@@ -8823,13 +8821,13 @@ stillDoSaber:
             bool didFirstSound = false;
 
             if (cg.snap->ps.clientNum == cent->currentState.number) {
-                // trap->S_AddLoopingSound( cent->currentState.number, cg.refdef.vieworg, vec3_origin,
-                //	trap->S_RegisterSound( "sound/weapons/saber/saberhum1.wav" ) );
+                // CG_AddLoopingSound( cent->currentState.number, cg.refdef.vieworg,
+                //	trap->sound->Register( "sound/weapons/saber/saberhum1.wav" ), sound::SoundClass::Saber );
                 VectorCopy(cg.refdef.vieworg, soundSpot);
             }
             else {
-                // trap->S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
-                //	trap->S_RegisterSound( "sound/weapons/saber/saberhum1.wav" ) );
+                // CG_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
+                //	trap->sound->Register( "sound/weapons/saber/saberhum1.wav" ), sound::SoundClass::Saber );
                 VectorCopy(cent->lerpOrigin, soundSpot);
             }
 
@@ -8846,7 +8844,7 @@ stillDoSaber:
                 }
 
                 if (hasLen) {
-                    trap->S_AddLoopingSound(cent->currentState.number, soundSpot, vec3_origin, ci->saber[0].soundLoop);
+                    CG_AddLoopingSound(cent->currentState.number, soundSpot, ci->saber[0].soundLoop, sound::SoundClass::Saber);
                     didFirstSound = true;
                 }
             }
@@ -8863,7 +8861,7 @@ stillDoSaber:
                 }
 
                 if (hasLen) {
-                    trap->S_AddLoopingSound(cent->currentState.number, soundSpot, vec3_origin, ci->saber[1].soundLoop);
+                    CG_AddLoopingSound(cent->currentState.number, soundSpot, ci->saber[1].soundLoop, sound::SoundClass::Saber);
                 }
             }
         }
@@ -9813,7 +9811,7 @@ stillDoSaber:
             trap->R_AddRefEntityToScene(&legs);
 
             if (Q_flrand(0.0f, 1.0f) > 0.9f)
-                trap->S_StartSound(nullptr, cent->currentState.number, soundChannel_t::CHAN_AUTO, cgs.media.crackleSound);
+                CG_StartSound(nullptr, cent->currentState.number, sound::SoundClass::Force, sound::Slot::None, cgs.media.crackleSound);
         }
 
         VectorSet(tempAngles, 0, cent->lerpAngles[YAW], 0);

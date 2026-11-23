@@ -299,10 +299,10 @@ static void ProcessMoveCommands(Vehicle_t* pVeh)
 // MIKE: This is going to play the sound twice for the predicting client, I suggest using
 // a predicted event or only doing it game-side. -rich
 #ifdef _GAME
-                                                          // G_EntitySound( ((gentity_t *)(pVeh->m_pParentEntity)), soundChannel_t::CHAN_LOCAL,
-                                                          // pVeh->m_pVehicleInfo->soundHyper );
+                                                          // G_EntitySound( ((gentity_t *)(pVeh->m_pParentEntity)), sound::SoundClass::Interface,
+                                                          // sound::Slot::Menu, pVeh->m_pVehicleInfo->soundHyper );
 #elif _CGAME
-                    trap->S_StartSound(nullptr, pm->ps->clientNum, soundChannel_t::CHAN_LOCAL, pVeh->m_pVehicleInfo->soundHyper);
+                    CG_StartSound(nullptr, pm->ps->clientNum, sound::SoundClass::Interface, sound::Slot::Menu, pVeh->m_pVehicleInfo->soundHyper, 0.75f);
 #endif
                 }
 
@@ -338,7 +338,7 @@ static void ProcessMoveCommands(Vehicle_t* pVeh)
         if (pVeh->m_ucmd.upmove > 0) {
             if (parentPS->velocity[2] <= 0 && pVeh->m_pVehicleInfo->soundTakeOff) { // taking off for the first time
 #ifdef _GAME                                                                        // MP GAME-side
-                G_EntitySound(((gentity_t*)(pVeh->m_pParentEntity)), soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundTakeOff);
+                G_EntitySound(((gentity_t*)(pVeh->m_pParentEntity)), sound::SoundClass::World, sound::Slot::None, pVeh->m_pVehicleInfo->soundTakeOff);
 #endif
             }
             parentPS->velocity[2] += pVeh->m_pVehicleInfo->acceleration * pVeh->m_fTimeModifier; // * ( /*fInvFrac **/ 1.5f );
@@ -379,7 +379,7 @@ static void ProcessMoveCommands(Vehicle_t* pVeh)
 #ifdef _GAME // MP GAME-side
              // NOTE: turbo sound can't be part of effect if effect is played on every muzzle!
             if (pVeh->m_pVehicleInfo->soundTurbo) {
-                G_EntitySound(((gentity_t*)(pVeh->m_pParentEntity)), soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo);
+                G_EntitySound(((gentity_t*)(pVeh->m_pParentEntity)), sound::SoundClass::World, sound::Slot::None, pVeh->m_pVehicleInfo->soundTurbo);
             }
 #endif
         }
@@ -1455,7 +1455,7 @@ static void AnimateVehicle(Vehicle_t* pVeh)
                 // Open gears.
                 if (!(Any(pVeh->m_ulFlags & vehFlags_t::VEH_GEARSOPEN))) {
                     if (pVeh->m_pVehicleInfo->soundLand) { // just landed?
-                        G_EntitySound(((gentity_t*)(pVeh->m_pParentEntity)), soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundLand);
+                        G_EntitySound(((gentity_t*)(pVeh->m_pParentEntity)), sound::SoundClass::World, sound::Slot::None, pVeh->m_pVehicleInfo->soundLand);
                     }
                     pVeh->m_ulFlags |= vehFlags_t::VEH_GEARSOPEN;
                     Anim = animNumber_t::BOTH_GEARS_OPEN;

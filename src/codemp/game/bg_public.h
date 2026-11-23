@@ -31,6 +31,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
+#include <shared/qcommon/q_sound.h>
+
 #include "bg_weapons.h"
 #include "anims.h"
 #include "bg_vehicles.h"

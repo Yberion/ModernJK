@@ -640,7 +640,7 @@ void NPC_BSSandCreature_Default(void)
             NPC->clipmask = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_MONSTERCLIP;
         }
         if (TIMER_Done(NPC, "speaking")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_VOICE, Q_Format("sound/chars/sand_creature/voice{}.mp3", Q_irand(1, 3)).c_str());
+            G_SoundOnEnt(NPC, sound::SoundClass::Voice, sound::Slot::Voice, Q_Format("sound/chars/sand_creature/voice{}.mp3", Q_irand(1, 3)).c_str());
             TIMER_Set(NPC, "speaking", Q_irand(3000, 10000));
         }
     }

@@ -402,6 +402,36 @@ The main player will have this called for BOTH cases, so effects like light and
 sound should only be done on the world model case.
 =============
 */
+/*
+=============
+CG_MuzzleEffect
+
+A shot's muzzle effect, once per shot, which also plays the shot's sound: bolted to the first-person weapon, or at the
+muzzle's point in the world
+=============
+*/
+static void CG_MuzzleEffect(centity_t* cent, const weaponInfo_t* weapon, vec3_t origin, vec3_t dir, matrix3_t axis, bool bolted)
+{
+    if (cent->muzzleEffectTime == cent->muzzleFlashTime) {
+        return;
+    }
+
+    cent->muzzleEffectTime = cent->muzzleFlashTime;
+    // the alternate effect when alt firing, the regular one otherwise
+    const fxHandle_t effect = Any(cent->currentState.eFlags & entityFlags_t::EF_ALT_FIRING) ? weapon->altMuzzleEffect : weapon->muzzleEffect;
+
+    if (!effect) {
+        return;
+    }
+
+    if (bolted) {
+        trap->FX_PlayEntityEffectID(effect, origin, axis, -1, -1, -1, -1);
+    }
+    else {
+        trap->FX_PlayEffectID(effect, origin, dir, -1, -1, false);
+    }
+}
+
 void CG_AddPlayerWeapon(refEntity_t* parent, playerState_t* ps, centity_t* cent, team_t team, vec3_t newAngles, bool thirdPerson)
 {
     refEntity_t gun;
@@ -454,11 +484,11 @@ void CG_AddPlayerWeapon(refEntity_t* parent, playerState_t* ps, centity_t* cent,
             cent->pe.lightningFiring = false;
             if (Any(cent->currentState.eFlags & entityFlags_t::EF_FIRING) && weapon->firingSound) {
                 // lightning gun and gauntlet make a different sound when fire is held down
-                trap->S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound);
+                CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, weapon->firingSound, sound::SoundClass::Weapon);
                 cent->pe.lightningFiring = true;
             }
             else if (weapon->readySound) {
-                trap->S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound);
+                CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, weapon->readySound, sound::SoundClass::Weapon);
             }
         }
 
@@ -687,30 +717,8 @@ void CG_AddPlayerWeapon(refEntity_t* parent, playerState_t* ps, centity_t* cent,
             BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::POSITIVE_X, flashdir);
         }
 
-        if (cent->muzzleEffectTime !=
-            cent->muzzleFlashTime) { // Handle muzzle flashes: once per shot, not at every frame of the flash (the effect carries the shot's sound)
-            cent->muzzleEffectTime = cent->muzzleFlashTime;
-            if (Any(cent->currentState.eFlags & entityFlags_t::EF_ALT_FIRING)) { // Check the alt firing first.
-                if (weapon->altMuzzleEffect) {
-                    if (!thirdPerson) {
-                        trap->FX_PlayEntityEffectID(weapon->altMuzzleEffect, flashorigin, flash.axis, -1, -1, -1, -1);
-                    }
-                    else {
-                        trap->FX_PlayEffectID(weapon->altMuzzleEffect, flashorigin, flashdir, -1, -1, false);
-                    }
-                }
-            }
-            else { // Regular firing
-                if (weapon->muzzleEffect) {
-                    if (!thirdPerson) {
-                        trap->FX_PlayEntityEffectID(weapon->muzzleEffect, flashorigin, flash.axis, -1, -1, -1, -1);
-                    }
-                    else {
-                        trap->FX_PlayEffectID(weapon->muzzleEffect, flashorigin, flashdir, -1, -1, false);
-                    }
-                }
-            }
-        }
+        // Handle muzzle flashes: once per shot, not at every frame of the flash (the effect carries the shot's sound)
+        CG_MuzzleEffect(cent, weapon, flashorigin, flashdir, flash.axis, !thirdPerson);
 
         // add lightning bolt
         CG_LightningBolt(nonPredictedCent, flashorigin);
@@ -766,6 +774,17 @@ void CG_AddViewWeapon(playerState_t* ps)
             VectorCopy(cg.refdef.vieworg, origin);
             VectorMA(origin, -8, cg.refdef.viewaxis[2], origin);
             CG_LightningBolt(&cg_entities[ps->clientNum], origin);
+        }
+
+        // the muzzle effect still plays, in front of the view, since it carries the shot's sound (as in the single player)
+        cent = &cg_entities[cg.predictedPlayerState.clientNum];
+
+        if (cg.time - cent->muzzleFlashTime <= MUZZLE_FLASH_TIME) {
+            CG_RegisterWeapon(ps->weapon);
+            VectorCopy(cg.refdef.vieworg, origin);
+            VectorMA(origin, -10, cg.refdef.viewaxis[2], origin);
+            VectorMA(origin, 16, cg.refdef.viewaxis[0], origin);
+            CG_MuzzleEffect(cent, &cg_weapons[ps->weapon], origin, cg.refdef.viewaxis[0], cg.refdef.viewaxis, false);
         }
         return;
     }
@@ -1323,7 +1342,7 @@ void CG_NextWeapon_f(void)
         cg.weaponSelect = original;
     }
     else {
-        trap->S_MuteSound(cg.snap->ps.clientNum, soundChannel_t::CHAN_WEAPON);
+        trap->sound->StopSlot(cg.snap->ps.clientNum, sound::Slot::Weapon);
     }
 }
 
@@ -1383,7 +1402,7 @@ void CG_PrevWeapon_f(void)
         cg.weaponSelect = original;
     }
     else {
-        trap->S_MuteSound(cg.snap->ps.clientNum, soundChannel_t::CHAN_WEAPON);
+        trap->sound->StopSlot(cg.snap->ps.clientNum, sound::Slot::Weapon);
     }
 }
 
@@ -1489,7 +1508,7 @@ void CG_Weapon_f(void)
     }
 
     if (cg.weaponSelect != num) {
-        trap->S_MuteSound(cg.snap->ps.clientNum, soundChannel_t::CHAN_WEAPON);
+        trap->sound->StopSlot(cg.snap->ps.clientNum, sound::Slot::Weapon);
     }
 
     cg.weaponSelect = num;
@@ -1587,7 +1606,7 @@ void CG_WeaponClean_f(void)
     }
 
     if (cg.weaponSelect != num) {
-        trap->S_MuteSound(cg.snap->ps.clientNum, soundChannel_t::CHAN_WEAPON);
+        trap->sound->StopSlot(cg.snap->ps.clientNum, sound::Slot::Weapon);
     }
 
     cg.weaponSelect = num;
@@ -1625,7 +1644,7 @@ void CG_OutOfAmmoChange(weapon_t oldWeapon)
         }
     }
 
-    trap->S_MuteSound(cg.snap->ps.clientNum, soundChannel_t::CHAN_WEAPON);
+    trap->sound->StopSlot(cg.snap->ps.clientNum, sound::Slot::Weapon);
 }
 
 /*
@@ -1732,8 +1751,11 @@ void CG_FireWeapon(centity_t* cent, bool altFire)
 
     // play quad sound if needed
     if (cent->currentState.powerups & Bit(powerup_t::PW_QUAD)) {
-        // trap->S_StartSound (nullptr, cent->currentState.number, soundChannel_t::CHAN_ITEM, cgs.media.quadSound );
+        // CG_StartSound(nullptr, cent->currentState.number, sound::SoundClass::World, sound::Slot::Item, cgs.media.quadSound);
     }
+
+    // the shot cuts the charge playing in the weapon's slot, whether it has a sound of its own or its muzzle effect plays it
+    trap->sound->StopSlot(ent->number, sound::Slot::Weapon);
 
     // play a sound
     if (altFire) {
@@ -1746,12 +1768,12 @@ void CG_FireWeapon(centity_t* cent, bool altFire)
         if (c > 0) {
             c = Q_irand(0, c - 1);
             if (weap->altFlashSound[c]) {
-                trap->S_StartSound(nullptr, ent->number, soundChannel_t::CHAN_WEAPON, weap->altFlashSound[c]);
+                CG_StartSound(nullptr, ent->number, sound::SoundClass::Weapon, sound::Slot::Weapon, weap->altFlashSound[c]);
             }
         }
         //		if ( weap->altFlashSnd )
         //		{
-        //			trap->S_StartSound( nullptr, ent->number, soundChannel_t::CHAN_WEAPON, weap->altFlashSnd );
+        //			CG_StartSound(nullptr, ent->number, sound::SoundClass::Weapon, sound::Slot::Weapon, weap->altFlashSnd);
         //		}
     }
     else {
@@ -1764,7 +1786,7 @@ void CG_FireWeapon(centity_t* cent, bool altFire)
         if (c > 0) {
             c = Q_irand(0, c - 1);
             if (weap->flashSound[c]) {
-                trap->S_StartSound(nullptr, ent->number, soundChannel_t::CHAN_WEAPON, weap->flashSound[c]);
+                CG_StartSound(nullptr, ent->number, sound::SoundClass::Weapon, sound::Slot::Weapon, weap->flashSound[c]);
             }
         }
     }
@@ -2285,25 +2307,29 @@ void CG_CheckPlayerG2Weapons(playerState_t* ps, centity_t* cent)
         CG_CopyG2WeaponInstance(cent, ps->weapon, cent->ghoul2);
         cent->ghoul2weapon = CG_G2WeaponInstance(cent, ps->weapon);
         if (cent->weapon == weapon_t::WP_SABER && cent->weapon != ps->weapon && !ps->saberHolstered) { // switching away from the saber
-            // trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound(
+            // CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, trap->sound->Register(
             // "sound/weapons/saber/saberoffquick.wav" ));
             if (cgs.clientinfo[ps->clientNum].saber[0].soundOff && !ps->saberHolstered) {
-                trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[0].soundOff);
+                CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None,
+                              cgs.clientinfo[ps->clientNum].saber[0].soundOff);
             }
 
             if (cgs.clientinfo[ps->clientNum].saber[1].soundOff && cgs.clientinfo[ps->clientNum].saber[1].model[0] && !ps->saberHolstered) {
-                trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[1].soundOff);
+                CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None,
+                              cgs.clientinfo[ps->clientNum].saber[1].soundOff);
             }
         }
         else if (ps->weapon == weapon_t::WP_SABER && cent->weapon != ps->weapon && !cent->saberWasInFlight) { // switching to the saber
-            // trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, trap->S_RegisterSound(
+            // CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, trap->sound->Register(
             // "sound/weapons/saber/saberon.wav" ));
             if (cgs.clientinfo[ps->clientNum].saber[0].soundOn) {
-                trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[0].soundOn);
+                CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None,
+                              cgs.clientinfo[ps->clientNum].saber[0].soundOn);
             }
 
             if (cgs.clientinfo[ps->clientNum].saber[1].soundOn) {
-                trap->S_StartSound(cent->lerpOrigin, cent->currentState.number, soundChannel_t::CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[1].soundOn);
+                CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None,
+                              cgs.clientinfo[ps->clientNum].saber[1].soundOn);
             }
 
             BG_SI_SetDesiredLength(&cgs.clientinfo[ps->clientNum].saber[0], 0, -1);

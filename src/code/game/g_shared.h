@@ -266,13 +266,13 @@ public:
     vec3_t eyeAngles;   // Where your eyes face
     int lookTarget;     // Which ent to look at with lookAngles
     lookMode_t lookMode;
-    int lookTargetClearTime;    // Time to clear the lookTarget
-    int lastVoiceVolume;        // Last frame's voice volume
-    vec3_t lastHeadAngles;      // Last headAngles, NOT actual facing of head model
-    vec3_t headBobAngles;       // headAngle offsets
-    vec3_t targetHeadBobAngles; // head bob angles will try to get to targetHeadBobAngles
-    int lookingDebounceTime;    // When we can stop using head looking angle behavior
-    float legsYaw;              // yaw angle your legs are actually rendering at
+    int lookTargetClearTime;          // Time to clear the lookTarget
+    sound::VoiceState lastVoiceState; // Last frame's voice state
+    vec3_t lastHeadAngles;            // Last headAngles, NOT actual facing of head model
+    vec3_t headBobAngles;             // headAngle offsets
+    vec3_t targetHeadBobAngles;       // head bob angles will try to get to targetHeadBobAngles
+    int lookingDebounceTime;          // When we can stop using head looking angle behavior
+    float legsYaw;                    // yaw angle your legs are actually rendering at
 
     void sg_export(ojk::SavedGameHelper& saved_game) const
     {
@@ -322,7 +322,7 @@ public:
         saved_game.write<int32_t>(lookTarget);
         saved_game.write<int32_t>(lookMode);
         saved_game.write<int32_t>(lookTargetClearTime);
-        saved_game.write<int32_t>(lastVoiceVolume);
+        saved_game.write<int32_t>(std::to_underlying(lastVoiceState));
         saved_game.write<float>(lastHeadAngles);
         saved_game.write<float>(headBobAngles);
         saved_game.write<float>(targetHeadBobAngles);
@@ -378,7 +378,7 @@ public:
         saved_game.read<int32_t>(lookTarget);
         saved_game.read<int32_t>(lookMode);
         saved_game.read<int32_t>(lookTargetClearTime);
-        saved_game.read<int32_t>(lastVoiceVolume);
+        saved_game.read<int32_t>(lastVoiceState);
         saved_game.read<float>(lastHeadAngles);
         saved_game.read<float>(headBobAngles);
         saved_game.read<float>(targetHeadBobAngles);

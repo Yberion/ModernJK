@@ -848,7 +848,7 @@ void Cmd_UseSeeker_f(gentity_t* ent)
                 extern void SP_NPC_Droid_Seeker(gentity_t * ent);
 
                 SP_NPC_Droid_Seeker(tent);
-                G_Sound(tent, G_SoundIndex("sound/chars/seeker/misc/hiss"));
+                G_Sound(tent, sound::SoundClass::World, G_SoundIndex("sound/chars/seeker/misc/hiss"));
 
                 // make sure that we even have some
                 ent->client->ps.inventory[inventory_t::INV_SEEKER]--;
@@ -935,11 +935,11 @@ void G_Taunt(gentity_t* ent)
     }
 }
 
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 void G_Victory(gentity_t* ent)
 {
     if (ent->health > 0) { // say something and put away saber
-        G_SoundOnEnt(ent, soundChannel_t::CHAN_VOICE, "sound/chars/kyle/misc/taunt1.wav");
+        G_SoundOnEnt(ent, sound::SoundClass::Voice, sound::Slot::Voice, "sound/chars/kyle/misc/taunt1.wav");
         if (ent->client) {
             ent->client->ps.saberActive = false;
         }

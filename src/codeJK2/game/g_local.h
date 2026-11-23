@@ -385,7 +385,7 @@ void G_SetMovedir(vec3_t angles, vec3_t movedir);
 void G_InitGentity(gentity_t* e);
 gentity_t* G_Spawn(void);
 gentity_t* G_TempEntity(vec3_t origin, entity_event_t event);
-void G_Sound(gentity_t* ent, int soundIndex);
+void G_Sound(gentity_t* ent, sound::SoundClass soundClass, int soundIndex);
 void G_FreeEntity(gentity_t* e);
 
 void G_TouchTriggers(gentity_t* ent);

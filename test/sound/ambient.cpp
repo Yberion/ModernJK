@@ -91,8 +91,9 @@ void TestSets(const std::filesystem::path& data)
     const std::size_t warnings = host.Count(sound::Message::Warning);
     system->ParseSets();
 
-    // the one missing set warned, and the brush model's missing file; the keyword its kind does not take ends its set
-    CHECK_EQUAL(host.Count(sound::Message::Warning), warnings + 2);
+    // the one missing set warned (the brush model's missing file is a developer's message); the keyword its kind does
+    // not take ends its set
+    CHECK_EQUAL(host.Count(sound::Message::Warning), warnings + 1);
     CHECK(system->BrushModelSound("door", sound::BrushModelStage::Start) != sound::kNoSound);
     CHECK(system->BrushModelSound("door", sound::BrushModelStage::Middle) == sound::kNoSound);
     CHECK(system->BrushModelSound("door", sound::BrushModelStage::End) != sound::kNoSound);

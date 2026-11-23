@@ -140,8 +140,9 @@ public:
     Api& operator=(Api&&) = delete;
     virtual ~Api() = default;
 
-    // Loads a sound, decoded whole, and gives its handle; kNoSound and one warning when its file does not exist.
-    [[nodiscard]] virtual SoundHandle Register(std::string_view name) = 0;
+    // Loads a sound, decoded whole, and gives its handle; kNoSound and one warning when its file does not exist. A
+    // module may register a sound only to load it before it plays, without keeping the handle.
+    virtual SoundHandle Register(std::string_view name) = 0;
     // Plays a sound; the handle of the voice playing it, which a looping sound needs to be moved and stopped.
     virtual VoiceHandle Play(const Request& request) = 0;
     // Stops a voice; nothing when it has ended.

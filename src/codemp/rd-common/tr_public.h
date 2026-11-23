@@ -143,9 +143,6 @@ typedef struct refexport_s {
     bool (*RegisterImages_LevelLoadEnd)(void);
     bool (*RegisterModels_LevelLoadEnd)(bool bDeleteEverythingNotUsedThisLevel);
 
-    // AVI recording
-    void (*TakeVideoFrame)(int h, int w, byte* captureBuffer, byte* encodeBuffer, bool motionJpeg);
-
     // G2 stuff
     void (*InitSkins)(void);
     void (*InitShaders)(bool server);
@@ -329,12 +326,9 @@ typedef struct refimport_s {
     int (*CM_PointLeafnum)(const vec3_t p);
     contentsFlags_t (*CM_PointContents)(const vec3_t p, clipHandle_t model);
     bool (*Com_TheHunkMarkHasBeenMade)(void);
-    void (*S_RestartMusic)(void);
-    bool (*SND_RegisterAudio_LevelLoadEnd)(bool bDeleteEverythingNotUsedThisLevel);
     e_status (*CIN_RunCinematic)(int handle);
     int (*CIN_PlayCinematic)(const char* arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits);
     void (*CIN_UploadCinematic)(int handle);
-    void (*CL_WriteAVIVideoFrame)(const byte* imageBuffer, int size);
 
     // g2 data access
     char* (*GetSharedMemory)(void); // cl.mSharedMemory

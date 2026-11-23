@@ -280,10 +280,6 @@ void CL_InitUI(void)
 
     uii.R_LerpTag = re.LerpTag;
 
-    uii.S_StartLocalLoopingSound = S_StartLocalLoopingSound;
-    uii.S_StartLocalSound = S_StartLocalSound;
-    uii.S_RegisterSound = S_RegisterSound;
-
     uii.Key_KeynumToStringBuf = Key_KeynumToStringBuf;
     uii.Key_GetBindingBuf = Key_GetBindingBuf;
     uii.Key_SetBinding = Key_SetBinding;
@@ -450,13 +446,6 @@ intptr_t CL_UISystemCalls(intptr_t* args)
 
     case uiImport_t::UI_MILLISECONDS:
         return Sys_Milliseconds();
-
-    case uiImport_t::UI_S_REGISTERSOUND:
-        return S_RegisterSound((const char*)VMA(1));
-
-    case uiImport_t::UI_S_STARTLOCALSOUND:
-        S_StartLocalSound(args[1], static_cast<soundChannel_t>(args[2]));
-        return 0;
 
         //	case uiImport_t::UI_R_REGISTERFONT:
         //		re.RegisterFont( VMA(1), args[2], VMA(3));

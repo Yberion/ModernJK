@@ -387,13 +387,10 @@ void RE_RegisterMedia_LevelLoadEnd(void)
 {
     RE_RegisterModels_LevelLoadEnd(false);
     RE_RegisterImages_LevelLoadEnd();
-    ri.SND_RegisterAudio_LevelLoadEnd(false);
 
     if (gbAllowScreenDissolve) {
         RE_InitDissolve(false);
     }
-
-    ri.S_RestartMusic();
 
     *(ri.gbAlreadyDoingLoad()) = false;
 }

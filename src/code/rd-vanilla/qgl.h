@@ -35,7 +35,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <OpenGL/gl.h>
 #elif defined(__linux__)
 #include <GL/gl.h>
-#include <GL/glx.h>
 // bk001129 - from cvs1.17 (mkv)
 #if defined(__FX__)
 #include <GL/fxmesa.h>

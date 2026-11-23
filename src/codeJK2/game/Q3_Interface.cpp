@@ -948,7 +948,7 @@ Q3_PlaySound
 Plays a sound from an entity
 =============
 */
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 extern void G_SoundBroadcast(gentity_t* ent, int soundIndex);
 static int Q3_PlaySound(int taskID, int entID, const char* name, const char* channel)
 {
@@ -1028,7 +1028,8 @@ static int Q3_PlaySound(int taskID, int entID, const char* name, const char* cha
         }
         else {
             // This the voice channel
-            G_SoundOnEnt(ent, voice_chan, ((char*)finalName));
+            const soundUse_t use = BG_SoundUseOfChannel(voice_chan);
+            G_SoundOnEnt(ent, use.soundClass, use.slot, ((char*)finalName));
         }
         // Remember we're waiting for this
         Q3_TaskIDSet(ent, taskID_t::TID_CHAN_VOICE, taskID);
@@ -1044,7 +1045,7 @@ static int Q3_PlaySound(int taskID, int entID, const char* name, const char* cha
         G_SoundBroadcast(ent, soundHandle);
     }
     else {
-        G_Sound(ent, soundHandle);
+        G_Sound(ent, sound::SoundClass::World, soundHandle);
     }
 
     return true;
@@ -2931,7 +2932,7 @@ void Q3_SetLoopSound(int entID, const char* name)
     }
 
     if (self->s.eType == entityType_t::ET_MOVER) {
-        index = cgi_S_RegisterSound(name);
+        index = gi.sound->Register(name);
     }
     else {
         index = G_SoundIndex(name);

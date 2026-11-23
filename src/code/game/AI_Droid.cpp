@@ -122,28 +122,28 @@ void Droid_Patrol(void)
             NPCInfo->desiredYaw += Q_sin(level.time * .5) * 25; // Weaves side to side a little
 
             if (TIMER_Done(NPC, "patrolNoise")) {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/mouse/misc/mousego{}.wav", Q_irand(1, 3)).c_str());
+                G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/mouse/misc/mousego{}.wav", Q_irand(1, 3)).c_str());
 
                 TIMER_Set(NPC, "patrolNoise", Q_irand(2000, 4000));
             }
         }
         else if (NPC->client && NPC->client->NPC_class == class_t::CLASS_R2D2) {
             if (TIMER_Done(NPC, "patrolNoise")) {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/r2d2/misc/r2d2talk0{}.wav", Q_irand(1, 3)).c_str());
+                G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/r2d2/misc/r2d2talk0{}.wav", Q_irand(1, 3)).c_str());
 
                 TIMER_Set(NPC, "patrolNoise", Q_irand(2000, 4000));
             }
         }
         else if (NPC->client && NPC->client->NPC_class == class_t::CLASS_R5D2) {
             if (TIMER_Done(NPC, "patrolNoise")) {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/r5d2/misc/r5talk{}.wav", Q_irand(1, 4)).c_str());
+                G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/r5d2/misc/r5talk{}.wav", Q_irand(1, 4)).c_str());
 
                 TIMER_Set(NPC, "patrolNoise", Q_irand(2000, 4000));
             }
         }
         if (NPC->client && NPC->client->NPC_class == class_t::CLASS_GONK) {
             if (TIMER_Done(NPC, "patrolNoise")) {
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/gonk/misc/gonktalk{}.wav", Q_irand(1, 2)).c_str());
+                G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/gonk/misc/gonktalk{}.wav", Q_irand(1, 2)).c_str());
 
                 TIMER_Set(NPC, "patrolNoise", Q_irand(2000, 4000));
             }

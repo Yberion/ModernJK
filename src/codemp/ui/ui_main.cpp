@@ -864,8 +864,8 @@ void UI_SetActiveMenu(uiMenuCommand_t menu)
         case uiMenuCommand_t::UIMENU_MAIN: {
             //	trap->Cvar_Set( "sv_killserver", "1" );
             trap->Key_SetCatcher(keyCatchFlags_t::KEYCATCH_UI);
-            //	trap->S_StartLocalSound( trap_S_RegisterSound("sound/misc/menu_background.wav", false) , soundChannel_t::CHAN_LOCAL_SOUND );
-            //	trap->S_StartBackgroundTrack("sound/misc/menu_background.wav", nullptr);
+            //	Menu_PlaySound(trap->sound->Register("sound/misc/menu_background.wav"));
+            //	trap->sound->StartMusic("sound/misc/menu_background.wav", "");
             if (uiInfo.inGameLoad)
                 UI_LoadNonIngame();
 
@@ -1112,7 +1112,7 @@ bool Asset_Parse(int handle)
             if (!trap->PC_ReadToken(handle, &token)) {
                 return false;
             }
-            uiInfo.uiDC.Assets.menuEnterSound = trap->S_RegisterSound(token.string);
+            uiInfo.uiDC.Assets.menuEnterSound = trap->sound->Register(token.string);
             continue;
         }
 
@@ -1121,7 +1121,7 @@ bool Asset_Parse(int handle)
             if (!trap->PC_ReadToken(handle, &token)) {
                 return false;
             }
-            uiInfo.uiDC.Assets.menuExitSound = trap->S_RegisterSound(token.string);
+            uiInfo.uiDC.Assets.menuExitSound = trap->sound->Register(token.string);
             continue;
         }
 
@@ -1130,7 +1130,7 @@ bool Asset_Parse(int handle)
             if (!trap->PC_ReadToken(handle, &token)) {
                 return false;
             }
-            uiInfo.uiDC.Assets.itemFocusSound = trap->S_RegisterSound(token.string);
+            uiInfo.uiDC.Assets.itemFocusSound = trap->sound->Register(token.string);
             continue;
         }
 
@@ -1139,7 +1139,7 @@ bool Asset_Parse(int handle)
             if (!trap->PC_ReadToken(handle, &token)) {
                 return false;
             }
-            uiInfo.uiDC.Assets.menuBuzzSound = trap->S_RegisterSound(token.string);
+            uiInfo.uiDC.Assets.menuBuzzSound = trap->sound->Register(token.string);
             continue;
         }
 
@@ -1188,21 +1188,21 @@ bool Asset_Parse(int handle)
 
         if (Q_stricmp(token.string, "moveRollSound") == 0) {
             if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.moveRollSound = trap->S_RegisterSound(token.string);
+                uiInfo.uiDC.Assets.moveRollSound = trap->sound->Register(token.string);
             }
             continue;
         }
 
         if (Q_stricmp(token.string, "moveJumpSound") == 0) {
             if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.moveJumpSound = trap->S_RegisterSound(token.string);
+                uiInfo.uiDC.Assets.moveJumpSound = trap->sound->Register(token.string);
             }
 
             continue;
         }
         if (Q_stricmp(token.string, "datapadmoveSaberSound1") == 0) {
             if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.datapadmoveSaberSound1 = trap->S_RegisterSound(token.string);
+                uiInfo.uiDC.Assets.datapadmoveSaberSound1 = trap->sound->Register(token.string);
             }
 
             continue;
@@ -1210,7 +1210,7 @@ bool Asset_Parse(int handle)
 
         if (Q_stricmp(token.string, "datapadmoveSaberSound2") == 0) {
             if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.datapadmoveSaberSound2 = trap->S_RegisterSound(token.string);
+                uiInfo.uiDC.Assets.datapadmoveSaberSound2 = trap->sound->Register(token.string);
             }
 
             continue;
@@ -1218,7 +1218,7 @@ bool Asset_Parse(int handle)
 
         if (Q_stricmp(token.string, "datapadmoveSaberSound3") == 0) {
             if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.datapadmoveSaberSound3 = trap->S_RegisterSound(token.string);
+                uiInfo.uiDC.Assets.datapadmoveSaberSound3 = trap->sound->Register(token.string);
             }
 
             continue;
@@ -1226,7 +1226,7 @@ bool Asset_Parse(int handle)
 
         if (Q_stricmp(token.string, "datapadmoveSaberSound4") == 0) {
             if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.datapadmoveSaberSound4 = trap->S_RegisterSound(token.string);
+                uiInfo.uiDC.Assets.datapadmoveSaberSound4 = trap->sound->Register(token.string);
             }
 
             continue;
@@ -1234,7 +1234,7 @@ bool Asset_Parse(int handle)
 
         if (Q_stricmp(token.string, "datapadmoveSaberSound5") == 0) {
             if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.datapadmoveSaberSound5 = trap->S_RegisterSound(token.string);
+                uiInfo.uiDC.Assets.datapadmoveSaberSound5 = trap->sound->Register(token.string);
             }
 
             continue;
@@ -1242,7 +1242,7 @@ bool Asset_Parse(int handle)
 
         if (Q_stricmp(token.string, "datapadmoveSaberSound6") == 0) {
             if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.datapadmoveSaberSound6 = trap->S_RegisterSound(token.string);
+                uiInfo.uiDC.Assets.datapadmoveSaberSound6 = trap->sound->Register(token.string);
             }
 
             continue;
@@ -1256,7 +1256,7 @@ bool Asset_Parse(int handle)
                 do {
                     soundFile = COM_ParseExt(&tempStr, false);
                     if (soundFile[0] != 0 && soundFile[0] != ';') {
-                        trap->S_RegisterSound(soundFile);
+                        trap->sound->Register(soundFile);
                     }
                 } while (soundFile[0]);
             }
@@ -4562,11 +4562,6 @@ static void UI_StartSkirmish(bool next)
 static void UI_Update(const char* name)
 {
     int val = trap->Cvar_VariableValue(name);
-
-    if (Q_stricmp(name, "s_khz") == 0) {
-        trap->Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, "snd_restart\n");
-        return;
-    }
 
     if (!Q_stricmp(name, "ui_SetName")) {
         char buf[MAX_NETNAME] = {0};
@@ -8320,10 +8315,10 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t* item)
 
                         // Play sound for anim
                         if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == datapadMoveSound_t::MDS_FORCE_JUMP) {
-                            trap->S_StartLocalSound(uiInfo.uiDC.Assets.moveJumpSound, soundChannel_t::CHAN_LOCAL);
+                            Menu_PlaySound(uiInfo.uiDC.Assets.moveJumpSound, sound::Slot::Menu, 0.75f);
                         }
                         else if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == datapadMoveSound_t::MDS_ROLL) {
-                            trap->S_StartLocalSound(uiInfo.uiDC.Assets.moveRollSound, soundChannel_t::CHAN_LOCAL);
+                            Menu_PlaySound(uiInfo.uiDC.Assets.moveRollSound, sound::Slot::Menu, 0.75f);
                         }
                         else if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == datapadMoveSound_t::MDS_SABER) {
                             // Randomly choose one sound
@@ -8346,7 +8341,7 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t* item)
                                 soundPtr = &uiInfo.uiDC.Assets.datapadmoveSaberSound6;
                             }
 
-                            trap->S_StartLocalSound(*soundPtr, soundChannel_t::CHAN_LOCAL);
+                            Menu_PlaySound(*soundPtr, sound::Slot::Menu, 0.75f);
                         }
 
                         if (datapadMoveData[uiInfo.movesTitleIndex][index].desc) {
@@ -9352,7 +9347,6 @@ void UI_Init(bool inGameLoad)
     uiInfo.uiDC.drawTextWithCursor = &Text_PaintWithCursor;
     uiInfo.uiDC.setOverstrikeMode = trap->Key_SetOverstrikeMode;
     uiInfo.uiDC.getOverstrikeMode = trap->Key_GetOverstrikeMode;
-    uiInfo.uiDC.startLocalSound = trap->S_StartLocalSound;
     uiInfo.uiDC.ownerDrawHandleKey = &UI_OwnerDrawHandleKey;
     uiInfo.uiDC.feederCount = &UI_FeederCount;
     uiInfo.uiDC.feederItemImage = &UI_FeederItemImage;
@@ -9364,9 +9358,7 @@ void UI_Init(bool inGameLoad)
     uiInfo.uiDC.executeText = trap->Cmd_ExecuteText;
     uiInfo.uiDC.Pause = &UI_Pause;
     uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
-    uiInfo.uiDC.registerSound = trap->S_RegisterSound;
-    uiInfo.uiDC.startBackgroundTrack = trap->S_StartBackgroundTrack;
-    uiInfo.uiDC.stopBackgroundTrack = trap->S_StopBackgroundTrack;
+    uiInfo.uiDC.sound = trap->sound;
     uiInfo.uiDC.playCinematic = &UI_PlayCinematic;
     uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
     uiInfo.uiDC.drawCinematic = &UI_DrawCinematic;
@@ -9609,7 +9601,7 @@ void UI_KeyEvent(int key, bool down)
     }
 
     // if ((s > 0) && (s != menu_null_sound)) {
-    //   trap->S_StartLocalSound( s, soundChannel_t::CHAN_LOCAL_SOUND );
+    //   Menu_PlaySound(s);
     //}
 }
 

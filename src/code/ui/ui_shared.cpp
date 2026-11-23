@@ -936,52 +936,6 @@ Hacks to fix issues with Team Arena menu scripts
 */
 static void Item_ApplyHacks(itemDef_t* item)
 {
-    // Fix length of favorite address in createfavorite.menu
-    if (item->type == ITEM_TYPE_MULTI && item->cvar && !Q_stricmp(item->cvar, "s_UseOpenAL")) {
-        if (item->parent) {
-            menuDef_t* parent = (menuDef_t*)item->parent;
-            VectorSet4(parent->disableColor, 0.5f, 0.5f, 0.5f, 1.0f);
-            item->disabled = true;
-            // Just in case it had focus
-            item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
-            Q_Println("Disabling eax field because current platform does not support EAX.");
-        }
-    }
-
-    if (item->type == ITEM_TYPE_TEXT && item->window.name && !Q_stricmp(item->window.name, "eax_icon") && item->cvarTest &&
-        !Q_stricmp(item->cvarTest, "s_UseOpenAL") && item->enableCvar && Any(item->cvarFlags & itemCvarFlags_t::CVAR_HIDE)) {
-        if (item->parent) {
-            menuDef_t* parent = (menuDef_t*)item->parent;
-            VectorSet4(parent->disableColor, 0.5f, 0.5f, 0.5f, 1.0f);
-            item->disabled = item->disabledHidden = true;
-            // Just in case it had focus
-            item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
-            Q_Println("Hiding eax_icon object because current platform does not support EAX.");
-        }
-    }
-
-    if (item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp(item->window.name, "sound_quality")) {
-        multiDef_t* multiPtr = (multiDef_t*)item->typeData;
-        int i;
-        bool found = false;
-        for (i = 0; i < multiPtr->count; i++) {
-            if (multiPtr->cvarValue[i] == 44) {
-                found = true;
-                break;
-            }
-        }
-        if (!found && multiPtr->count < MAX_MULTI_CVARS) {
-#ifdef JK2_MODE
-            multiPtr->cvarList[multiPtr->count] = String_Alloc("@MENUS0_VERY_HIGH");
-#else
-            multiPtr->cvarList[multiPtr->count] = String_Alloc("@MENUS_VERY_HIGH");
-#endif
-            multiPtr->cvarValue[multiPtr->count] = 44;
-            multiPtr->count++;
-            Q_Println("Extended sound quality field to contain very high option.");
-        }
-    }
-
     if (item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp(item->window.name, "voice") && item->cvar && !Q_stricmp(item->cvar, "g_subtitles")) {
         multiDef_t* multiPtr = (multiDef_t*)item->typeData;
         int i;
@@ -2191,7 +2145,7 @@ bool Script_SetFocus(itemDef_t* item, const char** args)
                 Item_RunScript(focusItem, focusItem->onFocus);
             }
             if (DC->Assets.itemFocusSound) {
-                DC->startLocalSound(DC->Assets.itemFocusSound, soundChannel_t::CHAN_LOCAL_SOUND);
+                Menu_PlaySound(DC->Assets.itemFocusSound);
             }
         }
     }
@@ -2643,7 +2597,7 @@ static bool Script_Play(itemDef_t* item, const char** args)
 {
     const char* val;
     if (String_Parse(args, &val)) {
-        DC->startLocalSound(DC->registerSound(val, false), soundChannel_t::CHAN_AUTO);
+        Menu_PlaySound(DC->sound->Register(val), sound::Slot::None, 0.75f);
     }
 
     return true;
@@ -2658,7 +2612,7 @@ static bool Script_PlayVoice(itemDef_t* item, const char** args)
 {
     const char* val;
     if (String_Parse(args, &val)) {
-        DC->startLocalSound(DC->registerSound(val, false), soundChannel_t::CHAN_VOICE);
+        Menu_PlayVoice(DC->sound->Register(val));
     }
 
     return true;
@@ -2671,7 +2625,7 @@ Script_StopVoice
 */
 static bool Script_StopVoice(itemDef_t* item, const char** args)
 {
-    DC->startLocalSound(uiInfo.uiDC.Assets.nullSound, soundChannel_t::CHAN_VOICE);
+    Menu_PlayVoice(uiInfo.uiDC.Assets.nullSound);
 
     return true;
 }
@@ -2688,8 +2642,8 @@ bool Script_playLooped(itemDef_t *item, const char **args)
     if (String_Parse(args, &val))
     {
         // FIXME BOB - is this needed?
-        DC->stopBackgroundTrack();
-        DC->startBackgroundTrack(val, val);
+        DC->sound->StopMusic();
+        DC->sound->StartMusic(val, val);
     }
 
     return true;
@@ -2875,7 +2829,7 @@ bool ItemParse_focusSound(itemDef_t* item)
     if (PC_ParseString(&temp)) {
         return false;
     }
-    item->focusSound = DC->registerSound(temp, false);
+    item->focusSound = DC->sound->Register(temp);
     return true;
 }
 
@@ -6639,7 +6593,29 @@ Item_Model_Paint
 =================
 */
 
-extern int s_entityWavVol[MAX_GENTITIES]; // from snd_dma.cpp
+// a menu's sound at the listener; in the menus' slot, one at a time, unless another slot is given
+void Menu_PlaySound(sfxHandle_t sfx, sound::Slot slot, float volume)
+{
+    sound::Request request;
+    request.sound = sfx;
+    request.soundClass = sound::SoundClass::Interface;
+    request.place = sound::Place::Listener;
+    request.slot = slot;
+    request.volume = volume;
+    DC->sound->Play(request);
+}
+
+// a character's line in a menu: the voice of the player's entity, 0, whose lip sync the talking head follows
+void Menu_PlayVoice(sfxHandle_t sfx)
+{
+    sound::Request request;
+    request.sound = sfx;
+    request.soundClass = sound::SoundClass::Voice;
+    request.entity = 0;
+    request.slot = sound::Slot::Voice;
+    DC->sound->Play(request);
+}
+
 void UI_TalkingHead(itemDef_t* item)
 {
     //	static int facial_blink = DC->realTime + Q_flrand(4000.0, 8000.0);
@@ -6673,21 +6649,23 @@ void UI_TalkingHead(itemDef_t* item)
         }
     */
 
-    if (s_entityWavVol[0] > 0) // if we aren't talking, then it will be 0, -1 for talking but paused
+    const sound::VoiceState voiceState = DC->sound->GetVoiceState(0);
+
+    if (voiceState >= sound::VoiceState::Level1) // talking: the face by the voice's loudness
     {
-        anim = animNumber_t::FACE_TALK1 + s_entityWavVol[0] - 1;
+        anim = animNumber_t::FACE_TALK1 + (std::to_underlying(voiceState) - std::to_underlying(sound::VoiceState::Level1));
         if (anim > animNumber_t::FACE_TALK4) {
             anim = animNumber_t::FACE_TALK4;
         }
         // reset timers so we don't start right away after talking
         facial_timer = DC->realTime + Q_flrand(2000.0, 7000.0);
     }
-    else if (s_entityWavVol[0] == -1) { // talking, but silent
+    else if (voiceState == sound::VoiceState::Silent) { // talking, but silent
         anim = animNumber_t::FACE_TALK0;
         // reset timers so we don't start right away after talking
         facial_timer = DC->realTime + Q_flrand(2000.0, 7000.0);
     }
-    /*	else if (s_entityWavVol[0] == 0)	//don't anim if in a slient part of speech
+    /*	else if (voiceState == sound::VoiceState::NotTalking)	//don't anim if in a slient part of speech
         {//not talking
             if (facial_timer < 0)	// are animating ?
             {	//yes
@@ -6855,19 +6833,19 @@ void Item_Model_Paint(itemDef_t* item)
                 uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
                 break;
             case animNumber_t::BOTH_KNOCKDOWN3: // on front - into force getup
-                DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, soundChannel_t::CHAN_LOCAL);
+                Menu_PlaySound(uiInfo.uiDC.Assets.datapadmoveJumpSound, sound::Slot::Menu, 0.75f);
                 ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_FORCE_GETUP_F1));
                 uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
                 uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
                 break;
             case animNumber_t::BOTH_KNOCKDOWN2: // on back - kick forward getup
-                DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, soundChannel_t::CHAN_LOCAL);
+                Menu_PlaySound(uiInfo.uiDC.Assets.datapadmoveJumpSound, sound::Slot::Menu, 0.75f);
                 ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_GETUP_BROLL_F));
                 uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
                 uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
                 break;
             case animNumber_t::BOTH_KNOCKDOWN1: // on back - roll-away
-                DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveRollSound, soundChannel_t::CHAN_LOCAL);
+                Menu_PlaySound(uiInfo.uiDC.Assets.datapadmoveRollSound, sound::Slot::Menu, 0.75f);
                 ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_GETUP_BROLL_R));
                 uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
                 uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
@@ -8561,7 +8539,7 @@ bool Item_SetFocus(itemDef_t* item, float x, float y)
     }
 
     if (playSound && sfx) {
-        DC->startLocalSound(*sfx, soundChannel_t::CHAN_LOCAL_SOUND);
+        Menu_PlaySound(*sfx);
     }
 
     for (i = 0; i < parent->itemCount; i++) {

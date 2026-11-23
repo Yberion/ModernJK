@@ -36,7 +36,7 @@ constexpr g2SurfaceFlags_t TURN_OFF = g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDA
 constexpr int LEFT_ARM_HEALTH = 40;
 constexpr int RIGHT_ARM_HEALTH = 40;
 
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 /*
 -------------------------
 NPC_ATST_Precache
@@ -87,10 +87,10 @@ void G_ATSTCheckPain(gentity_t* self, gentity_t* other, vec3_t point, int damage
     int newBolt;
 
     if (Q_irand(0, 1)) {
-        G_SoundOnEnt(self, soundChannel_t::CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged1");
+        G_SoundOnEnt(self, sound::SoundClass::Vehicle, sound::Slot::None, "sound/chars/atst/atst_damaged1");
     }
     else {
-        G_SoundOnEnt(self, soundChannel_t::CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged2");
+        G_SoundOnEnt(self, sound::SoundClass::Vehicle, sound::Slot::None, "sound/chars/atst/atst_damaged2");
     }
 
     if ((hitLoc == hitLocation_t::HL_ARM_LT) && (self->locationDamage[hitLocation_t::HL_ARM_LT] > LEFT_ARM_HEALTH)) {

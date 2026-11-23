@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <qcommon/qcommon.h>
 #include <rd-common/tr_public.h>
 #include "keys.h"
-#include "snd_public.h"
+#include <shared/sound/engine/engine.h>
 #include <game/bg_public.h>
 #include <cgame/cg_public.h>
 #include <ui/ui_public.h>
@@ -283,7 +283,6 @@ typedef struct clientConnection_s {
     int timeDemoStart;    // cls.realtime before first frame
     int timeDemoBaseTime; // each frame will be at this time + frameNum * 50
 
-    float aviVideoFrameRemainder;
     float aviSoundFrameRemainder;
 
     // big stuff at end of structure so most offsets are 15 bits or less
@@ -464,11 +463,6 @@ extern cvar_t* m_side;
 extern cvar_t* m_filter;
 
 extern cvar_t* cl_timedemo;
-extern cvar_t* cl_aviFrameRate;
-extern cvar_t* cl_aviMotionJpeg;
-extern cvar_t* cl_avi2GBLimit;
-
-extern cvar_t* cl_forceavidemo;
 
 extern cvar_t* cl_activeAction;
 
@@ -672,13 +666,3 @@ void LAN_SaveServersToCache();
 void CL_Netchan_Transmit(netchan_t* chan, msg_t* msg); // int length, const byte *data );
 void CL_Netchan_TransmitNextFragment(netchan_t* chan);
 bool CL_Netchan_Process(netchan_t* chan, msg_t* msg);
-
-//
-// cl_avi.c
-//
-bool CL_OpenAVIForWriting(const char* filename);
-void CL_TakeVideoFrame(void);
-void CL_WriteAVIVideoFrame(const byte* imageBuffer, int size);
-void CL_WriteAVIAudioFrame(const byte* pcmBuffer, int size);
-bool CL_CloseAVI(void);
-bool CL_VideoRecording(void);

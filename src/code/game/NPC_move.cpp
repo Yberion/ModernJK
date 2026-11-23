@@ -326,7 +326,7 @@ void NPC_JumpSound()
         JET_FlyStart(NPC);
     }
     else {
-        G_SoundOnEnt(NPC, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav");
+        G_SoundOnEnt(NPC, sound::SoundClass::Force, sound::Slot::None, "sound/weapons/force/jump.wav");
     }
 }
 

@@ -138,7 +138,7 @@ bool VEH_StartStrafeRam(Vehicle_t* pVeh, bool Right)
                 }
                 if (shiftSound) {
                     pVeh->m_iSoundDebounceTimer = level.time + Q_irand(1000, 4000);
-                    G_SoundIndexOnEnt(pVeh->m_pParentEntity, soundChannel_t::CHAN_AUTO, shiftSound);
+                    G_SoundIndexOnEnt(pVeh->m_pParentEntity, sound::SoundClass::World, sound::Slot::None, shiftSound);
                 }
             }
             return true;
@@ -365,7 +365,7 @@ static void ProcessMoveCommands(Vehicle_t* pVeh)
                 }
 #ifndef _JK2MP // kill me now
                 if (pVeh->m_pVehicleInfo->soundTurbo) {
-                    G_SoundIndexOnEnt(pVeh->m_pParentEntity, soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo);
+                    G_SoundIndexOnEnt(pVeh->m_pParentEntity, sound::SoundClass::World, sound::Slot::None, pVeh->m_pVehicleInfo->soundTurbo);
                 }
 #endif
                 parentPS->speed = pVeh->m_pVehicleInfo->turboSpeed; // Instantly Jump To Turbo Speed

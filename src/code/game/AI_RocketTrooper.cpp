@@ -338,7 +338,7 @@ void RT_FlyStart(gentity_t* self)
         }
 
         // take-off sound
-        G_SoundOnEnt(self, soundChannel_t::CHAN_ITEM, "sound/chars/boba/bf_blast-off.wav");
+        G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::Item, "sound/chars/boba/bf_blast-off.wav");
         // jet loop sound
         self->s.loopSound = G_SoundIndex("sound/chars/boba/bf_jetpack_lp.wav");
         if (self->NPC) {
@@ -362,7 +362,7 @@ void RT_FlyStop(gentity_t* self)
     }
     // stop jet loop sound
     self->s.loopSound = 0;
-    G_SoundOnEnt(self, soundChannel_t::CHAN_ITEM, "sound/chars/boba/bf_land.wav");
+    G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::Item, "sound/chars/boba/bf_land.wav");
 
     if (self->NPC) {
         self->count = 0; // SEEKER shot ammo count
@@ -381,7 +381,7 @@ void RT_JetPackEffect(int duration)
     }
 
     // take-off sound
-    G_SoundOnEnt(NPC, soundChannel_t::CHAN_ITEM, "sound/chars/boba/bf_blast-off.wav");
+    G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::Item, "sound/chars/boba/bf_blast-off.wav");
 }
 
 void RT_Flying_ApplyFriction(float frictionScale)

@@ -73,7 +73,7 @@ void multi_trigger_run(gentity_t* ent)
 
     G_UseTargets(ent, ent->activator);
     if (ent->noise_index) {
-        G_Sound(ent->activator, ent->noise_index);
+        G_Sound(ent->activator, sound::SoundClass::World, ent->noise_index);
     }
 
     if (ent->target2 && ent->target2[0] && ent->wait >= 0) {
@@ -827,7 +827,7 @@ void Use_target_push(gentity_t* self, gentity_t* other, gentity_t* activator)
     // play fly sound every 1.5 seconds
     if (self->noise_index && activator->fly_sound_debounce_time < level.time) {
         activator->fly_sound_debounce_time = level.time + 1500;
-        G_Sound(activator, self->noise_index);
+        G_Sound(activator, sound::SoundClass::World, self->noise_index);
     }
 }
 
@@ -1073,7 +1073,7 @@ void hurt_touch(gentity_t* self, gentity_t* other, trace_t* trace)
 
     // play sound
     if (!(self->spawnflags & 4)) {
-        G_Sound(other, self->noise_index);
+        G_Sound(other, sound::SoundClass::World, self->noise_index);
     }
 
     if (self->spawnflags & 8) {
@@ -1125,7 +1125,7 @@ void hurt_touch(gentity_t* self, gentity_t* other, trace_t* trace)
                     if (other->client) {
                         other->client->ps.pm_flags |= pmoveFlags_t::PMF_SLOW_MO_FALL;
                     }
-                    // G_SoundOnEnt( other, soundChannel_t::CHAN_VOICE, "*falling1.wav" );//CHAN_VOICE_ATTEN?
+                    // G_SoundOnEnt(other, sound::SoundClass::Voice, sound::Slot::Voice, "*falling1.wav");//CHAN_VOICE_ATTEN?
                 }
             }
         }

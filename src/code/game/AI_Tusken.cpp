@@ -380,7 +380,7 @@ void Tusken_StaffTrace(void)
                     int dmg = Q_irand(5, 10) * (g_spskill->integer + 1);
 
                     // FIXME: debounce?
-                    G_Sound(traceEnt, G_SoundIndex(Q_Format("sound/weapons/tusken_staff/stickhit{}.wav", Q_irand(1, 4)).c_str()));
+                    G_Sound(traceEnt, sound::SoundClass::Weapon, G_SoundIndex(Q_Format("sound/weapons/tusken_staff/stickhit{}.wav", Q_irand(1, 4)).c_str()));
                     G_Damage(traceEnt, NPC, NPC, vec3_origin, trace.endpos, dmg, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE);
                     if (traceEnt->health > 0 &&
                         ((traceEnt->client && traceEnt->client->NPC_class == class_t::CLASS_JAWA && !Q_irand(0, 1)) || dmg > 19)) // FIXME: base on skill!

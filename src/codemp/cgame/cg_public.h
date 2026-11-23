@@ -26,9 +26,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
+#include <shared/sound/sound.h>
+
 #include <ghoul2/G2.h>
 
-inline constexpr int CGAME_API_VERSION = 4;
+inline constexpr int CGAME_API_VERSION = 5;
 
 enum class uiMenuCommand_t; // ui_public.h
 enum class fakeAscii_t;     // ui/keycodes.h
@@ -250,27 +252,8 @@ typedef struct cgameImport_s {
                                 contentsFlags_t brushmask, const vec3_t origin, const vec3_t angles, int capsule);
     void (*RMG_Init)(int terrainID, const char* terrainInfo);
 
-    // sound
-    int (*S_AddLocalSet)(const char* name, vec3_t listener_origin, vec3_t origin, int entID, int time);
-    void (*S_AddLoopingSound)(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx);
-    void (*S_ClearLoopingSounds)(void);
-    int (*S_GetVoiceVolume)(int entID);
-    void (*S_MuteSound)(int entityNum, soundChannel_t entchannel);
-    sfxHandle_t (*S_RegisterSound)(const char* sample);
-    void (*S_Respatialize)(int entityNum, const vec3_t origin, matrix3_t axis, int inwater);
-    void (*S_Shutup)(bool shutup);
-    void (*S_StartBackgroundTrack)(const char* intro, const char* loop, bool bReturnWithoutStarting);
-    void (*S_StartLocalSound)(sfxHandle_t sfx, soundChannel_t channelNum);
-    void (*S_StartSound)(const vec3_t origin, int entnum, soundChannel_t entchannel, sfxHandle_t sfx);
-    void (*S_StopBackgroundTrack)(void);
-    void (*S_StopLoopingSound)(int entityNum);
-    void (*S_UpdateEntityPosition)(int entityNum, const vec3_t origin);
-    void (*S_UpdateAmbientSet)(const char* name, vec3_t origin);
-
-    // ambient sound
-    void (*AS_AddPrecacheEntry)(const char* name);
-    sfxHandle_t (*AS_GetBModelSound)(const char* name, int stage);
-    void (*AS_ParseSets)(void);
+    // the sound's functions, the same object for the whole session
+    sound::Api* sound;
 
     // renderer
     void (*R_AddAdditiveLightToScene)(const vec3_t org, float intensity, float r, float g, float b);

@@ -173,13 +173,13 @@ void P_WorldEffects(gentity_t* ent)
 
                 // play a gurp sound instead of a normal pain sound
                 if (ent->health <= ent->damage) {
-                    G_Sound(ent, soundChannel_t::CHAN_VOICE, G_SoundIndex(/*"*drown.wav"*/ "sound/player/gurp1.wav"));
+                    G_Sound(ent, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex(/*"*drown.wav"*/ "sound/player/gurp1.wav"));
                 }
                 else if (Q_irand(0, 1)) {
-                    G_Sound(ent, soundChannel_t::CHAN_VOICE, G_SoundIndex("sound/player/gurp1.wav"));
+                    G_Sound(ent, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("sound/player/gurp1.wav"));
                 }
                 else {
-                    G_Sound(ent, soundChannel_t::CHAN_VOICE, G_SoundIndex("sound/player/gurp2.wav"));
+                    G_Sound(ent, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("sound/player/gurp2.wav"));
                 }
 
                 // don't play a normal pain sound
@@ -940,7 +940,7 @@ void ClientEvents(gentity_t* ent, int oldEventSequence)
             G_Damage(ent, nullptr, nullptr, nullptr, nullptr, damage, damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_FALLING);
 
             if (ent->health < 1) {
-                G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/player/fallsplat.wav"));
+                G_Sound(ent, sound::SoundClass::Body, sound::Slot::None, G_SoundIndex("sound/player/fallsplat.wav"));
             }
         } break;
         case entity_event_t::EV_FIRE_WEAPON:
@@ -1502,10 +1502,10 @@ void G_SetTauntAnim(gentity_t* ent, tauntTypes_t taunt)
                 case saber_styles_t::SS_FAST:
                 case saber_styles_t::SS_TAVION:
                     if (ent->client->ps.saberHolstered == 1 && ent->client->saber[1].model[0]) { // turn off second saber
-                        G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[1].soundOff);
+                        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[1].soundOff);
                     }
                     else if (ent->client->ps.saberHolstered == 0) { // turn off first
-                        G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[0].soundOff);
+                        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[0].soundOff);
                     }
                     ent->client->ps.saberHolstered = 2;
                     anim = animNumber_t::BOTH_GESTURE1;
@@ -1517,17 +1517,17 @@ void G_SetTauntAnim(gentity_t* ent, tauntTypes_t taunt)
                     break;
                 case saber_styles_t::SS_DUAL:
                     if (ent->client->ps.saberHolstered == 1 && ent->client->saber[1].model[0]) { // turn on second saber
-                        G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[1].soundOn);
+                        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[1].soundOn);
                     }
                     else if (ent->client->ps.saberHolstered == 2) { // turn on first
-                        G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[0].soundOn);
+                        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[0].soundOn);
                     }
                     ent->client->ps.saberHolstered = 0;
                     anim = animNumber_t::BOTH_DUAL_TAUNT;
                     break;
                 case saber_styles_t::SS_STAFF:
                     if (ent->client->ps.saberHolstered > 0) { // turn on all blades
-                        G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[0].soundOn);
+                        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[0].soundOn);
                     }
                     ent->client->ps.saberHolstered = 0;
                     anim = animNumber_t::BOTH_STAFF_TAUNT;
@@ -1548,10 +1548,10 @@ void G_SetTauntAnim(gentity_t* ent, tauntTypes_t taunt)
                 anim = animNumber_t::BOTH_BOW;
             }
             if (ent->client->ps.saberHolstered == 1 && ent->client->saber[1].model[0]) { // turn off second saber
-                G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[1].soundOff);
+                G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[1].soundOff);
             }
             else if (ent->client->ps.saberHolstered == 0) { // turn off first
-                G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[0].soundOff);
+                G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[0].soundOff);
             }
             ent->client->ps.saberHolstered = 2;
             break;
@@ -1566,20 +1566,20 @@ void G_SetTauntAnim(gentity_t* ent, tauntTypes_t taunt)
                 anim = animNumber_t::BOTH_MEDITATE;
             }
             if (ent->client->ps.saberHolstered == 1 && ent->client->saber[1].model[0]) { // turn off second saber
-                G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[1].soundOff);
+                G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[1].soundOff);
             }
             else if (ent->client->ps.saberHolstered == 0) { // turn off first
-                G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[0].soundOff);
+                G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[0].soundOff);
             }
             ent->client->ps.saberHolstered = 2;
             break;
         case tauntTypes_t::TAUNT_FLOURISH:
             if (ent->client->ps.weapon == weapon_t::WP_SABER) {
                 if (ent->client->ps.saberHolstered == 1 && ent->client->saber[1].model[0]) { // turn on second saber
-                    G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[1].soundOn);
+                    G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[1].soundOn);
                 }
                 else if (ent->client->ps.saberHolstered == 2) { // turn on first
-                    G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[0].soundOn);
+                    G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[0].soundOn);
                 }
                 ent->client->ps.saberHolstered = 0;
                 if (ent->client->saber[0].flourishAnim != animNumber_t::ANIM_NONE) {
@@ -1632,24 +1632,24 @@ void G_SetTauntAnim(gentity_t* ent, tauntTypes_t taunt)
                 case saber_styles_t::SS_STRONG:
                 case saber_styles_t::SS_DESANN:
                     if (ent->client->ps.saberHolstered) { // turn on first
-                        G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[0].soundOn);
+                        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[0].soundOn);
                     }
                     ent->client->ps.saberHolstered = 0;
                     anim = animNumber_t::BOTH_VICTORY_STRONG;
                     break;
                 case saber_styles_t::SS_DUAL:
                     if (ent->client->ps.saberHolstered == 1 && ent->client->saber[1].model[0]) { // turn on second saber
-                        G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[1].soundOn);
+                        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[1].soundOn);
                     }
                     else if (ent->client->ps.saberHolstered == 2) { // turn on first
-                        G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[0].soundOn);
+                        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[0].soundOn);
                     }
                     ent->client->ps.saberHolstered = 0;
                     anim = animNumber_t::BOTH_VICTORY_DUAL;
                     break;
                 case saber_styles_t::SS_STAFF:
                     if (ent->client->ps.saberHolstered) { // turn on first
-                        G_Sound(ent, soundChannel_t::CHAN_WEAPON, ent->client->saber[0].soundOn);
+                        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::Weapon, ent->client->saber[0].soundOn);
                     }
                     ent->client->ps.saberHolstered = 0;
                     anim = animNumber_t::BOTH_VICTORY_STAFF;
@@ -1943,7 +1943,7 @@ void ClientThink_real(gentity_t* ent)
                 bodyDir[2] = 0; // don't want it floating
                 // VectorScale(bodyDir, 0.1f, bodyDir);
                 VectorAdd(grabbed->epVelocity, bodyDir, grabbed->epVelocity);
-                G_Sound(grabbed, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/player/roll1.wav"));
+                G_Sound(grabbed, sound::SoundClass::Body, sound::Slot::None, G_SoundIndex("sound/player/roll1.wav"));
             }
         }
     }
@@ -2140,10 +2140,10 @@ void ClientThink_real(gentity_t* ent)
                 ent->client->ps.saberHolstered = 0;
 
                 if (ent->client->saber[0].soundOn) {
-                    G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[0].soundOn);
+                    G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[0].soundOn);
                 }
                 if (ent->client->saber[1].soundOn) {
-                    G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOn);
+                    G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[1].soundOn);
                 }
 
                 G_AddEvent(ent, entity_event_t::EV_PRIVATE_DUEL, 2);
@@ -2156,10 +2156,10 @@ void ClientThink_real(gentity_t* ent)
                 duelAgainst->client->ps.saberHolstered = 0;
 
                 if (duelAgainst->client->saber[0].soundOn) {
-                    G_Sound(duelAgainst, soundChannel_t::CHAN_AUTO, duelAgainst->client->saber[0].soundOn);
+                    G_Sound(duelAgainst, sound::SoundClass::Saber, sound::Slot::None, duelAgainst->client->saber[0].soundOn);
                 }
                 if (duelAgainst->client->saber[1].soundOn) {
-                    G_Sound(duelAgainst, soundChannel_t::CHAN_AUTO, duelAgainst->client->saber[1].soundOn);
+                    G_Sound(duelAgainst, sound::SoundClass::Saber, sound::Slot::None, duelAgainst->client->saber[1].soundOn);
                 }
 
                 G_AddEvent(duelAgainst, entity_event_t::EV_PRIVATE_DUEL, 2);
@@ -2323,7 +2323,7 @@ void ClientThink_real(gentity_t* ent)
                     thrower->client->doingThrow = 0;
 
                     thrower->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_NONE;
-                    G_EntitySound(thrower, soundChannel_t::CHAN_VOICE, G_SoundIndex("*pain25.wav"));
+                    G_EntitySound(thrower, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("*pain25.wav"));
 
                     ent->client->ps.forceDodgeAnim = 2;
                     ent->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_KNOCKDOWN;
@@ -2351,8 +2351,8 @@ void ClientThink_real(gentity_t* ent)
                     ent->client->ps.velocity[1] = vDif[1] * vScale;
                     ent->client->ps.velocity[2] = 400;
 
-                    G_EntitySound(ent, soundChannel_t::CHAN_VOICE, G_SoundIndex("*pain100.wav"));
-                    G_EntitySound(thrower, soundChannel_t::CHAN_VOICE, G_SoundIndex("*jump1.wav"));
+                    G_EntitySound(ent, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("*pain100.wav"));
+                    G_EntitySound(thrower, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("*jump1.wav"));
 
                     // Set the thrower as the "other killer", so if we die from fall/impact damage he is credited.
                     ent->client->ps.otherKiller = thrower->s.number;
@@ -2390,7 +2390,7 @@ void ClientThink_real(gentity_t* ent)
                         thrower->client->doingThrow = 0;
 
                         thrower->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_NONE;
-                        G_EntitySound(thrower, soundChannel_t::CHAN_VOICE, G_SoundIndex("*pain25.wav"));
+                        G_EntitySound(thrower, sound::SoundClass::Voice, sound::Slot::Voice, G_SoundIndex("*pain25.wav"));
 
                         ent->client->ps.forceDodgeAnim = 2;
                         ent->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_KNOCKDOWN;
@@ -2460,7 +2460,7 @@ void ClientThink_real(gentity_t* ent)
             //		}
             //		ent->client->ps.fallingToDeath = 0;
 
-            G_MuteSound(ent->s.number, soundChannel_t::CHAN_VOICE); // stop screaming, because you are dead!
+            G_MuteSound(ent->s.number, sound::Slot::Voice); // stop screaming, because you are dead!
         }
     }
 
@@ -3041,7 +3041,7 @@ void ClientThink_real(gentity_t* ent)
                     }
                 }
 
-                G_Sound(faceKicked, soundChannel_t::CHAN_AUTO, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
+                G_Sound(faceKicked, sound::SoundClass::Weapon, sound::Slot::None, G_SoundIndex(Q_Format("sound/weapons/melee/punch{}", Q_irand(1, 4)).c_str()));
             }
         }
 

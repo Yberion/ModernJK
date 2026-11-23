@@ -433,7 +433,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
             break;
         case connstate_t::CA_DISCONNECTED:
             // force menu up
-            S_StopAllSounds();
+            SND_StopAll();
             UIVM_SetActiveMenu(uiMenuCommand_t::UIMENU_MAIN);
             break;
         case connstate_t::CA_CONNECTING:

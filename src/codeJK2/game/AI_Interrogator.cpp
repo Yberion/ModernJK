@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 void Interrogator_Idle(void);
 void DeathFX(gentity_t* ent);
-extern void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath);
+extern void G_SoundOnEnt(gentity_t* ent, sound::SoundClass soundClass, sound::Slot slot, const char* soundPath);
 
 enum class interrogatorLocalState_t {
     LSTATE_BLADESTOP = 0,
@@ -348,7 +348,7 @@ void Interrogator_Melee(bool visible, bool advance)
             gentity_t* tent = G_TempEntity(NPC->enemy->currentOrigin, entity_event_t::EV_DRUGGED);
             tent->owner = NPC->enemy;
 
-            G_Sound(NPC, G_SoundIndex("sound/chars/interrogator/misc/torture_droid_inject.mp3"));
+            G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/interrogator/misc/torture_droid_inject.mp3"));
         }
     }
 
@@ -370,7 +370,7 @@ void Interrogator_Attack(void)
     // randomly talk
     if (TIMER_Done(NPC, "patrolNoise")) {
         if (TIMER_Done(NPC, "angerNoise")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/probe/misc/probetalk{}", Q_irand(1, 3)).c_str());
+            G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/probe/misc/probetalk{}", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPC, "patrolNoise", Q_irand(4000, 10000));
         }
@@ -409,7 +409,7 @@ Interrogator_Idle
 void Interrogator_Idle(void)
 {
     if (NPC_CheckPlayerTeamStealth()) {
-        G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, "sound/chars/mark1/misc/anger.wav");
+        G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, "sound/chars/mark1/misc/anger.wav");
         NPC_UpdateAngles(true, true);
         return;
     }

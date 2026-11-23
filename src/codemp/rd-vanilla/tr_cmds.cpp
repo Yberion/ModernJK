@@ -482,28 +482,3 @@ void RE_EndFrame(int* frontEndMsec, int* backEndMsec)
     }
     backEnd.pc.msec = 0;
 }
-
-/*
-=============
-RE_TakeVideoFrame
-=============
-*/
-void RE_TakeVideoFrame(int width, int height, byte* captureBuffer, byte* encodeBuffer, bool motionJpeg)
-{
-    videoFrameCommand_t* cmd;
-
-    if (!tr.registered)
-        return;
-
-    cmd = (videoFrameCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
-    if (!cmd)
-        return;
-
-    cmd->commandId = renderCommand_t::RC_VIDEOFRAME;
-
-    cmd->width = width;
-    cmd->height = height;
-    cmd->captureBuffer = captureBuffer;
-    cmd->encodeBuffer = encodeBuffer;
-    cmd->motionJpeg = motionJpeg;
-}

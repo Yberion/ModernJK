@@ -603,7 +603,7 @@ void CFxScheduler::MaterialImpact(trace_t* tr, CEffect* effect)
 
             if(ammoName && materials[material].HasShellSound(ammoName))
             {
-                theFxHelper.PlaySound( tr->endpos, ENTITYNUM_NONE, soundChannel_t::CHAN_AUTO, materials[material].GetShellSoundHandle(ammoName) );
+                theFxHelper.PlaySound( tr->endpos, materials[material].GetShellSoundHandle(ammoName) );
             }
         }*/
 }
@@ -1462,10 +1462,10 @@ void CFxScheduler::CreateEffect(CPrimitiveTemplate* fx, const vec3_t origin, mat
         //---------
         if (gEffectsInPortal) { // could orient this anyway for panning, but eh. It's going to appear to the player in the sky the same place no matter what, so
                                 // just make it a local sound.
-            theFxHelper.PlayLocalSound(fx->mMediaHandles.GetHandle(), soundChannel_t::CHAN_AUTO);
+            theFxHelper.PlayLocalSound(fx->mMediaHandles.GetHandle());
         }
         else {
-            theFxHelper.PlaySound(org, ENTITYNUM_NONE, soundChannel_t::CHAN_AUTO, fx->mMediaHandles.GetHandle(), fx->mSoundVolume, fx->mSoundRadius);
+            theFxHelper.PlaySound(org, fx->mMediaHandles.GetHandle());
         }
         break;
 

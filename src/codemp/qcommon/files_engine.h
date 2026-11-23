@@ -32,8 +32,5 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define FS_AUTOEXEC_CFG "autoexec.cfg"             // read from outside the pk3 files only, as Q3CONFIG_CFG is
 inline constexpr bool FS_MODULES_FROM_PAKS = true; // a module found in a pk3 is written to a temporary file and loaded
 
-// before a file is read whole, and before a saved game is renamed: nothing to do in this engine
-static inline void FS_QuietSound(void) {}
-
 // the memory of a file read whole has no label in this engine
 static inline void FS_LabelFile(const void*, const char*) {}

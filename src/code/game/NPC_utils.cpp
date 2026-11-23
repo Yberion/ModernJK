@@ -483,7 +483,7 @@ bool NPC_UpdateAngles(bool doPitch, bool doYaw)
     /*
     if(doSound)
     {
-        G_Sound(NPC, G_SoundIndex(Q_Format("sound/enemies/borg/borgservo{}.wav", Q_irand(1, 8)).c_str()));
+        G_Sound(NPC, sound::SoundClass::World, G_SoundIndex(Q_Format("sound/enemies/borg/borgservo{}.wav", Q_irand(1, 8)).c_str()));
     }
     */
 

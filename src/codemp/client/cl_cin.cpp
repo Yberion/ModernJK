@@ -40,7 +40,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "client.h"
 #include "cl_uiapi.h"
-#include "snd_local.h"
 #ifndef _WIN32
 #include <cmath>
 #endif
@@ -140,9 +139,6 @@ static cinematics_t cin;
 static cin_cache_t cinTable[MAX_VIDEO_HANDLES];
 static int currentHandle = -1;
 static int CL_handle = -1;
-
-extern int s_soundtime;   // sample PAIRS
-extern int s_paintedtime; // sample PAIRS
 
 void CIN_CloseAllVideos(void)
 {
@@ -1207,18 +1203,21 @@ redump:
         break;
     case ZA_SOUND_MONO:
         if (!cinTable[currentHandle].silent) {
+            // the mono samples decoded as stereo pairs: ssize frames of two samples
             ssize = RllDecodeMonoToStereo(framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, (unsigned short)cinTable[currentHandle].roq_flags);
-            S_RawSamples(ssize, 22050, 2, 1, (byte*)sbuf, s_volume->value, 1);
+            SND_OpenStream(22050, 2);
+            SND_QueueStream(std::span<const std::int16_t>(sbuf, static_cast<std::size_t>(ssize) * 2));
         }
         break;
     case ZA_SOUND_STEREO:
         if (!cinTable[currentHandle].silent) {
             if (cinTable[currentHandle].numQuads == -1) {
-                S_Update();
-                s_rawend = s_soundtime;
+                // the first sound of the cinematic: nothing of an earlier one left waiting
+                SND_CloseStream();
             }
             ssize = RllDecodeStereoToStereo(framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, (unsigned short)cinTable[currentHandle].roq_flags);
-            S_RawSamples(ssize, 22050, 2, 2, (byte*)sbuf, s_volume->value, 1);
+            SND_OpenStream(22050, 2);
+            SND_QueueStream(std::span<const std::int16_t>(sbuf, static_cast<std::size_t>(ssize) * 2));
         }
         break;
     case ROQ_QUAD_INFO:
@@ -1552,7 +1551,7 @@ int CIN_PlayCinematic(const char* arg, int x, int y, int w, int h, cinematicFlag
         Con_Close();
 
         if (!cinTable[currentHandle].silent)
-            s_rawend = s_soundtime;
+            SND_CloseStream();
 
         return currentHandle;
     }
@@ -1701,7 +1700,7 @@ void CL_PlayCinematic_f(void)
         bits |= cinematicFlags_t::CIN_loop;
     }
 
-    S_StopAllSounds();
+    SND_StopAll();
 
     CL_handle = CIN_PlayCinematic(arg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, bits);
     if (CL_handle >= 0) {
@@ -1733,7 +1732,7 @@ void SCR_StopCinematic(void)
 {
     if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
         CIN_StopCinematic(CL_handle);
-        S_StopAllSounds();
+        SND_StopAll();
         CL_handle = -1;
     }
 }

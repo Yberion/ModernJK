@@ -1198,7 +1198,7 @@ static bool UI_RunMenuScript(const char** args)
             UI_ClearWeapons();
         }
         else if (Q_stricmp(name, "stopgamesounds") == 0) {
-            trap_S_StopSounds();
+            SND_StopSounds();
         }
         else if (Q_stricmp(name, "loadmissionselectmenu") == 0) {
             const char* cvarName = nullptr;
@@ -1516,10 +1516,10 @@ static void UI_CalcForceStatus(void)
     Cvar_Set("ui_forcestatus", value);
 
     if (lukeFlag) {
-        DC->startLocalSound(DC->registerSound(lukeForceStatusSounds[index], false), soundChannel_t::CHAN_VOICE);
+        Menu_PlayVoice(DC->sound->Register(lukeForceStatusSounds[index]));
     }
     else {
-        DC->startLocalSound(DC->registerSound(kyleForceStatusSounds[index], false), soundChannel_t::CHAN_VOICE);
+        Menu_PlayVoice(DC->sound->Register(kyleForceStatusSounds[index]));
     }
 }
 #endif // !JK2_MODE
@@ -1669,10 +1669,10 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t* item)
 
                         // Play sound for anim
                         if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == datapadMoveSound_t::MDS_FORCE_JUMP) {
-                            DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, soundChannel_t::CHAN_LOCAL);
+                            Menu_PlaySound(uiInfo.uiDC.Assets.datapadmoveJumpSound, sound::Slot::Menu, 0.75f);
                         }
                         else if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == datapadMoveSound_t::MDS_ROLL) {
-                            DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveRollSound, soundChannel_t::CHAN_LOCAL);
+                            Menu_PlaySound(uiInfo.uiDC.Assets.datapadmoveRollSound, sound::Slot::Menu, 0.75f);
                         }
                         else if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == datapadMoveSound_t::MDS_SABER) {
                             // Randomly choose one sound
@@ -1695,7 +1695,7 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t* item)
                                 soundPtr = &uiInfo.uiDC.Assets.datapadmoveSaberSound6;
                             }
 
-                            DC->startLocalSound(*soundPtr, soundChannel_t::CHAN_LOCAL);
+                            Menu_PlaySound(*soundPtr, sound::Slot::Menu, 0.75f);
                         }
 
                         if (datapadMoveData[uiInfo.movesTitleIndex][index].desc) {
@@ -2357,7 +2357,7 @@ void _UI_Init(bool inGameLoad)
     uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;
     uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
     uiInfo.uiDC.ownerDrawItem = &UI_OwnerDraw;
-    uiInfo.uiDC.registerSound = &trap_S_RegisterSound;
+    uiInfo.uiDC.sound = &SND_Api();
     uiInfo.uiDC.registerModel = ui.R_RegisterModel;
     uiInfo.uiDC.clearScene = &trap_R_ClearScene;
     uiInfo.uiDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
@@ -2368,7 +2368,6 @@ void _UI_Init(bool inGameLoad)
     uiInfo.uiDC.setColor = &UI_SetColor;
     uiInfo.uiDC.setCVar = Cvar_Set;
     uiInfo.uiDC.setOverstrikeMode = &trap_Key_SetOverstrikeMode;
-    uiInfo.uiDC.startLocalSound = &trap_S_StartLocalSound;
     uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
     uiInfo.uiDC.textHeight = &Text_Height;
     uiInfo.uiDC.textWidth = &Text_Width;
@@ -2434,11 +2433,11 @@ void _UI_Init(bool inGameLoad)
     uiInfo.selectedWeapon2 = std::nullopt;
     uiInfo.selectedThrowWeapon = std::nullopt;
 
-    uiInfo.uiDC.Assets.nullSound = trap_S_RegisterSound("sound/null", false);
+    uiInfo.uiDC.Assets.nullSound = DC->sound->Register("sound/null");
 
 #ifndef JK2_MODE
     // FIXME hack to prevent error in jk2 by disabling
-    trap_S_RegisterSound("sound/interface/weapon_deselect", false);
+    DC->sound->Register("sound/interface/weapon_deselect");
 #endif
 }
 
@@ -2789,7 +2788,7 @@ bool Asset_Parse(char** buffer)
                 return false;
             }
 
-            uiInfo.uiDC.Assets.menuEnterSound = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.menuEnterSound = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2799,7 +2798,7 @@ bool Asset_Parse(char** buffer)
                 PC_ParseWarning("Bad 1st parameter for keyword 'menuExitSound'");
                 return false;
             }
-            uiInfo.uiDC.Assets.menuExitSound = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.menuExitSound = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2809,7 +2808,7 @@ bool Asset_Parse(char** buffer)
                 PC_ParseWarning("Bad 1st parameter for keyword 'itemFocusSound'");
                 return false;
             }
-            uiInfo.uiDC.Assets.itemFocusSound = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.itemFocusSound = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2819,7 +2818,7 @@ bool Asset_Parse(char** buffer)
                 PC_ParseWarning("Bad 1st parameter for keyword 'menuBuzzSound'");
                 return false;
             }
-            uiInfo.uiDC.Assets.menuBuzzSound = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.menuBuzzSound = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2830,7 +2829,7 @@ bool Asset_Parse(char** buffer)
                 return false;
             }
 
-            uiInfo.uiDC.Assets.forceChosenSound = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.forceChosenSound = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2841,7 +2840,7 @@ bool Asset_Parse(char** buffer)
                 return false;
             }
 
-            uiInfo.uiDC.Assets.forceUnchosenSound = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.forceUnchosenSound = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2851,7 +2850,7 @@ bool Asset_Parse(char** buffer)
                 return false;
             }
 
-            uiInfo.uiDC.Assets.datapadmoveRollSound = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.datapadmoveRollSound = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2861,7 +2860,7 @@ bool Asset_Parse(char** buffer)
                 return false;
             }
 
-            uiInfo.uiDC.Assets.datapadmoveJumpSound = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.datapadmoveJumpSound = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2871,7 +2870,7 @@ bool Asset_Parse(char** buffer)
                 return false;
             }
 
-            uiInfo.uiDC.Assets.datapadmoveSaberSound1 = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.datapadmoveSaberSound1 = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2881,7 +2880,7 @@ bool Asset_Parse(char** buffer)
                 return false;
             }
 
-            uiInfo.uiDC.Assets.datapadmoveSaberSound2 = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.datapadmoveSaberSound2 = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2891,7 +2890,7 @@ bool Asset_Parse(char** buffer)
                 return false;
             }
 
-            uiInfo.uiDC.Assets.datapadmoveSaberSound3 = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.datapadmoveSaberSound3 = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2901,7 +2900,7 @@ bool Asset_Parse(char** buffer)
                 return false;
             }
 
-            uiInfo.uiDC.Assets.datapadmoveSaberSound4 = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.datapadmoveSaberSound4 = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2911,7 +2910,7 @@ bool Asset_Parse(char** buffer)
                 return false;
             }
 
-            uiInfo.uiDC.Assets.datapadmoveSaberSound5 = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.datapadmoveSaberSound5 = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2921,7 +2920,7 @@ bool Asset_Parse(char** buffer)
                 return false;
             }
 
-            uiInfo.uiDC.Assets.datapadmoveSaberSound6 = trap_S_RegisterSound(tempStr, false);
+            uiInfo.uiDC.Assets.datapadmoveSaberSound6 = DC->sound->Register(tempStr);
             continue;
         }
 
@@ -2990,7 +2989,7 @@ bool Asset_Parse(char** buffer)
                 do {
                     soundFile = COM_ParseExt(&tempStr, false);
                     if (soundFile[0] != 0 && soundFile[0] != ';') {
-                        if (!trap_S_RegisterSound(soundFile, false)) {
+                        if (!DC->sound->Register(soundFile)) {
                             PC_ParseWarning("Can't locate precache sound");
                         }
                     }
@@ -3012,11 +3011,6 @@ UI_Update
 static void UI_Update(const char* name)
 {
     int val = trap_Cvar_VariableValue(name);
-
-    if (Q_stricmp(name, "s_khz") == 0) {
-        ui.Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, "snd_restart\n");
-        return;
-    }
 
     if (Q_stricmp(name, "ui_SetName") == 0) {
         Cvar_Set("name", UI_Cvar_VariableString("ui_Name"));
@@ -4487,7 +4481,7 @@ static void UI_DecrementCurrentForcePower(void)
         return;
     }
 
-    DC->startLocalSound(uiInfo.uiDC.Assets.forceUnchosenSound, soundChannel_t::CHAN_AUTO);
+    Menu_PlaySound(uiInfo.uiDC.Assets.forceUnchosenSound, sound::Slot::None, 0.75f);
 
     if (forcelevel > forcePowerLevels_t::FORCE_LEVEL_0) {
         if (pState) {
@@ -4579,7 +4573,7 @@ static void UI_AffectForcePowerLevel(const char* forceName)
     }
 
     // Increment power level.
-    DC->startLocalSound(uiInfo.uiDC.Assets.forceChosenSound, soundChannel_t::CHAN_AUTO);
+    Menu_PlaySound(uiInfo.uiDC.Assets.forceChosenSound, sound::Slot::None, 0.75f);
 
     uiInfo.forcePowerUpdated = forcePowerI; // Remember which power was updated
 
@@ -5137,7 +5131,7 @@ static void UI_AddWeaponSelection(const weapon_t weaponIndex, const ammo_t ammoI
     }
 
     if (soundfile) {
-        DC->startLocalSound(DC->registerSound(soundfile, false), soundChannel_t::CHAN_LOCAL);
+        Menu_PlaySound(DC->sound->Register(soundfile), sound::Slot::Menu, 0.75f);
     }
 
     UI_WeaponsSelectionsComplete(); // Test to see if the mission begin button should turn on or off
@@ -5243,7 +5237,7 @@ static void UI_RemoveWeaponSelection(const int weaponSelectionIndex)
 
 #ifndef JK2_MODE
     // FIXME hack to prevent error in jk2 by disabling
-    DC->startLocalSound(DC->registerSound("sound/interface/weapon_deselect.mp3", false), soundChannel_t::CHAN_LOCAL);
+    Menu_PlaySound(DC->sound->Register("sound/interface/weapon_deselect.mp3"), sound::Slot::Menu, 0.75f);
 #endif
 
     UI_WeaponsSelectionsComplete(); // Test to see if the mission begin button should turn on or off
@@ -5388,7 +5382,7 @@ static void UI_AddThrowWeaponSelection(const weapon_t weaponIndex, const ammo_t 
     }
 
     if (soundfile) {
-        DC->startLocalSound(DC->registerSound(soundfile, false), soundChannel_t::CHAN_LOCAL);
+        Menu_PlaySound(DC->sound->Register(soundfile), sound::Slot::Menu, 0.75f);
     }
 
     UI_WeaponsSelectionsComplete(); // Test to see if the mission begin button should turn on or off
@@ -5468,7 +5462,7 @@ static void UI_RemoveThrowWeaponSelection(void)
 
 #ifndef JK2_MODE
     // FIXME hack to prevent error in jk2 by disabling
-    DC->startLocalSound(DC->registerSound("sound/interface/weapon_deselect.mp3", false), soundChannel_t::CHAN_LOCAL);
+    Menu_PlaySound(DC->sound->Register("sound/interface/weapon_deselect.mp3"), sound::Slot::Menu, 0.75f);
 #endif
 
     UI_WeaponsSelectionsComplete(); // Test to see if the mission begin button should turn on or off

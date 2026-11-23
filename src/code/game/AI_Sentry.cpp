@@ -105,7 +105,7 @@ void NPC_Sentry_Pain(gentity_t* self, gentity_t* inflictor, gentity_t* other, co
         self->flags |= gentityFlags_t::FL_SHIELDED;
         NPC_SetAnim(self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_FLY_SHIELDED,
                     setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
-        G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, "sound/chars/sentry/misc/sentry_pain");
+        G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::None, "sound/chars/sentry/misc/sentry_pain");
 
         NPC_SetLocalState(*self->NPC, sentryLocalState_t::LSTATE_ACTIVE);
     }
@@ -113,7 +113,7 @@ void NPC_Sentry_Pain(gentity_t* self, gentity_t* inflictor, gentity_t* other, co
     // You got hit, go after the enemy
     //	if (NPC_LocalState<sentryLocalState_t>( *self->NPC ) == sentryLocalState_t::LSTATE_ASLEEP)
     //	{
-    //		G_Sound( self, G_SoundIndex("sound/chars/sentry/misc/shieldsopen.wav"));
+    //		G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/chars/sentry/misc/shieldsopen.wav"));
     //
     //		self->flags &= ~gentityFlags_t::FL_SHIELDED;
     //		NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_POWERUP1,
@@ -150,7 +150,7 @@ void Sentry_Fire(void)
     else if (NPC_LocalState<sentryLocalState_t>(*NPCInfo) == sentryLocalState_t::LSTATE_ACTIVE) {
         NPC_SetLocalState(*NPCInfo, sentryLocalState_t::LSTATE_POWERING_UP);
 
-        G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, "sound/chars/sentry/misc/sentry_shield_open");
+        G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, "sound/chars/sentry/misc/sentry_shield_open");
         NPC_SetAnim(NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_POWERUP1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
         TIMER_Set(NPC, "powerup", 250);
         return;
@@ -181,7 +181,7 @@ void Sentry_Fire(void)
     gi.G2API_GiveMeVectorFromMatrix(boltMatrix, Eorientations::ORIGIN, muzzle);
 
     AngleVectors(NPC->currentAngles, forward, vright, up);
-    //	G_Sound( NPC, G_SoundIndex("sound/chars/sentry/misc/shoot.wav"));
+    //	G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/sentry/misc/shoot.wav"));
 
     G_PlayEffect("bryar/muzzle_flash", muzzle, forward);
 
@@ -412,7 +412,7 @@ void Sentry_RangedAttack(bool visible, bool advance)
                 NPC->flags |= gentityFlags_t::FL_SHIELDED;
                 NPC_SetAnim(NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_FLY_SHIELDED,
                             setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
-                G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, "sound/chars/sentry/misc/sentry_shield_close");
+                G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, "sound/chars/sentry/misc/sentry_shield_close");
             }
         }
         else {
@@ -440,7 +440,7 @@ void Sentry_AttackDecision(void)
     // randomly talk
     if (TIMER_Done(NPC, "patrolNoise")) {
         if (TIMER_Done(NPC, "angerNoise")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/sentry/misc/talk{}", Q_irand(1, 3)).c_str());
+            G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/sentry/misc/talk{}", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPC, "patrolNoise", Q_irand(4000, 10000));
         }
@@ -504,7 +504,7 @@ void NPC_Sentry_Patrol(void)
 
         // randomly talk
         if (TIMER_Done(NPC, "patrolNoise")) {
-            G_SoundOnEnt(NPC, soundChannel_t::CHAN_AUTO, Q_Format("sound/chars/sentry/misc/talk{}", Q_irand(1, 3)).c_str());
+            G_SoundOnEnt(NPC, sound::SoundClass::World, sound::Slot::None, Q_Format("sound/chars/sentry/misc/talk{}", Q_irand(1, 3)).c_str());
 
             TIMER_Set(NPC, "patrolNoise", Q_irand(2000, 4000));
         }

@@ -89,7 +89,7 @@ bool Boba_Flee();    // If returns true, Jedi and Seeker AI not used
 ////////////////////////////////////////////////////////////////////////////////////////
 // External Functions
 ////////////////////////////////////////////////////////////////////////////////////////
-extern void G_SoundAtSpot(vec3_t org, int soundIndex, bool broadcast);
+extern void G_SoundAtSpot(vec3_t org, sound::SoundClass soundClass, int soundIndex, bool broadcast);
 extern void G_CreateG2AttachedWeaponModel(gentity_t* ent, const char* weaponModel, int boltNum, int weaponNum);
 extern void ChangeWeapon(gentity_t* ent, weapon_t newWeapon);
 extern void WP_ResistForcePush(gentity_t* self, gentity_t* pusher, bool noPenalty);
@@ -361,7 +361,7 @@ void Boba_FlyStart(gentity_t* self)
         }
 
         // take-off sound
-        G_SoundOnEnt(self, soundChannel_t::CHAN_ITEM, "sound/chars/boba/bf_blast-off.wav");
+        G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::Item, "sound/chars/boba/bf_blast-off.wav");
         // jet loop sound
         self->s.loopSound = G_SoundIndex("sound/chars/boba/bf_jetpack_lp.wav");
         if (self->NPC) {
@@ -388,7 +388,7 @@ void Boba_FlyStop(gentity_t* self)
     }
 
     // stop jet loop sound
-    G_SoundOnEnt(self, soundChannel_t::CHAN_ITEM, "sound/chars/boba/bf_land.wav");
+    G_SoundOnEnt(self, sound::SoundClass::World, sound::Slot::Item, "sound/chars/boba/bf_land.wav");
 
     self->s.loopSound = 0;
     if (self->NPC) {
@@ -454,7 +454,7 @@ void Boba_StopFlameThrower(gentity_t* self)
         TIMER_Set(self, "nextAttackDelay", 0);
         TIMER_Set(self, "Boba_TacticsSelect", 0);
 
-        //	G_SoundOnEnt( self, soundChannel_t::CHAN_WEAPON, "sound/effects/flameoff.mp3" );
+        //	G_SoundOnEnt(self, sound::SoundClass::Weapon, sound::Slot::Weapon, "sound/effects/flameoff.mp3");
         G_StopEffect(G_EffectIndex("boba/fthrw"), self->playerModel, self->genericBolt3, self->s.number);
 
         Boba_Println("FlameThrower OFF");
@@ -478,7 +478,7 @@ void Boba_StartFlameThrower(gentity_t* self)
         TIMER_Set(self, "nextFlameDelay", BOBA_FLAMEDURATION * 2);
         TIMER_Set(self, "Boba_TacticsSelect", BOBA_FLAMEDURATION);
 
-        G_SoundOnEnt(self, soundChannel_t::CHAN_WEAPON, "sound/weapons/boba/bf_flame.mp3");
+        G_SoundOnEnt(self, sound::SoundClass::Weapon, sound::Slot::Weapon, "sound/weapons/boba/bf_flame.mp3");
         G_PlayEffect(G_EffectIndex("boba/fthrw"), self->playerModel, self->genericBolt3, self->s.number, self->s.origin, 1);
 
         Boba_Println("FlameThrower ON");
@@ -496,7 +496,7 @@ void Boba_DoFlameThrower(gentity_t* self)
                 NPC_SetAnim(self, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_FORCELIGHTNING_HOLD,
                             setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
                 self->client->ps.torsoAnimTimer = BOBA_FLAMEDURATION;
-                G_SoundOnEnt(self, soundChannel_t::CHAN_WEAPON, "sound/weapons/boba/bf_flame.mp3");
+                G_SoundOnEnt(self, sound::SoundClass::Weapon, sound::Slot::Weapon, "sound/weapons/boba/bf_flame.mp3");
                 G_PlayEffect(G_EffectIndex("boba/fthrw"), self->playerModel, self->genericBolt3, self->s.number, self->s.origin, 1);
                 self->client->ps.forcePowerDuration[forcePowers_t::FP_LIGHTNING] = 1;
             }
@@ -1054,7 +1054,7 @@ bool Boba_Flee()
             if (BobaFootStepCount && TIMER_Done(NPC, "BobaFootStepFakeTimer")) {
                 TIMER_Set(NPC, "BobaFootStepFakeTimer", Q_irand(300, 800));
                 BobaFootStepCount--;
-                G_SoundAtSpot(BobaFootStepLoc, G_SoundIndex(Q_Format("sound/player/footsteps/boot{}", Q_irand(1, 4)).c_str()), true);
+                G_SoundAtSpot(BobaFootStepLoc, sound::SoundClass::Body, G_SoundIndex(Q_Format("sound/player/footsteps/boot{}", Q_irand(1, 4)).c_str()), true);
             }
 
             if (TIMER_Done(NPC, "ResampleEnemyDirection") && NPC->enemy->resultspeed > 10.0f) {

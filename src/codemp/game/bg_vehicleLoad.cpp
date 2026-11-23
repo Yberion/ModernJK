@@ -231,14 +231,14 @@ static bool BG_ParseVehWeaponParm(vehWeaponInfo_t* vehWeapon, const char* parmNa
 #ifdef _GAME
         *(int*)(b + vehWeaponField->ofs) = G_SoundIndex(value);
 #else
-        *(int*)(b + vehWeaponField->ofs) = trap->S_RegisterSound(value);
+        *(int*)(b + vehWeaponField->ofs) = trap->sound->Register(value);
 #endif
         break;
     case vehFieldType_t::VF_SOUND_CLIENT: // (MP cgame only) take the string, get the index
 #ifdef _GAME
                                           //*(int *)(b+vehWeaponField->ofs) = G_SoundIndex( value );
 #else
-        *(int*)(b + vehWeaponField->ofs) = trap->S_RegisterSound(value);
+        *(int*)(b + vehWeaponField->ofs) = trap->sound->Register(value);
 #endif
         break;
     default:
@@ -320,11 +320,11 @@ int VEH_LoadVehWeapon(const char* vehWeaponName)
                               // G_SoundIndex( "sound/weapons/torpedo/tick.wav" );
                               // G_SoundIndex( "sound/weapons/torpedo/lock.wav" );
 #else
-        trap->S_RegisterSound("sound/vehicles/weapons/common/tick.wav");
-        trap->S_RegisterSound("sound/vehicles/weapons/common/lock.wav");
-        trap->S_RegisterSound("sound/vehicles/common/lockalarm1.wav");
-        trap->S_RegisterSound("sound/vehicles/common/lockalarm2.wav");
-        trap->S_RegisterSound("sound/vehicles/common/lockalarm3.wav");
+        trap->sound->Register("sound/vehicles/weapons/common/tick.wav");
+        trap->sound->Register("sound/vehicles/weapons/common/lock.wav");
+        trap->sound->Register("sound/vehicles/common/lockalarm1.wav");
+        trap->sound->Register("sound/vehicles/common/lockalarm2.wav");
+        trap->sound->Register("sound/vehicles/common/lockalarm3.wav");
 #endif
     }
     return (numVehicleWeapons++);
@@ -840,14 +840,14 @@ static bool BG_ParseVehicleParm(vehicleInfo_t* vehicle, const char* parmName, ch
 #ifdef _GAME
         *(int*)(b + vehField->ofs) = G_SoundIndex(value);
 #else
-        *(int*)(b + vehField->ofs) = trap->S_RegisterSound(value);
+        *(int*)(b + vehField->ofs) = trap->sound->Register(value);
 #endif
         break;
     case vehFieldType_t::VF_SOUND_CLIENT: // (MP cgame only) take the string, get the G_SoundIndex
 #ifdef _GAME
                                           //*(int *)(b+vehField->ofs) = G_SoundIndex( value );
 #else
-        *(int*)(b + vehField->ofs) = trap->S_RegisterSound(value);
+        *(int*)(b + vehField->ofs) = trap->sound->Register(value);
 #endif
         break;
     default:
@@ -1119,7 +1119,7 @@ int VEH_LoadVehicle(const char* vehicleName)
 #ifdef _GAME
         G_SoundIndex("sound/vehicles/common/fire_lp.wav");
 #else
-        trap->S_RegisterSound("sound/vehicles/common/fire_lp.wav");
+        trap->sound->Register("sound/vehicles/common/fire_lp.wav");
 #endif
     }
 
@@ -1139,9 +1139,9 @@ int VEH_LoadVehicle(const char* vehicleName)
     trap->R_RegisterShader("gfx/menus/radar/bracket");
     trap->R_RegisterShader("gfx/menus/radar/lead");
     trap->R_RegisterShaderNoMip("gfx/menus/radar/asteroid");
-    trap->S_RegisterSound("sound/vehicles/common/impactalarm.wav");
-    trap->S_RegisterSound("sound/vehicles/common/linkweaps.wav");
-    trap->S_RegisterSound("sound/vehicles/common/release.wav");
+    trap->sound->Register("sound/vehicles/common/impactalarm.wav");
+    trap->sound->Register("sound/vehicles/common/linkweaps.wav");
+    trap->sound->Register("sound/vehicles/common/release.wav");
     trap->FX_RegisterEffect("effects/ships/dest_burning.efx");
     trap->FX_RegisterEffect("effects/ships/dest_destroyed.efx");
     trap->FX_RegisterEffect("volumetric/black_smoke");

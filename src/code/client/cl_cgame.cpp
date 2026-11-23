@@ -49,12 +49,6 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 
-// FIXME: Temp
-extern void S_UpdateAmbientSet(const char* name, vec3_t origin);
-extern int S_AddLocalSet(const char* name, vec3_t listener_origin, vec3_t origin, int entID, int time);
-extern void AS_ParseSets(void);
-extern sfxHandle_t AS_GetBModelSound(const char* name, int stage);
-extern void AS_AddPrecacheEntry(const char* name);
 extern menuDef_t* Menus_FindByName(const char* p);
 
 extern bool R_inPVS(vec3_t p1, vec3_t p2);
@@ -527,30 +521,6 @@ std::optional<cgameImport_t> CL_ConvertJK2SysCall(cgameJK2Import_t import)
     case cgameJK2Import_t::CG_CM_SNAPPVS_JK2:
         return cgameImport_t::CG_CM_SNAPPVS;
         break;
-    case cgameJK2Import_t::CG_S_STARTSOUND_JK2:
-        return cgameImport_t::CG_S_STARTSOUND;
-        break;
-    case cgameJK2Import_t::CG_S_STARTLOCALSOUND_JK2:
-        return cgameImport_t::CG_S_STARTLOCALSOUND;
-        break;
-    case cgameJK2Import_t::CG_S_CLEARLOOPINGSOUNDS_JK2:
-        return cgameImport_t::CG_S_CLEARLOOPINGSOUNDS;
-        break;
-    case cgameJK2Import_t::CG_S_ADDLOOPINGSOUND_JK2:
-        return cgameImport_t::CG_S_ADDLOOPINGSOUND;
-        break;
-    case cgameJK2Import_t::CG_S_UPDATEENTITYPOSITION_JK2:
-        return cgameImport_t::CG_S_UPDATEENTITYPOSITION;
-        break;
-    case cgameJK2Import_t::CG_S_RESPATIALIZE_JK2:
-        return cgameImport_t::CG_S_RESPATIALIZE;
-        break;
-    case cgameJK2Import_t::CG_S_REGISTERSOUND_JK2:
-        return cgameImport_t::CG_S_REGISTERSOUND;
-        break;
-    case cgameJK2Import_t::CG_S_STARTBACKGROUNDTRACK_JK2:
-        return cgameImport_t::CG_S_STARTBACKGROUNDTRACK;
-        break;
     case cgameJK2Import_t::CG_R_LOADWORLDMAP_JK2:
         return cgameImport_t::CG_R_LOADWORLDMAP;
         break;
@@ -661,24 +631,6 @@ std::optional<cgameImport_t> CL_ConvertJK2SysCall(cgameJK2Import_t import)
         break;
     case cgameJK2Import_t::CG_SETUSERCMDANGLES_JK2:
         return cgameImport_t::CG_SETUSERCMDANGLES;
-        break;
-    case cgameJK2Import_t::CG_S_UPDATEAMBIENTSET_JK2:
-        return cgameImport_t::CG_S_UPDATEAMBIENTSET;
-        break;
-    case cgameJK2Import_t::CG_S_ADDLOCALSET_JK2:
-        return cgameImport_t::CG_S_ADDLOCALSET;
-        break;
-    case cgameJK2Import_t::CG_AS_PARSESETS_JK2:
-        return cgameImport_t::CG_AS_PARSESETS;
-        break;
-    case cgameJK2Import_t::CG_AS_ADDENTRY_JK2:
-        return cgameImport_t::CG_AS_ADDENTRY;
-        break;
-    case cgameJK2Import_t::CG_AS_GETBMODELSOUND_JK2:
-        return cgameImport_t::CG_AS_GETBMODELSOUND;
-        break;
-    case cgameJK2Import_t::CG_S_GETSAMPLELENGTH_JK2:
-        return cgameImport_t::CG_S_GETSAMPLELENGTH;
         break;
     case cgameJK2Import_t::COM_SETORGANGLES_JK2:
         return cgameImport_t::COM_SETORGANGLES;
@@ -894,68 +846,6 @@ intptr_t CL_CgameSystemCalls(intptr_t* args)
     case cgameImport_t::CG_CM_SNAPPVS:
         CM_SnapPVS((float(*))VMA(1), (byte*)VMA(2));
         return 0;
-    case cgameImport_t::CG_S_STOPSOUNDS:
-        S_StopSounds();
-        return 0;
-
-    case cgameImport_t::CG_S_STARTSOUND:
-        // stops an ERR_DROP internally if called illegally from game side, but note that it also gets here
-        //	legally during level start where normally the internal s_soundStarted check would return. So ok to hit this.
-        if (!cls.cgameStarted) {
-            return 0;
-        }
-        S_StartSound((float*)VMA(1), args[2], (soundChannel_t)args[3], args[4]);
-        return 0;
-    case cgameImport_t::CG_S_UPDATEAMBIENTSET:
-        // stops an ERR_DROP internally if called illegally from game side, but note that it also gets here
-        //	legally during level start where normally the internal s_soundStarted check would return. So ok to hit this.
-        if (!cls.cgameStarted) {
-            return 0;
-        }
-        S_UpdateAmbientSet((const char*)VMA(1), (float*)VMA(2));
-        return 0;
-    case cgameImport_t::CG_S_ADDLOCALSET:
-        return S_AddLocalSet((const char*)VMA(1), (float*)VMA(2), (float*)VMA(3), args[4], args[5]);
-    case cgameImport_t::CG_AS_PARSESETS:
-        AS_ParseSets();
-        return 0;
-    case cgameImport_t::CG_AS_ADDENTRY:
-        AS_AddPrecacheEntry((const char*)VMA(1));
-        return 0;
-    case cgameImport_t::CG_AS_GETBMODELSOUND:
-        return AS_GetBModelSound((const char*)VMA(1), args[2]);
-    case cgameImport_t::CG_S_STARTLOCALSOUND:
-        // stops an ERR_DROP internally if called illegally from game side, but note that it also gets here
-        //	legally during level start where normally the internal s_soundStarted check would return. So ok to hit this.
-        if (!cls.cgameStarted) {
-            return 0;
-        }
-        S_StartLocalSound(args[1], static_cast<soundChannel_t>(args[2]));
-        return 0;
-    case cgameImport_t::CG_S_CLEARLOOPINGSOUNDS:
-        S_ClearLoopingSounds();
-        return 0;
-    case cgameImport_t::CG_S_ADDLOOPINGSOUND:
-        // stops an ERR_DROP internally if called illegally from game side, but note that it also gets here
-        //	legally during level start where normally the internal s_soundStarted check would return. So ok to hit this.
-        if (!cls.cgameStarted) {
-            return 0;
-        }
-        S_AddLoopingSound(args[1], (const float*)VMA(2), (const float*)VMA(3), args[4], (soundChannel_t)args[5]);
-        return 0;
-    case cgameImport_t::CG_S_UPDATEENTITYPOSITION:
-        S_UpdateEntityPosition(args[1], (const float*)VMA(2));
-        return 0;
-    case cgameImport_t::CG_S_RESPATIALIZE:
-        S_Respatialize(args[1], (const float*)VMA(2), (float (*)[3])VMA(3), (args[4] != 0));
-        return 0;
-    case cgameImport_t::CG_S_REGISTERSOUND:
-        return S_RegisterSound((const char*)VMA(1));
-    case cgameImport_t::CG_S_STARTBACKGROUNDTRACK:
-        S_StartBackgroundTrack((const char*)VMA(1), (const char*)VMA(2), (args[3] != 0));
-        return 0;
-    case cgameImport_t::CG_S_GETSAMPLELENGTH:
-        return S_GetSampleLengthInMilliSeconds(args[1]);
     case cgameImport_t::CG_R_LOADWORLDMAP:
         re.LoadWorld((const char*)VMA(1));
         return 0;
@@ -1559,6 +1449,9 @@ void CL_FirstSnapshot(void)
 {
 
     re.RegisterMedia_LevelLoadEnd();
+    // the sounds the level did not use freed, then its music started from its beginning with the level
+    SND_EndRegistration();
+    SND_RestartMusic();
 
     cls.state = connstate_t::CA_ACTIVE;
 

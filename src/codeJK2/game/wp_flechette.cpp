@@ -121,7 +121,7 @@ void prox_mine_think(gentity_t* ent)
     }
 
     if (blow) {
-        //		G_Sound( ent, G_SoundIndex( "sound/weapons/flechette/warning.wav" ));
+        //		G_Sound(ent, sound::SoundClass::Weapon, G_SoundIndex( "sound/weapons/flechette/warning.wav" ));
         ent->e_ThinkFunc = thinkFunc_t::thinkF_WP_Explode;
         ent->nextthink = level.time + 200;
     }

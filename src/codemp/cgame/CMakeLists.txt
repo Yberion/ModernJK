@@ -40,6 +40,7 @@ add_library(cgame MODULE
 	cg_scoreboard.cpp
 	cg_servercmds.cpp
 	cg_snapshot.cpp
+	cg_sound.cpp
 	cg_spawn.cpp
 	cg_turret.cpp
 	cg_view.cpp

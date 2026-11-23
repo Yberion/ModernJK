@@ -327,10 +327,10 @@ void G_ForceSaberOn(gentity_t* ent)
     ent->client->ps.saberHolstered = 0;
 
     if (ent->client->saber[0].soundOn) {
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[0].soundOn);
+        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[0].soundOn);
     }
     if (ent->client->saber[1].soundOn) {
-        G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOn);
+        G_Sound(ent, sound::SoundClass::Saber, sound::Slot::None, ent->client->saber[1].soundOn);
     }
 }
 

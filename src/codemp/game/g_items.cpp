@@ -529,7 +529,7 @@ static bool pas_find_enemies(gentity_t* self)
     {
         // We were active and alert, i.e. had an enemy in the last 3 secs
         if (self->painDebounceTime < level.time) {
-            G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/chars/turret/ping.wav"));
+            G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/turret/ping.wav"));
             self->painDebounceTime = level.time + 1000;
         }
     }
@@ -579,7 +579,7 @@ static bool pas_find_enemies(gentity_t* self)
             {
                 if (self->attackDebounceTime + 100 < level.time) {
                     // We haven't fired or acquired an enemy in the last 2 seconds-start-up sound
-                    G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/chars/turret/startup.wav"));
+                    G_Sound(self, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/turret/startup.wav"));
 
                     // Wind up turrets for a bit
                     self->attackDebounceTime = level.time + 900 + Q_flrand(0.0f, 1.0f) * 200;
@@ -635,7 +635,7 @@ void pas_adjust_enemy(gentity_t* ent)
     {
         ent->enemy = nullptr;
         // shut-down sound
-        G_Sound(ent, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/chars/turret/shutdown.wav"));
+        G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/turret/shutdown.wav"));
 
         ent->bounceCount = level.time + 500 + Q_flrand(0.0f, 1.0f) * 150;
 
@@ -725,7 +725,7 @@ void pas_think(gentity_t* ent)
     }
 
     if ((ent->genericValue8 + TURRET_LIFETIME) < level.time) {
-        G_Sound(ent, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/chars/turret/shutdown.wav"));
+        G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/turret/shutdown.wav"));
         ent->s.bolt2 = ENTITYNUM_NONE;
         ent->s.fireflag = 2;
 
@@ -840,7 +840,7 @@ void pas_think(gentity_t* ent)
         }
         else {
             // ent->nextthink = 0;
-            G_Sound(ent, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/chars/turret/shutdown.wav"));
+            G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/turret/shutdown.wav"));
             ent->s.bolt2 = ENTITYNUM_NONE;
             ent->s.fireflag = 2;
 
@@ -932,7 +932,7 @@ void SP_PAS(gentity_t* base)
 
     base->physicsObject = true;
 
-    G_Sound(base, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/chars/turret/startup.wav"));
+    G_Sound(base, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/chars/turret/startup.wav"));
 }
 
 //------------------------------------------------------------------------
@@ -1099,7 +1099,7 @@ void Jetpack_On(gentity_t* ent)
         return;
     }
 
-    G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/boba/JETON"));
+    G_Sound(ent, sound::SoundClass::World, sound::Slot::None, G_SoundIndex("sound/boba/JETON"));
 
     ent->client->jetPackOn = true;
 }
@@ -1704,7 +1704,7 @@ gentity_t* EWeb_Create(gentity_t* spawner)
     trap->Trace(&tr, s, mins, maxs, pos, spawner->s.number, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
     if (tr.allsolid || tr.startsolid || tr.fraction != 1.0f) { // can't spawn here, we are in solid
-        G_Sound(spawner, soundChannel_t::CHAN_AUTO, failSound);
+        G_Sound(spawner, sound::SoundClass::World, sound::Slot::None, failSound);
         return nullptr;
     }
 
@@ -1724,7 +1724,7 @@ gentity_t* EWeb_Create(gentity_t* spawner)
 
     if (tr.startsolid || tr.allsolid || tr.fraction == 1.0f || tr.entityNum < ENTITYNUM_WORLD) { // didn't hit ground.
         G_FreeEntity(ent);
-        G_Sound(spawner, soundChannel_t::CHAN_AUTO, failSound);
+        G_Sound(spawner, sound::SoundClass::World, sound::Slot::None, failSound);
         return nullptr;
     }
 

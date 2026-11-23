@@ -143,7 +143,7 @@ void Mark1Dead_FireRocket(void)
 
     G_PlayEffect("bryar/muzzle_flash", muzzle1, muzzle_dir);
 
-    G_Sound(NPC, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
+    G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
 
     gentity_t* missile = CreateMissile(muzzle1, muzzle_dir, BOWCASTER_VELOCITY, 10000, NPC);
 
@@ -189,7 +189,7 @@ void Mark1Dead_FireBlaster(void)
 
     missile = CreateMissile(muzzle1, muzzle_dir, 1600, 10000, NPC);
 
-    G_Sound(NPC, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
+    G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
 
     missile->classname = "bryar_proj";
     missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
@@ -228,7 +228,7 @@ void Mark1_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int d
     }
     */
 
-    G_Sound(self, G_SoundIndex(Q_Format("sound/chars/mark1/misc/death{}.wav", Q_irand(1, 2)).c_str()));
+    G_Sound(self, sound::SoundClass::World, G_SoundIndex(Q_Format("sound/chars/mark1/misc/death{}.wav", Q_irand(1, 2)).c_str()));
 
     // Choose a death anim
     if (Q_irand(1, 10) > 5) {
@@ -314,7 +314,7 @@ void NPC_Mark1_Pain(gentity_t* self, gentity_t* inflictor, gentity_t* other, con
 
     NPC_Pain(self, inflictor, other, point, damage, mod);
 
-    G_Sound(self, G_SoundIndex("sound/chars/mark1/misc/mark1_pain"));
+    G_Sound(self, sound::SoundClass::World, G_SoundIndex("sound/chars/mark1/misc/mark1_pain"));
 
     // Hit in the CHEST???
     if (hitLoc == hitLocation_t::HL_CHEST) {
@@ -445,7 +445,7 @@ void Mark1_FireBlaster(void)
 
     G_PlayEffect("bryar/muzzle_flash", muzzle1, forward);
 
-    G_Sound(NPC, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
+    G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
 
     missile = CreateMissile(muzzle1, forward, 1600, 10000, NPC);
 
@@ -539,7 +539,7 @@ void Mark1_FireRocket(void)
     vectoangles(delta1, angleToEnemy1);
     AngleVectors(angleToEnemy1, forward, vright, up);
 
-    G_Sound(NPC, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
+    G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
 
     gentity_t* missile = CreateMissile(muzzle1, forward, BOWCASTER_VELOCITY, 10000, NPC);
 
@@ -590,7 +590,7 @@ void Mark1_AttackDecision(void)
     // randomly talk
     if (TIMER_Done(NPC, "patrolNoise")) {
         if (TIMER_Done(NPC, "angerNoise")) {
-            //			G_Sound( NPC, G_SoundIndex(Q_Format("sound/chars/mark1/misc/talk{}.wav", Q_irand(1, 4)).c_str()));
+            //			G_Sound(NPC, sound::SoundClass::World, G_SoundIndex(Q_Format("sound/chars/mark1/misc/talk{}.wav", Q_irand(1, 4)).c_str()));
             TIMER_Set(NPC, "patrolNoise", Q_irand(4000, 10000));
         }
     }
@@ -653,7 +653,7 @@ Mark1_Patrol
 void Mark1_Patrol(void)
 {
     if (NPC_CheckPlayerTeamStealth()) {
-        G_Sound(NPC, G_SoundIndex("sound/chars/mark1/misc/mark1_wakeup"));
+        G_Sound(NPC, sound::SoundClass::World, G_SoundIndex("sound/chars/mark1/misc/mark1_wakeup"));
         NPC_UpdateAngles(true, true);
         return;
     }
@@ -669,7 +669,7 @@ void Mark1_Patrol(void)
         // randomly talk
         //		if (TIMER_Done(NPC,"patrolNoise"))
         //		{
-        //			G_Sound( NPC, G_SoundIndex(Q_Format("sound/chars/mark1/misc/talk{}.wav", Q_irand(1, 4)).c_str()));
+        //			G_Sound(NPC, sound::SoundClass::World, G_SoundIndex(Q_Format("sound/chars/mark1/misc/talk{}.wav", Q_irand(1, 4)).c_str()));
         //
         //			TIMER_Set( NPC, "patrolNoise", Q_irand( 2000, 4000 ) );
         //		}

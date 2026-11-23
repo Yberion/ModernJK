@@ -117,10 +117,10 @@ void MineMonster_TryDamage(gentity_t* enemy, int damage)
 
     if (tr.entityNum >= 0 && tr.entityNum < ENTITYNUM_NONE) {
         G_Damage(&g_entities[tr.entityNum], NPC, NPC, dir, tr.endpos, damage, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE);
-        G_SoundOnEnt(NPC, soundChannel_t::CHAN_VOICE_ATTEN, Q_Format("sound/chars/mine/misc/bite{}.wav", Q_irand(1, 4)).c_str());
+        G_SoundOnEnt(NPC, sound::SoundClass::VoiceQuiet, sound::Slot::Voice, Q_Format("sound/chars/mine/misc/bite{}.wav", Q_irand(1, 4)).c_str());
     }
     else {
-        G_SoundOnEnt(NPC, soundChannel_t::CHAN_VOICE_ATTEN, Q_Format("sound/chars/mine/misc/miss{}.wav", Q_irand(1, 4)).c_str());
+        G_SoundOnEnt(NPC, sound::SoundClass::VoiceQuiet, sound::Slot::Voice, Q_Format("sound/chars/mine/misc/miss{}.wav", Q_irand(1, 4)).c_str());
     }
 }
 

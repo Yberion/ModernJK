@@ -871,12 +871,9 @@ static void SV_InitRef(void)
     ri.CM_PointLeafnum = CM_PointLeafnum;
     ri.CM_PointContents = CM_PointContents;
     ri.Com_TheHunkMarkHasBeenMade = Com_TheHunkMarkHasBeenMade;
-    //	ri.S_RestartMusic = S_RestartMusic;
-    //	ri.SND_RegisterAudio_LevelLoadEnd = SND_RegisterAudio_LevelLoadEnd;
     //	ri.CIN_RunCinematic = CIN_RunCinematic;
     //	ri.CIN_PlayCinematic = CIN_PlayCinematic;
     //	ri.CIN_UploadCinematic = CIN_UploadCinematic;
-    //	ri.CL_WriteAVIVideoFrame = CL_WriteAVIVideoFrame;
 
     // g2 data access
     ri.GetSharedMemory = GetSharedMemory;

@@ -138,7 +138,7 @@ void CG_FragmentBounceSound(localEntity_t* le, trace_t* trace)
         }
 
         if (s) {
-            cgi_S_StartSound(trace->endpos, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, s);
+            CG_StartSound(trace->endpos, ENTITYNUM_WORLD, sound::SoundClass::World, sound::Slot::None, s);
         }
 
         // bouncers only make the sound once...
