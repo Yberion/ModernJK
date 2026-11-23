@@ -109,6 +109,7 @@ The libraries in `libs/`, each under its own licence:
 | [stb_image_write](https://github.com/nothings/stb) | Sean Barrett | writing the screenshots (JPEG, PNG) | public domain |
 | [LLVM libc](https://github.com/llvm/llvm-project/tree/main/libc) (its math functions and text-to-float parser) | the LLVM contributors | the same floating-point results on every platform and compiler | Apache 2.0 with LLVM Exceptions |
 | [gsl-lite](https://github.com/gsl-lite/gsl-lite) | Martin Moene | spans in the single-player code | MIT |
+| [{fmt}](https://github.com/fmtlib/fmt) | Victor Zverovich and the {fmt} contributors | every printed and formatted text, its format checked at compile time | MIT |
 | [SDL](https://github.com/libsdl-org/SDL) | Sam Lantinga and the SDL contributors | the window, the input and the sound output (the copy in `libs/` for Windows; Linux uses the system's) | zlib |
 | [OpenAL Soft](https://github.com/kcat/openal-soft) | Chris Robinson and the OpenAL Soft contributors | playing the sound: mixing, 3D, reverb, the sound device | LGPL 2 or later |
 | [libFLAC](https://github.com/xiph/flac) | the Xiph.Org Foundation and the FLAC contributors | decoding the FLAC sounds | BSD (Xiph.Org) |

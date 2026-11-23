@@ -1,0 +1,194 @@
+diff --git a/src/codemp/client/snd_dma.cpp b/src/codemp/client/snd_dma.cpp
+index 005a7e58..036611ad 100644
+--- a/src/codemp/client/snd_dma.cpp
++++ b/src/codemp/client/snd_dma.cpp
+@@ -215,6 +215,40 @@ loopSound_t loopSounds[MAX_LOOP_SOUNDS];
+ int s_rawend;
+ portable_samplepair_t s_rawsamples[MAX_RAW_SAMPLES];
+ vec3_t s_entityPosition[MAX_GENTITIES];
++
++// the sound log: SNDLOG lines in the console's log while s_log is set (a measuring patch, not part of the game)
++cvar_t* s_log;
++
++static float S_LogDistance(const vec3_t origin, int entnum)
++{
++    vec3_t pos;
++
++    if (origin) {
++        VectorCopy(origin, pos);
++    }
++    else if (entnum >= 0 && entnum < MAX_GENTITIES) {
++        VectorCopy(s_entityPosition[entnum], pos);
++    }
++    else {
++        return -1.0f;
++    }
++
++    return Distance(pos, listener_origin);
++}
++
++static const char* S_LogName(const sfx_t* sfx)
++{
++    return sfx ? sfx->sSoundName : "-";
++}
++
++// whether a channel's sound still plays: started this frame, a loop, or not past its end
++static bool S_LogPlaying(const channel_t* ch)
++{
++    extern int s_paintedtime;
++
++    return ch->thesfx && (ch->loopSound || ch->startSample == START_SAMPLE_IMMEDIATE ||
++                          static_cast<int>(ch->startSample + ch->thesfx->iSoundLengthInSamples) > s_paintedtime);
++}
+ int s_entityWavVol[MAX_GENTITIES];
+ int s_entityWavVol_back[MAX_GENTITIES];
+ 
+@@ -310,6 +344,7 @@ void S_Init(void)
+     s_allowDynamicMusic = Cvar_Get("s_allowDynamicMusic", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
+     s_debugdynamic = Cvar_Get("s_debugdynamic", "0", cvarFlags_t::CVAR_CHEAT);
+     s_doppler = Cvar_Get("s_doppler", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
++    s_log = Cvar_Get("s_log", "0", cvarFlags_t::CVAR_CHEAT);
+     s_initsound = Cvar_Get("s_initsound", "1", cvarFlags_t::CVAR_ARCHIVE);
+     s_khz = Cvar_Get("s_khz", "44", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH);
+     s_language = Cvar_Get("s_language", "english", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART, "Sound language");
+@@ -723,6 +758,18 @@ channel_t* S_PickChannel(int entnum, soundChannel_t entchannel)
+         Q_Println(S_COLOR_RED "***kicking {}", firstToDie->thesfx->sSoundName);
+     }
+ 
++    if (s_log->integer && firstToDie->thesfx && !firstToDie->loopSound) {
++        int playing = 0;
++
++        for (ch_idx = 0, ch = &s_channels[0]; ch_idx < MAX_CHANNELS; ch_idx++, ch++) {
++            playing += S_LogPlaying(ch) ? 1 : 0;
++        }
++
++        Q_Println("SNDLOG {} {} {} ent={} chan={} by_ent={} by_chan={} audible={} playing={}", cl.serverTime, foundChan ? "replace" : "kick",
++                  S_LogName(firstToDie->thesfx), firstToDie->entnum, firstToDie->entchannel, entnum, entchannel,
++                  S_LogPlaying(firstToDie) ? 1 : 0, playing);
++    }
++
+     Channel_Clear(firstToDie); // memset(firstToDie, 0, sizeof(*firstToDie));
+ 
+     return firstToDie;
+@@ -891,6 +938,10 @@ Mutes sound on specified channel for specified entity.
+ */
+ void S_MuteSound(int entityNum, soundChannel_t entchannel)
+ {
++    if (s_log->integer) {
++        Q_Println("SNDLOG {} mute ent={} chan={}", cl.serverTime, entityNum, entchannel);
++    }
++
+     // I guess this works.
+     channel_t* ch = S_PickChannel(entityNum, entchannel);
+ 
+@@ -959,6 +1010,11 @@ void S_StartSound(const vec3_t origin, int entityNum, soundChannel_t entchannel,
+         ch->fixed_origin = false;
+     }
+ 
++    if (s_log->integer) {
++        Q_Println("SNDLOG {} start {} ent={} chan={} lis={} fixed={} dist={:.0f}", cl.serverTime, S_LogName(sfx), entityNum, entchannel,
++                  listener_number, origin ? 1 : 0, S_LogDistance(origin, entityNum));
++    }
++
+     ch->master_vol = SOUND_MAXVOL; // FIXME: Um.. control?
+     ch->entnum = entityNum;
+     ch->entchannel = entchannel;
+@@ -1211,6 +1267,10 @@ void S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity
+         return;
+     }
+     if (numLoopSounds >= MAX_LOOP_SOUNDS) {
++        if (s_log->integer) {
++            Q_Println("SNDLOG {} loopfull ent={}", cl.serverTime, entityNum);
++        }
++
+         return;
+     }
+ 
+@@ -1252,6 +1312,11 @@ void S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity
+         else if (loopSounds[numLoopSounds].dopplerScale <= 1.0) {
+             loopSounds[numLoopSounds].doppler = false; // don't bother doing the math
+         }
++
++        if (s_log->integer && loopSounds[numLoopSounds].doppler) {
++            Q_Println("SNDLOG {} doppler {} ent={} scale={:.2f} dist={:.0f} speed={:.0f}", cl.serverTime, S_LogName(sfx), entityNum,
++                      loopSounds[numLoopSounds].dopplerScale, Q_sqrtf(lena), VectorLength(velocity));
++        }
+     }
+ 
+     numLoopSounds++;
+@@ -1337,6 +1402,18 @@ void S_AddLoopSounds(void)
+             right_total += right;
+         }
+ 
++        if (s_log->integer) {
++            int merged = 0;
++
++            for (j = i; j < numLoopSounds; j++) {
++                merged += loopSounds[j].sfx == loop->sfx ? 1 : 0;
++            }
++
++            if (merged > 1) {
++                Q_Println("SNDLOG {} loopmerge {} count={} left={} right={}", cl.serverTime, S_LogName(loop->sfx), merged, left_total, right_total);
++            }
++        }
++
+         if (left_total == 0 && right_total == 0)
+             continue; // not audible
+ 
+@@ -1735,6 +1812,11 @@ void S_Respatialize(int entityNum, const vec3_t head, matrix3_t axis, int inwate
+         if (!(ch->entchannel == soundChannel_t::CHAN_VOICE || ch->entchannel == soundChannel_t::CHAN_VOICE_ATTEN ||
+               ch->entchannel == soundChannel_t::CHAN_VOICE_GLOBAL) &&
+             !ch->leftvol && !ch->rightvol) {
++            if (s_log->integer) {
++                Q_Println("SNDLOG {} drop {} ent={} chan={} dist={:.0f}", cl.serverTime, S_LogName(ch->thesfx), ch->entnum, ch->entchannel,
++                          Distance(origin, listener_origin));
++            }
++
+             Channel_Clear(ch); // memset (ch, 0, sizeof(*ch));
+             continue;
+         }
+@@ -1743,6 +1825,30 @@ void S_Respatialize(int entityNum, const vec3_t head, matrix3_t axis, int inwate
+     // add loopsounds
+     S_AddLoopSounds();
+ 
++    if (s_log->integer) {
++        int busy = 0;
++        int loops = 0;
++
++        for (i = 0, ch = s_channels; i < MAX_CHANNELS; i++, ch++) {
++            busy += S_LogPlaying(ch) ? 1 : 0;
++            loops += ch->thesfx && ch->loopSound ? 1 : 0;
++        }
++
++        Q_Println("SNDLOG {} frame lis={} busy={} loopch={} loops={}", cl.serverTime, listener_number, busy, loops, numLoopSounds);
++
++        static int logFrame;
++
++        if (++logFrame % 50 == 0) {
++            for (i = 0, ch = s_channels; i < MAX_CHANNELS; i++, ch++) {
++                if (ch->thesfx) {
++                    Q_Println("SNDLOG {} chan {} ent={} chan={} loop={} vol={},{} age={} len={}", cl.serverTime, S_LogName(ch->thesfx), ch->entnum,
++                              ch->entchannel, ch->loopSound ? 1 : 0, ch->leftvol, ch->rightvol, s_paintedtime - ch->startSample,
++                              ch->thesfx->iSoundLengthInSamples);
++                }
++            }
++        }
++    }
++
+     return;
+ }
+ 
+diff --git a/src/shared/sdl/sdl_sound.cpp b/src/shared/sdl/sdl_sound.cpp
+index 1a29c72d..1933c2ef 100644
+--- a/src/shared/sdl/sdl_sound.cpp
++++ b/src/shared/sdl/sdl_sound.cpp
+@@ -296,6 +296,9 @@ void SNDDMA_BeginPainting(void)
+ // (De)activates sound playback
+ void SNDDMA_Activate(bool activate)
+ {
++    if (!activate) { // the measuring build plays on without the focus (soundlog.patch)
++        return;
++    }
+ 
+     if (activate) {
+         S_ClearSoundBuffer();
