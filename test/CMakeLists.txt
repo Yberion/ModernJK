@@ -35,3 +35,15 @@ if(MINGW)
 	target_link_options(modernjk_test_fmt PRIVATE -static)
 endif()
 add_test(NAME modernjk.fmt COMMAND modernjk_test_fmt)
+
+# The tests of src/shared/sound and of OpenAL Soft as the sound uses it, on the files of sound/data
+if(TARGET modernjk_sound AND TARGET vendored::openal)
+	add_executable(modernjk_test_sound sound/main.cpp sound/decoder.cpp sound/openal.cpp)
+	target_include_directories(modernjk_test_sound PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src")
+	target_link_libraries(modernjk_test_sound PRIVATE modernjk_sound vendored::openal modernjk_options modernjk_warnings
+		modernjk_defines vendored::fmt)
+	if(MINGW)
+		target_link_options(modernjk_test_sound PRIVATE -static)
+	endif()
+	add_test(NAME modernjk.sound COMMAND modernjk_test_sound "${CMAKE_CURRENT_SOURCE_DIR}/sound/data")
+endif()

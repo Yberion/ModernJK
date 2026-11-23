@@ -33,3 +33,6 @@
 # libFuzzer corpora of netcodec: raw bytes, never normalised
 src/codemp/netcodec/fuzz/corpus/** binary
 src/codemp/netcodec/fuzz/corpus_client/** binary
+
+# The sample sounds of the sound's tests: raw bytes, never normalised
+test/sound/data/** binary

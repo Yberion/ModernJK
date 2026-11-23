@@ -127,6 +127,40 @@ target_compile_definitions(encode PRIVATE FLAC__NO_DLL)
 target_include_directories(encode PRIVATE ${HEADERS})
 target_link_libraries(encode PRIVATE opusenc "${FLAC_LIB}" "${VORBISENC_LIB}" "${VORBIS_LIB}" "${OGG_LIB}")
 
+# The sample files of the sound module's tests (test/sound/data), by the same reference encoders and LAME for MP3
+# (-DLAME=<LAME's source folder>, the release archive unpacked; LAME has no CMake project, so its library's files with a
+# config.h of the few definitions they need, rather than its configMS.h, whose integer macros break stdint.h).
+set(LAME "" CACHE PATH "LAME's source folder, for the MP3 samples")
+add_executable(make_test_samples make_test_samples.cpp)
+target_compile_definitions(make_test_samples PRIVATE FLAC__NO_DLL)
+target_include_directories(make_test_samples PRIVATE "${P}/include")
+target_link_libraries(make_test_samples PRIVATE "${FLAC_LIB}" "${VORBISENC_LIB}" "${VORBIS_LIB}" "${OGG_LIB}")
+if(LAME)
+	file(GLOB LAME_SRC "${LAME}/libmp3lame/*.c")
+	list(FILTER LAME_SRC EXCLUDE REGEX "mpglib_interface\\.c$")
+	file(WRITE "${CMAKE_BINARY_DIR}/lame/config.h" [[
+#define STDC_HEADERS 1
+#define HAVE_INTTYPES_H 1
+#define HAVE_STDINT_H 1
+#define HAVE_STRING_H 1
+#define HAVE_ERRNO_H 1
+#define HAVE_FCNTL_H 1
+#define HAVE_LIMITS_H 1
+#define PROTOTYPES 1
+#define USE_FAST_LOG 1
+#define LAME_LIBRARY_BUILD 1
+#define PACKAGE "lame"
+typedef float ieee754_float32_t;
+typedef double ieee754_float64_t;
+typedef long double ieee854_float80_t;
+]])
+	add_library(mp3lame STATIC ${LAME_SRC})
+	target_compile_definitions(mp3lame PRIVATE HAVE_CONFIG_H)
+	target_include_directories(mp3lame PRIVATE "${CMAKE_BINARY_DIR}/lame" "${LAME}/libmp3lame" PUBLIC "${LAME}/include")
+	target_compile_definitions(make_test_samples PRIVATE WITH_LAME)
+	target_link_libraries(make_test_samples PRIVATE mp3lame)
+endif()
+
 if(EXISTS "${P}/lib/liblibnyquist.a")
 	set(NYQ_LIBS "${P}/lib/liblibnyquist.a")
 else()

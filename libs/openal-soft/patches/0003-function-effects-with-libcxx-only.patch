@@ -1,0 +1,38 @@
+From fe0ffd63c1a1ba36dbfca61778fe2c64b3df1659 Mon Sep 17 00:00:00 2001
+From: Chris Robinson <chris.kcat@gmail.com>
+Date: Wed, 13 May 2026 00:12:25 -0700
+Subject: [PATCH] Don't use -Wfunction-effects without libc++
+
+libstdc++ and MS STL don't handle the nonblocking attribute well, with error
+paths calling non-nonblocking functions that trip up the analysis.
+---
+ CMakeLists.txt | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
+
+diff --git a/libs/openal-soft/CMakeLists.txt b/libs/openal-soft/CMakeLists.txt
+index 8670d60891..baa510c7e1 100644
+--- a/libs/openal-soft/CMakeLists.txt
++++ b/libs/openal-soft/CMakeLists.txt
+@@ -269,13 +269,15 @@ set(LINKER_FLAGS_DEBUG )
+ set(LINKER_FLAGS_RELEASE )
+ set(EXTRA_LIBS )
+ 
+-if((CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"
+-        AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 17.0)
+-    OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
+-        AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 20.0))
+-    check_cxx_compiler_flag(-Wfunction-effects HAVE_WFUNCTION_EFFECTS)
+-    if(HAVE_WFUNCTION_EFFECTS)
+-        list(APPEND C_FLAGS $<$<COMPILE_LANGUAGE:CXX>:-Wfunction-effects>)
++if(HAVE_LIBCXX)
++    if((CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"
++            AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 17.0)
++        OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
++            AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 20.0))
++        check_cxx_compiler_flag(-Wfunction-effects HAVE_WFUNCTION_EFFECTS)
++        if(HAVE_WFUNCTION_EFFECTS)
++            list(APPEND C_FLAGS $<$<COMPILE_LANGUAGE:CXX>:-Wfunction-effects>)
++        endif()
+     endif()
+ endif()
+ 

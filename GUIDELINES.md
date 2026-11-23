@@ -20,6 +20,7 @@ The rules for the project's code, documents and changes. They hold for every tre
 ## 3. Layout
 
 - The C and C++ code of `src/` and `test/` is laid out by clang-format 23 with the root's `.clang-format` (the LLVM style, 4 spaces, 160 columns, the layout rules of the C++ Core Guidelines' NL section that clang-format can apply). Another major version lays it out differently: use version 23 only.
+- In the sound (`src/shared/sound`) and its tests, a blank line before and after each `if`/`else` chain, loop and `switch`, but right after the line that opens a block, right before the one that closes it and next to a `case` label; the comments just above a statement stay attached to it (23 November 2026). clang-format 23 has no option for it (its blank lines are only between definitions, around access modifiers and in namespaces, `SeparateDefinitionBlocks`, `EmptyLine*AccessModifier`, `WrapNamespaceBodyWithEmptyLines`), but keeps them (`MaxEmptyLinesToKeep: 1`).
 - Run `clang-format -i` on the files changed until nothing changes (it can need a second run). The Linux validation checks the whole tree (`clang-format-23 --dry-run --Werror`).
 - `libs/` and the generated tables (`src/codemp/netcodec/src/generated/`) are left out (`.clang-format-ignore`).
 - `.editorconfig` gives the C and C++ files spaces; the CMake, shell and batch files keep tabs.
@@ -42,7 +43,7 @@ After SF.12 of the C++ Core Guidelines:
 
 ## 5. The C++ Core Guidelines
 
-- netcodec (`src/codemp/netcodec`) follows them entirely: named casts, `noexcept`, `[[nodiscard]]`, `constexpr`, `std::span` for buffers, RAII, initialised members, `assert` for preconditions; unsigned arithmetic on purpose for bit manipulation (C++ Core Guidelines ES.101); clang-tidy at zero on the library.
+- netcodec (`src/codemp/netcodec`) and the sound (`src/shared/sound`, since 23 November 2026) follow them entirely: named casts, `noexcept`, `[[nodiscard]]`, `constexpr`, `std::span` for buffers, RAII, initialised members, `assert` for preconditions; unsigned arithmetic on purpose for bit manipulation (C++ Core Guidelines ES.101); clang-tidy at zero on the library.
 - The whole project follows the C++ Core Guidelines' Enum section: every enumeration is an `enum class` (Enum.3), its operations written once in `src/shared/qcommon/q_enum.h` (Enum.4), no unnamed enumeration (Enum.6), an underlying type and values only when necessary (Enum.7, Enum.8). Enum.1 and Enum.5 are weighed against the data formats (names turned into text in files) before they apply.
 - The whole project follows the C++ Core Guidelines' layout rules (NL), through clang-format (section 3).
 - Elsewhere the engine's and the game's code keeps the engine's style; a file is not rewritten to the guidelines unless that is decided.
@@ -65,7 +66,7 @@ After SF.12 of the C++ Core Guidelines:
 
 - No warning in any build of the three compilers, and every warning of the sets is an error, so that it cannot come back: `modernjk_WARNINGS_AS_ERRORS` is on by default (21 November 2026), turned off only by hand, for a compiler the project was not tested with. A group of warnings added in plan step 23 enters the set once it is fixed.
 - Each warning gets the right fix, never a silencing in bulk; a `#pragma` or a flag that switches a warning off needs its reason written next to it. A library's headers come through a system include folder, outside the warnings, without a pragma.
-- The sets are in `cmake/CompilerWarnings.cmake`: `modernjk_warnings` for the game, the same checks on the three compilers (`-Wall` and `-Wsign-compare` for GCC and clang, MSVC's `/W1` with the numbers that match them raised to level 1), and `netcodec_warnings` (strict) for netcodec.
+- The sets are in `cmake/CompilerWarnings.cmake`: `modernjk_warnings` for the game, the same checks on the three compilers (`-Wall` and `-Wsign-compare` for GCC and clang, MSVC's `/W1` with the numbers that match them raised to level 1), and `netcodec_warnings` (strict) for netcodec and the sound (`src/shared/sound`).
 - Some warnings exist on one compiler only (GCC's `-Wuseless-cast` on 32- and 64-bit size types: use `ToU32`; MSVC is stricter on old engine code): build on the three.
 - The Release presets build with link-time optimization (`modernjk_ENABLE_IPO`, clang's ThinLTO; the netcodec library out of it with GCC, which makes it no faster), never the Debug and sanitizer presets (22 November 2026). What the link reports across files is an error too: GCC's `-Wodr`, `-Wlto-type-mismatch` and the warnings of the code inlined from another file (GCC gets `-Werror` at the link), MSVC's at `/LTCG`. `linux-gcc-debug-lto`, which only `validate.sh` builds, checks the code only Debug compiles the same way.
 
@@ -73,11 +74,13 @@ After SF.12 of the C++ Core Guidelines:
 
 - Every library is in `libs/`, at a pinned version, and built with the project; never the system's copy. Each library's README gives its source, its tag or commit, the files left out and how to update it; a local change is a patch file in `libs/<library>/patches/`, listed in the README, applied again at an update and dropped once a release no longer needs it.
 - The one exception: SDL2 from the system on Linux, until plan step 15 replaces it with SDL 3, vendored.
+- The system's drivers are not libraries of the project: on Linux the development headers of OpenGL and of the sound servers (PipeWire, PulseAudio, ALSA) come from the distribution's packages, and their libraries are the player's own, loaded at run time (OpenAL Soft opens the sound server's library with `dlopen`) (23 November 2026).
 - A library's licence must be compatible with the GPL v2.
 
 ## 10. Comments
 
 - A comment says what the code does and why, in full sentences; what the code can say itself is not repeated.
+- In the sound (`src/shared/sound`) and its tests, every function has a comment saying what it does, and why where that is not plain (23 November 2026).
 - No mention of the plan, its steps or parts, no link to the documents of `docs/` and no date or attribution of a decision in the code: the explanation stays in the comment, the history in the documents. Where a link backed a comment, a short sentence gives what the document says that matters there. A tool or a data file of `docs/modernization/tools` or `docs/modernization/data` that the code reads or is generated by is named by its full path.
 - Commented-out code follows the live code: when types or names change, the commented code changes the same way, so that it would compile if uncommented; string literals keep their text.
 - Comments describe the code and its formats, never a prototype it came from.

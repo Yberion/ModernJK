@@ -3,7 +3,7 @@
   "cmakeMinimumRequired": { "major": 4, "minor": 5, "patch": 0 },
   "$comment": [
     "One preset per system, compiler and build type, named <system>-<compiler>-<type>; each builds every target but",
-    "those named otherwise: netcodec-fuzz netcodec's fuzzers only, server the dedicated server and the game module.",
+    "those named otherwise: fuzz the fuzzers only (netcodec's, the sound decoders'), server the dedicated server and the game module.",
     "cmake --workflow --preset <name> configures, builds and tests. MSVC from the x64 environment of Visual Studio,",
     "clang on Windows from llvm-mingw in the PATH, GCC 15 and Clang 23 on Linux."
   ],
@@ -63,7 +63,7 @@
     },
     { "name": "debug", "hidden": true, "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" } },
     {
-      "name": "netcodec-only",
+      "name": "fuzzers-only",
       "hidden": true,
       "cacheVariables": {
         "modernjk_BUILD_MP_CLIENT": "OFF", "modernjk_BUILD_MP_SERVER": "OFF", "modernjk_BUILD_MP_GAME": "OFF",
@@ -95,9 +95,9 @@
       "inherits": [ "mingw-clang", "asan" ]
     },
     {
-      "name": "windows-clang-netcodec-fuzz",
-      "displayName": "clang (llvm-mingw) x64, netcodec's libFuzzer targets with the sanitizers",
-      "inherits": [ "mingw-clang", "asan", "netcodec-only" ],
+      "name": "windows-clang-fuzz",
+      "displayName": "clang (llvm-mingw) x64, the libFuzzer targets (netcodec's, the sound decoders') with the sanitizers",
+      "inherits": [ "mingw-clang", "asan", "fuzzers-only" ],
       "cacheVariables": {
         "modernjk_BUILD_FUZZ_TESTS": "ON", "BUILD_TESTING": "OFF", "modernjk_BUILD_BENCHMARKS": "OFF",
         "modernjk_BUILD_TOOLS": "OFF"
@@ -152,7 +152,7 @@
     { "name": "windows-clang-release", "configurePreset": "windows-clang-release" },
     { "name": "windows-clang-debug", "configurePreset": "windows-clang-debug" },
     { "name": "windows-clang-asan", "configurePreset": "windows-clang-asan" },
-    { "name": "windows-clang-netcodec-fuzz", "configurePreset": "windows-clang-netcodec-fuzz" },
+    { "name": "windows-clang-fuzz", "configurePreset": "windows-clang-fuzz" },
     { "name": "windows-clang-tidy", "configurePreset": "windows-clang-tidy" },
     { "name": "windows-clang-cppcheck", "configurePreset": "windows-clang-cppcheck" },
     { "name": "linux-gcc-release", "configurePreset": "linux-gcc-release" },
@@ -189,7 +189,7 @@
     { "name": "windows-clang-release", "steps": [ { "type": "configure", "name": "windows-clang-release" }, { "type": "build", "name": "windows-clang-release" }, { "type": "test", "name": "windows-clang-release" } ] },
     { "name": "windows-clang-debug", "steps": [ { "type": "configure", "name": "windows-clang-debug" }, { "type": "build", "name": "windows-clang-debug" }, { "type": "test", "name": "windows-clang-debug" } ] },
     { "name": "windows-clang-asan", "steps": [ { "type": "configure", "name": "windows-clang-asan" }, { "type": "build", "name": "windows-clang-asan" }, { "type": "test", "name": "windows-clang-asan" } ] },
-    { "name": "windows-clang-netcodec-fuzz", "steps": [ { "type": "configure", "name": "windows-clang-netcodec-fuzz" }, { "type": "build", "name": "windows-clang-netcodec-fuzz" } ] },
+    { "name": "windows-clang-fuzz", "steps": [ { "type": "configure", "name": "windows-clang-fuzz" }, { "type": "build", "name": "windows-clang-fuzz" } ] },
     { "name": "windows-clang-tidy", "steps": [ { "type": "configure", "name": "windows-clang-tidy" }, { "type": "build", "name": "windows-clang-tidy" } ] },
     { "name": "windows-clang-cppcheck", "steps": [ { "type": "configure", "name": "windows-clang-cppcheck" }, { "type": "build", "name": "windows-clang-cppcheck" } ] },
     { "name": "linux-gcc-release", "steps": [ { "type": "configure", "name": "linux-gcc-release" }, { "type": "build", "name": "linux-gcc-release" }, { "type": "test", "name": "linux-gcc-release" } ] },

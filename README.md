@@ -18,7 +18,7 @@ The single-player game is `modernjk_sp.x86_64` (`modernjk_sp.x86_64.exe` on Wind
 
 ## Building
 
-CMake presets, one per system, compiler and build type. The libraries are in `libs/` and built with the project; on Linux, SDL2 and OpenGL come from the system. Run the commands from the repository's folder; the programs and modules go to `build/<preset>/bin`.
+CMake presets, one per system, compiler and build type. The libraries are in `libs/` and built with the project; on Linux, SDL2 and OpenGL come from the system, and the sound servers' development files too, whose libraries OpenAL Soft opens at run time. Run the commands from the repository's folder; the programs and modules go to `build/<preset>/bin`.
 
 ### Prerequisites
 
@@ -52,11 +52,12 @@ Linux:
 | GCC or Clang | GCC 15, Clang 23 tested |
 | SDL2, development files (the client only) | 2.0 (2.0.20 tested) |
 | OpenGL, development files (the client only) | the system's |
+| PipeWire, PulseAudio, ALSA and D-Bus, development files, and pkg-config (the client only: OpenAL Soft's backends, required) | the system's (PipeWire 0.3.23 or later) |
 
-On Debian or Ubuntu, SDL2 and OpenGL:
+On Debian or Ubuntu, SDL2, OpenGL and the sound servers:
 
 ```
-sudo apt install libsdl2-dev libgl1-mesa-dev
+sudo apt install libsdl2-dev libgl1-mesa-dev libpipewire-0.3-dev libpulse-dev libasound2-dev libdbus-1-dev pkg-config
 ```
 
 ### Commands
@@ -80,7 +81,7 @@ sudo apt install libsdl2-dev libgl1-mesa-dev
 | `linux-gcc-server` | the dedicated server and the multiplayer game module (the servers' build) |
 | `linux-gcc-debug-lto` | everything, in Debug with link-time optimization: a check of the types and declarations across files, which `validate.sh` builds |
 | `windows-msvc-asan`, `windows-clang-asan`, `linux-gcc-asan`, `linux-clang-asan` | everything, with AddressSanitizer (and UndefinedBehaviorSanitizer but with MSVC) |
-| `windows-clang-netcodec-fuzz` | the network codec's fuzzers |
+| `windows-clang-fuzz` | the fuzzers: the network codec's and the sound decoders' |
 | `windows-clang-tidy`, `windows-clang-cppcheck` | everything, with the report of clang-tidy or cppcheck |
 
 The Release presets build with link-time optimization, the Debug and sanitizer presets without. Everything: the multiplayer client and dedicated server with their renderer and modules, the single-player games of Jedi Academy and Jedi Outcast, `modernjk.pk3` (from `assets/`), the tests, the network codec's benchmarks and tools. The full checks (`validate.sh`, `validate.bat`) are in "How to resume" of [the progress page](docs/modernization/progress/README.md).
@@ -109,6 +110,10 @@ The libraries in `libs/`, each under its own licence:
 | [LLVM libc](https://github.com/llvm/llvm-project/tree/main/libc) (its math functions and text-to-float parser) | the LLVM contributors | the same floating-point results on every platform and compiler | Apache 2.0 with LLVM Exceptions |
 | [gsl-lite](https://github.com/gsl-lite/gsl-lite) | Martin Moene | spans in the single-player code | MIT |
 | [SDL](https://github.com/libsdl-org/SDL) | Sam Lantinga and the SDL contributors | the window, the input and the sound output (the copy in `libs/` for Windows; Linux uses the system's) | zlib |
+| [OpenAL Soft](https://github.com/kcat/openal-soft) | Chris Robinson and the OpenAL Soft contributors | playing the sound: mixing, 3D, reverb, the sound device | LGPL 2 or later |
+| [libFLAC](https://github.com/xiph/flac) | the Xiph.Org Foundation and the FLAC contributors | decoding the FLAC sounds | BSD (Xiph.Org) |
+| [dr_mp3 and dr_wav](https://github.com/mackron/dr_libs) | David Reid (dr_mp3's decoder from lieff's minimp3) | decoding the MP3 and WAV sounds | public domain or MIT-0 |
+| [stb_vorbis](https://github.com/nothings/stb) | Sean Barrett | decoding the Ogg Vorbis sounds | public domain or MIT |
 
 The methods the code implements:
 

@@ -1,0 +1,14 @@
+--- a/libs/openal-soft/alc/alc.cpp
++++ b/libs/openal-soft/alc/alc.cpp
+@@ -1781,7 +1781,10 @@ auto UpdateDeviceParams(gsl::not_null<al::Device*> device,
+          * configuration in aluInitEffectPanning.
+          */
+         std::ranges::for_each(context->mEffectSlotClusters
+-            | std::views::transform(&ContextBase::EffectSlotCluster::operator*)
++            /* ModernJK (libs/openal-soft/patches/0001-unique-ptr-dereference.patch):
++             * the address of std::unique_ptr::operator* is not one a program may
++             * take, and clang 23's libc++ refuses it. */
++            | std::views::transform([](const ContextBase::EffectSlotCluster &c) -> auto& { return *c; })
+             | std::views::join, [](EffectSlotBase &slot)
+         {
+             slot.mWetBuffer.clear();

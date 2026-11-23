@@ -34,7 +34,7 @@ macro(modernjk_setup_options)
 	option(BUILD_TESTING "The tests (CTest): netcodec's and test/" ON)
 	option(modernjk_BUILD_BENCHMARKS "netcodec's benchmarks" ON)
 	option(modernjk_BUILD_TOOLS "netcodec's tools (the table trainers)" ON)
-	option(modernjk_BUILD_FUZZ_TESTS "netcodec's libFuzzer targets (clang, with the sanitizers)" OFF)
+	option(modernjk_BUILD_FUZZ_TESTS "The libFuzzer targets: netcodec's, the sound decoders' (clang, with the sanitizers)" OFF)
 	option(modernjk_PORTABLE "The engines read and write no file in the user's folders, only in the game's" OFF)
 
 	# How it is built

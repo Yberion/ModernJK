@@ -86,6 +86,11 @@ target_sources(modernjk_rd_common INTERFACE rd-common/tr_image_codec.cpp rd-comm
 	rd-common/tr_noise.cpp)
 target_link_libraries(modernjk_rd_common INTERFACE vendored::wuffs vendored::stb)
 
+# The sound of the engines that play it, and its decoders' fuzzers
+if(TARGET vendored::flac)
+	add_subdirectory(sound)
+endif()
+
 # The system layer of the engines that open a window (on SDL2), and of the dedicated server
 if(modernjk_BUILD_MP_CLIENT OR modernjk_BUILD_SP OR modernjk_BUILD_JK2)
 	add_library(modernjk_sys_client INTERFACE)
