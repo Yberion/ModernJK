@@ -123,6 +123,14 @@ void TestRegister(const std::filesystem::path& data)
     bank.BeginLevel();
     CHECK(bank.Use(restored) == nullptr);
     CHECK(!host.asked.empty());
+
+    // the variants of a sound one event: the names that differ only by a trailing number
+    const sound::SoundHandle hit1 = bank.Restore("sound/weapons/saber/saberhitwall1");
+    const sound::SoundHandle hit3 = bank.Restore("sound/weapons/saber/saberhitwall3");
+    const sound::SoundHandle hum = bank.Restore("sound/weapons/saber/saberhum1");
+    CHECK_EQUAL(bank.Event(hit1), bank.Event(hit3));
+    CHECK(bank.Event(hit1) != bank.Event(hum));
+    CHECK(bank.Event(hit1) < bank.EventCount() && bank.Event(hum) < bank.EventCount());
 }
 
 // a signal of silence, then loud, then quiet: its states silent, level 4, level 1, then not talking past its end

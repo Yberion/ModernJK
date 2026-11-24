@@ -76,6 +76,7 @@ void System::Frame(int now)
     }
 
     const bool mixing = state != DeviceState::Lost;
+    voices_.SetListenerBoost(device_->ListenerBoost());
     ambient_.Frame(now, listener_);
 
     if (mixing) {
@@ -135,11 +136,15 @@ void System::SetMuteWhenUnfocused(bool mute)
     device_->SetMuted(muteWhenUnfocused_ && !focused_);
 }
 
-void System::SetVolumes(float master, float voices, float music)
+void System::SetVolumes(float effects, float voices, float music)
 {
-    device_->SetMasterVolume(master);
-    voices_.SetVoiceVolume(voices);
+    effectsVolume_ = effects;
+    voices_.SetVolumes(effects, voices);
     music_.SetVolume(music);
+
+    if (stream_) {
+        stream_->SetGain(effects);
+    }
 }
 
 // a new stream when the format changes, the samples of the old one dropped; a format the sound does not play (no rate,
@@ -157,6 +162,7 @@ void System::OpenStream(int rate, int channels)
 
     streamQueue_.clear();
     stream_ = std::make_unique<Stream>(rate, channels, Resampler());
+    stream_->SetGain(effectsVolume_);
 }
 
 // the samples queued; beyond half a second waiting, the oldest dropped, so that a cinematic's sound does not stay late

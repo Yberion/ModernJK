@@ -911,10 +911,14 @@ sound::VoiceHandle CG_StartSound(const vec3_t origin, int entityNum, sound::Soun
 // a sound at the listener, not positioned
 sound::VoiceHandle CG_StartLocalSound(sfxHandle_t sfx, sound::SoundClass soundClass, sound::Slot slot, float volume = 1.0f);
 // a looping sound asked for in this frame, heard from origin: kept playing while it is asked for at every frame
-void CG_AddLoopingSound(int entityNum, const vec3_t origin, sfxHandle_t sfx, sound::SoundClass soundClass);
+void CG_AddLoopingSound(int entityNum, const vec3_t origin, sfxHandle_t sfx, sound::SoundClass soundClass, float volume = 1.0f);
 // at the frame's end: the loops asked for started or moved, the others stopped
 void CG_UpdateLoopingSounds(void);
-// every loop stopped (a level's start, the cgame's shutdown)
+// a blade touching the world at this frame, at origin: its next sound started when it is due (BG_ContactSound)
+void CG_StartContactSound(int entityNum, int saberNum, int bladeNum, const vec3_t origin);
+// a blade no longer touching the world
+void CG_EndContactSound(int entityNum, int saberNum, int bladeNum);
+// every loop stopped and the blades' contacts forgotten (a level's start, the cgame's shutdown)
 void CG_StopLoopingSounds(void);
 // the ears, once per frame
 void CG_SetSoundListener(int entityNum, const vec3_t origin, const vec3_t axis[3], bool underwater);

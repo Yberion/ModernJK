@@ -39,6 +39,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include <fmt/base.h>
+#include <memory>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -467,7 +468,7 @@ static void Run(int scenario, int mode, int commands, FILE* dump)
     ps.commandTime = 1000;
     VectorSet(ps.origin, -100.0f, 37.0f, 64.0f);
 
-    memset(&HARNESS_ENTITIES[0], 0, sizeof(HARNESS_ENTITIES[0]));
+    std::construct_at(&HARNESS_ENTITIES[0]); // value-initialised in place: zero as a memset, the optionals empty
     HARNESS_ENTITIES[0].playerState = &ps;
     HARNESS_ENTITIES[0].localAnimIndex = 0;
     VectorSet(HARNESS_ENTITIES[0].modelScale, 1, 1, 1);

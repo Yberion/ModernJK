@@ -901,6 +901,7 @@ static void CG_DoMuzzleFlash(centity_t* cent, vec3_t org, vec3_t dir, weaponData
         }
 
         if (/*( Any( cent->currentState.eFlags & entityFlags_t::EF_FIRING ) || Any( cent->currentState.eFlags & entityFlags_t::EF_ALT_FIRING ) ) &&*/ effect) {
+            const CFxShooter shooter(cent->currentState.number); // the effect's sound the shooter's shot
             if ((cent->gent && cent->gent->NPC) || cg.renderingThirdPerson) {
                 theFxScheduler.PlayEffect(effect, org, dir);
             }

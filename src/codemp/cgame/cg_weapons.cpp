@@ -424,11 +424,16 @@ static void CG_MuzzleEffect(centity_t* cent, const weaponInfo_t* weapon, vec3_t 
         return;
     }
 
+    // played for the shooter, whose shot its sound is: the listener's own heard as the listener's own sounds are
     if (bolted) {
-        trap->FX_PlayEntityEffectID(effect, origin, axis, -1, -1, -1, -1);
+        trap->FX_PlayEntityEffectID(effect, origin, axis, -1, cent->currentState.number, -1, -1);
     }
     else {
-        trap->FX_PlayEffectID(effect, origin, dir, -1, -1, false);
+        // the axis FX_PlayEffectID builds from the direction
+        matrix3_t fromDir;
+        VectorCopy(dir, fromDir[0]);
+        MakeNormalVectors(dir, fromDir[1], fromDir[2]);
+        trap->FX_PlayEntityEffectID(effect, origin, fromDir, -1, cent->currentState.number, -1, -1);
     }
 }
 
@@ -2287,6 +2292,7 @@ void CG_CheckPlayerG2Weapons(playerState_t* ps, centity_t* cent)
 
     if (Any(cent->currentState.eFlags & entityFlags_t::EF_DEAD)) { // no updating weapons when dead
         cent->ghoul2weapon = nullptr;
+        cent->weapon = weapon_t::WP_NONE;
         return;
     }
 
@@ -2306,7 +2312,7 @@ void CG_CheckPlayerG2Weapons(playerState_t* ps, centity_t* cent)
     {
         CG_CopyG2WeaponInstance(cent, ps->weapon, cent->ghoul2);
         cent->ghoul2weapon = CG_G2WeaponInstance(cent, ps->weapon);
-        if (cent->weapon == weapon_t::WP_SABER && cent->weapon != ps->weapon && !ps->saberHolstered) { // switching away from the saber
+        if (cent->weapon == weapon_t::WP_SABER && ps->weapon != weapon_t::WP_SABER && !ps->saberHolstered) { // switching away from the saber
             // CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, trap->sound->Register(
             // "sound/weapons/saber/saberoffquick.wav" ));
             if (cgs.clientinfo[ps->clientNum].saber[0].soundOff && !ps->saberHolstered) {
@@ -2319,7 +2325,7 @@ void CG_CheckPlayerG2Weapons(playerState_t* ps, centity_t* cent)
                               cgs.clientinfo[ps->clientNum].saber[1].soundOff);
             }
         }
-        else if (ps->weapon == weapon_t::WP_SABER && cent->weapon != ps->weapon && !cent->saberWasInFlight) { // switching to the saber
+        else if (ps->weapon == weapon_t::WP_SABER && cent->weapon && cent->weapon != weapon_t::WP_SABER && !cent->saberWasInFlight) { // switching to the saber
             // CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, trap->sound->Register(
             // "sound/weapons/saber/saberon.wav" ));
             if (cgs.clientinfo[ps->clientNum].saber[0].soundOn) {

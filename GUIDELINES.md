@@ -92,6 +92,7 @@ After SF.12 of the C++ Core Guidelines:
 - Debug cvars exist only for computed values, and are `CVAR_CHEAT` on the client. What must not be bypassed is enforced on the server.
 - When a cvar is removed, the behaviour left is the one of its default value.
 - Removing a field from a game-module table indexed by position (such as `userinfoFields` and the bit mask `g_userinfoValidate`) moves the bits after it: change the default and say how to reset stored values.
+- The sound follows ASWG-R001, the loudness recommendation of Sony's Audio Standards Working Group for games at home, which Microsoft and Nintendo recommend too through the Game Audio Network Guild: at the default settings, a fight measures -24 ±2 LUFS of integrated loudness after ITU-R BS.1770. A change of the mix (the mix's gain, a class's gain, a volume setting's curve or default) is measured again against it, by the method of [step-21-sound.md](docs/modernization/progress/step-21-sound.md) section 10.9. The volume settings move the loudness evenly over their whole course (their cube is their gain).
 
 ## 12. Copyright
 

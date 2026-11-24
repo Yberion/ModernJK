@@ -36,9 +36,10 @@ if(MINGW)
 endif()
 add_test(NAME modernjk.fmt COMMAND modernjk_test_fmt)
 
-# The tests of src/shared/sound and of OpenAL Soft as the sound uses it, on the files of sound/data
+# The tests of src/shared/sound and of OpenAL Soft as the sound uses it, on the files of sound/data, and of a blade's
+# contacts with the world (src/shared/qcommon/q_sound.h)
 if(TARGET modernjk_sound AND TARGET vendored::openal)
-	add_executable(modernjk_test_sound sound/main.cpp sound/ambient.cpp sound/bank.cpp sound/decoder.cpp sound/device.cpp sound/stream.cpp
+	add_executable(modernjk_test_sound sound/main.cpp sound/ambient.cpp sound/bank.cpp sound/contacts.cpp sound/decoder.cpp sound/device.cpp sound/stream.cpp
 		sound/voices.cpp)
 	target_include_directories(modernjk_test_sound PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src")
 	target_link_libraries(modernjk_test_sound PRIVATE modernjk_sound vendored::openal modernjk_options modernjk_warnings

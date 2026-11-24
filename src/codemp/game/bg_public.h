@@ -1649,7 +1649,6 @@ typedef struct bladeInfo_s {
     vec3_t muzzlePoint, muzzlePointOld;
     vec3_t muzzleDir, muzzleDirOld;
     saberTrail_t trail;
-    int hitWallDebounceTime;
     int storageTime;
     int extendDebounce;
 } bladeInfo_t;

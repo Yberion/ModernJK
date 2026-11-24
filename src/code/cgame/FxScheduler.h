@@ -30,8 +30,10 @@ typedef sstring_t fxString_t;
 
 #include <game/genericparser2.h>
 #include <shared/qcommon/safe/string.h>
+#include <shared/qcommon/q_sound.h>
 
 #include <algorithm>
+#include <optional>
 
 #ifndef FX_SCHEDULER_H_INC
 #define FX_SCHEDULER_H_INC
@@ -652,6 +654,11 @@ private:
 
     PagedPoolAllocator<SScheduledEffect, 1024> mScheduledEffectsPool;
 
+    // the entity whose shot the effect being played is (a weapon's muzzle effect): its sounds created at once that
+    // entity's weapon sounds at the shots' volume, those scheduled later the world's
+    std::optional<int> mShooter;
+    [[nodiscard]] float ShotVolume() const { return mShooter ? kShotVolume : 1.0f; }
+
     // Private function prototypes
     SEffectTemplate* GetNewEffectTemplate(int* id, const char* file);
 
@@ -684,6 +691,8 @@ public:
     void PlayEffect(const char* file, int clientID, bool isPortal = false);
 
     void StopEffect(const char* file, const int boltInfo, bool isPortal = false); // find a scheduled Looping effect with these parms and kill it
+    // The entity whose shot the effects played next are, none by default (CFxShooter).
+    void SetShooter(std::optional<int> shooter) { mShooter = shooter; }
 
     void AddScheduledEffects(bool portal); // call once per CGame frame [rww ammendment - twice now actually, but first only renders portal effects]
 
@@ -701,5 +710,17 @@ public:
 // The one and only
 //-------------------
 extern CFxScheduler theFxScheduler;
+
+// While it lives, the effects played are an entity's shot (a weapon's muzzle effect): their sounds that entity's
+// weapon sounds, at the shots' volume.
+class CFxShooter {
+public:
+    explicit CFxShooter(int shooter) { theFxScheduler.SetShooter(shooter); }
+    ~CFxShooter() { theFxScheduler.SetShooter(std::nullopt); }
+    CFxShooter(const CFxShooter&) = delete;
+    CFxShooter& operator=(const CFxShooter&) = delete;
+    CFxShooter(CFxShooter&&) = delete;
+    CFxShooter& operator=(CFxShooter&&) = delete;
+};
 
 #endif // FX_SCHEDULER_H_INC

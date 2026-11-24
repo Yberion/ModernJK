@@ -41,6 +41,7 @@ int main(int argc, char** argv)
     RunVoicesTests(data);
     RunStreamTests(data);
     RunAmbientTests(data);
+    RunContactTests(data);
     fmt::println("{} failed check(s)", ::test::failures);
     return ::test::failures;
 }

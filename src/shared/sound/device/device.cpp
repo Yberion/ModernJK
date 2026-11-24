@@ -39,8 +39,10 @@ namespace sound {
 
 namespace {
 
-// HRTF off: the game's sounds are mixed for speakers and headphones alike, without a head-related filter.
-constexpr std::array<ALCint, 3> kSystemAttributes = {ALC_HRTF_SOFT, ALC_FALSE, 0};
+// HRTF off: the game's sounds are mixed for speakers and headphones alike, without a head-related filter; OpenAL Soft's
+// limiter on, which it leaves off for a device mixing in floating point (the usual format of a Windows device), so that
+// a crowd's peaks are lowered to full scale instead of clipping.
+constexpr std::array<ALCint, 5> kSystemAttributes = {ALC_HRTF_SOFT, ALC_FALSE, ALC_OUTPUT_LIMITER_SOFT, ALC_TRUE, 0};
 
 // the event that moves the sound to another device: the system's default changed (the device in use disappearing is
 // seen at every frame, by ALC_CONNECTED)
@@ -74,6 +76,26 @@ void ALC_APIENTRY OnEvent(ALCenum eventType, ALCenum deviceType, ALCdevice* /*de
 }
 
 } // namespace
+
+// measured on OpenAL Soft 1.25.2's loopback device, HRTF off (test/sound/device.cpp measures them again): a mono
+// source at the listener and one fully to the right, the loudest channel of each; stereo 0.596 against 1.0
+float ListenerBoostOf(int outputMode) noexcept
+{
+    switch (outputMode) {
+    case ALC_STEREO_BASIC_SOFT:
+        return 1.678f;
+    case ALC_STEREO_UHJ_SOFT:
+        return 1.502f;
+    case ALC_SURROUND_5_1_SOFT:
+        return 1.490f;
+    case ALC_SURROUND_6_1_SOFT:
+        return 1.400f;
+    case ALC_SURROUND_7_1_SOFT:
+        return 1.256f;
+    default: // mono, quad: the centre as loud as the side
+        return 1.0f;
+    }
+}
 
 // opens the default device (the null name), then its context
 std::unique_ptr<Device> Device::OpenSystem(const Host& host)
@@ -153,13 +175,22 @@ bool Device::CreateContext(std::span<const int> attributes)
     alDopplerFactor(1.0f);
     resampler_ = FindBsinc24();
     ApplyGain();
+    ReadOutputMode();
     return true;
 }
 
-// the listener's gain: the master volume, or silence while muted
+// the boost of the listener's sounds for the output mode the device plays in now
+void Device::ReadOutputMode()
+{
+    ALCint mode = 0;
+    alcGetIntegerv(device_, ALC_OUTPUT_MODE_SOFT, 1, &mode);
+    listenerBoost_ = ListenerBoostOf(mode);
+}
+
+// the listener's gain: the mix's (kMixGain), or silence while muted
 void Device::ApplyGain() const
 {
-    alListenerf(AL_GAIN, muted_ ? 0.0f : master_);
+    alListenerf(AL_GAIN, muted_ ? 0.0f : kMixGain);
 }
 
 // reopens the device on the system's default when the default changed or the device in use is gone, once per second
@@ -194,6 +225,7 @@ DeviceState Device::Frame(int now)
     // the voices are mixed again whatever moved the device
     if (alcReopenDeviceSOFT(device_, nullptr, kSystemAttributes.data()) == ALC_TRUE) {
         host_.print(Message::Info, fmt::format("sound device: {}", Name()));
+        ReadOutputMode();
         lost_ = false;
         return DeviceState::Reopened;
     }
@@ -205,12 +237,6 @@ DeviceState Device::Frame(int now)
     lost_ = true;
     nextAttempt_ = now + 1000;
     return DeviceState::Lost;
-}
-
-void Device::SetMasterVolume(float volume)
-{
-    master_ = volume;
-    ApplyGain();
 }
 
 void Device::SetMuted(bool muted)

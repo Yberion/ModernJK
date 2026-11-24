@@ -3606,7 +3606,7 @@ void CG_StopWeaponSounds(centity_t* cent)
         }
 
         CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, CG_SaberHumSoundForEnt(&g_entities[cent->currentState.clientNum]),
-                           sound::SoundClass::Saber);
+                           sound::SoundClass::Saber, kSaberHumVolume);
         return;
     }
 
@@ -4002,12 +4002,7 @@ void CG_AddSaberBlade(centity_t* cent, centity_t* scent, refEntity_t* saber, ren
                             CG_CreateSaberMarks(client->saberTrail.oldPos[i], trace.endpos, trace.plane.normal);
 
                             // make a sound
-                            if (cg.time - cent->gent->client->ps.saberHitWallSoundDebounceTime >=
-                                100) { // ugh, need to have a real sound debouncer... or do this game-side
-                                cent->gent->client->ps.saberHitWallSoundDebounceTime = cg.time;
-                                CG_StartSound(cent->lerpOrigin, cent->currentState.clientNum, sound::SoundClass::Saber, sound::Slot::Item,
-                                              gi.sound->Register(Q_Format("sound/weapons/saber/saberhitwall{}.wav", Q_irand(1, 3)).c_str()));
-                            }
+                            CG_StartContactSound(cent->currentState.number, 0, 0, trace.endpos);
                         }
                     }
                     else {
@@ -4033,6 +4028,8 @@ void CG_AddSaberBlade(centity_t* cent, centity_t* scent, refEntity_t* saber, ren
             else {
                 cent->gent->client->ps.saberEventFlags &= ~saberEventFlags_t::SEF_INWATER;
                 if (client->saberTrail.haveOldPos[i]) {
+                    CG_EndContactSound(cent->currentState.number, 0, 0);
+
                     // Hmmm, no impact this frame, but we have an old point
                     // Let's put the mark there, we should use an endcap mark to close the line, but we
                     //	can probably just get away with a round mark
@@ -4805,6 +4802,7 @@ void CG_Player(centity_t* cent)
 
                 if (/*( Any( cent->currentState.eFlags & entityFlags_t::EF_FIRING ) || Any( cent->currentState.eFlags & entityFlags_t::EF_ALT_FIRING ) ) &&*/
                     effect) {
+                    const CFxShooter shooter(cent->currentState.number); // the effect's sound the shooter's shot
                     if (cent->gent && cent->gent->NPC) {
                         theFxScheduler.PlayEffect(effect, cent->gent->client->renderInfo.muzzlePoint, cent->gent->client->renderInfo.muzzleDir);
                     }
@@ -5195,6 +5193,7 @@ void CG_Player(centity_t* cent)
                         CrossProduct(up, ax[0], ax[1]);
                         CrossProduct(ax[0], ax[1], ax[2]);
 
+                        const CFxShooter shooter(cent->currentState.number); // the effect's sound the shooter's shot
                         if ((cent->gent && cent->gent->NPC) || cg.renderingThirdPerson) {
                             theFxScheduler.PlayEffect(effect, flash.origin, ax);
                         }

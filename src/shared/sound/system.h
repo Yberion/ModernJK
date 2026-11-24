@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cinematics' stream and the ambient sets in one object, which is also the Api every module receives.
 // Example: an engine creates it once, gives its modules the Api, and runs it at every frame:
 //     std::unique_ptr<sound::System> sound = sound::System::Create(host);
-//     sound->SetVolumes(master, voices, music);
+//     sound->SetVolumes(effects, voices, music);
 //     sound->Frame(milliseconds);
 #pragma once
 
@@ -92,8 +92,9 @@ public:
     // The window's focus, and whether the sound is muted without it.
     void SetFocus(bool focused);
     void SetMuteWhenUnfocused(bool mute);
-    // The master volume of everything, then the voices' and the music's, relative to it; each from 0 to 1.
-    void SetVolumes(float master, float voices, float music);
+    // The effects' volume (every sound but the voices, and the cinematics), the voices' and the music's, each from 0
+    // to 1 and independent of the others, as the game's menus present them.
+    void SetVolumes(float effects, float voices, float music);
     void SetLanguage(Language language) noexcept { bank_.SetLanguage(language); }
     void SetMusicState(MusicState state) { music_.SetState(state); }
     void SetMusicLevel(std::string_view level) { music_.SetLevel(level); }
@@ -146,6 +147,7 @@ private:
     Music music_;
     Ambient ambient_;
     std::unique_ptr<Stream> stream_;
+    float effectsVolume_ = 1.0f; // the cinematics' stream's gain
     std::deque<std::int16_t> streamQueue_;
     Vector listener_{};
     bool focused_ = true;

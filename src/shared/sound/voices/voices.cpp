@@ -53,6 +53,10 @@ constexpr int kMaxEntities = 4096;
 // the high frequencies' gain heard under water: -30 dB at 5 kHz, the original game's EAX occlusion of -3000 mB
 constexpr float kUnderwaterGainHF = 0.0316f;
 
+// a voice already mixed keeps its source against one up to this much more important, so that two voices close in
+// importance do not swap sources at every frame
+constexpr float kMixedStickiness = 1.1f;
+
 // a merged duplicate can be louder than the sound as recorded: OpenAL Soft accepts gains up to AL_GAIN_LIMIT_SOFT
 constexpr float kMaxGain = 16.0f;
 
@@ -172,8 +176,9 @@ VoiceHandle Voices::Play(const Request& request)
     nextSerial_ = nextSerial_ == std::numeric_limits<std::uint32_t>::max() ? 1 : nextSerial_ + 1;
     voice.request = request;
     voice.velocity = {};
-    voice.start.reset();
+    voice.start = request.loop ? std::optional<int>(0) : std::nullopt; // the loops on one cycle, as the old mixer's
     voice.source.reset();
+    voice.mergedGain.reset();
     started_.push_back(index);
     Log("start {} ent={} class={} place={} slot={} loop={} lis={} dist={:.0f}", bank_.Name(request.sound), EntityOf(request), Name(request.soundClass),
         Name(request.place), Name(request.slot), request.loop ? 1 : 0, listener_.entity,
@@ -279,8 +284,9 @@ void Voices::SetListener(const Listener& listener)
     alListenerfv(AL_ORIENTATION, orientation.data());
 }
 
-// the voices that ended removed; then the 64 to mix chosen among the audible ones, by priority, then loudness, the voices
-// already mixed first among equals, then the oldest, four of one sound at most; the voices that lose their source made
+// the voices that ended removed; then the 64 to mix chosen among the audible ones, by priority, then importance (the
+// audibility weighted by what remains to be heard, a mixed voice's raised a little), then the oldest, four of one
+// event at most among the sounds played once, the loops of one sound one voice; the voices that lose their source made
 // virtual, those that gain one made real, every real voice's source updated, all applied at once. Without a device,
 // every voice virtual on its clock, none mixed.
 void Voices::Frame(int now, bool mixing)
@@ -331,24 +337,43 @@ void Voices::Frame(int now, bool mixing)
         return;
     }
 
+    MergeLoops();
     std::vector<Candidate>& candidates = candidates_;
     candidates.clear();
 
     for (std::size_t i = 0; i < voices_.size(); ++i) {
         const Voice& voice = voices_[i];
 
-        if (!voice.active) {
+        // a loop merged into another copy of its sound is not mixed by itself
+        if (!voice.active || (voice.request.loop && !voice.mergedGain && loopGroups_[static_cast<std::size_t>(voice.request.sound)].copies > 1)) {
             continue;
         }
 
-        const float audibility = Audibility(voice);
+        const float audibility = voice.mergedGain ? *voice.mergedGain : Audibility(voice);
 
         if (audibility > 0.0f) {
             candidates.push_back({.priority = Info(voice.request.soundClass).priority,
-                                  .audibility = audibility,
                                   .real = voice.source.has_value(),
+                                  .loop = voice.request.loop,
+                                  .score = audibility * Remaining(voice) * (voice.source ? kMixedStickiness : 1.0f),
                                   .serial = voice.serial,
                                   .index = i});
+        }
+    }
+
+    std::vector<int>& perEvent = perEvent_;
+    perEvent.assign(static_cast<std::size_t>(bank_.EventCount()), 0);
+
+    // the four of one event played once: the most important, a near sound before a far new one, a fast weapon's new
+    // shot before the end of an old one (the loops of one sound are one voice)
+    std::ranges::sort(candidates, [](const Candidate& a, const Candidate& b) { return a.score != b.score ? a.score > b.score : a.serial > b.serial; });
+
+    for (Candidate& candidate : candidates) {
+        int& count = perEvent[static_cast<std::size_t>(bank_.Event(voices_[candidate.index].request.sound))];
+
+        if (!candidate.loop && count < kVoicesPerEvent) {
+            ++count;
+            candidate.eligible = true;
         }
     }
 
@@ -357,8 +382,8 @@ void Voices::Frame(int now, bool mixing)
             return a.priority < b.priority;
         }
 
-        if (a.audibility != b.audibility) {
-            return a.audibility > b.audibility;
+        if (a.score != b.score) {
+            return a.score > b.score;
         }
 
         if (a.real != b.real) {
@@ -370,8 +395,6 @@ void Voices::Frame(int now, bool mixing)
 
     std::vector<bool>& chosen = chosen_;
     chosen.assign(voices_.size(), false);
-    std::vector<int>& perSound = perSound_;
-    perSound.assign(static_cast<std::size_t>(bank_.Count()), 0);
     std::size_t mixed = 0;
 
     for (const Candidate& candidate : candidates) {
@@ -379,13 +402,10 @@ void Voices::Frame(int now, bool mixing)
             break;
         }
 
-        int& count = perSound[static_cast<std::size_t>(voices_[candidate.index].request.sound)];
-
-        if (count == kVoicesPerSound) {
+        if (!candidate.eligible && !candidate.loop) {
             continue;
         }
 
-        ++count;
         ++mixed;
         chosen[candidate.index] = true;
     }
@@ -420,6 +440,71 @@ void Voices::Frame(int now, bool mixing)
 
     alProcessUpdatesSOFT();
     LogFrame();
+}
+
+// the loops of each sound gathered: one copy alone plays as any voice; several are played by one of them (the one
+// holding a source, else the loudest), at the sum of their audibilities capped, from the direction they come from,
+// weighted by their audibility, in the listener's space (its right, its up, its back, as OpenAL Soft's relative
+// sources take them); balanced around the listener, from the listener. The cap is full volume on each ear in front
+// at their class's volume, as the old mixer capped their sum before its volume setting: the listener's boost, by which
+// OpenAL Soft's sound in front falls short of full on each ear, times that volume (in stereo, full on each ear in
+// front and around the listener, 1.678 on the near ear fully to one side, 0.68 behind)
+void Voices::MergeLoops()
+{
+    std::vector<LoopGroup>& groups = loopGroups_;
+    groups.assign(static_cast<std::size_t>(bank_.Count()), LoopGroup{});
+
+    for (std::size_t i = 0; i < voices_.size(); ++i) {
+        Voice& voice = voices_[i];
+        voice.mergedGain.reset();
+
+        if (!voice.active || !voice.request.loop) {
+            continue;
+        }
+
+        LoopGroup& group = groups[static_cast<std::size_t>(voice.request.sound)];
+        const float audibility = Audibility(voice);
+        ++group.copies;
+        group.sum += audibility;
+
+        if (Info(voice.request.soundClass).positioned && voice.request.place != Place::Listener && !IsOwn(voice.request)) {
+            const Vector position = PositionOf(voice);
+            const float distance = Distance(position, listener_.origin);
+
+            if (distance > 0.0f) {
+                for (std::size_t axis = 0; axis < 3; ++axis) {
+                    group.direction[axis] += audibility * (position[axis] - listener_.origin[axis]) / distance;
+                }
+            }
+        }
+
+        if (voice.source && !group.playerReal) {
+            group.player = i;
+            group.playerReal = true;
+        }
+        else if (!group.playerReal && (!group.player || audibility > group.loudest)) {
+            group.player = i;
+        }
+
+        group.loudest = std::max(group.loudest, audibility);
+        group.cap = std::max(group.cap, listenerBoost_ * ClassVolume(voice.request.soundClass));
+    }
+
+    for (const LoopGroup& group : groups) {
+        if (group.copies < 2 || !group.player) {
+            continue;
+        }
+
+        Voice& voice = voices_[*group.player];
+        voice.mergedGain = std::max(group.loudest, std::min(group.sum, group.cap));
+        const Vector& d = group.direction;
+        const auto& axes = listener_.axes;
+        const Vector local = {-((d[0] * axes[1][0]) + (d[1] * axes[1][1]) + (d[2] * axes[1][2])),
+                              (d[0] * axes[2][0]) + (d[1] * axes[2][1]) + (d[2] * axes[2][2]),
+                              -((d[0] * axes[0][0]) + (d[1] * axes[0][1]) + (d[2] * axes[0][2]))};
+        const float length = LIBC_NAMESPACE::fputil::sqrt<float>((local[0] * local[0]) + (local[1] * local[1]) + (local[2] * local[2]));
+        voice.mergedDirection = length > 0.001f * group.sum ? Vector{local[0] / length, local[1] / length, local[2] / length} : Vector{};
+    }
 }
 
 void Voices::Recover()
@@ -544,14 +629,28 @@ Vector Voices::VelocityOf(const Voice& voice) const
     return voice.velocity;
 }
 
-// the source's gain: the voice's volume in its volume group, at the listener's own volume for its own sounds; the
+// the volume of a class's sounds: the setting they follow (the voices' or the effects'), times the class's own gain
+float Voices::ClassVolume(SoundClass soundClass) const noexcept
+{
+    const ClassInfo info = Info(soundClass);
+    return (info.group == VolumeGroup::Voices ? voiceVolume_ : effectsVolume_) * info.gain;
+}
+
+// the source's gain: the voice's volume times its volume group's, at the listener's own volume for its own sounds;
+// a sound at the listener or of the listener's own entity boosted to the level the old mixer gave it, full on both
+// ears, and an ambient set's there to half of it, where the old mixer placed it at the listener's point; the
 // attenuation is OpenAL Soft's
 float Voices::Gain(const Voice& voice) const
 {
     const ClassInfo info = Info(voice.request.soundClass);
-    const float group = info.group == VolumeGroup::Voices ? voiceVolume_ : 1.0f;
-    const float own = IsOwn(voice.request) ? info.ownVolume : 1.0f;
-    return voice.request.volume * group * own;
+    const bool own = IsOwn(voice.request);
+    const float gain = voice.request.volume * ClassVolume(voice.request.soundClass) * (own ? info.ownVolume : 1.0f);
+
+    if (!own && voice.request.place != Place::Listener) {
+        return gain;
+    }
+
+    return gain * listenerBoost_ * (voice.request.soundClass == SoundClass::Ambient ? 0.5f : 1.0f);
 }
 
 // how loud the voice is at the listener: its gain and its class's attenuation at its distance, as OpenAL Soft computes it
@@ -564,6 +663,19 @@ float Voices::Audibility(const Voice& voice) const
     }
 
     return Gain(voice) * Attenuation(info, Distance(PositionOf(voice), listener_.origin));
+}
+
+// what remains to be heard of a voice, from 1 at its start to 0 at its end; a loop's always 1
+float Voices::Remaining(const Voice& voice) const
+{
+    const Sound* sound = bank_.Find(voice.request.sound);
+
+    if (voice.request.loop || sound == nullptr || sound->frames <= 0 || !voice.start) {
+        return 1.0f;
+    }
+
+    const auto played = static_cast<float>(FrameOf(voice, *sound)) / static_cast<float>(sound->frames);
+    return std::clamp(1.0f - played, 0.0f, 1.0f);
 }
 
 // the frame a voice plays now, from the time it started; a looping sound's within its sound
@@ -640,18 +752,27 @@ void Voices::MakeVirtual(std::size_t index, bool fromClock)
 }
 
 // a real voice's source: at the listener without attenuation for a sound not positioned or of the listener's own
-// entity; elsewhere at its point, moving at its velocity, attenuated between its class's distances; under water, every
-// sound in the water heard through the low-pass filter. Only what differs from the source's last values is sent.
+// entity, and the loops of a sound merged from their direction, at their summed gain; elsewhere at its point, moving at its velocity, attenuated between its
+// class's distances; under water, every sound in the water heard through the low-pass filter. Only what differs from the source's last values is sent.
 void Voices::UpdateSource(const Voice& voice, std::size_t source)
 {
     const std::uint32_t id = sources_[source];
     SourceState& last = sourceState_[source];
     const ClassInfo info = Info(voice.request.soundClass);
-    const bool atListener = !info.positioned || voice.request.place == Place::Listener || IsOwn(voice.request);
+    const bool merged = voice.mergedGain.has_value();
+    const bool atListener = merged || !info.positioned || voice.request.place == Place::Listener || IsOwn(voice.request);
     const bool inWater = listener_.underwater && (info.positioned || IsOwn(voice.request));
-    const float gain = Gain(voice);
+    const float gain = merged ? *voice.mergedGain : Gain(voice);
     const std::uint32_t filter = inWater ? lowPass_ : AL_FILTER_NULL;
-    const Vector position = atListener ? Vector{} : PositionOf(voice);
+    Vector position{};
+
+    if (merged) {
+        position = voice.mergedDirection;
+    }
+    else if (!atListener) {
+        position = PositionOf(voice);
+    }
+
     const Vector velocity = atListener ? Vector{} : VelocityOf(voice);
     const float fullUpTo = atListener ? 0.0f : info.fullUpTo;
     const float silentFrom = atListener ? 0.0f : info.silentFrom;

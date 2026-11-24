@@ -2287,7 +2287,9 @@ void CG_Init_CG(void)
 // initialise the cg_entities structure - take into account the ghoul2 stl stuff
 void CG_Init_CGents(void)
 {
-    memset(&cg_entities, 0, sizeof(cg_entities));
+    for (centity_t& cent : cg_entities) {
+        std::construct_at(&cent); // value-initialised in place: zero as the memset was, the optionals empty
+    }
 }
 
 void CG_InitItems(void)

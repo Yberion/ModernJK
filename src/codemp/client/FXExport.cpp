@@ -82,7 +82,10 @@ void FX_PlayEntityEffectID(int id, vec3_t org, matrix3_t axis, const int boltInf
     }
 #endif // __FXCHECKER
 
+    // an effect played for an entity is its shot (a weapon's muzzle effect, the only caller that gives one)
+    theFxScheduler.SetShooter(entNum >= 0 ? std::optional<int>(entNum) : std::nullopt);
     theFxScheduler.PlayEffect(id, org, axis, boltInfo, nullptr, -1, vol, rad);
+    theFxScheduler.SetShooter(std::nullopt);
 }
 
 void FX_AddScheduledEffects(bool portal)

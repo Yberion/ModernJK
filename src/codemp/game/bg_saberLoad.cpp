@@ -2297,6 +2297,10 @@ void WP_RemoveSaber(saberInfo_t* sabers, int saberNum)
 
     strcpy(sabers[saberNum].name, "none");
     sabers[saberNum].model[0] = 0;
+    // no saber, no sound: the defaults' would be played as a second saber's when the first turns on
+    sabers[saberNum].soundOn = 0;
+    sabers[saberNum].soundLoop = 0;
+    sabers[saberNum].soundOff = 0;
 
     // ent->client->ps.dualSabers = false;
     BG_SI_Deactivate(&sabers[saberNum]);

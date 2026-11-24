@@ -938,7 +938,7 @@ void CFxScheduler::CreateEffect(CPrimitiveTemplate* fx, int clientID, int delay)
         }
         else {
             // bolted sounds actually play on the client....
-            theFxHelper.PlaySound(nullptr, clientID, sound::SoundClass::Weapon, sound::Slot::Weapon, fx->mMediaHandles.GetHandle());
+            theFxHelper.PlaySound(nullptr, clientID, sound::SoundClass::Weapon, sound::Slot::Weapon, fx->mMediaHandles.GetHandle(), ShotVolume());
         }
         break;
     //---------
@@ -1634,7 +1634,13 @@ void CFxScheduler::CreateEffect(CPrimitiveTemplate* fx, const vec3_t origin, vec
             theFxHelper.PlayLocalSound(fx->mMediaHandles.GetHandle());
         }
         else if (Any(fx->mSpawnFlags & fxSpawnFlags_t::FX_SND_LESS_ATTENUATION)) {
-            theFxHelper.PlaySound(org, ENTITYNUM_NONE, sound::SoundClass::Vehicle, sound::Slot::None, fx->mMediaHandles.GetHandle());
+            theFxHelper.PlaySound(org, mShooter.value_or(ENTITYNUM_NONE), sound::SoundClass::Vehicle, sound::Slot::None, fx->mMediaHandles.GetHandle(),
+                                  ShotVolume());
+        }
+        else if (mShooter) {
+            // a shot: its shooter's weapon sound, from the effect's point, so that the listener's own is heard as the
+            // listener's own sounds are
+            theFxHelper.PlaySound(org, *mShooter, sound::SoundClass::Weapon, sound::Slot::None, fx->mMediaHandles.GetHandle(), kShotVolume);
         }
         else {
             theFxHelper.PlaySound(org, ENTITYNUM_NONE, sound::SoundClass::World, sound::Slot::None, fx->mMediaHandles.GetHandle());

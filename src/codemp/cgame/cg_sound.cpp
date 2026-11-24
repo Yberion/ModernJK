@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 
+#include <unordered_map>
 #include <vector>
 
 namespace {
@@ -35,10 +36,19 @@ struct loopingSound_t {
     sound::SoundClass soundClass;
     sound::VoiceHandle voice;
     vec3_t origin;
+    float volume;
     bool asked; // asked for since the last update
 };
 
 std::vector<loopingSound_t> loopingSounds;
+
+// each blade's contacts with the world, keyed by its entity, saber and blade
+std::unordered_map<int, contactSound_t> contactSounds;
+
+int BladeKey(int entityNum, int saberNum, int bladeNum)
+{
+    return (((entityNum * MAX_SABERS) + saberNum) * MAX_BLADES) + bladeNum;
+}
 
 // the creatures whose voices are heard from near, as the original game's EAX path played them: the howler's and the
 // sand creature's
@@ -107,9 +117,28 @@ sound::VoiceHandle CG_StartLocalSound(sfxHandle_t sfx, sound::SoundClass soundCl
     return trap->sound->Play(request);
 }
 
+void CG_StartContactSound(int entityNum, int saberNum, int bladeNum, const vec3_t origin)
+{
+    BG_ContactSound(
+        contactSounds[BladeKey(entityNum, saberNum, bladeNum)], cg.time, [](sound::VoiceHandle voice) { return trap->sound->IsPlaying(voice); },
+        [origin](float volume) {
+            return CG_StartSound(origin, -1, sound::SoundClass::Saber, sound::Slot::None,
+                                 trap->sound->Register(Q_Format("sound/weapons/saber/saberhitwall{}", Q_irand(1, 3)).c_str()), volume);
+        });
+}
+
+void CG_EndContactSound(int entityNum, int saberNum, int bladeNum)
+{
+    const auto contact = contactSounds.find(BladeKey(entityNum, saberNum, bladeNum));
+
+    if (contact != contactSounds.end()) {
+        contact->second.touching = false;
+    }
+}
+
 // the same sound asked for twice on one entity in a frame (a saber's two blades) is two loops: each request takes the
 // first of that entity's loops of that sound not yet asked for in the frame
-void CG_AddLoopingSound(int entityNum, const vec3_t origin, sfxHandle_t sfx, sound::SoundClass soundClass)
+void CG_AddLoopingSound(int entityNum, const vec3_t origin, sfxHandle_t sfx, sound::SoundClass soundClass, float volume)
 {
     if (sfx == sound::kNoSound) {
         return;
@@ -119,12 +148,14 @@ void CG_AddLoopingSound(int entityNum, const vec3_t origin, sfxHandle_t sfx, sou
         if (!loop.asked && loop.entityNum == entityNum && loop.sfx == sfx) {
             VectorCopy(origin, loop.origin);
             loop.soundClass = soundClass;
+            loop.volume = volume;
             loop.asked = true;
             return;
         }
     }
 
-    loopingSound_t loop{.entityNum = entityNum, .sfx = sfx, .soundClass = soundClass, .voice = sound::VoiceHandle::None, .origin = {}, .asked = true};
+    loopingSound_t loop{
+        .entityNum = entityNum, .sfx = sfx, .soundClass = soundClass, .voice = sound::VoiceHandle::None, .origin = {}, .volume = volume, .asked = true};
     VectorCopy(origin, loop.origin);
     loopingSounds.push_back(loop);
 }
@@ -155,6 +186,7 @@ void CG_UpdateLoopingSounds(void)
             request.place = sound::Place::Point;
             request.origin = CG_SoundVector(loop.origin);
             request.loop = true;
+            request.volume = loop.volume;
             loop.voice = trap->sound->Play(request);
         }
 
@@ -171,6 +203,7 @@ void CG_StopLoopingSounds(void)
     }
 
     loopingSounds.clear();
+    contactSounds.clear();
 }
 
 void CG_SetSoundListener(int entityNum, const vec3_t origin, const matrix3_t axis, bool underwater)

@@ -1465,7 +1465,7 @@ void CFxScheduler::CreateEffect(CPrimitiveTemplate* fx, const vec3_t origin, mat
             theFxHelper.PlayLocalSound(fx->mMediaHandles.GetHandle());
         }
         else {
-            theFxHelper.PlaySound(org, fx->mMediaHandles.GetHandle());
+            theFxHelper.PlaySound(org, fx->mMediaHandles.GetHandle(), mShooter);
         }
         break;
 

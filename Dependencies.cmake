@@ -88,9 +88,16 @@ function(modernjk_setup_dependencies)
 		add_subdirectory("${libs}/flac" "${PROJECT_BINARY_DIR}/libs/flac" EXCLUDE_FROM_ALL SYSTEM)
 		add_library(vendored::flac ALIAS FLAC)
 		# its CMake file defines FLAC__OVERFLOW_DETECT in Debug and RelWithDebInfo, which writes a line on the standard
-		# error at every overflow a damaged file causes (hundreds of thousands for one file): undefined again, the
-		# definitions coming before the options on the command line
-		target_compile_options(FLAC PRIVATE $<IF:$<C_COMPILER_ID:MSVC>,/UFLAC__OVERFLOW_DETECT,-UFLAC__OVERFLOW_DETECT>)
+		# error at every overflow a damaged file causes (hundreds of thousands for one file): taken out of the
+		# definitions its library's folder inherited, rather than undefined after them (MSVC warns, D9025)
+		get_directory_property(flac_definitions DIRECTORY "${libs}/flac/src/libFLAC" COMPILE_DEFINITIONS)
+		list(REMOVE_ITEM flac_definitions FLAC__OVERFLOW_DETECT)
+		set_property(DIRECTORY "${libs}/flac/src/libFLAC" PROPERTY COMPILE_DEFINITIONS "${flac_definitions}")
+		# and with MSVC it asks for /fp:fast, which the project's /fp:precise replaced (D9025 again): taken out, the
+		# project's floating-point rules applying alone, as they did
+		get_target_property(flac_options FLAC COMPILE_OPTIONS)
+		list(REMOVE_ITEM flac_options /fp:fast)
+		set_property(TARGET FLAC PROPERTY COMPILE_OPTIONS "${flac_options}")
 		# its CMake file also turns on -Winline for its developers: GCC's reports of the inlining it declined, not
 		# defects, which link-time optimization repeats at the link, where the project's -Werror applies
 		if(NOT MSVC)

@@ -4833,7 +4833,8 @@ static void CG_StopWeaponSounds(centity_t* cent)
         }
 
         CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin,
-                           cgs.sound_precache[g_entities[cent->currentState.clientNum].client->ps.saber[0].soundLoop], sound::SoundClass::Saber);
+                           cgs.sound_precache[g_entities[cent->currentState.clientNum].client->ps.saber[0].soundLoop], sound::SoundClass::Saber,
+                           kSaberHumVolume);
         return;
     }
 
@@ -5731,15 +5732,8 @@ static void CG_AddSaberBladeGo(centity_t* cent, centity_t* scent, refEntity_t* s
                                     // Let's do some cool burn/glowing mark bits!!!
                                     CG_CreateSaberMarks(client->ps.saber[saberNum].blade[bladeNum].trail.oldPos[i], trace.endpos, trace.plane.normal);
 
-                                    if (Q_irand(1, client->ps.saber[saberNum].numBlades) == 1) {
-                                        // make a sound
-                                        if (cg.time - cent->gent->client->ps.saberHitWallSoundDebounceTime >=
-                                            100) { // ugh, need to have a real sound debouncer... or do this game-side
-                                            cent->gent->client->ps.saberHitWallSoundDebounceTime = cg.time;
-                                            CG_StartSound(cent->lerpOrigin, cent->currentState.clientNum, sound::SoundClass::Saber, sound::Slot::Item,
-                                                          gi.sound->Register(Q_Format("sound/weapons/saber/saberhitwall{}.wav", Q_irand(1, 3)).c_str()));
-                                        }
-                                    }
+                                    // make a sound
+                                    CG_StartContactSound(cent->currentState.number, saberNum, bladeNum, trace.endpos);
                                 }
                             }
                             else if (!i) { // can put marks on G2 clients (but only on base to tip trace)
@@ -5779,6 +5773,8 @@ static void CG_AddSaberBladeGo(centity_t* cent, centity_t* scent, refEntity_t* s
             else {
                 cent->gent->client->ps.saberEventFlags &= ~saberEventFlags_t::SEF_INWATER;
                 if (client->ps.saber[saberNum].blade[bladeNum].trail.haveOldPos[i]) {
+                    CG_EndContactSound(cent->currentState.number, saberNum, bladeNum);
+
                     if (!noMarks) {
                         if ((!WP_SaberBladeUseSecondBladeStyle(&client->ps.saber[saberNum], bladeNum) &&
                              !Any(client->ps.saber[saberNum].saberFlags2 & saberFlags2_t::SFL2_NO_WALL_MARKS)) ||
@@ -6883,6 +6879,7 @@ void CG_Player(centity_t* cent)
 
                 if (/*( Any( cent->currentState.eFlags & entityFlags_t::EF_FIRING ) || Any( cent->currentState.eFlags & entityFlags_t::EF_ALT_FIRING ) ) &&*/
                     effect) {
+                    const CFxShooter shooter(cent->currentState.number); // the effect's sound the shooter's shot
                     if (cent->gent && cent->gent->NPC) {
                         if (!VectorCompare(oldMP, vec3_origin) && !VectorCompare(oldMD, vec3_origin)) { // we have an old muzzlePoint we want to use
                             theFxScheduler.PlayEffect(effect, oldMP, oldMD);
@@ -7381,6 +7378,7 @@ void CG_Player(centity_t* cent)
                         CrossProduct(up, ax[0], ax[1]);
                         CrossProduct(ax[0], ax[1], ax[2]);
 
+                        const CFxShooter shooter(cent->currentState.number); // the effect's sound the shooter's shot
                         if ((cent->gent && cent->gent->NPC) || cg.renderingThirdPerson) {
                             theFxScheduler.PlayEffect(effect, flash.origin, ax);
                         }

@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // The tests of src/shared/sound/device: OpenAL Soft as the sound uses it, on its loopback device (rendered into memory,
 // no sound card needed): HRTF off, the resampler bsinc24, the extensions the sound needs (the default device followed
 // and reopened, EFX's EAX reverb), a decoded sound played to its end; then sound::Device on the loopback device, its
-// resampler found and its mute silencing the output.
+// resampler found and its mute silencing the output; the boost of the sounds at the listener for every output mode.
 #include "sound.h"
 
 #include <check.h>
@@ -36,6 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <AL/efx.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <string_view>
@@ -161,6 +162,83 @@ void TestDevice(const std::filesystem::path& data)
     CHECK_EQUAL(alGetError(), AL_NO_ERROR);
 }
 
+// the loudest channel's level of a 1 kHz mono tone rendered on a loopback device, at the listener or fully to the right
+float Loudest(ALCdevice* device, int channels, bool right)
+{
+    std::vector<std::int16_t> pcm(static_cast<std::size_t>(kRate));
+
+    for (std::size_t i = 0; i < pcm.size(); ++i) {
+        pcm[i] = static_cast<std::int16_t>(16384.0 * std::sin(2.0 * 3.14159265358979 * 1000.0 * static_cast<double>(i) / kRate));
+    }
+
+    ALuint buffer = 0;
+    ALuint source = 0;
+    alGenBuffers(1, &buffer);
+    alBufferData(buffer, AL_FORMAT_MONO16, pcm.data(), static_cast<ALsizei>(pcm.size() * sizeof(std::int16_t)), kRate);
+    alGenSources(1, &source);
+    alSourcei(source, AL_BUFFER, static_cast<ALint>(buffer));
+    alSourcei(source, AL_LOOPING, AL_TRUE);
+    alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
+    alSource3f(source, AL_POSITION, right ? 1.0f : 0.0f, 0.0f, 0.0f);
+    alSourcePlay(source);
+    std::vector<float> out(static_cast<std::size_t>(channels) * (kRate / 10));
+    alcRenderSamplesSOFT(device, out.data(), kRate / 10); // the resampler's start
+    alcRenderSamplesSOFT(device, out.data(), kRate / 10);
+    double loudest = 0.0;
+
+    for (int c = 0; c < channels; ++c) {
+        double sum = 0.0;
+
+        for (std::size_t i = static_cast<std::size_t>(c); i < out.size(); i += static_cast<std::size_t>(channels)) {
+            sum += static_cast<double>(out[i]) * out[i];
+        }
+
+        loudest = std::max(loudest, sum);
+    }
+
+    alDeleteSources(1, &source);
+    alDeleteBuffers(1, &buffer);
+    return static_cast<float>(std::sqrt(loudest));
+}
+
+// the listener's boost of every output mode the table lists, measured again: the side's loudest channel over the
+// centre's; and sound::Device's on its loopback device, stereo
+void TestListenerBoost(const std::filesystem::path& data)
+{
+    struct Mode {
+        ALCint format;
+        int channels;
+        ALCint mode; // 0: the format's own
+    };
+
+    for (const Mode& mode : {Mode{ALC_STEREO_SOFT, 2, ALC_STEREO_BASIC_SOFT}, Mode{ALC_STEREO_SOFT, 2, ALC_STEREO_UHJ_SOFT}, Mode{ALC_QUAD_SOFT, 4, 0},
+                             Mode{ALC_5POINT1_SOFT, 6, 0}, Mode{ALC_6POINT1_SOFT, 7, 0}, Mode{ALC_7POINT1_SOFT, 8, 0}}) {
+        ALCdevice* device = alcLoopbackOpenDeviceSOFT(nullptr);
+        std::vector<ALCint> attributes = {
+            ALC_FORMAT_CHANNELS_SOFT, mode.format, ALC_FORMAT_TYPE_SOFT, ALC_FLOAT_SOFT, ALC_FREQUENCY, kRate, ALC_HRTF_SOFT, ALC_FALSE,
+            ALC_OUTPUT_LIMITER_SOFT,  ALC_FALSE};
+
+        if (mode.mode != 0) {
+            attributes.insert(attributes.end(), {ALC_OUTPUT_MODE_SOFT, mode.mode});
+        }
+
+        attributes.push_back(0);
+        ALCcontext* context = alcCreateContext(device, attributes.data());
+        CHECK(context != nullptr && alcMakeContextCurrent(context));
+        ALCint reported = 0;
+        alcGetIntegerv(device, ALC_OUTPUT_MODE_SOFT, 1, &reported);
+        const float measured = Loudest(device, mode.channels, true) / Loudest(device, mode.channels, false);
+        CHECK(std::abs(measured - sound::ListenerBoostOf(reported)) < 0.01f);
+        alcMakeContextCurrent(nullptr);
+        alcDestroyContext(context);
+        alcCloseDevice(device);
+    }
+
+    test::Host host(data);
+    const std::unique_ptr<sound::Device> device = sound::Device::OpenLoopback(host.host, kRate);
+    CHECK(device != nullptr && device->ListenerBoost() == sound::ListenerBoostOf(ALC_STEREO_BASIC_SOFT));
+}
+
 } // namespace
 
 // a loopback device and its context set up as the sound will, then the checks above on it
@@ -200,4 +278,5 @@ void RunDeviceTests(const std::filesystem::path& data)
 
     alcCloseDevice(device);
     TestDevice(data);
+    TestListenerBoost(data);
 }

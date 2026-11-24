@@ -19,10 +19,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // The tests of src/shared/sound/voices, through sound::System on the loopback device: a sound played to its end, four
-// voices of one sound mixed at most, 64 voices mixed of more, a sound out of range virtual then mixed when the listener
-// comes, its position having advanced, a slot replacing its sound, a sound started twice at once played as one voice,
-// the voice's state for the lip sync, the stops, the mute without the focus, the master volume over the voices, the
-// filter under water, and the sound log.
+// voices of one sound mixed at most (the newest shots of a fast weapon), the loops of one sound one voice at their
+// summed gain capped at the volume setting's full volume in front, 64 voices mixed of more, a
+// sound out of range virtual then mixed when the listener comes, its position having advanced, a slot replacing its
+// sound, a sound started twice at once played as one voice, the voice's state for the lip sync, the stops, the mute
+// without the focus, the volumes of the effects and the voices apart, a class's gain (the sabers' 2 dB down), the filter
+// under water, and the sound log.
 #include "sound.h"
 
 #include <check.h>
@@ -54,6 +56,23 @@ struct Run {
             system->Frame(now);
             system->GetDevice().Render(out);
         }
+    }
+
+    // the loudest sample over the time given, mixed by steps: over a loop's whole cycle (the tone lasts 0.25 s), a level
+    // that does not depend on where the loop is in its cycle
+    [[nodiscard]] int Loudest(int milliseconds)
+    {
+        int loudest = 0;
+
+        for (int elapsed = 0; elapsed < milliseconds; elapsed += kStep) {
+            Advance(kStep);
+
+            for (const std::int16_t sample : out) {
+                loudest = std::max(loudest, sample < 0 ? -static_cast<int>(sample) : static_cast<int>(sample));
+            }
+        }
+
+        return loudest;
     }
 
     // silent but for OpenAL Soft's dither of its 16-bit output, a step or two
@@ -88,6 +107,18 @@ sound::Listener ListenerAt(float x, int entity = 0)
     listener.origin = {x, 0.0f, 0.0f};
     listener.axes = {{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}};
     return listener;
+}
+
+// the highest sample of the output
+int Peak(const std::vector<std::int16_t>& out)
+{
+    int peak = 0;
+
+    for (const std::int16_t sample : out) {
+        peak = std::max(peak, sample < 0 ? -static_cast<int>(sample) : static_cast<int>(sample));
+    }
+
+    return peak;
 }
 
 void TestPlay(const std::filesystem::path& data)
@@ -126,15 +157,75 @@ void TestPlay(const std::filesystem::path& data)
     CHECK_EQUAL(system.Mixed(), 4U);
     system.StopAll();
 
-    // twenty sounds four times, looping: 64 mixed of 80
-    for (int s = 0; s < 20; ++s) {
-        const sound::SoundHandle handle = system.Register("sound/s" + std::to_string(s) + "/mono22k_s16");
+    // a fast weapon: six shots of one sound from one point, 30 ms apart, each lasting 0.25 s: the four newest mixed, each
+    // from its start, the two oldest virtual
+    std::vector<sound::VoiceHandle> shots;
 
-        for (int i = 0; i < 4; ++i) {
-            sound::Request request = At(handle, sound::SoundClass::World, 200 + s * 4 + i, 10.0f + static_cast<float>(i));
+    for (int i = 0; i < 6; ++i) {
+        shots.push_back(system.Play(At(tone, sound::SoundClass::Weapon, 120, 10.0f)));
+        run.Advance(30);
+    }
+
+    CHECK_EQUAL(system.Playing(), 6U);
+    CHECK(!system.IsReal(shots[0]) && !system.IsReal(shots[1]));
+    CHECK(system.IsReal(shots[2]) && system.IsReal(shots[3]) && system.IsReal(shots[4]) && system.IsReal(shots[5]));
+    system.StopAll();
+
+    // four plays of one sound 10 units away, then four 1,000 units away 30 ms later: the near ones stay mixed, louder
+    // than the far ones are new
+    std::vector<sound::VoiceHandle> near;
+    std::vector<sound::VoiceHandle> far;
+
+    for (int i = 0; i < 4; ++i) {
+        near.push_back(system.Play(At(tone, sound::SoundClass::Weapon, 140 + i, 10.0f)));
+    }
+
+    run.Advance(30);
+
+    for (int i = 0; i < 4; ++i) {
+        far.push_back(system.Play(At(tone, sound::SoundClass::Weapon, 150 + i, 1000.0f)));
+    }
+
+    run.Advance(kStep);
+    CHECK(std::ranges::all_of(near, [&system](sound::VoiceHandle voice) { return system.IsReal(voice); }));
+    CHECK(std::ranges::none_of(far, [&system](sound::VoiceHandle voice) { return system.IsReal(voice); }));
+    system.StopAll();
+
+    // one loop at 300 units, then six loops of one sound from 300 to 800 units in front: one voice, played by the
+    // nearest, at the sum of their audibilities (4.59) capped at full volume on each ear in front, the stereo listener's
+    // boost of 1.678 (0.965 for the nearest alone); the same at a quarter of the effects' volume, the cap following it
+    for (const float volume : {1.0f, 0.25f}) {
+        system.SetVolumes(volume, 1.0f, 1.0f);
+        sound::Request single = At(tone, sound::SoundClass::World, 130, 300.0f);
+        single.loop = true;
+        system.Play(single);
+        run.Advance(100);
+        const int alone = Peak(run.out);
+        system.StopAll();
+        std::vector<sound::VoiceHandle> loops;
+
+        for (int i = 0; i < 6; ++i) {
+            sound::Request request = At(tone, sound::SoundClass::World, 130 + i, 300.0f + (100.0f * static_cast<float>(i)));
             request.loop = true;
-            system.Play(request);
+            loops.push_back(system.Play(request));
         }
+
+        run.Advance(100);
+        CHECK_EQUAL(system.Playing(), 6U);
+        CHECK_EQUAL(system.Mixed(), 1U);
+        CHECK(system.IsReal(loops[0]));
+        CHECK(test::CloseFraction(static_cast<double>(Peak(run.out)) / static_cast<double>(alone), 1.678 / 0.965, 0.06));
+        system.StopAll();
+    }
+
+    system.SetVolumes(1.0f, 1.0f, 1.0f);
+
+    // eighty sounds, each looping: 64 mixed of 80
+    for (int s = 0; s < 80; ++s) {
+        const sound::SoundHandle handle = system.Register("sound/s" + std::to_string(s) + "/mono22k_s16");
+        sound::Request request = At(handle, sound::SoundClass::World, 200 + s, 10.0f + static_cast<float>(s % 4));
+        request.loop = true;
+        system.Play(request);
     }
 
     run.Advance(kStep);
@@ -187,10 +278,19 @@ void TestPlay(const std::filesystem::path& data)
     const sound::VoiceHandle handle = system.Play(loop);
     run.Advance(1000);
     CHECK_EQUAL(system.Playing(), 1U);
+    const int world = run.Loudest(300);
     system.Stop(handle);
     CHECK_EQUAL(system.Playing(), 0U);
 
-    // muted without the focus; the master volume at 0 silences the voices too; under water, the filter
+    // the class's gain: the same loop as a saber's 2 dB down (both classes at full volume up to 256 units)
+    loop.soundClass = sound::SoundClass::Saber;
+    const sound::VoiceHandle saber = system.Play(loop);
+    run.Advance(100);
+    CHECK(test::CloseFraction(static_cast<double>(run.Loudest(300)) / static_cast<double>(world), 0.79, 0.02));
+    system.Stop(saber);
+
+    // muted without the focus; the effects' volume at 0 leaves a voice heard, the voices' at 0 silences it; under water,
+    // the filter
     sound::Request talk = At(tone, sound::SoundClass::Voice, 10, 0.0f);
     talk.loop = true;
     system.Play(talk);
@@ -204,6 +304,9 @@ void TestPlay(const std::filesystem::path& data)
     run.Advance(50);
     CHECK(!run.Silent());
     system.SetVolumes(0.0f, 1.0f, 1.0f);
+    run.Advance(50);
+    CHECK(!run.Silent());
+    system.SetVolumes(1.0f, 0.0f, 1.0f);
     run.Advance(50);
     CHECK(run.Silent());
     system.SetVolumes(1.0f, 1.0f, 1.0f);
@@ -221,18 +324,6 @@ void TestPlay(const std::filesystem::path& data)
     system.Play(shot);
     system.SetLog({});
     CHECK(lines.size() == 1 && lines.front().starts_with("SNDLOG ") && lines.front().find(" start ") != std::string::npos);
-}
-
-// the highest sample of the output
-int Peak(const std::vector<std::int16_t>& out)
-{
-    int peak = 0;
-
-    for (const std::int16_t sample : out) {
-        peak = std::max(peak, sample < 0 ? -static_cast<int>(sample) : static_cast<int>(sample));
-    }
-
-    return peak;
 }
 
 // a looping sound's handle after it stopped finds nothing, even once its entry is reused; the listener's own sound at
@@ -284,15 +375,30 @@ void TestRules(const std::filesystem::path& data)
     system.StopAll();
     system.SetListener(ListenerAt(0.0f, 7));
 
-    // 72 body loops of 18 sounds, then a voice: the voice is mixed, the crowd keeps 63
-    for (int s = 0; s < 18; ++s) {
-        const sound::SoundHandle handle = system.Register("sound/b" + std::to_string(s) + "/mono22k_s16");
+    // a sound at the listener as loud on each channel as a sound fully to one side on its own, as the old mixer played
+    // it; an ambient set's there at half of it
+    sound::Request side = At(tone, sound::SoundClass::Weapon, 30, 0.0f);
+    side.origin = {0.0f, -100.0f, 0.0f}; // the listener's right, its left being +y
+    side.loop = true;
+    system.Play(side);
+    run.Advance(100);
+    const int sideLevel = Peak(run.out);
+    system.StopAll();
+    atListener.soundClass = sound::SoundClass::Ambient;
+    system.Play(atListener);
+    run.Advance(100);
+    const int ambient = Peak(run.out);
+    CHECK(test::CloseFraction(static_cast<double>(full) / static_cast<double>(sideLevel), 1.0, 0.06));
+    CHECK(test::CloseFraction(static_cast<double>(ambient) / static_cast<double>(full), 0.5, 0.06));
+    system.StopAll();
+    system.SetListener(ListenerAt(0.0f, 7));
 
-        for (int i = 0; i < 4; ++i) {
-            sound::Request body = At(handle, sound::SoundClass::Body, 100 + (s * 4) + i, 5.0f);
-            body.loop = true;
-            system.Play(body);
-        }
+    // 72 body loops of 72 sounds, then a voice: the voice is mixed, the crowd keeps 63
+    for (int s = 0; s < 72; ++s) {
+        const sound::SoundHandle handle = system.Register("sound/b" + std::to_string(s) + "/mono22k_s16");
+        sound::Request body = At(handle, sound::SoundClass::Body, 100 + s, 5.0f);
+        body.loop = true;
+        system.Play(body);
     }
 
     sound::Request voice = At(tone, sound::SoundClass::Voice, 300, 900.0f);

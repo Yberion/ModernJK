@@ -78,6 +78,10 @@ public:
     [[nodiscard]] const Sound* Find(SoundHandle handle) const;
     // The name a sound was registered with.
     [[nodiscard]] std::string_view Name(SoundHandle handle) const;
+    // The event a sound plays: the sounds whose names differ only by a trailing number, the variants the game draws
+    // among (sound/weapons/saber/saberhitwall1 to 3), are one event; from 0 to EventCount() - 1.
+    [[nodiscard]] int Event(SoundHandle handle) const;
+    [[nodiscard]] int EventCount() const noexcept { return static_cast<int>(events_.size()); }
     // A sound's length in milliseconds, known once it has loaded, freed or not; 0 for kNoSound.
     [[nodiscard]] int Length(SoundHandle handle) const;
     // A line of the soundlist command: the sound's name, rate, length and whether it is loaded.
@@ -105,18 +109,21 @@ private:
         int milliseconds = 0;           // its length, kept when it is freed
         int level = 0;                  // the last level that used it
         std::optional<int> failedLevel; // the level in which its file last failed to load: not tried again in it
+        int event = 0;
     };
 
     [[nodiscard]] std::optional<Sound> Load(std::string_view name) const;
     // the entry loaded if it is not, once per level when its file fails; its length kept
     void EnsureLoaded(Entry& entry);
     [[nodiscard]] SoundHandle RegisterKey(std::string key);
+    [[nodiscard]] int EventOf(std::string_view name);
     [[nodiscard]] std::optional<std::vector<std::byte>> ReadFile(std::string_view name) const;
 
     const Host& host_;
     std::vector<Entry> entries_{Entry{}}; // entries_[0] stands for kNoSound
     std::unordered_map<std::string, SoundHandle> handles_;
-    std::unordered_set<std::string> missing_; // the names whose file does not exist, warned once
+    std::unordered_map<std::string, int> events_; // a name without its trailing number, its event
+    std::unordered_set<std::string> missing_;     // the names whose file does not exist, warned once
     Language language_ = Language::English;
     int level_ = 0;
 };

@@ -27,6 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <qcommon/GenericParser2.h>
 
 #include <algorithm>
+#include <optional>
 #include <vector>
 #include <map>
 #include <list>
@@ -612,6 +613,10 @@ private:
 
     PagedPoolAllocator<SScheduledEffect, 1024> mScheduledEffectsPool;
 
+    // the entity whose shot the effect being played is (a weapon's muzzle effect): its sounds created at once that
+    // entity's weapon sounds at the shots' volume, those scheduled later the world's
+    std::optional<int> mShooter;
+
     // Private function prototypes
     SEffectTemplate* GetNewEffectTemplate(int* id, const char* file);
 
@@ -641,7 +646,9 @@ public:
                     int rad = -1, int iLoopTime = false, bool isRelative = false);
 
     void StopEffect(const char* file, const int boltInfo, bool isPortal = false); // find a scheduled Looping effect with these parms and kill it
-    void AddScheduledEffects(bool portal);                                        // call once per CGame frame
+    // The entity whose shot the effects played next are, none by default.
+    void SetShooter(std::optional<int> shooter) { mShooter = shooter; }
+    void AddScheduledEffects(bool portal); // call once per CGame frame
 
     // kef -- called for a 2D effect instead of addRefToScene
     bool Add2DEffect(float x, float y, float w, float h, vec4_t color, qhandle_t shaderHandle);

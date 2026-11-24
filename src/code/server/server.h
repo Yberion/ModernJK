@@ -301,7 +301,7 @@ void SG_TestSave(void);
 // What it's used for is for things like mission pack etc if we need to distinguish "street-copy" savegames from
 //	any new enhanced ones that need to ask for new chunks during loading.
 //
-inline constexpr int iSAVEGAME_VERSION = 3; // 3: a character's voice state written as it is
+inline constexpr int iSAVEGAME_VERSION = 4; // 3: a character's voice state written as it is; 4: without its saber's last hit on a wall
 int SG_Version(void);                       // call this to know what version number a successfully-opened savegame file was
 //
 extern SavedGameJustLoaded_e eSavedGameJustLoaded;

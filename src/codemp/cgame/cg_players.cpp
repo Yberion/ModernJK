@@ -1539,7 +1539,6 @@ void CG_NewClientInfo(int clientNum, bool entitiesInitialized)
                     }
                 }
 
-                cg_entities[clientNum].weapon = weapon_t::WP_NONE;
                 cg_entities[clientNum].ghoul2weapon = nullptr; // force a refresh
             }
             j++;
@@ -5529,12 +5528,7 @@ void CG_AddSaberBlade(centity_t* cent, centity_t* scent, refEntity_t* saber, ren
                             CG_CreateSaberMarks(client->saber[saberNum].blade[bladeNum].trail.oldPos[i], trace.endpos, trace.plane.normal);
 
                             // make a sound
-                            if (cg.time - client->saber[saberNum].blade[bladeNum].hitWallDebounceTime >=
-                                100) { // ugh, need to have a real sound debouncer... or do this game-side
-                                client->saber[saberNum].blade[bladeNum].hitWallDebounceTime = cg.time;
-                                CG_StartSound(trace.endpos, -1, sound::SoundClass::Saber, sound::Slot::None,
-                                              trap->sound->Register(Q_Format("sound/weapons/saber/saberhitwall{}", Q_irand(1, 3)).c_str()));
-                            }
+                            CG_StartContactSound(cent->currentState.number, saberNum, bladeNum, trace.endpos);
                         }
                     }
                     else {
@@ -5551,6 +5545,8 @@ void CG_AddSaberBlade(centity_t* cent, centity_t* scent, refEntity_t* saber, ren
             }
             else {
                 if (client->saber[saberNum].blade[bladeNum].trail.haveOldPos[i]) {
+                    CG_EndContactSound(cent->currentState.number, saberNum, bladeNum);
+
                     // Hmmm, no impact this frame, but we have an old point
                     // Let's put the mark there, we should use an endcap mark to close the line, but we
                     //	can probably just get away with a round mark
@@ -7805,7 +7801,6 @@ void CG_Player(centity_t* cent)
 
     if (!g2HasWeapon) { // force a redup of the weapon instance onto the client instance
         cent->ghoul2weapon = nullptr;
-        cent->weapon = weapon_t::WP_NONE;
     }
 
     if (cent->torsoBolt &&
@@ -7925,7 +7920,7 @@ void CG_Player(centity_t* cent)
             CG_CopyG2WeaponInstance(cent, cent->currentState.weapon, cent->ghoul2);
 
             if (cent->currentState.eType != entityType_t::ET_NPC) {
-                if (cent->weapon == weapon_t::WP_SABER && cent->weapon != cent->currentState.weapon &&
+                if (cent->weapon == weapon_t::WP_SABER && cent->currentState.weapon != weapon_t::WP_SABER &&
                     !cent->currentState.saberHolstered) { // switching away from the saber
                     // CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, trap->sound->Register(
                     // "sound/weapons/saber/saberoffquick.wav" ));
@@ -7937,7 +7932,7 @@ void CG_Player(centity_t* cent)
                         CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, ci->saber[1].soundOff);
                     }
                 }
-                else if (cent->currentState.weapon == weapon_t::WP_SABER && cent->weapon != cent->currentState.weapon &&
+                else if (cent->currentState.weapon == weapon_t::WP_SABER && cent->weapon && cent->weapon != weapon_t::WP_SABER &&
                          !cent->saberWasInFlight) { // switching to the saber
                     // CG_StartSound(cent->lerpOrigin, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None, trap->sound->Register(
                     // "sound/weapons/saber/saberon.wav" ));
@@ -7960,6 +7955,10 @@ void CG_Player(centity_t* cent)
     }
     else if (Any(cent->currentState.eFlags & entityFlags_t::EF_DEAD) || cent->torsoBolt) {
         cent->ghoul2weapon = nullptr; // be sure to update after respawning/getting limb regrown
+
+        if (Any(cent->currentState.eFlags & entityFlags_t::EF_DEAD)) {
+            cent->weapon = weapon_t::WP_NONE;
+        }
     }
 
     if (cent->saberWasInFlight && g2HasWeapon) {
@@ -8844,7 +8843,7 @@ stillDoSaber:
                 }
 
                 if (hasLen) {
-                    CG_AddLoopingSound(cent->currentState.number, soundSpot, ci->saber[0].soundLoop, sound::SoundClass::Saber);
+                    CG_AddLoopingSound(cent->currentState.number, soundSpot, ci->saber[0].soundLoop, sound::SoundClass::Saber, kSaberHumVolume);
                     didFirstSound = true;
                 }
             }
@@ -8861,7 +8860,7 @@ stillDoSaber:
                 }
 
                 if (hasLen) {
-                    CG_AddLoopingSound(cent->currentState.number, soundSpot, ci->saber[1].soundLoop, sound::SoundClass::Saber);
+                    CG_AddLoopingSound(cent->currentState.number, soundSpot, ci->saber[1].soundLoop, sound::SoundClass::Saber, kSaberHumVolume);
                 }
             }
         }
@@ -9944,7 +9943,6 @@ void CG_ResetPlayerEntity(centity_t* cent)
 
         if ((cent->ghoul2 == nullptr) && ci->ghoul2Model && trap->G2_HaveWeGhoul2Models(ci->ghoul2Model)) {
             trap->G2API_DuplicateGhoul2Instance(ci->ghoul2Model, &cent->ghoul2);
-            cent->weapon = weapon_t::WP_NONE;
             cent->ghoul2weapon = nullptr;
 
             // Attach the instance to this entity num so we can make use of client-server

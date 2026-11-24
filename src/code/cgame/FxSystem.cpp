@@ -85,9 +85,9 @@ void SFxHelper::CloseFile(fileHandle_t fh)
 }
 
 //------------------------------------------------------
-void SFxHelper::PlaySound(const vec3_t org, int entityNum, sound::SoundClass soundClass, sound::Slot slot, int sfxHandle)
+void SFxHelper::PlaySound(const vec3_t org, int entityNum, sound::SoundClass soundClass, sound::Slot slot, int sfxHandle, float volume)
 {
-    CG_StartSound(org, entityNum, soundClass, slot, sfxHandle);
+    CG_StartSound(org, entityNum, soundClass, slot, sfxHandle, volume);
 }
 
 //------------------------------------------------------

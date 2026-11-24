@@ -1560,7 +1560,6 @@ public:
     int saberThrowTime;
     saberEntityState_t saberEntityState;
     int saberDamageDebounceTime;
-    int saberHitWallSoundDebounceTime;
     saberEventFlags_t saberEventFlags;
     int saberBlockingTime;
 #ifdef JK2_MODE
@@ -1739,7 +1738,6 @@ public:
         saved_game.write<int32_t>(saberThrowTime);
         saved_game.write<int32_t>(saberEntityState);
         saved_game.write<int32_t>(saberDamageDebounceTime);
-        saved_game.write<int32_t>(saberHitWallSoundDebounceTime);
         saved_game.write<int32_t>(saberEventFlags);
         saved_game.write<int32_t>(saberBlockingTime);
         saved_game.write<int32_t>(saberAnimLevel);
@@ -1907,7 +1905,6 @@ public:
         saved_game.read<int32_t>(saberThrowTime);
         saved_game.read<int32_t>(saberEntityState);
         saved_game.read<int32_t>(saberDamageDebounceTime);
-        saved_game.read<int32_t>(saberHitWallSoundDebounceTime);
         saved_game.read<int32_t>(saberEventFlags);
         saved_game.read<int32_t>(saberBlockingTime);
         saved_game.read<int32_t>(saberAnimLevel);

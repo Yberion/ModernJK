@@ -388,7 +388,10 @@ typedef struct centity_s {
 
     clientInfo_t* npcClient; // dynamically allocated - always free it, and never stomp over it.
 
-    weapon_t weapon;
+    // the weapon last heard switched to, for the saber's sounds of a weapon change: none before the entity is first
+    // drawn (no sound for a player seen for the first time), no weapon after a join, a death or as a spectator (the
+    // spawn's saber heard turning on)
+    std::optional<weapon_t> weapon;
     int pickupDebounceTime; // an item's pickup was played until this time (against double pickups; it was kept in weapon)
 
     void* ghoul2weapon; // rww - pointer to ghoul2 instance of the current 3rd person weapon
@@ -1804,10 +1807,14 @@ sound::VoiceHandle CG_StartSound(const vec3_t origin, int entityNum, sound::Soun
 // a sound at the listener, not positioned
 sound::VoiceHandle CG_StartLocalSound(sfxHandle_t sfx, sound::SoundClass soundClass, sound::Slot slot, float volume = 1.0f);
 // a looping sound asked for in this frame, heard from origin: kept playing while it is asked for at every frame
-void CG_AddLoopingSound(int entityNum, const vec3_t origin, sfxHandle_t sfx, sound::SoundClass soundClass);
+void CG_AddLoopingSound(int entityNum, const vec3_t origin, sfxHandle_t sfx, sound::SoundClass soundClass, float volume = 1.0f);
 // at the frame's end: the loops asked for started or moved, the others stopped
 void CG_UpdateLoopingSounds(void);
-// every loop stopped (a level's start, a map restart)
+// a blade touching the world at this frame, at origin: its next sound started when it is due (BG_ContactSound)
+void CG_StartContactSound(int entityNum, int saberNum, int bladeNum, const vec3_t origin);
+// a blade no longer touching the world
+void CG_EndContactSound(int entityNum, int saberNum, int bladeNum);
+// every loop stopped and the blades' contacts forgotten (a level's start, a map restart)
 void CG_StopLoopingSounds(void);
 // the ears, once per frame
 void CG_SetSoundListener(int entityNum, const vec3_t origin, const matrix3_t axis, bool underwater);

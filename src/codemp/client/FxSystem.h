@@ -25,6 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cl_cgameapi.h"
 #include <ghoul2/G2.h>
+#include <shared/qcommon/q_sound.h>
+
+#include <optional>
 
 extern cvar_t* fx_debug;
 
@@ -68,14 +71,18 @@ public:
     }
     inline void CloseFile(fileHandle_t fh) { FS_FCloseFile(fh); }
 
-    // Sound: an effect's sound is a sound of the world, heard from the effect's point; a local one at the listener, at the
-    // volume the listener's own sounds always had
-    inline void PlaySound(const vec3_t origin, sfxHandle_t sfxHandle)
+    // Sound: an effect's sound is a sound of the world, heard from the effect's point; a shot's (a weapon's muzzle
+    // effect) a weapon sound of its shooter at the shots' volume, from the same point, so that the listener's own shot
+    // is heard as the listener's own sounds are; a local one at the listener, at the volume the listener's own sounds
+    // always had
+    inline void PlaySound(const vec3_t origin, sfxHandle_t sfxHandle, std::optional<int> shooter = std::nullopt)
     {
         sound::Request request;
         request.sound = sfxHandle;
-        request.soundClass = sound::SoundClass::World;
+        request.soundClass = shooter ? sound::SoundClass::Weapon : sound::SoundClass::World;
         request.place = sound::Place::Point;
+        request.entity = shooter;
+        request.volume = shooter ? kShotVolume : 1.0f;
         request.origin = {origin[0], origin[1], origin[2]};
         SND_Api().Play(request);
     }

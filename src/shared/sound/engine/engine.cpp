@@ -21,14 +21,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // engine.cpp -- the sound as an engine runs it (engine.h): one sound::System, created at the start with a host that
 // reads the engine's file system, prints in its console and draws from its random numbers; the settings read at every
 // frame and given to the system; the console's commands; a silent Api when the sound is off, so that the modules call
-// it without checking. Example: s_volume set to 0.3 in the console takes effect at the next frame, the voices and the
-// music included.
+// it without checking. Example: s_volume set to 0.5 in the console takes effect at the next frame, the effects and the
+// cinematics at 0.125 (-18 dB, the cube of the setting), the voices at s_volumeVoice and the music at s_musicvolume as
+// before.
 #include "engine.h"
 
 #include <qcommon/qcommon.h>
 
 #include <shared/sound/system.h>
 
+#include <algorithm>
 #include <cstring>
 #include <memory>
 #include <optional>
@@ -280,10 +282,18 @@ void Dynamic_f()
 
 constexpr const char* kCommands[] = {"play", "music", "stopmusic", "soundlist", "soundinfo", "soundstop", "s_dynamic"};
 
+// a volume setting as a gain: its cube, so that a slider moves the loudness evenly over its whole course, where a linear
+// gain crowded the settings heard near 0 (0.05 was -26 dB); now 0.36 gives -26 dB, 0.5 -18 dB, 1 the sounds as recorded
+float VolumeGain(float setting)
+{
+    const float position = std::max(setting, 0.0f);
+    return position * position * position;
+}
+
 // the settings given to the system, at every frame since the console changes them at any time
 void ApplySettings()
 {
-    sys->SetVolumes(s_volume->value, s_volumeVoice->value, s_musicvolume->value);
+    sys->SetVolumes(VolumeGain(s_volume->value), VolumeGain(s_volumeVoice->value), VolumeGain(s_musicvolume->value));
     sys->SetMuteWhenUnfocused(s_muteWhenUnfocused->integer != 0);
     sys->AllowDynamicMusic(s_allowDynamicMusic->integer != 0);
     sys->SetMusicDebug(s_debugdynamic->integer != 0);
@@ -303,9 +313,9 @@ void Start(std::uint32_t serial)
 {
     Q_Println("\n------- sound initialization -------");
     s_initsound = Cvar_Get("s_initsound", "1", cvarFlags_t::CVAR_ARCHIVE);
-    s_volume = Cvar_Get("s_volume", "0.5", cvarFlags_t::CVAR_ARCHIVE);
+    s_volume = Cvar_Get("s_volume", "0.79", cvarFlags_t::CVAR_ARCHIVE);
     s_volumeVoice = Cvar_Get("s_volumeVoice", "1.0", cvarFlags_t::CVAR_ARCHIVE);
-    s_musicvolume = Cvar_Get("s_musicvolume", "0.25", cvarFlags_t::CVAR_ARCHIVE);
+    s_musicvolume = Cvar_Get("s_musicvolume", "0.63", cvarFlags_t::CVAR_ARCHIVE);
     s_language = Cvar_Get("s_language", "english", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
     s_muteWhenUnfocused = Cvar_Get("s_muteWhenUnfocused", "1", cvarFlags_t::CVAR_ARCHIVE);
     s_allowDynamicMusic = Cvar_Get("s_allowDynamicMusic", "1", cvarFlags_t::CVAR_ARCHIVE_ND);

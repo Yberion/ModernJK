@@ -21,12 +21,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // voices.h -- the sounds playing: every sound played is a voice, real when OpenAL Soft mixes it on one of the 64
 // sources, virtual otherwise, its playing position advancing all the same so that it plays on from there when it is
 // mixed again. At every frame the voices to mix are chosen by their class's priority, then by how loud they are where
-// the listener is, the voices already mixed first among equals, four at most of one sound (the quietest of a sound
-// beyond them made virtual). A sound in an entity's slot replaces the one there, the announcer's and the menus' slots
-// being one for the whole game; a sound the game starts twice at one instant and place is one voice at the sum of the
-// volumes. While the device is lost every voice is virtual, and mixed again on the next device where it has got to.
-// Example: Play a pain in entity 12's voice slot: the line it was saying stops; GetVoiceState(12) gives its mouth's
-// level until the pain ends.
+// the listener is, the voices already mixed first among equals, four at most of one event (the variants of a sound together), the
+// voices weighed by their audibility and by what remains of them, so that a near sound beats a far new one and a fast
+// weapon's new shot the end of an old one; the loops of one sound one voice,
+// as the old mixer summed them on one cycle, so that eleven torches with the same fire do not echo one another. A sound in an entity's slot replaces the one
+// there, the announcer's and the menus' slots being one for the whole game; a sound the game starts twice at one instant and place is one voice at the sum of
+// the volumes. While the device is lost every voice is virtual, and mixed again on the next device where it has got to. Example: Play a pain in entity 12's
+// voice slot: the line it was saying stops; GetVoiceState(12) gives its mouth's level until the pain ends.
 #pragma once
 
 #include <shared/sound/bank/bank.h>
@@ -43,9 +44,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 namespace sound {
 
-// The voices mixed at once, and the voices of one sound among them.
+// The voices mixed at once, and the voices of one event among them.
 inline constexpr std::size_t kRealVoices = 64;
-inline constexpr int kVoicesPerSound = 4;
+inline constexpr int kVoicesPerEvent = 4;
 
 class Voices {
 public:
@@ -83,8 +84,14 @@ public:
     void UpdateEntity(int entity, const Vector& origin, const Vector& velocity);
     // The ears, given to OpenAL Soft.
     void SetListener(const Listener& listener);
-    // The voices' volume, from 0 to 1, besides the master volume.
-    void SetVoiceVolume(float volume) noexcept { voiceVolume_ = volume; }
+    // The gain of the sounds at the listener and of the listener's own (Device::ListenerBoost).
+    void SetListenerBoost(float boost) noexcept { listenerBoost_ = boost; }
+    // The effects' and the voices' volumes, from 0 to 1, each its volume group's.
+    void SetVolumes(float effects, float voices) noexcept
+    {
+        effectsVolume_ = effects;
+        voiceVolume_ = voices;
+    }
     // Where the lines of the sound log go; empty for none.
     void SetLog(std::function<void(std::string_view)> log) { log_ = std::move(log); }
 
@@ -109,6 +116,10 @@ private:
         Vector velocity{};                 // a looping sound's at a point
         std::optional<int> start;          // the frame's time it started at, once mixed or counted
         std::optional<std::size_t> source; // its source while it is real
+        // the loops of its sound merged into it at this frame, set on the copy that plays them: their summed gain
+        // and the direction they come from, in the listener's space
+        std::optional<float> mergedGain;
+        Vector mergedDirection{};
     };
 
     struct Entity {
@@ -130,10 +141,25 @@ private:
     };
 
     // a voice the frame may mix
+    // the loops of one sound at a frame: how many, their summed and loudest audibility, the most their sum may reach,
+    // the direction they come from weighted by it, the copy that plays them (the one holding a source, else the
+    // loudest), the best priority
+    struct LoopGroup {
+        int copies = 0;
+        float sum = 0.0f;
+        float loudest = 0.0f;
+        float cap = 0.0f;
+        Vector direction{};
+        std::optional<std::size_t> player;
+        bool playerReal = false;
+    };
+
     struct Candidate {
         int priority = 0;
-        float audibility = 0.0f;
         bool real = false;
+        bool loop = false;
+        bool eligible = false; // among the four of its event
+        float score = 0.0f;    // its audibility weighted by what remains of it, a mixed voice's raised a little
         std::uint32_t serial = 0;
         std::size_t index = 0;
     };
@@ -145,8 +171,11 @@ private:
     [[nodiscard]] bool IsOwn(const Request& request) const noexcept;
     [[nodiscard]] Vector PositionOf(const Voice& voice) const;
     [[nodiscard]] Vector VelocityOf(const Voice& voice) const;
+    [[nodiscard]] float ClassVolume(SoundClass soundClass) const noexcept;
     [[nodiscard]] float Gain(const Voice& voice) const;
     [[nodiscard]] float Audibility(const Voice& voice) const;
+    [[nodiscard]] float Remaining(const Voice& voice) const;
+    void MergeLoops();
     [[nodiscard]] std::int64_t FrameOf(const Voice& voice, const Sound& sound) const;
     void Release(std::size_t index);
     void MakeReal(std::size_t index, std::size_t source);
@@ -172,10 +201,13 @@ private:
     std::vector<Entity> entities_;
     std::vector<Candidate> candidates_; // the frame's working arrays, kept to spare their allocations
     std::vector<bool> chosen_;
-    std::vector<int> perSound_;
+    std::vector<int> perEvent_;
+    std::vector<LoopGroup> loopGroups_;
     Listener listener_;
     std::uint32_t lowPass_ = 0; // the filter of the sounds heard under water
     std::uint32_t nextSerial_ = 1;
+    float effectsVolume_ = 1.0f;
+    float listenerBoost_ = 1.0f;
     float voiceVolume_ = 1.0f;
     int now_ = 0;
     int frames_ = 0;

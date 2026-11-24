@@ -108,7 +108,8 @@ SoundHandle Bank::RegisterKey(std::string key)
 
     const auto handle = static_cast<SoundHandle>(entries_.size());
     const auto milliseconds = static_cast<int>(sound->frames * 1000 / sound->rate);
-    entries_.push_back(Entry{.name = key, .sound = std::move(sound), .milliseconds = milliseconds, .level = level_, .failedLevel = std::nullopt});
+    entries_.push_back(
+        Entry{.name = key, .sound = std::move(sound), .milliseconds = milliseconds, .level = level_, .failedLevel = std::nullopt, .event = EventOf(key)});
     handles_.emplace(std::move(key), handle);
     return handle;
 }
@@ -123,9 +124,24 @@ SoundHandle Bank::Restore(std::string_view name)
     }
 
     const auto added = static_cast<SoundHandle>(entries_.size());
-    entries_.push_back(Entry{.name = std::string(name), .sound = std::nullopt, .milliseconds = 0, .level = level_, .failedLevel = level_});
+    entries_.push_back(
+        Entry{.name = std::string(name), .sound = std::nullopt, .milliseconds = 0, .level = level_, .failedLevel = level_, .event = EventOf(name)});
     handles_.emplace(std::string(name), added);
     return added;
+}
+
+// the event of a name: the name without its trailing digits, numbered in the order the events first come
+int Bank::EventOf(std::string_view name)
+{
+    const std::size_t end = name.find_last_not_of("0123456789");
+    const std::string stem(name.substr(0, end == std::string_view::npos ? 0 : end + 1));
+    const auto [found, added] = events_.try_emplace(stem, static_cast<int>(events_.size()));
+    return found->second;
+}
+
+int Bank::Event(SoundHandle handle) const
+{
+    return handle > kNoSound && handle < Count() ? entries_[static_cast<std::size_t>(handle)].event : 0;
 }
 
 // the entry marked as used by this level, and loaded again if a level freed it

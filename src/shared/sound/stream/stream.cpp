@@ -110,7 +110,7 @@ void Stream::Update(const Fill& fill)
     }
 }
 
-// the stream's gain, the master volume applying besides
+// the stream's gain
 void Stream::SetGain(float gain) const
 {
     alSourcef(source_, AL_GAIN, gain);
