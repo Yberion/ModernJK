@@ -41,7 +41,8 @@ namespace {
 
 // HRTF off: the game's sounds are mixed for speakers and headphones alike, without a head-related filter; OpenAL Soft's
 // limiter on, which it leaves off for a device mixing in floating point (the usual format of a Windows device), so that
-// a crowd's peaks are lowered to full scale instead of clipping.
+// a crowd's peaks are lowered to 2 dB under full scale (its threshold, patched) instead of clipping, their true peak
+// under ASWG-R001's -1 dBTP.
 constexpr std::array<ALCint, 5> kSystemAttributes = {ALC_HRTF_SOFT, ALC_FALSE, ALC_OUTPUT_LIMITER_SOFT, ALC_TRUE, 0};
 
 // the event that moves the sound to another device: the system's default changed (the device in use disappearing is

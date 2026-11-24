@@ -1,0 +1,15 @@
+--- a/libs/openal-soft/alc/alc.cpp
++++ b/libs/openal-soft/alc/alc.cpp
+@@ -1747,7 +1747,11 @@ auto UpdateDeviceParams(gsl::not_null<al::Device*> device,
+         if(device->DitherDepth > 0.0f)
+             thrshld -= 1.0f / device->DitherDepth;
+ 
+-        const auto thrshld_dB = log10(thrshld) * 20.0f;
++        /* ModernJK (libs/openal-soft/patches/0004-limiter-threshold.patch):
++         * 2 dB under full scale, so that the true peak between samples, up to
++         * 0.4 dB above the sample peak in the game's loudest mixes, stays under
++         * ASWG-R001's -1 dBTP. */
++        const auto thrshld_dB = log10(thrshld) * 20.0f - 2.0f;
+         auto limiter = CreateDeviceLimiter(device, thrshld_dB);
+ 
+         sample_delay += limiter->getLookAhead();
