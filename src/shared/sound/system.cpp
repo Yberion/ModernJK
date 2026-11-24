@@ -26,6 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "system.h"
 
 #include <shared/sound/decoder/decoder.h>
+#include <shared/sound/names.h>
 
 #include <fmt/format.h>
 
@@ -43,7 +44,7 @@ std::unique_ptr<System> System::Create(const Host& host, std::optional<int> loop
 // the device opened first, so that every part after it creates its sources and buffers in its context
 System::System(Host host, std::optional<int> loopbackRate, std::uint32_t firstSerial)
     : host_(std::move(host)), device_(loopbackRate ? Device::OpenLoopback(host_, *loopbackRate) : Device::OpenSystem(host_)), bank_(host_),
-      voices_(bank_, Resampler(), firstSerial), music_(host_, Resampler()), ambient_(bank_, voices_, host_)
+      voices_(bank_, reverb_, Resampler(), firstSerial), music_(host_, Resampler()), ambient_(bank_, voices_, host_)
 {
 }
 
@@ -57,6 +58,30 @@ void System::SetListener(const Listener& listener)
 {
     listener_ = listener.origin;
     voices_.SetListener(listener);
+    reverb_.SetListener(listener);
+}
+
+// the map's zone file read and given to the reverb; a damaged one reported and left out, the map then without reverb
+void System::LoadZones(std::string_view map)
+{
+    zonesMap_ = map;
+    std::optional<ZoneFile> zones;
+
+    if (!map.empty()) {
+        const std::string path = fmt::format("eagle/{}.efxzones", map);
+        const std::optional<std::vector<std::byte>> bytes = host_.readFile(path);
+
+        if (bytes) {
+            std::string error;
+            zones = ParseZoneFile(ToText(*bytes), error);
+
+            if (!zones) {
+                host_.print(Message::Warning, fmt::format("{}: {}; no reverb on this map", path, error));
+            }
+        }
+    }
+
+    reverb_.Load(std::move(zones));
 }
 
 // the general set plays at the listener, wherever the game gives its origin
@@ -82,6 +107,7 @@ void System::Frame(int now)
     if (mixing) {
         music_.Frame(now);
         FeedStream();
+        reverb_.Frame(now);
     }
 
     voices_.Frame(now, mixing);
@@ -195,6 +221,7 @@ System::State System::SaveState() const
     state.intro = music_.LastIntro();
     state.loop = music_.LastLoop();
     state.level = music_.Level();
+    state.zones = zonesMap_;
     state.serial = voices_.NextSerial();
     return state;
 }
@@ -216,6 +243,7 @@ void System::RestoreState(const State& state)
     }
 
     music_.SetLevel(state.level);
+    LoadZones(state.zones);
 
     if (!state.intro.empty() || !state.loop.empty() || !state.level.empty()) {
         music_.Start(state.intro, state.loop);
@@ -224,8 +252,8 @@ void System::RestoreState(const State& state)
 
 std::string System::Info() const
 {
-    return fmt::format("device: {}\nvoices: {} playing, {} mixed of {}\nsounds registered: {}\n{}", device_->Name(), voices_.Playing(), voices_.Mixed(),
-                       kRealVoices, bank_.Count() - 1, music_.Describe());
+    return fmt::format("device: {}\nvoices: {} playing, {} mixed of {}\nsounds registered: {}\n{}\n{}", device_->Name(), voices_.Playing(), voices_.Mixed(),
+                       kRealVoices, bank_.Count() - 1, music_.Describe(), reverb_.Info());
 }
 
 std::vector<std::string> System::List() const

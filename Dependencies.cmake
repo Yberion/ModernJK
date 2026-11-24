@@ -127,6 +127,19 @@ function(modernjk_setup_dependencies)
 		target_link_libraries(FLAC PRIVATE modernjk_options vendored_flac_overflow)
 	endif()
 
+	# EalMan reads the game's EAX zone files (eagle/<map>.eal) for their converter alone, tools/eal_converter, which is
+	# built on demand: the game never links it
+	if(modernjk_BUILD_TOOLS)
+		add_library(vendored_ealman STATIC EXCLUDE_FROM_ALL "${libs}/ealman/src/Chunk.cpp" "${libs}/ealman/src/EalMan.cpp")
+		target_compile_definitions(vendored_ealman PUBLIC EAXMANVERSION=3)
+		target_include_directories(vendored_ealman SYSTEM PUBLIC "${libs}/ealman/src")
+		target_compile_features(vendored_ealman PUBLIC cxx_std_17)
+		# the project's floating-point rules, so that its results and those of the sound's code it is compared with are
+		# computed alike
+		target_link_libraries(vendored_ealman PRIVATE modernjk_options)
+		add_library(vendored::ealman ALIAS vendored_ealman)
+	endif()
+
 	# the engines that open a window, and the fuzzers, one of which plays the sound on OpenAL Soft's loopback device
 	if(modernjk_BUILD_MP_CLIENT OR modernjk_BUILD_SP OR modernjk_BUILD_JK2 OR modernjk_BUILD_FUZZ_TESTS)
 		# The sound (src/shared/sound): OpenAL Soft plays it, a static library built by its own CMake file without

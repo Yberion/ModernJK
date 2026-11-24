@@ -1,0 +1,15 @@
+// ModernJK's texts of the menus, beside the game's (strings/<Language>/MENUS.str): the reverb's setting (s_reverb).
+VERSION             "1"
+CONFIG              "W:\bin\stringed.cfg"
+FILENOTES           ""
+
+REFERENCE           REVERB
+LANG_ENGLISH        "Reverb:"
+LANG_FRENCH         "Réverbération :"
+
+REFERENCE           REVERB_DESC
+LANG_ENGLISH        "Toggle the reverb of the rooms and places."
+LANG_FRENCH         "Activer/désactiver la réverbération des salles et des lieux"
+
+
+ENDMARKER

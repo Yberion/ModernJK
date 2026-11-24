@@ -42,6 +42,7 @@ int main(int argc, char** argv)
     RunStreamTests(data);
     RunAmbientTests(data);
     RunContactTests(data);
+    RunZonesTests(data);
     fmt::println("{} failed check(s)", ::test::failures);
     return ::test::failures;
 }

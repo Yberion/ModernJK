@@ -519,6 +519,7 @@ void CL_InitCGame(void)
     info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
     mapname = Info_ValueForKey(info, "mapname");
     Q_FormatTo(cl.mapname, "maps/{}.bsp", mapname);
+    SND_LoadZones(mapname);
 
     // load the dll
     CL_BindCGame();

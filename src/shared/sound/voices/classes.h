@@ -62,7 +62,6 @@ struct ClassInfo {
     case SoundClass::VoiceEverywhere:
         return {.positioned = false, .group = VolumeGroup::Voices, .priority = 1};
     case SoundClass::Announcer:
-        return {.positioned = false, .priority = 1};
     case SoundClass::Interface:
         return {.positioned = false, .priority = 1};
     case SoundClass::Weapon:

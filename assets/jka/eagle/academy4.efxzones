@@ -1,0 +1,14 @@
+efxzones 1
+environment 1 1 0.17782794 0.4477133 1 5.552 0.33 1 0.26121613 0.02 0 0 0 0.8540829 0.03 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 Large Room
+zone 0
+start p0
+plane -595 3955 -1733 0 0 -1 - p1
+plane -595 551 -1733 0 -1 0 - p2
+plane -595 3955 417 0 0 -1 p3 -
+plane -595 3955 417 0 1 0 - p4
+plane -2199 3955 -1733 -1 0 0 - p5
+plane -595 3955 -1733 -1 0 0 z0 -
+default-obstacle 0 0.25 1.5 occludes
+row - d
+row d -
+diffraction -6000 0.25 90

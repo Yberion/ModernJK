@@ -1,0 +1,493 @@
+efxzones 1
+environment 1 1 0.45446452 0.8912509 1 5.007 0.881 1.297 0.025763212 0.025 0 0 0 0.64863443 0.0213576 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Entrance cave
+environment 1 1 0.31622776 0.8912509 1 2.281 0.83 1 0.05841172 0.005996667 0 0 0 1.4689263 0.009423333 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 Stone tunnel
+environment 1 1 0.2831392 0.8912509 1 2.67542 0.881 1.297 0.048250303 0.007262267 0 0 0 1.2119927 0.011412133 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Stone chamber
+environment 1 1 0.45446452 0.8912509 1 1.19 0.881 1.297 0.034753617 0.013358398 0 0 0 1.2133888 0.011412133 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Corridor
+environment 1 1 0.45446452 0.7294575 1 3.916 1.297 1.297 0.048250303 0.041 0 0 0 1.2473835 0.011412133 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 X-Wing bay
+environment 1 1 0.45446452 0.8912509 1 1.8119934 0.881 1.297 0.02282969 0.02034061 0 0 0 0.79707646 0.017377065 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Medium room
+environment 1 1 0.45446452 0.8912509 1 0.77492994 0.881 1.297 0.05339492 0.008699011 0 0 0 1.8620871 0.0074316 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Short passage
+environment 1 1 0.33151257 0.8912509 1 3.099 1.427 0.907 0.13931568 0.041 0 0 0 0.48417237 0.038 0 0 0 0.25 0.315 0.853 0.137 0.9942601 5000 250 0 1 Jedi training room
+environment 1 0.85 0.31622776 0.8912509 1 1.736 0.83 1 0.5578276 0.016 0 0 0 1.2473835 0.003 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 High room
+environment 1 0.973 0.33151257 0.33151257 1 4.462 1.219 0.907 0.39445728 0.066 0 0 0 1.031573 0.045 0 0 0 0.25 0.384 0.25 0 0.9942601 5000 250 0 1 Great hall
+environment 1 1 0.45446452 0.8912509 1 1.736 0.881 1.297 0.034753617 0.013358398 0 0 0 1.2133888 0.011412133 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 High corridor
+environment 1 1 0.12867673 0.8912509 1 1.19 1.141 1.115 0.39445728 0.05282947 0 0 0 0.40040547 0.08301774 0 0 0 0.188 0.384 0.25 0 0.9942601 5000 248.219 0 1 Courtyard
+environment 1 1 0.45446452 0.8912509 1 0.77493 0.881 1.297 0.05339492 0.00869901 0 0 0 1.8620871 0.0074316 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Small room
+zone 0
+zone 1
+zone 2
+zone 3
+zone 3
+zone 4
+zone 2
+zone 1
+zone 1
+zone 5
+zone 6
+zone 7
+zone 6
+zone 6
+zone 3
+zone 6
+zone 3
+zone 3
+zone 3
+zone 3
+zone 3
+zone 3
+zone 7
+zone 2
+zone 3
+zone 6
+zone 6
+zone 3
+zone 8
+zone 5
+zone 9
+zone 10
+zone 11
+zone 3
+zone 3
+zone 6
+zone 11
+zone 6
+zone 6
+zone 12
+zone 12
+start p0
+plane 3608 956 -2769 0 0 -1 z25 p1
+plane 1259 1303 1104 0 0 -1 p2 p318
+plane 3608 956 -2769 -1 0 0 p3 z25
+plane -703 1410 380 0 1 0 z25 p4
+plane 3608 -676 -2769 0 -1 0 z25 p5
+plane -2183 326 -1678 -1 0 0 z25 p6
+plane 2184 -208 -1393 -1 0 0 p7 p312
+plane -1727 -596 -1678 0 -1 0 p8 p10
+plane 3608 956 -1393 0 0 -1 p9 z25
+plane 2064 956 -2769 -1 0 0 z25 z0
+plane 1534 -20 -2633 0 0 -1 p11 p13
+plane 3608 956 -1393 0 1 0 z25 p12
+plane 2064 956 -2769 -1 0 0 z25 z0
+plane -2159 1410 -1614 -1 0 0 p14 p17
+plane -1727 326 -1678 0 0 -1 z25 p15
+plane -1727 326 -868 0 1 0 z25 p16
+plane -1727 326 -868 0 0 -1 z6 z25
+plane 2184 -577 -1021 0 -1 0 p18 p23
+plane -1727 326 -1678 -1 0 0 p19 p21
+plane -1727 326 -1678 0 0 -1 z25 p20
+plane -1727 326 -868 0 0 -1 z6 z25
+plane 3608 956 -1393 0 0 -1 p22 z25
+plane 2064 956 -2769 -1 0 0 z25 z0
+plane -2009 1303 648 -1 0 0 p24 p30
+plane -1727 326 -1678 0 0 -1 z25 p25
+plane -703 608 -1614 0 -1 0 p26 p28
+plane -1727 326 -868 0 0 -1 p27 z25
+plane -1727 326 -868 0 1 0 z25 z6
+plane -703 1410 -1614 0 0 -1 z25 p29
+plane -703 1410 380 0 0 -1 z30 z25
+plane 2064 956 -2769 -1 0 0 p31 p306
+plane 705 591 -1939 0 0 -1 p32 p36
+plane -1636 -20 -2633 -1 0 0 z25 p33
+plane 1534 -518 -2633 0 -1 0 z25 p34
+plane 1534 -20 -2633 -1 0 0 p35 z25
+plane 1534 -20 915 0 1 0 z25 z5
+plane 2184 -233 -501 0 1 0 p37 p283
+plane 1833 517 -780 -1 0 0 p38 z25
+plane 1545 587 -763 -1 0 0 p39 p271
+plane -1047 -24 -1426 0 -1 0 p40 p46
+plane 1534 -20 915 0 0 -1 p41 z25
+plane -1727 326 -1678 -1 0 0 p42 p44
+plane -1727 326 -1678 0 0 -1 z25 p43
+plane -1727 326 -868 0 0 -1 z6 z25
+plane -1636 -20 -2633 -1 0 0 z25 p45
+plane 1534 -20 -2633 -1 0 0 z5 z25
+plane 1534 -20 915 0 0 -1 p47 p264
+plane 1259 1303 1104 0 1 0 p48 p54
+plane -963 1410 380 0 0 -1 p49 p51
+plane -703 1410 -1614 -1 0 0 p50 z25
+plane -703 1410 -1614 0 0 -1 z25 z30
+plane -963 1410 380 -1 0 0 p52 z25
+plane -963 1410 588 0 0 -1 p53 z25
+plane -1847 1410 380 -1 0 0 z25 z31
+plane 1534 -20 915 0 1 0 p55 p255
+plane 1259 1303 648 0 0 -1 p56 p249
+plane -1727 326 -1678 0 0 -1 p57 p61
+plane 705 -9 -1939 0 -1 0 z25 p58
+plane -833 591 -1939 -1 0 0 z25 p59
+plane 705 591 -159 0 1 0 z25 p60
+plane 705 591 -1939 -1 0 0 z11 z25
+plane -963 1410 588 0 0 -1 p62 p245
+plane -1727 326 -1678 -1 0 0 p63 p69
+plane -703 608 -1614 0 -1 0 p64 p66
+plane -1727 326 -868 0 0 -1 p65 z25
+plane -1727 326 -868 0 1 0 z25 z6
+plane -963 1410 380 0 0 -1 p67 p68
+plane -703 1410 -1614 0 0 -1 z25 z30
+plane -1847 1410 380 -1 0 0 z25 z31
+plane -703 1410 -1614 0 0 -1 p70 p74
+plane -833 591 -1939 -1 0 0 z25 p71
+plane 705 -9 -1939 0 -1 0 z25 p72
+plane 705 591 -1939 -1 0 0 p73 z25
+plane 705 591 -159 0 1 0 z25 z11
+plane -1489 265 -1458 -1 0 0 p75 p81
+plane -703 608 -1614 0 -1 0 p76 p80
+plane -1489 265 -1458 0 0 -1 z25 p77
+plane -1489 -1 -1458 0 -1 0 z25 p78
+plane -1489 265 -1032 0 0 -1 p79 z25
+plane -1489 265 -1032 0 1 0 z25 z7
+plane -963 1410 380 0 0 -1 z30 z31
+plane -577 703 369 0 -1 0 p82 p231
+plane 481 703 453 0 0 -1 p83 p225
+plane -703 1410 380 0 0 -1 p84 p220
+plane -1047 386 -1426 -1 0 0 p85 p89
+plane -703 608 -1614 0 -1 0 p86 z30
+plane -1047 386 -1426 0 0 -1 z25 p87
+plane -1047 386 -656 0 1 0 z25 p88
+plane -1047 386 -656 0 0 -1 z9 z25
+plane 705 -9 -1939 0 -1 0 p90 p93
+plane 1833 517 -780 0 0 -1 z25 p91
+plane 767 517 -780 -1 0 0 z25 p92
+plane 1833 517 364 0 0 -1 z22 z25
+plane -833 193 -1034 -1 0 0 p94 p104
+plane -703 608 -1614 0 -1 0 p95 z30
+plane -833 193 -1034 0 0 -1 z25 p96
+plane 719 386 -351 0 -1 0 p97 p100
+plane -833 193 -886 0 0 -1 p98 z25
+plane -833 25 -1034 0 -1 0 z25 p99
+plane -833 193 -886 0 1 0 z25 z10
+plane 719 546 -351 0 0 -1 z25 p101
+plane 719 546 -159 0 1 0 z25 p102
+plane 719 546 -159 0 0 -1 p103 z25
+plane -955 546 -351 -1 0 0 z25 -
+plane -647 585 -1143 0 0 -1 p105 p109
+plane 705 591 -1939 -1 0 0 p106 z25
+plane -703 608 -1614 0 -1 0 p107 p108
+plane 705 591 -159 0 1 0 z25 z11
+plane -703 1410 -1614 -1 0 0 z30 z25
+plane 1833 517 364 0 0 -1 p110 p215
+plane 481 29 -159 0 -1 0 p111 p115
+plane 705 591 -1939 -1 0 0 p112 p113
+plane 705 591 -159 0 0 -1 z11 z25
+plane 767 517 -780 -1 0 0 z25 p114
+plane 1833 517 -780 0 0 -1 z25 z22
+plane 1255 212 -1044 -1 0 0 p116 p209
+plane -647 585 -1143 -1 0 0 p117 p126
+plane 705 591 -159 0 1 0 p118 p120
+plane -703 608 -1614 0 -1 0 z25 p119
+plane -703 1410 -1614 -1 0 0 z30 z25
+plane -647 585 -351 0 0 -1 p121 p123
+plane -647 585 -351 0 1 0 z11 p122
+plane -647 385 -1143 0 -1 0 z11 z18
+plane 705 591 -159 0 0 -1 p124 z25
+plane 719 386 -351 0 -1 0 z11 p125
+plane 719 546 -159 0 1 0 z11 z14
+plane 705 546 -1089 0 0 -1 p127 p129
+plane 705 591 -159 0 1 0 z25 p128
+plane 705 591 -1939 -1 0 0 z11 z25
+plane -263 703 355 0 0 -1 p130 p205
+plane 767 335 144 0 0 -1 p131 p197
+plane 705 591 -159 0 1 0 p132 p135
+plane 481 703 -159 0 0 -1 z25 p133
+plane 481 703 -159 -1 0 0 p134 z25
+plane -641 703 -159 -1 0 0 z25 z28
+plane 1255 212 -1044 0 0 -1 p136 p140
+plane 705 546 -1089 -1 0 0 p137 z25
+plane 521 546 -1089 -1 0 0 z11 p138
+plane 705 386 -1089 0 -1 0 z11 p139
+plane 705 546 -149 0 1 0 z11 z16
+plane 1545 587 -592 0 1 0 p141 p145
+plane 705 591 -159 0 0 -1 p142 p143
+plane 705 591 -1939 -1 0 0 z11 z25
+plane 481 703 -159 -1 0 0 p144 z25
+plane -641 703 -159 -1 0 0 z25 z28
+plane 1255 212 -780 0 0 -1 p146 p156
+plane 705 513 -1042 -1 0 0 p147 p150
+plane 521 546 -1089 -1 0 0 z11 p148
+plane 705 386 -1089 0 -1 0 z11 p149
+plane 705 546 -149 0 1 0 z11 z16
+plane 1255 212 -780 0 1 0 p151 p155
+plane 1001 361 -1042 0 -1 0 z25 p152
+plane 1001 513 -1042 0 0 -1 z25 p153
+plane 1001 513 -780 0 1 0 z25 p154
+plane 1001 513 -1042 -1 0 0 z17 z25
+plane 1255 52 -1044 0 -1 0 z25 z13
+plane 767 335 -118 -1 0 0 p157 p193
+plane 719 546 -351 -1 0 0 p158 p187
+plane 0 197 -159 0 0 -1 p159 p168
+plane 719 546 -159 0 1 0 p160 p161
+plane 705 591 -1939 -1 0 0 z11 z25
+plane 705 386 -1089 0 -1 0 p162 p163
+plane 705 591 -1939 -1 0 0 z11 z25
+plane 705 591 -1939 -1 0 0 p164 p167
+plane 521 546 -1089 -1 0 0 p165 p166
+plane 719 546 -351 0 0 -1 z11 z14
+plane 719 546 -351 0 0 -1 z16 z19
+plane 719 546 -351 0 0 -1 z25 -
+plane 481 335 -118 -1 0 0 p169 p179
+plane -128 197 -159 -1 0 0 p170 p171
+plane -641 703 -159 -1 0 0 z25 z28
+plane 3 501 -159 -1 0 0 p172 z28
+plane 0 61 -159 0 -1 0 z28 p173
+plane 3 501 -1 0 1 0 z28 p174
+plane 0 197 59 0 1 0 p175 p177
+plane 3 501 -1 0 0 -1 p176 z28
+plane 3 385 -159 0 -1 0 z28 z15
+plane 0 197 59 0 0 -1 p178 z28
+plane 0 197 -159 -1 0 0 z12 z28
+plane 767 57 -118 0 -1 0 z25 p180
+plane 705 546 -149 0 0 -1 p181 p185
+plane 705 386 -1089 0 -1 0 z25 p182
+plane 521 546 -1089 -1 0 0 z25 p183
+plane 705 546 -149 0 1 0 z25 p184
+plane 705 546 -1089 -1 0 0 - z25
+plane 767 335 144 0 1 0 z25 p186
+plane 767 335 -118 0 0 -1 z25 z23
+plane 1545 387 -780 0 -1 0 p188 p191
+plane 767 335 -118 0 0 -1 z25 p189
+plane 767 57 -118 0 -1 0 z25 p190
+plane 767 335 144 0 1 0 z25 z23
+plane 1545 587 -592 0 0 -1 p192 z25
+plane 763 587 -780 -1 0 0 z25 -
+plane 1545 387 -780 0 -1 0 z22 p194
+plane 1545 587 -592 0 0 -1 p195 p196
+plane 1833 517 364 0 1 0 - z20
+plane 1833 517 364 0 1 0 z25 z22
+plane -263 703 221 -1 0 0 p198 p202
+plane -641 703 -159 -1 0 0 z25 p199
+plane -263 543 221 0 -1 0 z28 p200
+plane -263 703 221 0 0 -1 z28 p201
+plane -467 703 221 -1 0 0 z28 z26
+plane 767 517 -780 -1 0 0 p203 p204
+plane 481 703 -159 -1 0 0 z28 z25
+plane 1833 517 364 0 1 0 z25 z22
+plane 767 517 -780 -1 0 0 p206 p208
+plane 481 703 -159 -1 0 0 p207 z25
+plane -641 703 -159 -1 0 0 z25 z28
+plane 1833 517 364 0 1 0 z25 z22
+plane 1545 587 -592 0 1 0 z25 p210
+plane 1833 517 -780 0 0 -1 z25 p211
+plane 1545 387 -780 0 -1 0 z22 p212
+plane 1833 517 364 0 1 0 p213 p214
+plane 1545 587 -592 0 0 -1 - z25
+plane 1545 587 -592 0 0 -1 z20 z22
+plane -703 1410 -1614 -1 0 0 p216 p217
+plane -703 608 -1614 0 -1 0 z25 z30
+plane -641 703 -159 -1 0 0 z25 p218
+plane 481 29 -159 0 -1 0 z25 p219
+plane 481 703 -159 -1 0 0 z28 z25
+plane -641 703 -159 -1 0 0 p221 p223
+plane -963 608 380 0 -1 0 z25 p222
+plane -963 1410 380 -1 0 0 z31 z25
+plane 481 29 -159 0 -1 0 z25 p224
+plane 481 703 -159 -1 0 0 z28 z25
+plane -963 608 380 0 -1 0 p226 p230
+plane -549 258 453 -1 0 0 z25 p227
+plane -227 54 453 0 -1 0 z25 p228
+plane -227 258 453 -1 0 0 p229 z25
+plane -227 258 1105 0 1 0 z25 z24
+plane -963 1410 380 -1 0 0 z31 z25
+plane -577 863 150 -1 0 0 p232 p241
+plane -963 1410 380 -1 0 0 p233 p234
+plane -963 1410 380 0 0 -1 z30 z31
+plane -577 863 369 0 0 -1 p235 p236
+plane -703 1410 -1614 -1 0 0 z30 z25
+plane -703 1410 -1614 -1 0 0 p237 p240
+plane -577 863 589 0 1 0 p238 p239
+plane -703 1410 380 0 0 -1 z30 z25
+plane -703 1410 380 0 0 -1 - z27
+plane -577 863 589 0 1 0 z25 z27
+plane -145 863 580 0 1 0 z25 p242
+plane -145 863 150 0 0 -1 z25 p243
+plane -145 863 150 -1 0 0 p244 z25
+plane -145 863 580 0 0 -1 z29 z25
+plane -549 258 453 -1 0 0 z25 p246
+plane -227 54 453 0 -1 0 z25 p247
+plane -227 258 453 -1 0 0 p248 z25
+plane -227 258 1105 0 1 0 z25 z24
+plane -227 258 1105 0 1 0 p250 p252
+plane 1259 261 648 0 -1 0 z25 p251
+plane 1259 1303 648 -1 0 0 z36 z25
+plane -227 54 453 0 -1 0 z25 p253
+plane -549 258 453 -1 0 0 z25 p254
+plane -227 258 453 -1 0 0 z24 z25
+plane -1047 386 -1426 -1 0 0 p256 p263
+plane -1636 -20 -2633 -1 0 0 p257 p260
+plane -1727 326 -1678 -1 0 0 p258 z25
+plane -1727 326 -1678 0 0 -1 z25 p259
+plane -1727 326 -868 0 0 -1 z6 z25
+plane -1489 386 -1426 -1 0 0 z5 p261
+plane -1047 386 -1426 0 0 -1 z5 p262
+plane -1047 386 -656 0 0 -1 - z5
+plane 1534 -20 -2633 -1 0 0 z5 z25
+plane 1259 261 648 0 -1 0 p265 p269
+plane -549 258 453 -1 0 0 z25 p266
+plane -227 54 453 0 -1 0 z25 p267
+plane -227 258 453 -1 0 0 p268 z25
+plane -227 258 1105 0 1 0 z25 z24
+plane 1259 1303 648 -1 0 0 p270 z25
+plane 1259 1303 1104 0 1 0 z25 z36
+plane 1711 587 173 0 1 0 z25 p272
+plane 1833 517 -780 0 0 -1 z25 p273
+plane 1833 -21 -780 0 -1 0 z25 p274
+plane 1833 517 364 0 0 -1 p275 z25
+plane 1711 387 -763 0 -1 0 z22 p276
+plane 1711 587 -763 0 0 -1 p277 p278
+plane 1833 517 364 0 1 0 z25 z22
+plane 1711 587 -763 -1 0 0 p279 p282
+plane 1833 517 364 0 1 0 p280 p281
+plane 1711 587 173 0 0 -1 - z25
+plane 1711 587 173 0 0 -1 z21 z22
+plane 1833 517 364 0 1 0 z25 z22
+plane -1636 -303 -1482 -1 0 0 p284 p291
+plane -1727 326 -1678 0 0 -1 z25 p285
+plane -1727 -303 -1482 -1 0 0 p286 p287
+plane -1727 326 -868 0 0 -1 z6 z25
+plane -1636 -303 -1482 0 0 -1 z25 p288
+plane -1636 -521 -1482 0 -1 0 z25 p289
+plane -1636 -303 -1248 0 0 -1 p290 z25
+plane -1636 -303 -1248 0 1 0 z25 z8
+plane 1534 -233 -1021 -1 0 0 p292 p302
+plane 1534 -20 915 0 0 -1 p293 z25
+plane 1534 -336 -690 0 1 0 z5 p294
+plane 1534 -526 -962 0 -1 0 z25 p295
+plane 1534 -336 -962 0 0 -1 p296 p297
+plane 1534 -518 -2633 0 -1 0 z25 z5
+plane 1344 -336 -962 -1 0 0 p298 p299
+plane 1534 -518 -2633 0 -1 0 z25 z5
+plane 1534 -336 -690 0 0 -1 p300 p301
+plane 1534 -518 -2633 0 -1 0 - z4
+plane 1534 -518 -2633 0 -1 0 z25 z5
+plane 2184 -233 -131 0 0 -1 p303 z25
+plane 2184 -233 -1021 0 0 -1 z25 p304
+plane 1730 -233 -1021 -1 0 0 z3 p305
+plane 2184 -233 -501 0 0 -1 z2 z3
+plane 2184 -233 -131 0 0 -1 p307 z25
+plane 3608 956 -1393 0 0 -1 p308 p309
+plane 3608 956 -1393 0 1 0 z25 z0
+plane 2184 -233 -131 0 1 0 z25 p310
+plane 2184 -233 -1021 0 0 -1 z25 p311
+plane 2184 -233 -501 0 0 -1 z2 z3
+plane 3080 -208 -609 0 0 -1 p313 z25
+plane 3608 956 -1393 0 0 -1 p314 p315
+plane 3608 956 -1393 0 1 0 z25 z0
+plane 3080 -552 -1393 0 -1 0 z25 p316
+plane 3080 -208 -1393 -1 0 0 p317 z25
+plane 3080 -208 -609 0 1 0 z25 z1
+plane 1742 1452 6016 0 0 -1 p319 z25
+plane 1742 -252 1104 0 -1 0 z25 p320
+plane -2438 1452 1104 -1 0 0 z25 p321
+plane 1742 1452 6016 0 1 0 z25 p322
+plane 1742 1452 1104 -1 0 0 p323 z25
+plane -522 -78 3729 0 -1 0 z32 p324
+plane -315 325 2985 0 0 -1 p325 p331
+plane -1169 -4 2721 0 -1 0 z32 p326
+plane -1169 266 2721 0 0 -1 z32 p327
+plane -1169 266 2983 0 1 0 z32 p328
+plane -1169 266 2983 0 0 -1 p329 z32
+plane -1169 266 2721 -1 0 0 p330 z32
+plane -1389 266 2721 -1 0 0 z32 z33
+plane -522 102 3825 0 0 -1 p332 p340
+plane -315 325 3729 0 0 -1 p333 p337
+plane -315 -73 2985 0 -1 0 z32 p334
+plane -1571 325 2985 -1 0 0 z32 p335
+plane -315 325 3729 0 1 0 z32 p336
+plane -315 325 2985 -1 0 0 z34 z32
+plane -522 102 3825 0 1 0 z32 p338
+plane -694 102 3729 -1 0 0 z32 p339
+plane -522 102 3729 -1 0 0 z35 z32
+plane 385 193 4144 0 0 -1 z32 p341
+plane 411 -41 5000 0 -1 0 z32 p342
+plane 25 193 4144 -1 0 0 p343 p352
+plane -1314 193 5176 0 1 0 z32 p344
+plane -1251 193 4156 0 0 -1 z32 p345
+plane -1626 193 4992 -1 0 0 z32 p346
+plane -1251 193 4700 0 0 -1 p347 p349
+plane -1251 193 4156 -1 0 0 p348 z32
+plane -1611 193 4156 -1 0 0 z32 z40
+plane -1314 193 4992 -1 0 0 p350 z32
+plane -1314 193 4992 0 0 -1 z32 p351
+plane -1314 193 5176 0 0 -1 z38 z32
+plane 411 193 5184 0 1 0 z32 p353
+plane 385 193 4688 0 0 -1 p354 p355
+plane 385 193 4144 -1 0 0 z39 z32
+plane 411 193 5000 -1 0 0 p356 z32
+plane 411 193 5000 0 0 -1 z32 p357
+plane 99 193 5000 -1 0 0 z32 p358
+plane 411 193 5184 0 0 -1 z37 z32
+default-obstacle 0 0.25 1.5 occludes
+obstacle -3836 0.25 1.5 occludes Overhead walkway
+row - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 - - - - - - - - 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+row d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d
+row 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 - - - - - - - - 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+row 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 - - - - - - - - 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+row d d d d d d d d d d d d d d d d - d d - d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d - d d d - d d d d d d d d d d d d d d d d d d d d d
+row 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 - - - - - - - - 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+row 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 - 0 - - - - - - 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+row d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d -
+diffraction -6000 0.25 90
+box 0 2936 -581 -1956 3136 -477 -1812
+box 0 2632 -571 -2544 2872 -467 -2264
+box 5 1154 -541 -2073 1288 -125 -1913
+box 5 131 -541 -2069 265 -125 -1909
+box 5 -382 -541 -2065 -248 -125 -1905
+box 5 -1411 -541 -2069 -1277 -125 -1909
+box 5 -1410 -541 -1303 -1276 -125 -1143
+box 5 -382 -541 -1300 -248 -125 -1140
+box 5 126 -541 -1297 260 -125 -1137
+box 5 1151 -541 -1302 1285 -125 -1142
+box 5 1151 -541 -533 1285 -125 -373
+box 5 128 -541 -529 262 -125 -369
+box 5 -388 -541 -530 -254 -125 -370
+box 5 -1410 -541 -530 -1276 -125 -370
+box 5 -1405 -541 231 -1271 -125 391
+box 5 -385 -541 240 -251 -125 400
+box 5 122 -541 236 256 -125 396
+box 5 1151 -541 243 1285 -125 403
+box 11 -311 81 -762 -233 257 -684
+box 11 113 81 -757 191 257 -679
+box 11 105 81 -1173 183 257 -1095
+box 11 -306 81 -1182 -228 257 -1104
+box 11 -434 32 -1293 -264 190 -1133
+box 11 -429 32 -722 -259 190 -562
+box 11 152 32 -711 322 190 -551
+box 11 141 32 -1295 311 190 -1135
+box 11 398 24 -1476 490 510 -1402
+box 11 -621 24 -1475 -529 510 -1401
+box 11 -623 24 -458 -531 510 -384
+box 11 66 63 -460 448 173 -380
+box 29 -461 700 352 -341 840 408
+box 32 -630 -116 4386 -576 100 4522
+box 32 -939 -76 4631 -935 252 4737

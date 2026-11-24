@@ -1979,6 +1979,38 @@
 			} 
 		}
 
+		itemDef 
+		{	
+			name				reverb
+			group				sound
+      			type				ITEM_TYPE_MULTI
+			text				@MODERNJK_REVERB
+			cvar				"s_reverb"
+			cvarFloatList		{ @MENUS_OFF 0 @MENUS_ON 1 }
+			rect				260 272 340 14
+	   		textalign			ITEM_ALIGN_RIGHT
+			textalignx			174
+			textaligny			0
+			font 				4					
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				0
+			descText			@MODERNJK_REVERB_DESC
+
+			mouseenter 
+			{ 
+				show			highlight7
+			}
+			mouseexit 
+			{ 
+				hide			highlight7
+			} 
+			action 
+			{
+				play			"sound/interface/button1.wav"
+			}
+		}
+
 //--------------------------------------------------------------------------------------------
 //	OPTION FIELDS
 //----------------------------------------------------------------------------------------------

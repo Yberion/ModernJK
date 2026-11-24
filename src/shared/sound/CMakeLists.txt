@@ -25,14 +25,21 @@ target_link_libraries(modernjk_sound_decoder
 # clean under its own clang-tidy checks (.clang-tidy here), so their findings are errors in the clang-tidy preset
 modernjk_clang_tidy_as_errors(modernjk_sound_decoder)
 
+# The reverb's zones (zones/): the zone files' reader and writer and the zones' calculations, a static library of its own
+# without OpenAL Soft, which the fuzzer, the tests and the zone files' converter (tools/eal_converter) take too
+add_library(modernjk_sound_zones STATIC zones/zones.cpp)
+target_include_directories(modernjk_sound_zones PUBLIC "${PROJECT_SOURCE_DIR}/src")
+target_link_libraries(modernjk_sound_zones PUBLIC vendored::fmt PRIVATE modernjk_options netcodec_warnings vendored::llvm_libc)
+modernjk_clang_tidy_as_errors(modernjk_sound_zones)
+
 # The sound of every engine that plays it, on OpenAL Soft: one static library independent of the engines, which give
 # it their files and take its messages (host.h); each engine compiles engine/ itself, against its own headers
 if(TARGET vendored::openal)
 	add_library(modernjk_sound STATIC names.cpp system.cpp ambient/ambient.cpp ambient/sets.cpp bank/bank.cpp bank/lipsync.cpp device/device.cpp stream/dms.cpp stream/music.cpp stream/stream.cpp
-		voices/voices.cpp)
+		voices/voices.cpp zones/reverb.cpp)
 	target_include_directories(modernjk_sound PUBLIC "${PROJECT_SOURCE_DIR}/src")
 	target_link_libraries(modernjk_sound
-		PUBLIC modernjk_sound_decoder vendored::openal vendored::fmt
+		PUBLIC modernjk_sound_decoder modernjk_sound_zones vendored::openal vendored::fmt
 		PRIVATE modernjk_options netcodec_warnings vendored::llvm_libc)
 	modernjk_clang_tidy_as_errors(modernjk_sound)
 
@@ -56,7 +63,7 @@ if(modernjk_BUILD_FUZZ_TESTS)
 	add_executable(sound_fuzz_system fuzz/fuzz_system.cpp)
 	target_link_libraries(sound_fuzz_system PRIVATE modernjk_sound modernjk_options netcodec_warnings)
 	set(fuzzers sound_fuzz_decode sound_fuzz_text sound_fuzz_system)
-	foreach(target modernjk_sound_decoder modernjk_sound FLAC vendored_stb_vorbis ${fuzzers})
+	foreach(target modernjk_sound_decoder modernjk_sound_zones modernjk_sound FLAC vendored_stb_vorbis ${fuzzers})
 		if(MINGW)
 			target_compile_options(${target} PRIVATE -fsanitize-coverage=inline-8bit-counters,pc-table,trace-cmp)
 		else()

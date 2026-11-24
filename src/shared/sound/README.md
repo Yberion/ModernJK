@@ -16,7 +16,8 @@ Every sound a player hears goes through it: a blaster's shot and the saber's hum
 | `voices/` | the sounds playing: the classes and the slots, the 64 real voices chosen at every frame and the virtual ones, the attenuation, Doppler, the listener, the voices' state for the lip sync, the sound log | [voices/README.md](voices/README.md) |
 | `stream/` | the sounds streamed: the music, a level's dynamic music, the cinematics' sound | [stream/README.md](stream/README.md) |
 | `ambient/` | the ambient sets of `sound/sound.txt`: around the listener, at an entity, a door's sounds | [ambient/README.md](ambient/README.md) |
-| `fuzz/` | the libFuzzer targets (preset `windows-clang-fuzz`): `sound_fuzz_decode` (the decoders on any file), `sound_fuzz_text` (the readers of `ext_data/dms.dat` and `sound/sound.txt`, which come from the players' archives), `sound_fuzz_system` (the whole sound driven by any sequence of calls, on the loopback device) | |
+| `zones/` | a map's reverb by zones (`eagle/<map>.efxzones`): the listener's environment and its neighbours in three effect slots, each sound sent to its zone's reverb and muffled by the walls and pillars between, the water, `s_reverb`; the file's reader and the zones' calculations a library of their own, `modernjk_sound_zones`, without OpenAL Soft | [zones/README.md](zones/README.md) |
+| `fuzz/` | the libFuzzer targets (preset `windows-clang-fuzz`): `sound_fuzz_decode` (the decoders on any file), `sound_fuzz_text` (the readers of `ext_data/dms.dat`, `sound/sound.txt` and the zone files, which come from the players' archives), `sound_fuzz_system` (the whole sound driven by any sequence of calls, on the loopback device) | |
 
 The files at the root: `sound.h` (what the modules see: the requests, the classes, the slots, the handles, `Api`), `host.h` (what the sound asks of its program), `names.h` (a sound's name without its extension, its file found among the formats from the best to the least good), `system.h` (everything in one object).
 
@@ -24,7 +25,7 @@ The files at the root: `sound.h` (what the modules see: the requests, the classe
 
 1. The game modules play and move their sounds through the `Api`: `Play`, `UpdateEntity`, `SetListener`, `MoveLoop`, `StopSlot`, `UpdateAmbientSet`...
 2. The engine calls `System::Frame(now)` once, `now` its clock in milliseconds.
-3. `Frame` lets the ambient sets start their one-shots and keep their loops, fills the music's and the cinematics' streams, then lets the voices choose the 64 they mix (by their class's priority, then by how loud they are at the listener, four of one sound at most), update every source, and apply it all at once; the device moves to the system's default device if it changed.
+3. `Frame` lets the ambient sets start their one-shots and keep their loops, fills the music's and the cinematics' streams, lets the zones find the listener's zone and set their slots, then lets the voices take their sends and filters from the zones and choose the 64 they mix (by their class's priority, then by how loud they are at the listener, four of one sound at most), update every source, and apply it all at once; the device moves to the system's default device if it changed.
 4. OpenAL Soft mixes on its own thread until the next frame.
 
 ## Examples
@@ -66,7 +67,7 @@ system->Frame(milliseconds);
 
 ## Tests
 
-`modernjk.sound` in `ctest` (`test/sound`): every part on OpenAL Soft's loopback device, which renders into memory without a sound card, with the sample files of `test/sound/data`; one test file per folder (`decoder.cpp`, `device.cpp`, `bank.cpp`, `voices.cpp`, `stream.cpp`, `ambient.cpp`).
+`modernjk.sound` in `ctest` (`test/sound`): every part on OpenAL Soft's loopback device, which renders into memory without a sound card, with the sample files of `test/sound/data`; one test file per folder (`decoder.cpp`, `device.cpp`, `bank.cpp`, `voices.cpp`, `stream.cpp`, `ambient.cpp`, `zones.cpp`).
 
 ## Rules
 

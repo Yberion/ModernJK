@@ -32,6 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <shared/sound/bank/bank.h>
 #include <shared/sound/sound.h>
+#include <shared/sound/zones/reverb.h>
 
 #include <fmt/format.h>
 
@@ -50,9 +51,10 @@ inline constexpr int kVoicesPerEvent = 4;
 
 class Voices {
 public:
-    // The sources taking a resampler of OpenAL Soft; the voices' serial numbers starting from firstSerial, so that the
-    // handles of a sound restarted never match those of the one before.
-    Voices(Bank& bank, int resampler, std::uint32_t firstSerial);
+    // The sources taking a resampler of OpenAL Soft, each sent to the zones' reverb and filtered by their obstacles; the
+    // voices' serial numbers starting from firstSerial, so that the handles of a sound restarted never match those of
+    // the one before.
+    Voices(Bank& bank, const ZoneReverb& reverb, int resampler, std::uint32_t firstSerial);
     Voices(const Voices&) = delete;
     Voices& operator=(const Voices&) = delete;
     Voices(Voices&&) = delete;
@@ -116,6 +118,7 @@ private:
         Vector velocity{};                 // a looping sound's at a point
         std::optional<int> start;          // the frame's time it started at, once mixed or counted
         std::optional<std::size_t> source; // its source while it is real
+        VoiceZone zone;                    // its send and filters at this frame, from the zones
         // the loops of its sound merged into it at this frame, set on the copy that plays them: their summed gain
         // and the direction they come from, in the listener's space
         std::optional<float> mergedGain;
@@ -132,7 +135,7 @@ private:
     struct SourceState {
         bool known = false; // nothing sent since the source took its voice
         float gain = 0.0f;
-        std::uint32_t filter = 0;
+        VoiceZone zone;
         bool relative = false;
         Vector position{};
         Vector velocity{};
@@ -169,6 +172,7 @@ private:
     [[nodiscard]] VoiceHandle HandleOf(std::size_t index) const;
     [[nodiscard]] static bool InSlot(const Request& request, std::optional<int> entity, Slot slot) noexcept;
     [[nodiscard]] bool IsOwn(const Request& request) const noexcept;
+    [[nodiscard]] Hearing HearingOf(const Voice& voice) const noexcept;
     [[nodiscard]] Vector PositionOf(const Voice& voice) const;
     [[nodiscard]] Vector VelocityOf(const Voice& voice) const;
     [[nodiscard]] float ClassVolume(SoundClass soundClass) const noexcept;
@@ -192,6 +196,7 @@ private:
     }
 
     Bank& bank_;
+    const ZoneReverb& reverb_;
     std::vector<Voice> voices_;
     std::vector<std::size_t> free_;
     std::vector<std::size_t> started_; // the voices started since the last frame, for the duplicates
@@ -204,7 +209,8 @@ private:
     std::vector<int> perEvent_;
     std::vector<LoopGroup> loopGroups_;
     Listener listener_;
-    std::uint32_t lowPass_ = 0; // the filter of the sounds heard under water
+    std::vector<std::uint32_t> directFilters_; // each source's filter of its direct sound
+    std::vector<std::uint32_t> sendFilters_;   // each source's filter of its send to a reverb
     std::uint32_t nextSerial_ = 1;
     float effectsVolume_ = 1.0f;
     float listenerBoost_ = 1.0f;

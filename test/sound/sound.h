@@ -113,3 +113,4 @@ void RunVoicesTests(const std::filesystem::path& data);
 void RunStreamTests(const std::filesystem::path& data);
 void RunAmbientTests(const std::filesystem::path& data);
 void RunContactTests(const std::filesystem::path& data);
+void RunZonesTests(const std::filesystem::path& data);

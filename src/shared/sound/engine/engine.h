@@ -50,6 +50,8 @@ void SND_StopAll();
 void SND_SetFocus(bool focused);
 // The music asked for last, played again from its start.
 void SND_RestartMusic();
+// The reverb zones of the map a level plays (eagle/<map>.efxzones), from the map's name ("mp/ffa3").
+void SND_LoadZones(const char* map);
 // The single player's dynamic music: the level it plays; the state its configstring gives, at every frame (a music
 // started again goes back to explore until the next frame gives the state).
 void SND_SetMusicLevel(const char* level);

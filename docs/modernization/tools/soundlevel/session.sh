@@ -8,8 +8,10 @@
 #   crowd     fifteen bots on mp/duel1 in free for all, the client following the first
 #   hums      the same fifteen in one team of a team game (they do not fight: mostly the sabers' hums)
 # The force is off in every session (g_forcePowerDisable 262143), the bots' runs differing less without it.
-# Settings (the client's cvars): VOL (s_volume, default 1), VOICE (s_volumeVoice, 1), MUSIC (s_musicvolume, 0); SEED
-# (g_debugSeed, 7). The default settings are VOL=0.79 VOICE=1 MUSIC=0.63.
+# Settings (the client's cvars): VOL (s_volume, default 1), VOICE (s_volumeVoice, 1), MUSIC (s_musicvolume, 0), REVERB
+# (s_reverb, 1); SEED (g_debugSeed, 7). The default settings are VOL=0.79 VOICE=1 MUSIC=0.63 REVERB=1. The bin folder's
+# modernjk.pk3, when it has one, is put in the session's home folder: the zone files and the menus of the build
+# measured, not those installed in the game's folder.
 # usage: session.sh <old|new> <ambience|duel|crowd|hums> <bin folder> <work folder>
 # The new build with the wave writer: a throwaway worktree of the repository whose Dependencies.cmake no longer lists
 # BACKEND_WAVE among OpenAL Soft's options turned off, built with the windows-clang-release preset (its target
@@ -38,6 +40,7 @@ esac
 rm -rf "$R"
 mkdir -p "$R/base"
 cp "$BIN/cgamex86_64.dll" "$BIN/jampgamex86_64.dll" "$BIN/uix86_64.dll" "$R/base/"
+[ -f "$BIN/modernjk.pk3" ] && cp "$BIN/modernjk.pk3" "$R/base/"
 : > "$R/base/modernjk.cfg" # an empty configuration in the home path, so that the game folder's is not read
 {
 	echo "set sv_maxclients 16"
@@ -76,6 +79,6 @@ fi
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 cd "$BIN"
 timeout 400 ./modernjk.x86_64.exe +set fs_basepath "$GAME" +set fs_homepath "$R" +set s_volume "${VOL:-1}" \
-	+set s_musicvolume "${MUSIC:-0}" +set s_volumeVoice "${VOICE:-1}" +set s_muteWhenUnfocused 0 +set logfile 2 \
+	+set s_musicvolume "${MUSIC:-0}" +set s_volumeVoice "${VOICE:-1}" +set s_muteWhenUnfocused 0 +set s_reverb "${REVERB:-1}" +set logfile 2 \
 	+set r_fullscreen 0 +set r_mode 3 +exec session.cfg > "$R/stdout.txt" 2>&1 || true
 ls -la "$R"/out.*

@@ -69,6 +69,7 @@ sudo apt install libsdl2-dev libgl1-mesa-dev libpipewire-0.3-dev libpulse-dev li
 | `cmake --build --preset <preset> --target clean` | cleans the build |
 | `cmake --workflow --preset <preset> --fresh` | builds from scratch, the configuration included |
 | `cmake --install build/<preset> --strip` | installs into `build/install/<preset>` (`JediAcademy`, `JediOutcast`) |
+| `cmake --build --preset <preset> --target eal_converter` | builds the converter of the game's EAX zone files, out of the other builds (`tools/eal_converter`, its README) |
 
 ### Presets
 
@@ -89,6 +90,18 @@ The Release presets build with link-time optimization, the Debug and sanitizer p
 ### Formatting
 
 The C and C++ code of `src/` and `test/` is laid out by clang-format 23 (`.clang-format`; another major version lays it out differently): `clang-format -i <files>` before a change is handed over, run again until nothing changes. The Linux validation (`validate.sh`) checks it.
+
+## Tools
+
+The programs and scripts beside the game, none of them installed with it:
+
+| tool | where | what it does | how it is built or run |
+|---|---|---|---|
+| `eal_converter` | `tools/eal_converter` | converts the game's EAX zone files (`eagle/<map>.eal`) into the reverb's zones the sound plays (`assets/jka/eagle`, `assets/jk2/eagle`), each file checked against EalMan | the target `eal_converter`, out of the other builds; `extract.py` takes the zone files out of a game's archives; its [README](tools/eal_converter/README.md) |
+| `netcodec_train`, `netcodec_train_client` | `src/codemp/netcodec/tools` | train the network codec's probability tables from recorded traces (`src/codemp/netcodec/src/generated`) | built with the presets (`modernjk_BUILD_TOOLS`); the traces in `docs/modernization/data/traces` |
+| `netcodec_bench_codec`, `netcodec_bench_size`, `netcodec_bench_client`, `netcodec_bench_rans` | `src/codemp/netcodec/bench` | the codec's speed and sizes against OpenJK's coder | built with the presets (`modernjk_BUILD_BENCHMARKS`) |
+| `validate.sh`, `validate.bat`, `ab_*` | `src/codemp/netcodec/scripts` | the full checks of every preset on Linux and Windows; the A/B timings of two builds | "How to resume" of [the progress page](docs/modernization/progress/README.md) |
+| the study's and the surveys' tools | `docs/modernization/tools` | the scripts behind every measurement of the documents: the scripted bot scenarios and their goldens (`gamestats`), the loudness and true peak (`soundlevel`), the sound libraries and decoders (`audiobench`, `audiodec`), the math and random numbers (`mathlib`, `rng`), the inventories of the code (`printinv`, `soundinv`), the culling's prototype (`visibility`) | run by hand, each with its usage at its top; not built by the presets; by subject in [the documentation of the work](docs/modernization/README.md) |
 
 ## The use of AI
 
@@ -115,10 +128,12 @@ The libraries in `libs/`, each under its own licence:
 | [libFLAC](https://github.com/xiph/flac) | the Xiph.Org Foundation and the FLAC contributors | decoding the FLAC sounds | BSD (Xiph.Org) |
 | [dr_mp3 and dr_wav](https://github.com/mackron/dr_libs) | David Reid (dr_mp3's decoder from lieff's minimp3) | decoding the MP3 and WAV sounds | public domain or MIT-0 |
 | [stb_vorbis](https://github.com/nothings/stb) | Sean Barrett | decoding the Ogg Vorbis sounds | public domain or MIT |
+| [EalMan](https://github.com/senneschall/EalMan) | senneschall | reading the game's EAX zone files (`eagle/<map>.eal`) for their converter, `tools/eal_converter`, which writes the reverb's zones the game plays; the game does not link it | LGPL 2.1 |
 
 The methods the code implements:
 
 - the random numbers (`src/shared/qcommon/q_rand.cpp`): [xoshiro128++](https://prng.di.unimi.it/), by David Blackman and Sebastiano Vigna; [SplitMix64](https://doi.org/10.1145/2660193.2660195), by Guy Steele, Doug Lea and Christine Flood, for the seeds; integers in a range by [Daniel Lemire's unbiased method](https://arxiv.org/abs/1805.10941);
+- the reverb's zones (`src/shared/sound/zones`): the zone of a point and a sound's obstruction and occlusion as Creative's EAX Manager computed them, after EalMan's rewrite of it (checked equal on every zone file by `tools/eal_converter`); EAX's reverb, obstruction and occlusion turned into EFX's values as OpenAL Soft's own EAX layer turns them;
 - the network codec's entropy coder (`src/codemp/netcodec`): [rANS](https://arxiv.org/abs/1311.2540), the asymmetric numeral systems of Jarek Duda, after the design of Fabian Giesen's [ryg_rans](https://github.com/rygorous/ryg_rans), whose `rans_byte.h`, public domain, is in netcodec's benchmark for comparison.
 
 The study of the network codec used client demos recorded and supplied by a player. The prototype of the anti-wallhack culling (`docs/modernization/tools/visibility`, not part of the game) uses [tinybvh](https://github.com/jbikker/tinybvh), by Jacco Bikker, and [bvh](https://github.com/madmann91/bvh), by madmann91, both MIT, which are not in this repository.

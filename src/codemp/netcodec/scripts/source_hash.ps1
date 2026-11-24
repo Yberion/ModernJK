@@ -3,7 +3,7 @@
 # Usage: powershell -NoProfile -ExecutionPolicy Bypass -File source_hash.ps1 <repository's folder>
 param([string]$Dir)
 $sha = [System.Security.Cryptography.SHA1]::Create()
-$items = 'CMakeLists.txt', 'CMakePresets.json', 'ProjectOptions.cmake', 'Dependencies.cmake', 'cmake', 'src', 'test', 'assets' |
+$items = 'CMakeLists.txt', 'CMakePresets.json', 'ProjectOptions.cmake', 'Dependencies.cmake', 'cmake', 'src', 'test', 'tools', 'assets', 'libs\ealman' |
 	ForEach-Object { Join-Path $Dir $_ }
 foreach ($f in Get-ChildItem -Path $items -Recurse -File | Sort-Object FullName) {
 	$b = [System.IO.File]::ReadAllBytes($f.FullName)

@@ -50,9 +50,6 @@ namespace {
 // the entities whose position is kept: every entity of both engines
 constexpr int kMaxEntities = 4096;
 
-// the high frequencies' gain heard under water: -30 dB at 5 kHz, the original game's EAX occlusion of -3000 mB
-constexpr float kUnderwaterGainHF = 0.0316f;
-
 // a voice already mixed keeps its source against one up to this much more important, so that two voices close in
 // importance do not swap sources at every frame
 constexpr float kMixedStickiness = 1.1f;
@@ -101,23 +98,25 @@ int EntityOf(const Request& request) noexcept
 
 } // namespace
 
-// the 64 sources, each taking the resampler, and the under-water filter
-Voices::Voices(Bank& bank, int resampler, std::uint32_t firstSerial) : bank_(bank), nextSerial_(firstSerial == 0 ? 1 : firstSerial)
+// the 64 sources, each taking the resampler, with a low-pass filter for its direct sound and one for its send
+Voices::Voices(Bank& bank, const ZoneReverb& reverb, int resampler, std::uint32_t firstSerial)
+    : bank_(bank), reverb_(reverb), nextSerial_(firstSerial == 0 ? 1 : firstSerial)
 {
     sources_.resize(kRealVoices);
     alGenSources(static_cast<ALsizei>(sources_.size()), sources_.data());
     sourceVoice_.resize(sources_.size());
     sourceState_.resize(sources_.size());
+    directFilters_.resize(sources_.size());
+    sendFilters_.resize(sources_.size());
+    alGenFilters(static_cast<ALsizei>(directFilters_.size()), directFilters_.data());
+    alGenFilters(static_cast<ALsizei>(sendFilters_.size()), sendFilters_.data());
 
-    for (const std::uint32_t source : sources_) {
-        alSourcei(source, AL_SOURCE_RESAMPLER_SOFT, resampler);
-        alSourcef(source, AL_MAX_GAIN, kMaxGain);
+    for (std::size_t i = 0; i < sources_.size(); ++i) {
+        alSourcei(sources_[i], AL_SOURCE_RESAMPLER_SOFT, resampler);
+        alSourcef(sources_[i], AL_MAX_GAIN, kMaxGain);
+        alFilteri(directFilters_[i], AL_FILTER_TYPE, AL_FILTER_LOWPASS);
+        alFilteri(sendFilters_[i], AL_FILTER_TYPE, AL_FILTER_LOWPASS);
     }
-
-    alGenFilters(1, &lowPass_);
-    alFilteri(lowPass_, AL_FILTER_TYPE, AL_FILTER_LOWPASS);
-    alFilterf(lowPass_, AL_LOWPASS_GAIN, 1.0f);
-    alFilterf(lowPass_, AL_LOWPASS_GAINHF, kUnderwaterGainHF);
 }
 
 // the sources stopped and deleted without the voices' bookkeeping, which could allocate in a destructor
@@ -125,7 +124,8 @@ Voices::~Voices()
 {
     alSourceStopv(static_cast<ALsizei>(sources_.size()), sources_.data());
     alDeleteSources(static_cast<ALsizei>(sources_.size()), sources_.data());
-    alDeleteFilters(1, &lowPass_);
+    alDeleteFilters(static_cast<ALsizei>(directFilters_.size()), directFilters_.data());
+    alDeleteFilters(static_cast<ALsizei>(sendFilters_.size()), sendFilters_.data());
 }
 
 // a new voice, or the sum of the volumes when the same sound starts again at the same place before the next frame; the
@@ -335,6 +335,13 @@ void Voices::Frame(int now, bool mixing)
     if (!mixing) {
         LogFrame();
         return;
+    }
+
+    // every voice's send and filters from the zones, before its audibility is weighed
+    for (Voice& voice : voices_) {
+        if (voice.active) {
+            voice.zone = reverb_.Of(PositionOf(voice), HearingOf(voice));
+        }
     }
 
     MergeLoops();
@@ -597,6 +604,24 @@ bool Voices::IsOwn(const Request& request) const noexcept
     return request.place != Place::Listener && request.entity == listener_.entity;
 }
 
+// how the zones hear a voice: a sound of a class not positioned is not in the world (but under water, the listener's own);
+// one at the listener or of the listener's own entity is heard at the listener; a character's voice is never muffled
+Hearing Voices::HearingOf(const Voice& voice) const noexcept
+{
+    const SoundClass soundClass = voice.request.soundClass;
+    const bool own = IsOwn(voice.request);
+
+    if (!Info(soundClass).positioned) {
+        return own ? Hearing::OwnNotInWorld : Hearing::NotInWorld;
+    }
+
+    if (own || voice.request.place == Place::Listener) {
+        return Hearing::AtListener;
+    }
+
+    return soundClass == SoundClass::Voice || soundClass == SoundClass::VoiceQuiet ? Hearing::VoiceInWorld : Hearing::InWorld;
+}
+
 // where a voice is heard from: its point, or its entity's last position (the listener's while the entity has none)
 Vector Voices::PositionOf(const Voice& voice) const
 {
@@ -653,16 +678,18 @@ float Voices::Gain(const Voice& voice) const
     return gain * listenerBoost_ * (voice.request.soundClass == SoundClass::Ambient ? 0.5f : 1.0f);
 }
 
-// how loud the voice is at the listener: its gain and its class's attenuation at its distance, as OpenAL Soft computes it
+// how loud the voice is at the listener: its gain and its class's attenuation at its distance, as OpenAL Soft computes it,
+// lowered by the obstacles between it and the listener
 float Voices::Audibility(const Voice& voice) const
 {
     const ClassInfo info = Info(voice.request.soundClass);
+    const float muffled = ZoneReverb::Audibility(voice.zone);
 
     if (!info.positioned || voice.request.place == Place::Listener || IsOwn(voice.request)) {
-        return Gain(voice);
+        return Gain(voice) * muffled;
     }
 
-    return Gain(voice) * Attenuation(info, Distance(PositionOf(voice), listener_.origin));
+    return Gain(voice) * Attenuation(info, Distance(PositionOf(voice), listener_.origin)) * muffled;
 }
 
 // what remains to be heard of a voice, from 1 at its start to 0 at its end; a loop's always 1
@@ -753,7 +780,8 @@ void Voices::MakeVirtual(std::size_t index, bool fromClock)
 
 // a real voice's source: at the listener without attenuation for a sound not positioned or of the listener's own
 // entity, and the loops of a sound merged from their direction, at their summed gain; elsewhere at its point, moving at its velocity, attenuated between its
-// class's distances; under water, every sound in the water heard through the low-pass filter. Only what differs from the source's last values is sent.
+// class's distances; its direct sound and its send to a reverb filtered as the zones give them (the obstacles, the water).
+// Only what differs from the source's last values is sent.
 void Voices::UpdateSource(const Voice& voice, std::size_t source)
 {
     const std::uint32_t id = sources_[source];
@@ -761,9 +789,8 @@ void Voices::UpdateSource(const Voice& voice, std::size_t source)
     const ClassInfo info = Info(voice.request.soundClass);
     const bool merged = voice.mergedGain.has_value();
     const bool atListener = merged || !info.positioned || voice.request.place == Place::Listener || IsOwn(voice.request);
-    const bool inWater = listener_.underwater && (info.positioned || IsOwn(voice.request));
     const float gain = merged ? *voice.mergedGain : Gain(voice);
-    const std::uint32_t filter = inWater ? lowPass_ : AL_FILTER_NULL;
+    const VoiceZone& zone = voice.zone;
     Vector position{};
 
     if (merged) {
@@ -781,8 +808,26 @@ void Voices::UpdateSource(const Voice& voice, std::size_t source)
         alSourcef(id, AL_GAIN, gain);
     }
 
-    if (!last.known || last.filter != filter) {
-        alSourcei(id, AL_DIRECT_FILTER, static_cast<ALint>(filter));
+    if (!last.known || last.zone.directGain != zone.directGain || last.zone.directGainHF != zone.directGainHF) {
+        const bool filtered = zone.directGain != 1.0f || zone.directGainHF != 1.0f;
+
+        if (filtered) {
+            alFilterf(directFilters_[source], AL_LOWPASS_GAIN, zone.directGain);
+            alFilterf(directFilters_[source], AL_LOWPASS_GAINHF, zone.directGainHF);
+        }
+
+        alSourcei(id, AL_DIRECT_FILTER, static_cast<ALint>(filtered ? directFilters_[source] : AL_FILTER_NULL));
+    }
+
+    if (!last.known || last.zone.slot != zone.slot || last.zone.sendGain != zone.sendGain || last.zone.sendGainHF != zone.sendGainHF) {
+        const bool filtered = zone.slot != AL_EFFECTSLOT_NULL && (zone.sendGain != 1.0f || zone.sendGainHF != 1.0f);
+
+        if (filtered) {
+            alFilterf(sendFilters_[source], AL_LOWPASS_GAIN, zone.sendGain);
+            alFilterf(sendFilters_[source], AL_LOWPASS_GAINHF, zone.sendGainHF);
+        }
+
+        alSource3i(id, AL_AUXILIARY_SEND_FILTER, static_cast<ALint>(zone.slot), 0, static_cast<ALint>(filtered ? sendFilters_[source] : AL_FILTER_NULL));
     }
 
     if (!last.known || last.relative != atListener) {
@@ -805,7 +850,7 @@ void Voices::UpdateSource(const Voice& voice, std::size_t source)
 
     last = {.known = true,
             .gain = gain,
-            .filter = filter,
+            .zone = zone,
             .relative = atListener,
             .position = position,
             .velocity = velocity,
@@ -814,7 +859,7 @@ void Voices::UpdateSource(const Voice& voice, std::size_t source)
 }
 
 // the frame's line of the log: the voices mixed (busy, the field the log's reader counts) and the virtual ones; every
-// 50th frame, the list of the voices
+// 50th frame, the zones' slots and the list of the voices, each with its send's slot and its direct filter's gains
 void Voices::LogFrame() const
 {
     if (!log_) {
@@ -826,10 +871,15 @@ void Voices::LogFrame() const
     Log("frame lis={} busy={} virtual={}", listener_.entity, mixed, playing - mixed);
 
     if (frames_ % 50 == 0) {
+        std::string zones = reverb_.Info();
+        std::ranges::replace(zones, '\n', ';');
+        Log("{}", zones);
+
         for (const Voice& voice : voices_) {
             if (voice.active) {
-                Log("voice {} ent={} class={} {} age={}", bank_.Name(voice.request.sound), EntityOf(voice.request), Name(voice.request.soundClass),
-                    voice.source ? "real" : "virtual", now_ - voice.start.value_or(now_));
+                Log("voice {} ent={} class={} {} age={} send={} direct={:.3f}/{:.3f}", bank_.Name(voice.request.sound), EntityOf(voice.request),
+                    Name(voice.request.soundClass), voice.source ? "real" : "virtual", now_ - voice.start.value_or(now_), voice.zone.slot,
+                    voice.zone.directGain, voice.zone.directGainHF);
             }
         }
     }

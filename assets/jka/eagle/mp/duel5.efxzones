@@ -1,0 +1,14 @@
+efxzones 1
+environment 1 0.753 0.33151257 0.022698646 0.10990059 2.008 0.803 0.621 0.7897689 0.21 0 0 0 2.2003918 0.078 0 0 0 0.25 1 0.25 0 0.95680183 4904.11 250 0 0 The Great Outdoors
+zone 0
+start p0
+plane 4202 4632 -4379 0 0 -1 - p1
+plane 4202 -2388 -4379 0 -1 0 - p2
+plane 4202 4632 4379 0 0 -1 p3 -
+plane 4202 4632 4379 0 1 0 - p4
+plane -4202 4632 -4379 -1 0 0 - p5
+plane 4202 4632 -4379 -1 0 0 z0 -
+default-obstacle 0 0.25 1.5 occludes
+row - d
+row d -
+diffraction -6000 0.25 90

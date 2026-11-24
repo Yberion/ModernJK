@@ -18,13 +18,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// fuzz_text.cpp -- libFuzzer target on the sound's two readers of the game's text files, which come from the players'
-// archives: each input read as ext_data/dms.dat for a few levels, every answer about the music it gives asked, then as
-// sound/sound.txt for a few sets. A starting corpus: the game's two files, extracted from its archives. Example:
+// fuzz_text.cpp -- libFuzzer target on the sound's three readers of text files, which come from the players' archives:
+// each input read as ext_data/dms.dat for a few levels, every answer about the music it gives asked, then as
+// sound/sound.txt for a few sets, then as a zone file (eagle/<map>.efxzones), the zone of a few points and the
+// obstacles between them asked of what it reads. A starting corpus: the game's dms.dat and sound.txt, extracted from
+// its archives, and zone files of assets/jka/eagle. Example:
 //   sound_fuzz_text <work folder>
 #include <shared/sound/ambient/sets.h>
 #include <shared/sound/bank/bank.h>
 #include <shared/sound/stream/dms.h>
+#include <shared/sound/zones/zones.h>
 
 #include <array>
 #include <cstddef>
@@ -83,5 +86,21 @@ extern "C" int LLVMFuzzerTestOneInput(const std::uint8_t* data, std::size_t size
     sound::Bank bank(host);
     const std::set<std::string, std::less<>> wanted = {"yavin_jungle", "kejim_console", "impdoor1", "a", ""};
     (void)sound::ParseAmbientSets(text, wanted, bank, host);
+
+    std::string error;
+
+    if (const std::optional<sound::ZoneFile> zones = sound::ParseZoneFile(text, error)) {
+        constexpr std::array<sound::ZonePoint, 4> kPoints = {
+            {{}, {.x = 128.0f, .y = 64.0f, .z = -256.0f}, {.x = -1000.0f, .y = 10.0f, .z = 2000.0f}, {.x = 40000.0f}}};
+
+        for (const sound::ZonePoint& listener : kPoints) {
+            const std::optional<int> zone = sound::ZoneOf(*zones, listener);
+
+            for (const sound::ZonePoint& source : kPoints) {
+                (void)sound::ObstaclesOf(*zones, zone, listener, source);
+            }
+        }
+    }
+
     return 0;
 }

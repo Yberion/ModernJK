@@ -35,6 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <shared/sound/stream/music.h>
 #include <shared/sound/stream/stream.h>
 #include <shared/sound/voices/voices.h>
+#include <shared/sound/zones/reverb.h>
 
 #include <cstdint>
 #include <deque>
@@ -100,6 +101,10 @@ public:
     void SetMusicLevel(std::string_view level) { music_.SetLevel(level); }
     void AllowDynamicMusic(bool allowed) noexcept { music_.AllowDynamic(allowed); }
     void SetMusicDebug(bool debug) noexcept { music_.SetDebug(debug); }
+    // A map's reverb zones, from eagle/<map>.efxzones (a map without the file has no reverb); empty for no map.
+    void LoadZones(std::string_view map);
+    // The reverb of the zones on or off (s_reverb); the obstacles' and the water's filters stay either way.
+    void SetReverb(bool enabled) { reverb_.SetEnabled(enabled); }
     // Where the sound log's lines go; empty for none.
     void SetLog(std::function<void(std::string_view)> log) { voices_.SetLog(std::move(log)); }
 
@@ -119,6 +124,7 @@ public:
         std::string intro;
         std::string loop;
         std::string level;
+        std::string zones; // the map whose reverb zones are loaded
         std::uint32_t serial = 1;
     };
     [[nodiscard]] State SaveState() const;
@@ -143,6 +149,7 @@ private:
     Host host_;
     std::unique_ptr<Device> device_;
     Bank bank_;
+    ZoneReverb reverb_; // before the voices, which send their sources to its slots
     Voices voices_;
     Music music_;
     Ambient ambient_;
@@ -150,6 +157,7 @@ private:
     float effectsVolume_ = 1.0f; // the cinematics' stream's gain
     std::deque<std::int16_t> streamQueue_;
     Vector listener_{};
+    std::string zonesMap_; // the map whose zones are loaded
     bool focused_ = true;
     bool muteWhenUnfocused_ = true;
 };

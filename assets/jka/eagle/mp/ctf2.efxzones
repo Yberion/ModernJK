@@ -1,0 +1,382 @@
+efxzones 1
+environment 1 1 0.31622776 0.31622776 1 10.05 0.23 1 0.5000345 0.02 0 0 0 1.25603 0.03 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 North Hangar
+environment 1 1 0.31622776 0.76120216 1 2.7 0.79 1 0.24717242 0.013 0 0 0 1.575796 0.02 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 South Hangar
+environment 1 1 0.31622776 0.76120216 1 2.7 0.79 1 0.24717242 0.013 0 0 0 1.575796 0.02 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 South Hangar corridor
+environment 1 1 0.31622776 0.8912509 1 1.49 0.83 1 0.050003454 0.007 0 0 0 1.2589254 0.011 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 SW Corridor
+environment 0.36449996 0.81 0.31622776 0.63095737 0.8912509 2.826 0.38 0.61 0.11708465 0.041 0 0 0 0.39810717 0.012 0 0 0 0.233 0.28 0.25 0 0.9942601 3316.1 458.2 0 1 Large Room South
+environment 0.36449996 0.81 0.31622776 0.63095737 0.8912509 2.826 0.38 0.61 0.11708465 0.041 0 0 0 0.39810717 0.012 0 0 0 0.233 0.28 0.25 0 0.9942601 3316.1 458.2 0 1 Large Room North
+environment 1 1 0.45446452 0.8912509 1 1.8119934 0.881 1.297 0.02282969 0.02034061 0 0 0 0.79707646 0.017377065 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Medium room south
+environment 1 1 0.45446452 0.8912509 1 1.8119934 0.881 1.297 0.02282969 0.02034061 0 0 0 0.79707646 0.017377065 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Medium Room North
+environment 1 1 0.31622776 0.8912509 1 1.49 0.83 1 0.050003454 0.007 0 0 0 1.2589254 0.011 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 NW Corridor
+environment 0.3070625 0.74 0.31622776 0.45446452 1 2.553 0.282 1 1.3289236 0.014 0 0 0 1.2473835 0.011 0 0 0 0.25 0.178 0.25 0 0.9942601 5000 250 0 1 lift shaft north
+environment 0.3070625 0.74 0.31622776 0.45446452 1 2.553 0.282 1 1.3289236 0.014 0 0 0 1.2473835 0.011 0 0 0 0.25 0.178 0.25 0 0.9942601 5000 250 0 1 lift shaft south
+environment 1 1 0.31622776 0.76120216 1 2.7 0.79 1 0.24717242 0.013 0 0 0 1.575796 0.02 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 underground passage south
+environment 1 1 0.31622776 0.76120216 1 2.7 0.79 1 0.24717242 0.013 0 0 0 1.575796 0.02 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 underground passage north
+environment 1 1 0.45446452 0.7294575 1 3.644 0.803 0.725 0.13931568 0.062 0 0 0 0.7071312 0.019 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Center room
+environment 1 1 0.31622776 0.76120216 1 2.7 0.79 1 0.24717242 0.013 0 0 0 1.575796 0.02 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 North Hangar Corridor
+environment 1 1 0.31622776 0.8912509 1 1.49 0.83 1 0.050003454 0.007 0 0 0 1.2589254 0.011 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 NE Corridor
+environment 1 1 0.31622776 0.8912509 1 1.49 0.83 1 0.050003454 0.007 0 0 0 1.2589254 0.011 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 SE Corridor
+environment 1 1 0.31622776 0.31622776 1 1.49 0.83 1 0 0.061 0 0 0 1.7782794 0.025 0 0 0 0.125 0.7 0.25 0 0.9942601 5000 250 0 1 outside
+zone 0
+zone 1
+zone 1
+zone 3
+zone 8
+zone 2
+zone 3
+zone 3
+zone 3
+zone 4
+zone 4
+zone 6
+zone 6
+zone 8
+zone 10
+zone 11
+zone 11
+zone 11
+zone 11
+zone 13
+zone 12
+zone 12
+zone 12
+zone 12
+zone 9
+zone 7
+zone 7
+zone 5
+zone 5
+zone 0
+zone 14
+zone 15
+zone 16
+zone 16
+zone 15
+zone 17
+zone 15
+zone 15
+start p0
+plane 6034 3988 -3398 0 0 -1 - p1
+plane 6034 -1406 -3398 0 -1 0 - p2
+plane 6034 3988 7532 0 0 -1 p3 -
+plane 6034 3988 7532 0 1 0 - p4
+plane -543 315 -621 -1 0 0 p5 p101
+plane -5362 3988 -3398 -1 0 0 - p6
+plane -2279 676 220 0 1 0 z35 p7
+plane -543 605 -1763 0 0 -1 z35 p8
+plane -1542 -102 477 0 0 -1 p9 p91
+plane -2026 -99 -564 0 -1 0 p10 p19
+plane -1811 -102 -61 0 0 -1 p11 p15
+plane -1534 -273 -425 0 -1 0 z35 p12
+plane -1534 -99 -425 0 0 -1 z35 p13
+plane -1534 -99 -425 -1 0 0 p14 z35
+plane -2412 -99 -425 -1 0 0 z35 z15
+plane -1811 -266 -61 0 -1 0 z35 p16
+plane -2041 -102 -61 -1 0 0 z35 p17
+plane -1811 -102 477 0 1 0 z35 p18
+plane -1811 -102 -61 -1 0 0 z18 z35
+plane -2279 676 220 0 0 -1 p20 z35
+plane -2652 675 -350 -1 0 0 z35 p21
+plane -2519 676 -190 -1 0 0 p22 p25
+plane -2184 415 -350 0 -1 0 z35 p23
+plane -2184 675 -350 0 0 -1 z35 p24
+plane -2184 675 -190 0 0 -1 z4 z35
+plane -1740 585 26 0 0 -1 p26 p89
+plane -2289 503 -1407 0 0 -1 p27 p39
+plane -543 605 -129 0 1 0 z35 p28
+plane -2438 343 -1555 -1 0 0 z35 p29
+plane -2020 119 -1555 0 -1 0 z35 p30
+plane -2020 343 -1555 -1 0 0 p31 p38
+plane -543 123 -1763 0 -1 0 p32 p33
+plane -2020 343 -1555 0 0 -1 z35 z7
+plane -2020 343 -1555 0 0 -1 p34 p35
+plane -2119 605 -1763 -1 0 0 z35 z1
+plane -2119 605 -1763 -1 0 0 p36 p37
+plane -2020 343 -1407 0 1 0 z35 z7
+plane -2020 343 -1407 0 1 0 z1 z6
+plane -543 123 -1763 0 -1 0 z35 z1
+plane -543 123 -1763 0 -1 0 p40 p49
+plane -1530 -13 -79 0 0 -1 p41 z35
+plane -2026 123 -564 -1 0 0 p42 p45
+plane -2026 123 -564 0 0 -1 z35 p43
+plane -2392 123 -564 -1 0 0 z35 p44
+plane -2026 123 -128 0 0 -1 z14 z35
+plane -1530 -13 -289 0 0 -1 z35 p46
+plane -1530 -13 -79 0 1 0 z35 p47
+plane -1722 -13 -289 -1 0 0 z35 p48
+plane -1530 -13 -289 -1 0 0 - z35
+plane -1740 585 -844 -1 0 0 p50 p87
+plane -2184 536 -837 -1 0 0 p51 p69
+plane -2279 676 -190 0 0 -1 p52 p67
+plane -2184 536 -699 0 0 -1 p53 p61
+plane -2289 503 -837 0 0 -1 p54 p58
+plane -2289 199 -1407 0 -1 0 z35 p55
+plane -2467 503 -1407 -1 0 0 z35 p56
+plane -2289 503 -837 0 1 0 z35 p57
+plane -2289 503 -1407 -1 0 0 z8 z35
+plane -2184 350 -837 0 -1 0 z35 p59
+plane -2446 536 -837 -1 0 0 z35 p60
+plane -2184 536 -699 0 1 0 z35 z3
+plane -2184 415 -350 0 -1 0 p62 p66
+plane -1905 379 -235 0 1 0 z35 p63
+plane -1905 379 -671 0 0 -1 z35 p64
+plane -2501 379 -671 -1 0 0 z35 p65
+plane -1905 379 -235 0 0 -1 z11 z35
+plane -2184 675 -350 0 0 -1 z35 z4
+plane -2279 464 -190 0 -1 0 z35 p68
+plane -2279 676 -190 -1 0 0 z13 z35
+plane -543 605 -129 0 1 0 z35 p70
+plane -1740 585 -844 0 0 -1 p71 p72
+plane -2119 605 -1763 -1 0 0 z35 z1
+plane -1740 585 26 0 1 0 p73 p75
+plane -2119 605 -1763 -1 0 0 z35 p74
+plane -543 605 -129 0 0 -1 z1 z35
+plane -543 605 -129 0 0 -1 p76 p86
+plane -1740 405 -844 0 -1 0 p77 p85
+plane -1905 379 -671 -1 0 0 p78 z1
+plane -1905 379 -671 0 0 -1 p79 p80
+plane -2119 605 -1763 -1 0 0 z35 z1
+plane -1905 379 -235 0 1 0 p81 p82
+plane -2119 605 -1763 -1 0 0 z35 z1
+plane -1905 379 -235 0 0 -1 p83 p84
+plane -2119 605 -1763 -1 0 0 z11 z12
+plane -2119 605 -1763 -1 0 0 z35 z1
+plane -2119 605 -1763 -1 0 0 z10 z9
+plane -1740 405 -844 0 -1 0 z35 z10
+plane -543 605 -129 0 1 0 z35 p88
+plane -543 605 -129 0 0 -1 z1 z35
+plane -2279 676 -190 -1 0 0 p90 z35
+plane -2279 464 -190 0 -1 0 z35 z13
+plane -1564 -271 661 0 -1 0 z35 p92
+plane -1542 -102 661 0 0 -1 p93 p97
+plane -1542 -266 477 0 -1 0 z35 p94
+plane -2084 -102 477 -1 0 0 z35 p95
+plane -1542 -102 661 0 1 0 z35 p96
+plane -1542 -102 477 -1 0 0 z17 z35
+plane -1564 -89 1101 0 1 0 z35 p98
+plane -1564 -89 1101 0 0 -1 p99 z35
+plane -1564 -89 661 -1 0 0 p100 z35
+plane -1762 -89 661 -1 0 0 z35 z16
+plane 6034 3988 -3398 -1 0 0 p102 -
+plane -311 315 -621 0 0 -1 p103 p108
+plane 117 -39 -1527 0 -1 0 z35 p104
+plane 117 495 -1527 0 0 -1 z35 p105
+plane 117 495 -707 0 1 0 z35 p106
+plane 117 495 -707 0 0 -1 p107 z35
+plane 117 495 -1527 -1 0 0 z2 z35
+plane 1132 656 4765 -1 0 0 p109 p133
+plane -311 315 51 0 0 -1 p110 p113
+plane -311 115 -621 0 -1 0 z35 p111
+plane -311 315 -621 -1 0 0 p112 z35
+plane -311 315 51 0 1 0 z35 z5
+plane 618 656 4765 -1 0 0 p114 p124
+plane 459.5 1171 2364 0 1 0 z35 p115
+plane 148.5 -9 2364 0 0 1 z35 p116
+plane 459.5 -9 2364 0 1 0 p117 z35
+plane -7 -9 2199.5 -0.7267068 0 0.68694776 z35 p118
+plane 459.5 -9 2364 0.7267068 0 0.68694776 z35 p119
+plane -7 -9 1870.5 -1 0 0 z35 p120
+plane 615 -9 2199.5 1 0 0 z35 p121
+plane 148.5 -9 1706 -0.7267068 0 -0.68694776 z35 p122
+plane 615 -9 1870.5 0.7267068 0 -0.68694776 z35 p123
+plane 459.5 -9 1706 0 0 -1 z35 z19
+plane 1132 306 4010 0 0 -1 z35 p125
+plane 1132 92 4765 0 -1 0 z35 p126
+plane 1132 306 4678 0 0 -1 p127 p130
+plane 1132 106 4010 0 -1 0 z35 p128
+plane 902 306 4010 -1 0 0 z35 p129
+plane 1132 306 4678 0 1 0 z35 z30
+plane 1132 656 5621 0 1 0 z35 p131
+plane 1132 656 4765 0 0 -1 z35 p132
+plane 1132 656 5621 0 0 -1 z29 z35
+plane 3102 730 4435 0 1 0 z35 p134
+plane 3001 -96 4289 0 -1 0 p135 p155
+plane 2369 -104 2956 0 0 -1 z35 p136
+plane 3018 -286 4122 0 -1 0 z35 p137
+plane 2369 -104 3400 0 0 -1 p138 p142
+plane 2369 -274 2956 0 -1 0 z35 p139
+plane 2185 -104 2956 -1 0 0 z35 p140
+plane 2369 -104 3400 0 1 0 z35 p141
+plane 2369 -104 2956 -1 0 0 z20 z35
+plane 3018 -96 4122 -1 0 0 p143 z35
+plane 2685 -104 3592 0 0 -1 p144 p148
+plane 2685 -274 3400 0 -1 0 z35 p145
+plane 2137 -104 3400 -1 0 0 z35 p146
+plane 2685 -104 3592 0 1 0 z35 p147
+plane 2685 -104 3400 -1 0 0 z21 z35
+plane 2152 -96 4122 -1 0 0 z35 p149
+plane 2613 -105 4122 0 0 -1 p150 p154
+plane 2613 -279 3592 0 -1 0 z35 p151
+plane 2439 -105 3592 -1 0 0 z35 p152
+plane 2613 -105 4122 0 1 0 z35 p153
+plane 2613 -105 3592 -1 0 0 z22 z35
+plane 3018 -96 4470 0 0 -1 z23 z35
+plane 3100 690 3841 0 0 -1 z35 p156
+plane 3161 386 4316 -1 0 0 p157 z35
+plane 2726 692 5797 0 0 -1 p158 z35
+plane 3071 367 5624 0 0 -1 p159 p220
+plane 2358 607 4208 -1 0 0 p160 p163
+plane 2726 122 4225 0 -1 0 z35 p161
+plane 2726 692 4225 0 0 -1 z35 p162
+plane 2726 692 5797 0 1 0 z35 z0
+plane 3001 122 4475 0 1 0 p164 p212
+plane 3071 501 5458 0 0 -1 p165 p206
+plane 2788 537 4752 -1 0 0 p166 p186
+plane 2788 607 4208 0 0 -1 z35 p167
+plane 2726 692 5797 0 1 0 z35 p168
+plane 2788 607 4936 0 0 -1 p169 p185
+plane 3161 386 4724 0 1 0 p170 p178
+plane 2788 607 4936 0 1 0 p171 p173
+plane 2726 692 4225 -1 0 0 p172 z35
+plane 2726 692 4225 0 0 -1 z35 z0
+plane 2726 692 4225 -1 0 0 p174 p177
+plane 2788 403 4208 0 -1 0 p175 p176
+plane 2726 692 4225 0 0 -1 z35 z0
+plane 2726 692 4225 0 0 -1 z28 z27
+plane 2788 403 4208 0 -1 0 z35 z28
+plane 2726 692 4225 0 0 -1 z35 p179
+plane 2517 386 4316 -1 0 0 z0 p180
+plane 3161 386 4316 0 0 -1 p181 p182
+plane 2726 692 4225 -1 0 0 z0 z35
+plane 3161 386 4724 0 0 -1 p183 p184
+plane 2726 692 4225 -1 0 0 z26 z25
+plane 2726 692 4225 -1 0 0 z0 z35
+plane 2726 692 4225 -1 0 0 z0 z35
+plane 3102 730 4255 0 0 -1 p187 p191
+plane 3100 448 3841 0 -1 0 z35 p188
+plane 2912 690 3841 -1 0 0 z35 p189
+plane 3100 690 4255 0 1 0 z35 p190
+plane 3100 690 3841 -1 0 0 z32 z35
+plane 3161 386 4724 0 0 -1 p192 p197
+plane 3102 408 4255 0 -1 0 p193 p195
+plane 3161 386 4724 0 1 0 z35 p194
+plane 3161 386 4316 0 0 -1 z35 z25
+plane 3102 730 4255 -1 0 0 p196 z35
+plane 3102 730 4435 0 0 -1 z33 z35
+plane 3058 537 4752 0 0 -1 z35 p198
+plane 3071 183 4910 0 -1 0 z35 p199
+plane 3058 537 4910 0 0 -1 p200 p203
+plane 3058 351 4752 0 -1 0 z35 p201
+plane 3058 537 4752 -1 0 0 p202 z35
+plane 3058 537 4910 0 1 0 z35 z34
+plane 3071 501 5458 0 1 0 z35 p204
+plane 2881 501 4910 -1 0 0 z35 p205
+plane 3071 501 4910 -1 0 0 z37 z35
+plane 2726 692 5797 0 1 0 z35 p207
+plane 2651 367 5458 -1 0 0 z0 p208
+plane 3071 367 5458 -1 0 0 p209 z35
+plane 3071 367 5624 0 1 0 p210 p211
+plane 2726 692 4225 -1 0 0 z0 z35
+plane 2726 692 4225 -1 0 0 z36 z31
+plane 3071 367 5458 0 0 -1 p213 p217
+plane 3001 122 4289 -1 0 0 p214 z35
+plane 3001 122 4289 0 0 -1 z35 p215
+plane 2625 122 4289 -1 0 0 z35 p216
+plane 3001 122 4475 0 0 -1 z24 z35
+plane 3071 91 5458 0 -1 0 z35 p218
+plane 2651 367 5458 -1 0 0 z35 p219
+plane 3071 367 5458 -1 0 0 z31 z35
+plane 2726 692 4225 -1 0 0 p221 z35
+plane 2726 122 4225 0 -1 0 z35 p222
+plane 2726 692 5797 0 1 0 z35 z0
+default-obstacle 0 0.25 1.5 occludes
+row - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d -
+diffraction -6000 0.25 90
+aperture 0 2487.1812 193.82265 4638.9185 2490.0662 185.59872 4503.321
+aperture 0 2322.7327 460.89825 4682.1943 2325.6177 462.01505 4468.6997
+aperture 0 1151.3981 180.4275 4520.631 1151.3981 180.67293 4638.9185
+aperture 0 2619.8938 178.26836 5579.448 2617.0088 178.26836 5492.8965
+aperture 1 -570.98315 168.24629 -456.09842 -568.0981 168.24629 -548.42035
+aperture 1 -1886.5708 191.80205 -571.50085 -1880.8007 191.80205 -456.09842
+aperture 1 -1990.4329 168.93713 -1517.8007 -1993.318 168.93713 -1437.019
+aperture 1 -1713.4672 448.67917 -609.00665 -1713.4672 448.67917 -398.39722
+aperture 2 -503.093 182.8543 -550.16266 -503.093 180.57857 -461.2515
+aperture 2 -480.8652 163.48915 20.92076 -356.04758 160.31172 26.050251
+aperture 3 -2047.0701 211.34064 -1439.2747 -2050.4897 211.34064 -1512.7974
+aperture 3 -2211.2139 454.4273 -733.11456 -2206.0842 454.4273 -804.9274
+aperture 4 -2158.209 480.64603 -808.3471 -2158.209 480.64603 -736.53424
+aperture 4 -1763.2382 461.74475 -399.69757 -1763.2382 453.30496 -608.29694
+aperture 4 -2166.7583 473.06363 -215.03587 -2168.468 473.0207 -285.13892
+aperture 5 2758.3767 453.9917 4791.8267 2758.3767 453.9917 4892.8037
+aperture 5 2380.4338 457.92453 4471.585 2374.6636 457.92453 4687.9644
+aperture 5 2767.032 461.97882 4341.7573 2764.147 462.02176 4281.171
+aperture 6 -2160.589 185.6304 -321.09848 -2068 188 -328.81516
+aperture 6 -2352 172 -323.96207 -2260 168 -323.96207
+aperture 6 -1928 184 -463.6214 -1929.0918 181.91943 -574.1003
+aperture 7 2959.7915 176.62924 4412.937 2865.6685 176.62924 4412.937
+aperture 7 2757.8826 182.70169 4412.937 2666.7957 178.14735 4412.937
+aperture 7 2541.9973 198.69865 4503.321 2539.112 199.55717 4633.1484
+aperture 8 -2206.0842 532.90125 -215.03587 -2207.7942 532.90125 -285.13892
+aperture 8 -2465.9785 541.7107 197.03331 -2334.3215 541.7107 191.90382
+aperture 9 2952.0774 -69.04959 4387.772 2872 -60 4396.702
+aperture 9 2756 -56 4396.702 2676 -56 4396.702
+aperture 9 2960 104 4393.907 2868 100 4393.907
+aperture 9 2760 104 4393.907 2676 104 4393.907
+aperture 10 -2148 -68 -316.95197 -2064 -64 -316.95197
+aperture 10 -2268 -56 -316.95197 -2348 -48 -316.95197
+aperture 10 -2348 100 -316.95197 -2260 104 -316.95197
+aperture 10 -2144 100 -316.95197 -2060 92 -316.95197
+aperture 11 -1720.4924 -204.90958 1074.1764 -1614.4829 -204.90958 1077.5961
+aperture 11 -2057.329 -124.94384 -315.91586 -2144.5305 -131.67944 -317.6257
+aperture 11 -2354.8396 -124.94384 -317.6257 -2257.3792 -124.94384 -317.6257
+aperture 12 2321.1628 -201.60524 2981.6929 2220.0132 -201.60524 2985.4392
+aperture 12 2675.7847 -112.63322 4382.1206 2762.2505 -113.248795 4384.4473
+aperture 12 2952.9978 -119.20964 4385.9507 2865.9695 -119.20964 4385.9507
+aperture 13 116.47851 540.7355 1782.8842 50.918655 540.7355 1844.6976
+aperture 13 13.455883 33.33022 1970.198 17.20216 33.33022 2093.8252
+aperture 13 588.50946 62.60085 2084.4595 584.7632 62.60085 1994.5487
+aperture 13 492.97937 539.5284 2294.251 549.1735 539.5284 2230.5642
+aperture 14 1102.3519 186.44598 4644.6885 1099.4669 186.44598 4526.4014
+aperture 14 949.4438 186.44598 4038.826 1079.2715 186.44598 4044.596
+aperture 15 2677.595 193.77705 5498.6665 2671.825 193.77705 5576.563
+aperture 15 2810.3079 453.9917 4788.942 2804.5376 453.9917 4887.0337
+aperture 16 2810.3079 471.89774 4281.171 2807.4229 478.4105 4347.5273
+aperture 16 3067.0781 540.40625 3868.6074 2957.4458 540.40625 3877.2625
+aperture 17 949.1531 171.26944 3987.0613 1085.2977 171.26944 3990.9512
+aperture 17 2963.6492 538.9219 3815.2395 3068.5452 538.9219 3822.7322
+aperture 17 2221.8865 -228.49701 2929.2449 2324.909 -228.49701 2932.9912
+aperture 17 639.0842 77.483185 1987.0562 637.21106 78.21902 2078.84
+aperture 17 590.38257 539.5284 2260.5344 536.0616 539.5284 2312.9824
+aperture 17 -33.37258 25.130924 2090.0789 -33.37258 25.130924 1968.3248
+aperture 17 -1711.7048 -200.73264 1136.6512 -1618.0479 -200.73264 1136.6512
+aperture 17 -2460.9602 551.8295 243.16411 -2337.3333 551.8295 243.16411
+aperture 17 -484.799 187.59456 80.20105 -359.2987 187.59456 83.94733
+aperture 17 4.09019 528.6953 1803.4886 69.65004 528.6953 1747.2944

@@ -1,6 +1,7 @@
 @echo off
 rem Validation on Windows (MSVC): configure, build and test the MSVC presets (x64 Release and Debug: the game,
-rem netcodec and their tests; x64 with AddressSanitizer: the same with it), then the size benchmark, the codec
+rem netcodec and their tests; x64 with AddressSanitizer: the same with it), the zone files' converter
+rem (tools\eal_converter, out of the presets' builds) in Release, then the size benchmark, the codec
 rem benchmark (two runs) and the trainers, which must rewrite the committed tables unchanged. Needs the traces of
 rem docs\modernization\data\traces (export_rans_trace.py, export_codec_trace.py, export_demo_traces.py, and the
 rem client traces of netcodec_bench_client --trace).
@@ -49,6 +50,7 @@ for %%p in (windows-msvc-release windows-msvc-debug windows-msvc-asan) do (
 	call :buildstep "%%p: build" --preset %%p
 	call :step "%%p: tests" ctest --preset %%p
 )
+call :buildstep "windows-msvc-release: zone converter" --preset windows-msvc-release --target eal_converter
 
 set "R=%B%\windows-msvc-release\bin"
 call :bench "size benchmark, windows-msvc-release" size "%R%\netcodec_bench_size.exe" "%T%\holdout.bin"

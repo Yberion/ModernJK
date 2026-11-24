@@ -1,6 +1,6 @@
 # What this branch changes compared with OpenJK
 
-Last update: 24 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (section 33), which concerns the single-player games of Jedi Academy and Jedi Outcast too.
+Last update: 24 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (sections 33 and 34), which concerns the single-player games of Jedi Academy and Jedi Outcast too.
 
 This page lists every change of the branch, with its reason and what it gives. The work follows the goals stated in the [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, a netcode other JKA forks can reuse, Windows and Linux. The measurements in full, and the history of each change, are in the step documents of [progress/](progress/README.md).
 
@@ -25,7 +25,8 @@ This page lists every change of the branch, with its reason and what it gives. T
 8. **Messages are about 2.5 times smaller**, which pays for most of the higher rate.
 9. **No network setting is left**: `rate`, `snaps`, `cl_maxpackets`, `cl_packetdup` and `cl_timeNudge` are gone; the game computes or fixes their values.
 10. **The sound is played by OpenAL Soft**, in the multiplayer and both single-player games: up to 64 sounds heard at once, chosen by how loud they are where you stand, instead of 32 channels where a new sound cut the oldest; every saber, shot and footstep from its own place, real Doppler, nothing played twice, `s_volume` the volume of everything (section [33](#33-the-sound-on-openal-soft)).
-11. **The price**: a branch client and an OpenJK server (or the reverse) do not understand each other, and demos of one do not play on the other.
+11. **Each map's reverb by zones**, as the original game played it on sound cards with EAX: the room you stand in, the rooms around through their doors, the walls and pillars muffling what is behind them; `s_reverb` switches it off (section [34](#34-the-reverb-by-zones)).
+12. **The price**: a branch client and an OpenJK server (or the reverse) do not understand each other, and demos of one do not play on the other.
 
 ### Delays before and now
 
@@ -164,6 +165,7 @@ Each line links to its section.
 
 | change | before | now |
 |---|---|---|
+| [34. The reverb by zones](#34-the-reverb-by-zones) | no reverb (the original's, through EAX, removed with its 32-bit OpenAL path) | each map's reverb by zones, the neighbouring rooms through their doors, the walls and pillars muffling; `s_reverb` |
 | [33. The sound on OpenAL Soft](#33-the-sound-on-openal-soft) | a software mixer with 32 channels shared by every sound, a 1995 MP3 decoder, SDL 2's device | OpenAL Soft: 64 voices mixed, chosen by loudness, the others followed silently; real Doppler; the reference decoders; the system's device followed; the loudness after the standard for games, ASWG-R001 (-24 LUFS at the default settings) |
 
 **Reference**: [27. Settings and commands](#27-settings-and-commands), [28. Build, tests and repository](#28-build-tests-and-repository), [29. Name: ModernJK](#29-name-modernjk), [30. Compatibility](#30-compatibility), [31. C++20, 64-bit Windows, Linux and macOS](#31-c20-64-bit-windows-linux-and-macos), [32. Not changed yet](#32-not-changed-yet).
@@ -1120,6 +1122,7 @@ Added cvars, all for debugging or measuring:
 | `sv_netcodecMaxBytes` | server | the largest message the server codes (0: 49,152 bytes), to test what happens to larger ones (section 19) |
 | `cl_debugInterpForce`, `cl_debugInterpDelay` | client, cheat-protected | force a display delay (section 4) |
 | `s_muteWhenUnfocused` | client, archived, default 1 | the sound muted while the window has not the focus (section 33) |
+| `s_reverb` | client, archived, default 1 | the reverb of the zones; 0 switches it off, the walls and the water still muffling (section 34) |
 | `g_debugSeed` | server (game module) | a non-zero value replaces the game's start seed: with `fixedtime` set before the map loads, a run replays the same game |
 
 Added commands. The statistics commands print their counters since the previous call.
@@ -1212,7 +1215,7 @@ Top-level `CMakeLists.txt`: `CMAKE_CXX_STANDARD` 20, required, without extension
 | The delay the other players are drawn with depends on your frame rate: about 2 ms at 100 frames per second, 7 at 125, 11 at 333 | kept as it is (15 November 2026): extrapolating would make the delay equal but guess the positions and the angles; a fixed delay would add a few milliseconds at 100 and 125 frames per second |
 | Encryption, or a replacement for the removed obfuscation; several download blocks per message | plan step 12 |
 | Tables retrained on games of this build; the force power levels the prediction lacks; a wider `saberAttackChainCount` | plan step 13 |
-| The client's window and input rewritten on SDL 3; the sound's reverb by zones, as the original game's EAX path played it | plan steps 15 and 21 (part 4) |
+| The client's window and input rewritten on SDL 3 | plan step 15 |
 | Protocol number, handshake, support of the old protocol, old demos | end of the plan |
 | An acknowledgement bitfield, a snapshot history sized from the round trip | not planned (reasons in [progress/step-10-acks-reliable.md](progress/step-10-acks-reliable.md)) |
 
@@ -1280,5 +1283,55 @@ Costs: a level's sounds take 36 to 44 MB as decoded samples (measured on `mp/ffa
 | Latency | the mixer painting 150 ms ahead (about 70 ms estimated) | OpenAL Soft's default, 3 periods of 512 frames (about 32 ms reported on Windows) |
 
 The work, its decisions, the inventory of every call and the sound logs: [progress/step-21-sound.md](progress/step-21-sound.md).
+
+</details>
+
+### 34. The reverb by zones
+
+**Before.** OpenJK has no reverb. The base game had one, by zones (the files `eagle/<map>.eal`, made with Creative's editor), but only through its 32-bit OpenAL path with Creative's EAX Manager, on a sound card with EAX and with `s_UseOpenAL 1` (off by default in the multiplayer and in Jedi Outcast); OpenJK removed that path (section 31), so every room sounds dry, and the walls and pillars the files describe muffle nothing.
+
+**Now.** Each map's reverb by zones, as the original's EAX path played it, through OpenAL Soft's EFX, in the multiplayer and both single-player games:
+
+- the game's zone files converted once (`tools/eal_converter`), 57 for Jedi Academy and 26 for Jedi Outcast's single player, in each game's `modernjk.pk3` (`eagle/<map>.efxzones`); every map both games play has one;
+- the reverb of the room you stand in and, on 37 of Jedi Academy's maps (15 of its 23 multiplayer maps), the reverbs of the two rooms whose door is nearest, each heard from its door as you turn; every sound sent to the reverb of its own room;
+- on the other maps (Jedi Outcast's, most of the duels, the academy) the reverb of the room you stand in, turning into the next room's in one second;
+- the walls between rooms and the pillars inside one muffle the sounds behind them, as the files say; the characters' voices never, as in the original;
+- under water, the "underwater" reverb beside the muffling of section 33;
+- `s_reverb` ("Reverb:" in the sound menus of the three games, on by default) switches the reverb off; the walls, the pillars and the water muffle all the same, for every player.
+
+**Why.** The game's sound designers made a reverb for every map, which no one has heard since sound cards with EAX are gone (hardware EAX ended with Windows Vista), and never in a 64-bit build or on Linux.
+
+**Gain.**
+
+| fix | before | now |
+|---|---|---|
+| A room's sound | dry everywhere | the room's reverb: a hall's long tail, a corridor's short one, a cave's echo |
+| The rooms around | nothing | on `mp/ffa3` in the hall of the TIE fighter, the lunch room heard through its door and the north hall to the side; their reverbs panned towards their doors in the listener's whole orientation (the original's pan took the view's pitch for a turn: looking up 60 degrees moved a door ahead to the side, looking straight up put every door in one direction of the world) |
+| `mp/siege_korriban` | (the original) its file refused for one room without its first aperture, played with one reverb | its neighbours, as on the other multiplayer maps |
+| A sound behind a wall | as loud as in the open | muffled as the file says: behind the glass walls of Jedi Outcast's `doom_comm`, at 0.58 of its level and its high frequencies 14 dB lower; Jedi Academy's only wall, in `t1_danger`, -1,507 mB |
+| A sound behind a pillar | as loud | muffled by up to 60 dB at the high frequencies and 15 dB at the low ones, by the angle it turns around the pillar's edge (`mp/siege_desert`'s 73 pillars, `mp/ffa3`'s 5); also behind the 69 pillars whose zone the editor's renumbering had made wrong, which the original never applied (`t2_rancor`'s 12, `yavin_temple`'s 31, 14 of `mp/siege_hoth`'s) |
+| The 64 sounds mixed in a crowd | chosen by distance and volume | a sound behind a wall counts as the quieter sound it is (as FMOD does) |
+| Under water | the muffling of section 33 | and the "underwater" reverb |
+
+Costs: three reverbs take about 0.74 % of a core (measured on 15 November 2026 with 32 voices), the zones' calculations an estimated 0.01 ms per frame (both measured in plan step 21, part 5); the zone files 1.1 MB of text in the two archives. The loudness measured again after ASWG-R001 (section 33): on `mp/duel1`, whose one reverb is a courtyard's, the duels at the default settings at -22.8 LUFS on average with the reverb and -23.3 without (the bots' runs differ by up to 3 dB), a crowd with every slider at 1 at -1.7 dBTP at worst; still within -24 ±2 LUFS and under -1 dBTP. A map with long reverbs is measured in plan step 21, part 5.
+
+<details>
+<summary>Technical details</summary>
+
+| | the original's EAX path | this branch |
+|---|---|---|
+| The data | `eagle/<map>.eal`, read by Creative's `EaxMan.dll` 3.0 (closed, 32-bit) | `eagle/<map>.efxzones`, a text file the module reads (`src/shared/sound/zones/zones.cpp`): the environments in the values of EFX's "EAX reverb", the zones' BSP, the apertures, the obstacles, the diffraction boxes; converted by `tools/eal_converter` through EalMan (`libs/ealman`, a portable rewrite of `EaxMan.dll`, which the game never links), every file checked against EalMan to the bit |
+| The listener's zone | every 100 ms | every frame; out of every zone, the last zone's reverbs |
+| The neighbours | the two environments whose nearest aperture is nearest, every 100 ms | the same, every 100 ms and when the listener enters another environment |
+| A sound's reverb | its environment's slot when one holds it, else left as it was (EAX 4's default: the listener's) | its zone's slot, else the listener's; none for the announcer, the interface and the voices heard everywhere |
+| Occlusion, obstruction | EAX 4's source properties from `GetSourceDynamicAttributes`, the voices left out | the same values, computed by the module, turned into EFX low-pass filters on the direct sound and the send as OpenAL Soft's own EAX layer turns them; the exclusion not played |
+| One reverb | Jedi Academy: switched at once; Jedi Outcast: morphed in 1 s by ten steps | both: ten steps of 100 ms, the original's interpolation (`EAX3ListenerInterpolate`) on EFX's values |
+| Under water | the "underwater" environment in slot 0, every source sent to it with -3000 mB of occlusion | the same, `EFX_REVERB_PRESET_UNDERWATER` |
+| A file the original refused | one reverb | `mp/siege_korriban` repaired (one room lacking its first aperture); `t3_byss` one reverb |
+| A zone in the file's default environment (five of Jedi Outcast's files) | that environment | the same, the converter adding it to the file |
+| A diffraction box naming another zone than the one holding it (69 boxes) | never applied | given the zone that holds its centre by the converter |
+| `s_UseOpenAL` | the whole EAX path, off by default in the multiplayer and Jedi Outcast | removed (section 33); `s_reverb`, the reverb alone, on by default |
+
+`soundinfo` prints the map's zones, the listener's environment and the slots; `s_show 1` adds them to the sound log every 50 frames, with each voice's send and direct filter. The work, the data counted and the original's code read: [progress/step-21-sound.md](progress/step-21-sound.md) section 13.
 
 </details>

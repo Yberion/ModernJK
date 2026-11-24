@@ -4,7 +4,8 @@
 # preset (the game, netcodec and
 # their tests; the AddressSanitizer preset with the sanitizers), build the servers' preset (the dedicated server
 # and the game module) and the check of the code only Debug compiles (GCC's link-time optimization reports its types
-# and declarations across files), then run the size benchmark (Release and AddressSanitizer), the codec benchmark (two runs) and
+# and declarations across files), build the zone files' converter (tools/eal_converter, out of the presets' builds) with
+# both compilers, then run the size benchmark (Release and AddressSanitizer), the codec benchmark (two runs) and
 # the trainers, which must rewrite the committed tables unchanged. Needs the traces of docs/modernization/data/traces
 # (export_rans_trace.py, export_codec_trace.py, export_demo_traces.py, and the client traces of
 # netcodec_bench_client --trace).
@@ -22,7 +23,7 @@ exec > >(tee "$LOG") 2>&1
 
 # the sources' contents at the start, compared at the end: a file changed during the run makes it a mix (FAIL)
 srchash() {
-	find CMakeLists.txt CMakePresets.json ProjectOptions.cmake Dependencies.cmake cmake src test assets -type f -print0 |
+	find CMakeLists.txt CMakePresets.json ProjectOptions.cmake Dependencies.cmake cmake src test tools assets libs/ealman -type f -print0 |
 		sort -z | xargs -0 sha1sum | sha1sum
 }
 START_HASH=$(srchash)
@@ -43,7 +44,7 @@ step() {
 	fi
 }
 
-step "formatting, clang-format 23" bash -c "find src test -type f \\( -name '*.c' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \
+step "formatting, clang-format 23" bash -c "find src test tools -type f \\( -name '*.c' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \
 	-o -name '*.inl' -o -name '*.inc' \\) -print0 | xargs -0 -P '$JOBS' -n 50 clang-format-23 --dry-run --Werror"
 for p in linux-gcc-release linux-gcc-debug linux-gcc-asan linux-clang-release linux-clang-asan; do
 	step "$p: configure" cmake --preset "$p"
@@ -54,6 +55,8 @@ step "linux-gcc-server: configure" cmake --preset linux-gcc-server
 step "linux-gcc-server: build" cmake --build --preset linux-gcc-server -j "$JOBS"
 step "linux-gcc-debug-lto: configure" cmake --preset linux-gcc-debug-lto
 step "linux-gcc-debug-lto: build" cmake --build --preset linux-gcc-debug-lto -j "$JOBS"
+step "linux-gcc-release: zone converter" cmake --build --preset linux-gcc-release -j "$JOBS" --target eal_converter
+step "linux-clang-release: zone converter" cmake --build --preset linux-clang-release -j "$JOBS" --target eal_converter
 
 OUT=$(mktemp -d)
 R=$B/linux-gcc-release/bin

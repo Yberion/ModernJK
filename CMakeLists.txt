@@ -81,6 +81,10 @@ endif()
 
 add_subdirectory(src)
 
+if(modernjk_BUILD_TOOLS)
+	add_subdirectory(tools/eal_converter)
+endif()
+
 if(BUILD_TESTING)
 	add_subdirectory(test)
 endif()

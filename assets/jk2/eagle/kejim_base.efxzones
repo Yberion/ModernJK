@@ -1,0 +1,528 @@
+efxzones 1
+environment 1 1 0.45446452 0.8912509 1 1.19 0.881 0.985 0.034753617 0.013358398 0 0 0 1.2133888 0.011412133 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Corridor
+environment 1 0.959 0.31622776 0.8912509 1 2.553 0.751 1.063 0.5578276 0.016 0 0 0 1.506607 0.003 0 0 0 0.25 0 0.365 0.151 0.9942601 5000 250 0 1 High room
+environment 0.448618 0.767 0.31622776 0.53210825 1 3.8250935 0.464 1 0.938642 0.021 0 0 0 1.2473835 0.01 0 0 0 0.25 0.288 0.25 0 0.9942601 5000 250 0 1 Large Lift Shaft
+environment 1 1 0.2831392 0.8912509 1 3.371 0.881 0.959 0.098401114 0.016 0 0 0 1.031573 0.008 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Large Stone Chamber
+environment 0.59888524 0.973 0.31622776 0.45446452 1 2.553 0.282 1 1.0616956 0.017491765 0 0 0 0.99770004 0.013743529 0 0 0 0.25 0.178 0.25 0 0.9942601 5000 250 0 1 Lift Shaft
+environment 0.22209747 0.8 0.31622776 0.31622776 1 2.5223882 0.14 1 1.8238957 0.01256706 0 0 0 3.6140988 0.018850587 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 Long Thin Pipe
+environment 1 1 0.45446452 0.8912509 1 1.8119934 0.881 1.297 0.02282969 0.02034061 0 0 0 0.79707646 0.017377065 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Large room
+environment 1 1 0.45446452 0.8912509 1 0.8715394 0.881 0.933 0.5388898 0.0063710343 0 0 0 1.165467 0.008788632 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Narrow corridor
+environment 1 1 0.45446452 0.8912509 1 0.77493 0.881 1.297 0.034753617 0.00869901 0 0 0 1.2473835 0.0074316 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Small room
+environment 1 1 0.31622776 0.8912509 1 2.281 0.83 1 0.05841172 0.005996667 0 0 0 1.4689263 0.009423333 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 Stone tunnel
+environment 1 1 0.17640059 0.53210825 1 1.736 0.803 0.985 0.938642 0.058 0 0 0 0.48417237 0.011 0 0 0 0.188 0.315 0.25 0 0.9942601 5000 248.219 0 1 Mon Mothma's lounge
+environment 1 1 0.31622776 0.8912509 1 0.737252 0.83 1 0.10115794 0.0034636 0 0 0 2.5438998 0.0054428 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 Small chamber
+environment 0.8163056 0.8 0.31622776 0.31622776 1 3.892676 0.14 1 1.1830416 0.019394118 0 0 0 2.3415315 0.029091174 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 Curvy corridor
+environment 0.5 0.91 1 0.4466836 0.2818383 2.81 0.18 0.1 0.70794576 0.01 0 0 0 1.2473835 0.022 0 0 0 0.25 0 0.25 0 0.9942601 2854.4 20 0 0 Crawlway
+environment 1 1 0.45446452 0.8912509 1 1.3973821 0.881 1.297 0.029614203 0.015686374 0 0 0 1.0327615 0.013400933 0 0 0 0.25 0.301 0.25 0 0.9942601 5424.658 250 0 1 Medium room
+environment 0.8163056 0.87 0.31622776 0.56234133 0.4466836 2.553 1.53 0.32 0.39810717 0.039 0 0 0 1.2473835 0.027 0 0 0 0.186 0.12 0.25 0 1 12428.5 99.6 0 1 Cold room
+environment 0.2109375 0.822 0.39810717 0.63095737 0.8912509 2.553 0.5 0.55 0.31622776 0.034 0 0 0 0.4466836 0.035 0 0 0 0.209 0.31 0.25 0 0.9942601 3316.1 458.2 0 1 Fyarr's ship
+environment 1 1 0.31622776 0.8912509 1 1.49 0.83 1 0.050003454 0.007 0 0 0 1.2589254 0.011 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 Default
+zone 0
+zone 14
+zone 15
+zone 15
+zone 7
+zone 6
+zone 8
+zone 11
+zone 17
+zone 5
+zone 5
+zone 6
+zone 0
+zone 0
+zone 0
+zone 0
+zone 1
+zone 4
+zone 8
+zone 0
+zone 6
+zone 7
+zone 8
+zone 13
+zone 14
+zone 14
+zone 6
+zone 6
+zone 11
+zone 6
+zone 11
+zone 6
+zone 6
+zone 1
+zone 1
+zone 6
+zone 12
+zone 14
+zone 11
+zone 6
+zone 16
+zone 10
+zone 8
+zone 8
+zone 8
+zone 8
+zone 7
+zone 8
+zone 8
+zone 8
+zone 8
+zone 8
+zone 8
+zone 8
+zone 8
+start p0
+plane 1907 933 -3747 0 0 -1 - p1
+plane 1907 -613 -3747 0 -1 0 - p2
+plane 1907 933 1307 0 0 -1 p3 -
+plane 1907 933 1307 0 1 0 - p4
+plane -5641 933 -3747 -1 0 0 - p5
+plane -5509 836 192 -1 0 0 z0 p6
+plane 1907 933 -3747 -1 0 0 p7 -
+plane -4817 -466 192 0 -1 0 z0 p8
+plane 1342 -240 -855 1 0 0 z0 p9
+plane -4817 836 612 0 1 0 z0 p10
+plane 1342 -240 -1393 0.81536865 0 -0.57894206 z0 p11
+plane -4817 836 612 0 0 -1 p12 z0
+plane -119 154 -3219 0 0 -1 z0 p13
+plane 510 154 551 0 0 -1 p14 p383
+plane 976 232 296 0 0 -1 p15 p373
+plane 476 255 -1312 -1 0 0 p16 p336
+plane 257 204 -645 -1 0 0 p17 z0
+plane -5488 -58 -488 -1 0 0 p18 p19
+plane -4817 836 192 0 0 -1 z0 z37
+plane -490 10 274 0 0 -1 p20 p335
+plane -226 -303 -1921 0 -1 0 p21 p23
+plane -4817 836 192 0 0 -1 z0 p22
+plane -4817 836 192 -1 0 0 z37 z0
+plane -226 311 -819 0 1 0 p24 p26
+plane -4817 836 192 -1 0 0 p25 z0
+plane -4817 836 192 0 0 -1 z0 z37
+plane -1741 106 -1601 -1 0 0 p27 p214
+plane -4817 836 192 0 0 -1 p28 p213
+plane -2354 305 -257 0 1 0 z0 p29
+plane -3328 -290 -1857 0 -1 0 z0 p30
+plane -4719 -72 -2387 -1 0 0 p31 p34
+plane -4672 -58 -488 0 0 -1 z0 p32
+plane -4672 -234 -488 0 -1 0 z0 p33
+plane -4672 -58 192 0 1 0 z0 z36
+plane -2239 248 -3043 0 0 -1 p35 p38
+plane -119 -278 -3219 0 -1 0 z0 p36
+plane -2239 154 -3219 -1 0 0 z0 p37
+plane -119 154 -2365 0 1 0 z0 z16
+plane -3980 108 3 0 0 -1 p39 p210
+plane -2239 248 -2303 0 0 -1 p40 p69
+plane -3903 -72 -2387 -1 0 0 p41 p44
+plane -3903 -72 -2387 0 0 -1 z0 p42
+plane -3903 -248 -2387 0 -1 0 z0 p43
+plane -3903 -72 -1831 0 1 0 z0 z39
+plane -3521 248 -3043 -1 0 0 z0 p45
+plane -2239 99 -2723 -1 0 0 p46 p48
+plane -2239 248 -2303 0 1 0 z0 p47
+plane -2239 -184 -3043 0 -1 0 z0 z20
+plane -119 154 -2365 0 0 -1 p49 z0
+plane -1887 -278 -3013 0 -1 0 z0 p50
+plane -119 154 -2365 0 1 0 z0 p51
+plane -1764 135 -2903 -1 0 0 p52 z16
+plane -1887 154 -3013 0 0 -1 z16 p53
+plane -1769 99 -2527 0 0 -1 p54 z16
+plane -1769 99 -2723 0 0 -1 p55 p60
+plane -1888 135 -2903 -1 0 0 z18 p56
+plane -1764 135 -2903 0 0 -1 z16 p57
+plane -1764 -263 -2903 0 -1 0 z16 p58
+plane -1764 135 -2795 0 0 -1 p59 z16
+plane -1764 135 -2795 0 1 0 z16 z17
+plane -1769 99 -2723 -1 0 0 p61 z16
+plane -1887 154 -2715 0 0 -1 p62 p67
+plane -1769 -65 -2723 0 -1 0 p63 p64
+plane -1887 154 -3013 -1 0 0 z18 z16
+plane -1887 154 -3013 -1 0 0 p65 p66
+plane -1769 99 -2527 0 1 0 z18 -
+plane -1769 99 -2527 0 1 0 z16 z19
+plane -1769 -65 -2723 0 -1 0 z16 p68
+plane -1769 99 -2527 0 1 0 z16 z19
+plane -2303 139 -2118 -1 0 0 p70 p205
+plane -2689 139 -2118 -1 0 0 p71 p192
+plane -3980 108 -577 0 0 -1 p72 p182
+plane -2904 139 -1917 -1 0 0 p73 p171
+plane -3836 76 -703 0 0 -1 p74 p169
+plane -3840 182 -1272 0 1 0 p75 p77
+plane -3054 305 -1083 -1 0 0 z0 p76
+plane -2354 305 -1083 0 0 -1 z0 z40
+plane -4536 76 -1249 -1 0 0 p78 p81
+plane -3903 -72 -1831 0 0 -1 p79 z0
+plane -3903 -248 -2387 0 -1 0 z0 p80
+plane -3903 -72 -1831 0 1 0 z0 z39
+plane -3840 182 -1272 0 0 -1 p82 p158
+plane -3712 130 -1770 0 1 0 p83 p86
+plane -3840 182 -1770 0 0 -1 z0 p84
+plane -3840 182 -1770 -1 0 0 p85 z0
+plane -4246 182 -1770 -1 0 0 z0 z27
+plane -4512 130 -2304 -1 0 0 p87 p90
+plane -3903 -248 -2387 0 -1 0 z0 p88
+plane -3903 -72 -1831 0 0 -1 p89 z0
+plane -3903 -72 -1831 0 1 0 z0 z39
+plane -3903 -72 -2387 -1 0 0 p91 p115
+plane -3712 130 -1770 0 0 -1 p92 p101
+plane -4312 -70 -2048 0 -1 0 p93 p96
+plane -3903 -72 -1831 0 0 -1 p94 z0
+plane -3903 -248 -2387 0 -1 0 z0 p95
+plane -3903 -72 -1831 0 1 0 z0 z39
+plane -4312 122 -2048 0 0 -1 z26 p97
+plane -4312 122 -1788 0 1 0 z26 p98
+plane -4312 122 -1788 0 0 -1 p99 z26
+plane -4312 122 -2048 -1 0 0 p100 z26
+plane -4510 122 -2048 -1 0 0 z26 z53
+plane -3840 -274 -1770 0 -1 0 z0 p102
+plane -4246 182 -1770 -1 0 0 z0 p103
+plane -4099 -66 -1598 0 1 0 z27 p104
+plane -4096 -128 -1593 0 0 -1 p105 p110
+plane -4099 -202 -1738 0 -1 0 z27 p106
+plane -4099 -66 -1738 0 0 -1 z27 p107
+plane -4099 -66 -1738 -1 0 0 p108 z27
+plane -4099 -66 -1598 0 0 -1 p109 z27
+plane -4237 -66 -1738 -1 0 0 z27 z52
+plane -4096 -230 -1593 0 -1 0 z27 p111
+plane -4096 -128 -1527 0 0 -1 p112 z27
+plane -4096 -128 -1527 0 1 0 z27 p113
+plane -4188 -128 -1593 -1 0 0 z27 p114
+plane -4096 -128 -1593 -1 0 0 z28 z27
+plane -2928 76 -1906 0 0 -1 p116 p122
+plane -2997 -211 -2170 0 -1 0 z0 p117
+plane -3712 -70 -2304 0 -1 0 p118 p121
+plane -2997 -151 -1906 0 1 0 z0 p119
+plane -2997 -151 -2170 0 0 -1 z0 p120
+plane -2997 -151 -2170 -1 0 0 z38 z0
+plane -3712 130 -2304 -1 0 0 z26 z0
+plane -3840 -68 -1857 -1 0 0 p123 p126
+plane -3712 130 -1770 0 0 -1 p124 p125
+plane -3712 -70 -2304 0 -1 0 z0 z26
+plane -3840 -274 -1770 0 -1 0 z0 z27
+plane -2928 76 -1536 0 1 0 p127 p129
+plane -3712 130 -2304 -1 0 0 p128 z0
+plane -3712 130 -1770 0 0 -1 z26 z0
+plane -3454 76 -1548 -1 0 0 p130 p143
+plane -3328 -68 -1579 0 0 -1 p131 p140
+plane -3712 -70 -2304 0 -1 0 p132 p133
+plane -3328 -68 -1857 0 0 -1 z0 z29
+plane -3712 130 -1770 0 0 -1 p134 p139
+plane -3328 -68 -1579 0 1 0 p135 p136
+plane -3712 130 -2304 -1 0 0 z26 z0
+plane -3712 130 -2304 -1 0 0 p137 p138
+plane -3328 -68 -1857 0 0 -1 z26 -
+plane -3328 -68 -1857 0 0 -1 z0 z29
+plane -3328 -68 -1579 0 1 0 z0 z29
+plane -3454 -202 -1548 0 -1 0 z0 p141
+plane -3454 76 -1548 0 0 -1 z0 p142
+plane -3836 76 -1548 -1 0 0 z0 z33
+plane -2928 76 -1536 0 0 -1 p144 p155
+plane -2928 76 -1906 -1 0 0 p145 z0
+plane -3328 -68 -1857 -1 0 0 p146 p149
+plane -3328 -68 -1579 0 1 0 z0 p147
+plane -3328 -68 -1857 0 0 -1 z0 p148
+plane -3328 -68 -1579 0 0 -1 z29 z0
+plane -3264 76 -1906 -1 0 0 p150 p154
+plane -3264 -128 -1713 0 0 -1 z0 p151
+plane -3264 -230 -1713 0 -1 0 z0 p152
+plane -3264 -128 -1679 0 0 -1 p153 z0
+plane -3264 -128 -1679 0 1 0 z0 z30
+plane -2928 -202 -1906 0 -1 0 z0 z31
+plane -2903 -202 -1536 0 -1 0 z0 p156
+plane -2903 76 -1306 0 0 -1 p157 z0
+plane -3393 76 -1536 -1 0 0 z0 z32
+plane -2354 -271 -1083 0 -1 0 z0 p159
+plane -3836 76 -1548 -1 0 0 p160 p163
+plane -3836 -202 -1249 0 -1 0 z0 p161
+plane -3836 76 -1249 0 0 -1 z0 p162
+plane -3836 76 -703 0 1 0 z0 z34
+plane -3054 305 -1083 -1 0 0 p164 p168
+plane -3454 76 -824 0 0 -1 p165 z0
+plane -3454 -202 -1548 0 -1 0 z0 p166
+plane -3454 76 -1548 -1 0 0 p167 z0
+plane -3454 76 -824 0 1 0 z0 z33
+plane -2354 305 -1083 0 0 -1 z0 z40
+plane -3054 305 -1083 -1 0 0 z0 p170
+plane -2354 -271 -1083 0 -1 0 z0 z40
+plane -2354 -271 -1083 0 -1 0 z0 p172
+plane -2689 139 -1695 0 0 -1 p173 p177
+plane -2752 -79 -1917 0 -1 0 z0 p174
+plane -2752 139 -1917 0 0 -1 z0 p175
+plane -2752 139 -1695 0 1 0 z0 p176
+plane -2752 139 -1917 -1 0 0 z21 z0
+plane -2354 305 -1083 0 0 -1 p178 z40
+plane -2689 139 -1451 0 0 -1 p179 z0
+plane -2689 -79 -1695 0 -1 0 z0 p180
+plane -2841 139 -1695 -1 0 0 z0 p181
+plane -2689 139 -1451 0 1 0 z0 z23
+plane -4672 108 -577 -1 0 0 p183 p186
+plane -4672 -234 -488 0 -1 0 z0 p184
+plane -4672 -58 -488 0 0 -1 z0 p185
+plane -4672 -58 192 0 1 0 z0 z36
+plane -2354 -271 -1083 0 -1 0 z0 p187
+plane -3980 108 -577 -1 0 0 p188 p190
+plane -3980 -234 -577 0 -1 0 z0 p189
+plane -3980 108 3 0 1 0 z0 z35
+plane -3054 305 -1083 -1 0 0 z0 p191
+plane -2354 305 -257 0 0 -1 z40 z0
+plane -2354 -271 -1083 0 -1 0 z0 p193
+plane -2303 139 -2118 0 0 -1 z0 p194
+plane -2354 305 -257 0 0 -1 p195 z0
+plane -2303 139 -1452 0 0 -1 p196 p203
+plane -2608 -69 -1796 0 -1 0 p197 p198
+plane -2303 -79 -2118 0 -1 0 z0 z24
+plane -2303 139 -1452 0 1 0 z0 p199
+plane -2608 131 -1652 0 1 0 z24 p200
+plane -2608 131 -1796 0 0 -1 z24 p201
+plane -2608 131 -1796 -1 0 0 p202 z24
+plane -2608 131 -1652 0 0 -1 z22 z24
+plane -2354 305 -1083 -1 0 0 p204 z0
+plane -2354 305 -1083 0 0 -1 z0 z40
+plane -1741 106 -1601 0 0 -1 z0 p206
+plane -1741 -82 -1601 0 -1 0 z0 p207
+plane -1741 106 -1019 0 0 -1 p208 z0
+plane -1741 106 -1019 0 1 0 z0 p209
+plane -2247 106 -1601 -1 0 0 z0 z25
+plane -4672 -58 -488 -1 0 0 p211 z0
+plane -4672 -234 -488 0 -1 0 z0 p212
+plane -4672 -58 192 0 1 0 z0 z36
+plane -4817 836 192 -1 0 0 z37 z0
+plane 257 204 -645 0 0 -1 p215 p299
+plane -846 97 -1921 0 0 -1 p216 p237
+plane -119 154 -3219 -1 0 0 p217 z0
+plane -119 -278 -3219 0 -1 0 z0 p218
+plane -119 154 -2365 0 1 0 z0 p219
+plane -860 95 -2471 0 0 -1 z16 p220
+plane -1240 99 -1921 1 0 0 p221 p230
+plane -860 -69 -1921 0 -1 0 p222 p223
+plane -119 154 -2365 0 0 -1 z16 z0
+plane -860 95 -1921 1 0 0 p224 p225
+plane -119 154 -2365 0 0 -1 z16 z0
+plane -1056 95 -1921 0 1 0 p226 p227
+plane -119 154 -2365 0 0 -1 z16 z0
+plane -119 154 -2365 0 0 -1 p228 p229
+plane -1056 95 -1921 1 0 0 z14 z16
+plane -1056 95 -1921 1 0 0 z13 z0
+plane -1240 -65 -1921 0 -1 0 p231 p232
+plane -119 154 -2365 0 0 -1 z16 z0
+plane -1436 99 -1921 1 0 0 p233 p236
+plane -1436 99 -1921 0 1 0 p234 p235
+plane -119 154 -2365 0 0 -1 z16 z0
+plane -119 154 -2365 0 0 -1 z15 z12
+plane -119 154 -2365 0 0 -1 z16 z0
+plane -226 311 -819 0 0 -1 p238 z0
+plane 136 229 -1735 -1 0 0 p239 z0
+plane -226 311 -1921 -1 0 0 p240 p294
+plane -457 299 -1905 -1 0 0 p241 z5
+plane -457 299 -1743 0 1 0 p242 p243
+plane -1092 311 -1921 -1 0 0 z0 z5
+plane -1092 -284 -1921 0 -1 0 p244 p245
+plane -1092 311 -1921 -1 0 0 z0 z5
+plane -1092 148 -955 0 0 -1 p246 p293
+plane -1262 -118 -1259.5 1 0 0 p247 p292
+plane -457 131 -1905 0 -1 0 p248 p287
+plane -535 -65 -1369 -1 0 0 p249 z5
+plane -567 121 -1369 0 0 -1 p250 p256
+plane -846 97 -1921 -1 0 0 p251 z5
+plane -1092 311 -1921 -1 0 0 z11 p252
+plane -846 -67 -1921 0 -1 0 z5 p253
+plane -846 97 -1679 0 0 -1 p254 z5
+plane -846 97 -1679 0 1 0 z5 p255
+plane -1088 97 -1921 -1 0 0 z5 z51
+plane -535 -251 -1369 0 -1 0 p257 p258
+plane -1092 311 -1921 -1 0 0 z11 z5
+plane -567 121 -1199 0 0 -1 p259 p286
+plane -567 121 -1369 -1 0 0 p260 p285
+plane -567 121 -1199 0 1 0 p261 p262
+plane -1092 148 -1921 -1 0 0 z11 z5
+plane -720 -118 -1259.5 1 0 0 p263 p265
+plane -567 -65 -1369 0 -1 0 p264 z7
+plane -705 -65 -1369 -1 0 0 z5 z8
+plane -567 -65 -1369 0 -1 0 p266 p283
+plane -1262 -118 -1306.5 0 1 0 p267 p268
+plane -1092 311 -1921 -1 0 0 z11 z5
+plane -1262 -118 -1259.5 0 0.61033815 0.792141 p269 p270
+plane -1092 148 -1921 -1 0 0 z11 z5
+plane -1262 -148.5 -1330 0 0.61033815 -0.792141 p271 p272
+plane -1092 311 -1921 -1 0 0 z11 z5
+plane -1262 -148.5 -1236 0 0 1 p273 p274
+plane -1092 148 -1921 -1 0 0 z11 z5
+plane -1262 -209.5 -1330 0 0 -1 p275 p276
+plane -1092 311 -1921 -1 0 0 z11 z5
+plane -1262 -209.5 -1236 0 -0.61033815 0.792141 p277 p278
+plane -1092 148 -1921 -1 0 0 z11 z5
+plane -1092 148 -1921 -1 0 0 p279 p281
+plane -1262 -240 -1259.5 0 -1 0 z11 p280
+plane -1262 -240 -1306.5 0 -0.61033815 -0.792141 z11 z10
+plane -1262 -240 -1259.5 0 -1 0 z5 p282
+plane -1262 -240 -1306.5 0 -0.61033815 -0.792141 z5 z9
+plane -1092 148 -1921 -1 0 0 z11 p284
+plane -737 121 -1369 -1 0 0 z5 z7
+plane -535 -65 -1199 0 1 0 z5 z8
+plane -1092 148 -1921 -1 0 0 z11 z5
+plane -1092 148 -1921 -1 0 0 p288 p289
+plane -1092 148 -955 0 1 0 z0 z11
+plane -457 299 -1905 0 0 -1 z5 p290
+plane -1089 299 -1905 -1 0 0 z5 p291
+plane -457 299 -1743 0 0 -1 z6 z5
+plane -1092 148 -955 0 1 0 z0 z11
+plane -1092 311 -1921 -1 0 0 z0 z5
+plane 136 75 -1735 0 -1 0 z0 p295
+plane 136 229 -1735 0 0 -1 z0 p296
+plane 136 229 -1505 0 1 0 z0 p297
+plane 136 229 -1505 0 0 -1 p298 z0
+plane -64 229 -1735 -1 0 0 z0 z50
+plane -1089 188 -516 -1 0 0 p300 p305
+plane -1089 188 -516 0 0 -1 z0 p301
+plane -1089 -12 -516 0 -1 0 z0 p302
+plane -1089 188 -308 0 0 -1 p303 z0
+plane -1089 188 -308 0 1 0 z0 p304
+plane -1231 188 -516 -1 0 0 z0 z54
+plane 257 204 3 0 1 0 z0 p306
+plane -490 10 0 -1 0 0 p307 p317
+plane -510 -1 -450 0 0 -1 z0 p308
+plane -490 10 274 0 1 0 z0 p309
+plane -510 -1 -128 0 0 -1 p310 p314
+plane -510 -189 -450 0 -1 0 z0 p311
+plane -1026 -1 -450 -1 0 0 z0 p312
+plane -510 -1 -128 0 1 0 z0 p313
+plane -510 -1 -450 -1 0 0 z42 z0
+plane -490 -178 0 0 -1 0 z0 p315
+plane -490 10 0 0 0 -1 z0 p316
+plane -1038 10 0 -1 0 0 z0 z43
+plane 257 204 3 0 0 -1 p318 z0
+plane -192 183 -333 -1 0 0 p319 p324
+plane -192 183 -419 0 0 -1 z0 p320
+plane -192 -17 -419 0 -1 0 z0 p321
+plane -192 183 -155 0 0 -1 p322 z0
+plane -192 183 -155 0 1 0 z0 p323
+plane -352 183 -419 -1 0 0 z0 z46
+plane 257 -26 -645 0 -1 0 z0 p325
+plane -58 183 -333 -1 0 0 p326 z1
+plane -58 183 -333 0 0 -1 p327 p328
+plane -129 204 -645 -1 0 0 z0 z1
+plane -58 -17 -333 0 -1 0 p329 p330
+plane -129 204 -645 -1 0 0 z0 z1
+plane -58 183 -185 0 0 -1 p331 p334
+plane -58 183 -185 0 1 0 p332 p333
+plane -129 204 -645 -1 0 0 z0 z1
+plane -129 204 -645 -1 0 0 z45 z44
+plane -129 204 -645 -1 0 0 z0 z1
+plane -4817 836 192 -1 0 0 z37 z0
+plane 1114 444 -980 0 1 0 z0 p337
+plane 976 232 -264 0 0 -1 p338 p369
+plane 1114 -56 -980 0 1 0 p339 p351
+plane 658 255 -1312 -1 0 0 p340 p344
+plane 658 255 -1312 0 0 -1 z0 p341
+plane 658 127 -1312 0 -1 0 z0 p342
+plane 658 255 -1248 0 0 -1 p343 z0
+plane 658 255 -1248 0 1 0 z0 z4
+plane 1114 -56 -980 0.69518507 0 0.7188308 z0 p345
+plane 810 -56 -980 0 0 1 z0 p346
+plane 1266 -56 -1127 1 0 0 z0 p347
+plane 658 -56 -1127 -0.69518507 0 0.7188308 z0 p348
+plane 1266 -56 -1421 0.69518507 0 -0.7188308 z0 p349
+plane 810 -56 -1568 -0.69518507 0 -0.7188308 z0 p350
+plane 1114 -56 -1568 0 0 -1 z0 z2
+plane 508 -63 -1600 -1 0 0 z0 p352
+plane 1151 -240 -586 0 1 0 p353 z0
+plane 769 -240 -586 0 0 1 z0 p354
+plane 1151 -240 -586 0.81536865 0 0.57894206 z0 p355
+plane 578 -240 -855 -0.81536865 0 0.57894206 z0 p356
+plane 1151 -240 -1662 0 0 -1 z0 p357
+plane 628 -63 -1600 -1 0 0 p358 p368
+plane 628 -63 -1600 0 0 -1 p359 p360
+plane 769 -240 -1662 -0.81536865 0 -0.57894206 z0 -
+plane 628 -63 -1456 0 0 -1 p361 p366
+plane 628 -63 -1456 0 1 0 p362 p363
+plane 769 -240 -1662 -0.81536865 0 -0.57894206 z0 z3
+plane 628 -217 -1600 0 -1 0 p364 p365
+plane 769 -240 -1662 -0.81536865 0 -0.57894206 z0 z3
+plane 769 -240 -1662 -0.81536865 0 -0.57894206 z49 -
+plane 769 -240 -1662 -0.81536865 0 -0.57894206 z0 p367
+plane 578 -240 -1393 -1 0 0 z0 z3
+plane 769 -240 -1662 -0.81536865 0 -0.57894206 z0 z3
+plane 512 232 -264 -1 0 0 z0 p370
+plane 976 -112 -264 0 -1 0 z0 p371
+plane 976 232 -264 -1 0 0 p372 z0
+plane 976 232 296 0 1 0 z0 z41
+plane 510 154 323 -1 0 0 p374 z0
+plane -4817 836 192 -1 0 0 z37 p375
+plane 510 -46 323 0 -1 0 z0 p376
+plane 53 154 317 0 0 -1 z0 p377
+plane 510 154 551 0 1 0 z0 p378
+plane -251 154 317 -1 0 0 z0 p379
+plane 206 154 323 -1 0 0 p380 p382
+plane 53 154 545 0 0 -1 p381 z0
+plane 53 154 317 -1 0 0 z48 z0
+plane 510 154 323 0 0 -1 z0 z47
+plane -4817 836 192 -1 0 0 z37 z0
+default-obstacle 0 0.25 1.5 occludes
+obstacle -2466 0.521 3.562 occludes Occlusion
+row - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d 0 d d d d d d d d d d d d d d d d d d d d d d d
+row d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d - d 0 d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d - 0 d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d 0 d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d 0 d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d
+row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d -
+diffraction -6000 0.25 90
+box 0 -4015 -94 -2624 -3955 -2 -2552
+box 0 -4284 -122 -2464 -4190 -30 -2432
+box 0 -4191 -94 -2463 -4157 -2 -2433
+box 0 -4193 -122 -2494 -4159 -30 -2464
+box 0 -4437 -125 -2819 -4379 -33 -2785
+box 0 -4402 -63 -2466 -4344 29 -2432
+box 0 -4511 -91 -2568 -4479 1 -2538
+box 0 -4510 -124 -2534 -4478 -32 -2504
+box 0 -4543 -124 -2497 -4477 -32 -2467
+box 0 -4606 -70 -2686 -4544 62 -2626

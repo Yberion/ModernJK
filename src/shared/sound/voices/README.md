@@ -17,11 +17,11 @@ The rules:
 - **Duplicates**: the same sound started again at the same place before the next frame is one voice at the sum of the volumes (the game's data starts some sounds twice to make them louder).
 - **The listener's own sounds** are not positioned, at 0.75 of their volume for the classes of the body, the weapons and the voices, as the game always played them. A sound at the listener or of the listener's own entity is boosted to the level the old mixer gave it, as loud on each ear as a sound fully to one side is on its own (OpenAL Soft pans it to the centre, 0.596 per channel in stereo: `Device::ListenerBoost`, 1.678 in stereo), an ambient set's there to half of it, where the old mixer placed it at the listener's point.
 - **Doppler**: OpenAL Soft's, from the velocities the modules give with `UpdateEntity` and `MoveLoop` and the listener's.
-- **Under water**: every sound heard in the water goes through a low-pass filter, -30 dB at 5 kHz, as the original game's EAX occlusion did.
+- **The zones** (`zones/`): each source's send to a reverb and its two low-pass filters, of its direct sound and of that send, as the zones give them at every frame (the walls, the pillars, the water: -30 dB at 5 kHz under water, as the original game's EAX occlusion did); the direct filter's broadband gain lowers the voice's audibility in the choice.
 - **A lost device**: every voice is virtual until a device opens again, then mixed where its clock says it has got to.
 - **Handles**: an index and a serial number unique in the session (carried over a restart of the sound), so that a handle kept after its voice ended finds nothing.
 - **The cost**: a source is given only the values that changed since the last frame (8.9 µs per frame with 264 voices moving, 64 mixed, against 22.8 µs sending everything).
-- **The log** (`SetLog`, the engines' `s_show 1`): one `SNDLOG` line per sound started, replaced, merged and ended, and every 50 frames the list of the voices, real or virtual.
+- **The log** (`SetLog`, the engines' `s_show 1`): one `SNDLOG` line per sound started, replaced, merged and ended, and every 50 frames the zones' slots and the list of the voices, real or virtual, each with its send's slot and its direct filter's gains.
 
 | class | full volume up to, silent from (units) | volume | priority | gain |
 |---|---|---|---|---|

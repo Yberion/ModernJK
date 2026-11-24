@@ -1,0 +1,13 @@
+--- a/src/EalMan.h
++++ b/src/EalMan.h
+@@ -142,6 +142,10 @@
+     EalMan();
+     ~EalMan();
+ 
++    /* the data read from the .eal file, for a converter of the files, which may repair it (ModernJK's patch 0001) */
++    const EalData& GetData() const { return *m_data; }
++    EalData& GetData() { return *m_data; }
++
+     /**
+      * @brief returns the size in bytes of the currently loaded eal file
+      *

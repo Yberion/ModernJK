@@ -1,0 +1,14 @@
+efxzones 1
+environment 1 1 0.31622776 0.5929253 1 1.4736842 0.83 1 0.040784955 0.0073684216 0 0 0 0.28840312 0.011052632 0 0 0 0.25 0 0.25 0 0.9942601 5000 250 0 1 Environment1
+zone 0
+start p0
+plane 481 532 -841 0 0 -1 - p1
+plane 481 52 -841 0 -1 0 - p2
+plane 481 532 -33 0 0 -1 p3 -
+plane 481 532 -33 0 1 0 - p4
+plane -583 532 -841 -1 0 0 - p5
+plane 481 532 -841 -1 0 0 z0 -
+default-obstacle 0 0.25 1.5 occludes
+row - -
+row d -
+diffraction -6000 0.25 90

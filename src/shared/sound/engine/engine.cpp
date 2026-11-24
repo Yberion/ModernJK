@@ -116,6 +116,7 @@ cvar_t* s_muteWhenUnfocused;
 cvar_t* s_allowDynamicMusic;
 cvar_t* s_show;
 cvar_t* s_debugdynamic;
+cvar_t* s_reverb;
 
 bool focused = true;
 bool logging = false;
@@ -297,6 +298,7 @@ void ApplySettings()
     sys->SetMuteWhenUnfocused(s_muteWhenUnfocused->integer != 0);
     sys->AllowDynamicMusic(s_allowDynamicMusic->integer != 0);
     sys->SetMusicDebug(s_debugdynamic->integer != 0);
+    sys->SetReverb(s_reverb->integer != 0);
 
     // s_show 1: the sound log, each line of it in the console
     const bool log = s_show->integer == 1;
@@ -321,6 +323,7 @@ void Start(std::uint32_t serial)
     s_allowDynamicMusic = Cvar_Get("s_allowDynamicMusic", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
     s_show = Cvar_Get("s_show", "0", cvarFlags_t::CVAR_CHEAT);
     s_debugdynamic = Cvar_Get("s_debugdynamic", "0", cvarFlags_t::CVAR_CHEAT);
+    s_reverb = Cvar_Get("s_reverb", "1", cvarFlags_t::CVAR_ARCHIVE);
 
     if (s_initsound->integer == 0) {
         Q_Println("not initializing.");
@@ -430,6 +433,13 @@ void SND_RestartMusic()
 {
     if (sys) {
         sys->RestartMusic();
+    }
+}
+
+void SND_LoadZones(const char* map)
+{
+    if (sys) {
+        sys->LoadZones(map);
     }
 }
 

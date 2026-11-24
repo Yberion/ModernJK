@@ -33,7 +33,7 @@ macro(modernjk_setup_options)
 	option(modernjk_BUILD_ASSETS_PK3 "modernjk.pk3, from the files of assets/" ON)
 	option(BUILD_TESTING "The tests (CTest): netcodec's and test/" ON)
 	option(modernjk_BUILD_BENCHMARKS "netcodec's benchmarks" ON)
-	option(modernjk_BUILD_TOOLS "netcodec's tools (the table trainers)" ON)
+	option(modernjk_BUILD_TOOLS "The tools: netcodec's table trainers, the zone files' converter (tools/eal_converter, built on demand)" ON)
 	option(modernjk_BUILD_FUZZ_TESTS "The libFuzzer targets: netcodec's, the sound decoders' (clang, with the sanitizers)" OFF)
 	option(modernjk_PORTABLE "The engines read and write no file in the user's folders, only in the game's" OFF)
 
