@@ -2340,6 +2340,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
     const char* s;
     int i = 0;
 
+    CG_StartSounds(true);
     Rand_Init(trap->Milliseconds());
 
     BG_InitAnimsets(); // clear it out
@@ -2626,6 +2627,8 @@ void CG_Shutdown(void)
 
     UI_CleanupGhoul2();
     // If there was any ghoul2 stuff in our side of the shared ui code, then remove it now.
+
+    CG_StartSounds(false);
 
     // some mods may need to do cleanup work here,
     // like closing files or archiving session data

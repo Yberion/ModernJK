@@ -2492,7 +2492,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayb
     }
 
     // update audio positions, then the looping sounds asked for in this frame
-    CG_SetSoundListener(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater != 0);
+    CG_SetSoundListener(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, cg.predictedPlayerState.velocity, inwater != 0);
     CG_UpdateLoopingSounds();
 
     // make sure the lagometerSample and frame timing isn't done twice when in stereo

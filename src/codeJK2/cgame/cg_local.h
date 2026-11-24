@@ -33,6 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define GAME_INCLUDE
 #include <game/g_shared.h>
 #include "cg_camera.h"
+#include <shared/cgame/cg_sound.h>
 
 // The entire cgame module is unloaded and reloaded on each level change,
 // so there is NO persistant data between levels on the client side.
@@ -884,31 +885,8 @@ int cgi_CM_MarkFragments(int numPoints, const vec3_t* points, const vec3_t proje
 //
 // cg_sound.cpp
 //
-// the sounds may play: from the cgame's start to its shutdown
-void CG_StartSounds(bool started);
-// a vec3_t as the sound's vector
-sound::Vector CG_SoundVector(const vec3_t v);
 // how fast an entity moves, for Doppler
 void CG_EntitySoundVelocity(const centity_t* cent, vec3_t velocity);
-// where an entity's sounds are heard from, and how fast it moves
-void CG_SetSoundPosition(int entityNum, const vec3_t origin);
-// a sound heard from a point (origin), or following its entity (origin nullptr), in the entity's slot; entityNum -1 or
-// ENTITYNUM_NONE for no entity
-sound::VoiceHandle CG_StartSound(const vec3_t origin, int entityNum, sound::SoundClass soundClass, sound::Slot slot, sfxHandle_t sfx, float volume = 1.0f);
-// a sound at the listener, not positioned
-sound::VoiceHandle CG_StartLocalSound(sfxHandle_t sfx, sound::SoundClass soundClass, sound::Slot slot, float volume = 1.0f);
-// a looping sound asked for in this frame, heard from origin: kept playing while it is asked for at every frame
-void CG_AddLoopingSound(int entityNum, const vec3_t origin, sfxHandle_t sfx, sound::SoundClass soundClass, float volume = 1.0f);
-// at the frame's end: the loops asked for started or moved, the others stopped
-void CG_UpdateLoopingSounds(void);
-// a blade touching the world at this frame, at origin: its next sound started when it is due (BG_ContactSound)
-void CG_StartContactSound(int entityNum, int saberNum, int bladeNum, const vec3_t origin);
-// a blade no longer touching the world
-void CG_EndContactSound(int entityNum, int saberNum, int bladeNum);
-// every loop stopped and the blades' contacts forgotten (a level's start, the cgame's shutdown)
-void CG_StopLoopingSounds(void);
-// the ears, once per frame
-void CG_SetSoundListener(int entityNum, const vec3_t origin, const vec3_t axis[3], bool underwater);
 
 void cgi_R_LoadWorldMap(const char* mapname);
 

@@ -167,6 +167,6 @@ endif()
 set_target_properties(jospgame PROPERTIES OUTPUT_NAME "jospgame${modernjk_ARCH}" PREFIX "")
 target_include_directories(jospgame PRIVATE "${PROJECT_SOURCE_DIR}/src/codeJK2" "${PROJECT_SOURCE_DIR}/src")
 target_compile_definitions(jospgame PRIVATE JK2_MODE SP_GAME)
-target_link_libraries(jospgame PRIVATE vendored::gsl_lite modernjk_version modernjk_shared_common modernjk_safe_string
-	modernjk_safe_files modernjk_options modernjk_warnings modernjk_defines)
+target_link_libraries(jospgame PRIVATE vendored::gsl_lite modernjk_version modernjk_shared_common modernjk_cgame_sound
+	modernjk_safe_string modernjk_safe_files modernjk_options modernjk_warnings modernjk_defines)
 install(TARGETS jospgame LIBRARY DESTINATION "${modernjk_INSTALL_JK2}/ModernJK")

@@ -86,6 +86,11 @@ target_sources(modernjk_rd_common INTERFACE rd-common/tr_image_codec.cpp rd-comm
 	rd-common/tr_noise.cpp)
 target_link_libraries(modernjk_rd_common INTERFACE vendored::wuffs vendored::stb)
 
+# The sounds a cgame plays, the same in the three games: compiled by each cgame against its own headers
+# (<cgame/cg_local.h>), the tree's own part in its cgame/cg_sound.cpp
+add_library(modernjk_cgame_sound INTERFACE)
+target_sources(modernjk_cgame_sound INTERFACE cgame/cg_sound.cpp)
+
 # The sound of the engines that play it, and its decoders' fuzzers
 if(TARGET vendored::flac)
 	add_subdirectory(sound)

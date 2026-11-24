@@ -1867,7 +1867,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView)
     // This is done from the vieworg to get origin for non-attenuated sounds
     gi.sound->UpdateAmbientSet(CG_ConfigString(CS_AMBIENT_SET), CG_SoundVector(cg.refdef.vieworg));
     // NOTE: if we want to make you be able to hear far away sounds with electrobinoculars, add the hacked-in positional offset here (base on fov)
-    CG_SetSoundListener(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater);
+    CG_SetSoundListener(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, cg.predicted_player_state.velocity, inwater);
     // the looping sounds asked for in this frame
     CG_UpdateLoopingSounds();
 

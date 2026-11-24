@@ -74,7 +74,7 @@ add_library(cgame MODULE
 set_target_properties(cgame PROPERTIES OUTPUT_NAME "cgame${modernjk_ARCH}" PREFIX "")
 target_include_directories(cgame PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src")
 target_compile_definitions(cgame PRIVATE _CGAME)
-target_link_libraries(cgame PRIVATE modernjk_shared_common modernjk_version modernjk_options modernjk_warnings
-	modernjk_defines)
+target_link_libraries(cgame PRIVATE modernjk_shared_common modernjk_cgame_sound modernjk_version modernjk_options
+	modernjk_warnings modernjk_defines)
 install(TARGETS cgame LIBRARY DESTINATION "${modernjk_INSTALL_JKA}/ModernJK")
 install(TARGETS cgame LIBRARY DESTINATION "${modernjk_INSTALL_JKA}/base")

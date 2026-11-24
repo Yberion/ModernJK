@@ -1,6 +1,6 @@
 # What this branch changes compared with OpenJK
 
-Last update: 23 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (section 33), which concerns the single-player games of Jedi Academy and Jedi Outcast too.
+Last update: 24 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (section 33), which concerns the single-player games of Jedi Academy and Jedi Outcast too.
 
 This page lists every change of the branch, with its reason and what it gives. The work follows the goals stated in the [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, a netcode other JKA forks can reuse, Windows and Linux. The measurements in full, and the history of each change, are in the step documents of [progress/](progress/README.md).
 
@@ -1270,6 +1270,7 @@ Costs: a level's sounds take 36 to 44 MB as decoded samples (measured on `mp/ffa
 |---|---|---|
 | Code | `client/snd_*.cpp`, `snd_mp3.cpp` or `cl_mp3.cpp`, `mp3code/` in each engine; `sdl/sdl_sound.cpp` | `src/shared/sound` (a static library, its tests `modernjk.sound` and three fuzzers), `engine/` compiled by each engine |
 | The modules' access | the multiplayer's import tables (`S_*`, `AS_*`); the single player's numbered system calls; `gi.VoiceVolume` | one `sound::Api*` in every import table (`trap->sound`, `gi.sound`) |
+| The cgames' sound | each cgame calling the engine's sound itself (`trap->S_*`, `cgi_S_*`) | one layer for the three cgames, `src/shared/cgame/cg_sound.cpp`, compiled by each against its own headers; each tree's own part in its `cgame/cg_sound.cpp` (the engine's sound, an entity's velocity, an NPC's type) |
 | A sound sent by the server (multiplayer) | its channel in the event | its class, slot and loop flag packed in the same field (`BG_PackSoundEvent`, `src/shared/qcommon/q_sound.h`) |
 | The data's channels (animation events, scripts, effects) | played on that channel | turned into a class and a slot (`BG_SoundUseOfChannel`) |
 | Lip sync | an integer: -1, 0, 1 to 4 | an explicit state (not talking, silent, levels 1 to 4) |

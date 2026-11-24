@@ -2045,9 +2045,9 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView)
             }
         }
     }
-    CG_SetSoundListener( cg.snap->ps.clientNum, listener_origin, cg.refdef.viewaxis, inwater );
+    CG_SetSoundListener( cg.snap->ps.clientNum, listener_origin, cg.refdef.viewaxis, cg.predicted_player_state.velocity, inwater );
     */
-    CG_SetSoundListener(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater);
+    CG_SetSoundListener(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, cg.predicted_player_state.velocity, inwater);
     // the looping sounds asked for in this frame
     CG_UpdateLoopingSounds();
 

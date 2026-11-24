@@ -113,20 +113,16 @@ Also called by event processing code
 */
 void CG_SetEntitySoundPosition(centity_t* cent)
 {
-    vec3_t velocity;
-
-    CG_EntitySoundVelocity(cent, velocity);
-
     if (cent->currentState.solid == SOLID_BMODEL) {
         vec3_t origin;
         float* v;
 
         v = cgs.inlineModelMidpoints[cent->currentState.modelindex];
         VectorAdd(cent->lerpOrigin, v, origin);
-        trap->sound->UpdateEntity(cent->currentState.number, CG_SoundVector(origin), CG_SoundVector(velocity));
+        CG_SetSoundPosition(cent->currentState.number, origin);
     }
     else {
-        trap->sound->UpdateEntity(cent->currentState.number, CG_SoundVector(cent->lerpOrigin), CG_SoundVector(velocity));
+        CG_SetSoundPosition(cent->currentState.number, cent->lerpOrigin);
     }
 }
 
