@@ -51,9 +51,10 @@ namespace sound {
 
 class System final : public Api {
 public:
-    // The sound on the system's default device, or on OpenAL Soft's loopback device at a rate (the tests); nullptr when
-    // no device opens.
-    [[nodiscard]] static std::unique_ptr<System> Create(const Host& host, std::optional<int> loopbackRate = std::nullopt, std::uint32_t firstSerial = 1);
+    // The sound on the output chosen by its name (device), or the system's default device when none is chosen, or on
+    // OpenAL Soft's loopback device at a rate (the tests); nullptr when no device opens.
+    [[nodiscard]] static std::unique_ptr<System> Create(const Host& host, std::optional<int> loopbackRate = std::nullopt, std::uint32_t firstSerial = 1,
+                                                        std::string_view device = {});
 
     System(const System&) = delete;
     System& operator=(const System&) = delete;
@@ -82,6 +83,7 @@ public:
     void UpdateAmbientSet(std::string_view name, const Vector& origin) override;
     void AddLocalSet(std::string_view name, int entity, const Vector& origin) override { ambient_.AddLocal(name, entity, origin); }
     [[nodiscard]] SoundHandle BrushModelSound(std::string_view name, BrushModelStage stage) const override { return ambient_.BrushModelSound(name, stage); }
+    [[nodiscard]] std::span<const std::string_view> OutputDevices() override;
 
     // At every frame, now in milliseconds, after the game's calls.
     void Frame(int now);
@@ -105,6 +107,8 @@ public:
     void LoadZones(std::string_view map);
     // The reverb of the zones on or off (s_reverb); the obstacles' and the water's filters stay either way.
     void SetReverb(bool enabled) { reverb_.SetEnabled(enabled); }
+    // The output to play on, by its name (s_device); empty, the system's default. Applied at the next frame.
+    void SetDevice(std::string_view name) { device_->SetChosen(name); }
     // Where the sound log's lines go; empty for none.
     void SetLog(std::function<void(std::string_view)> log) { voices_.SetLog(std::move(log)); }
 
@@ -142,7 +146,7 @@ public:
     [[nodiscard]] std::size_t Mixed() const noexcept { return voices_.Mixed(); }
 
 private:
-    System(Host host, std::optional<int> loopbackRate, std::uint32_t firstSerial);
+    System(Host host, std::optional<int> loopbackRate, std::uint32_t firstSerial, std::string_view device);
     void FeedStream();
     [[nodiscard]] int Resampler() const noexcept { return device_ ? device_->Resampler() : 0; }
 
@@ -160,6 +164,8 @@ private:
     std::string zonesMap_; // the map whose zones are loaded
     bool focused_ = true;
     bool muteWhenUnfocused_ = true;
+    std::vector<std::string> outputNames_;      // the outputs listed last (OutputDevices)
+    std::vector<std::string_view> outputViews_; // views of outputNames_, which the modules receive
 };
 
 } // namespace sound

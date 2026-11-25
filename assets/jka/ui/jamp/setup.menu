@@ -1863,12 +1863,13 @@
 //
 //----------------------------------------------------------------------------------------------
 		itemDef 
-		{
-			name				effects_volume
+		{	
+			name				sound_device
 			group				sound
-			type				ITEM_TYPE_SLIDER
-			text				@MENUS_EFFECTS_VOLUME
-			cvarfloat			"s_volume" 0 0 1
+      			type				ITEM_TYPE_OWNERDRAW
+			text				@MODERNJK_SOUND_DEVICE
+			ownerdraw			298	// UI_SOUND_DEVICE, the sound's output (s_device)
+			special				158	// the width the output's name is cut to
 			rect				260 188 340 14
 	   		textalign			ITEM_ALIGN_RIGHT
 			textalignx			174
@@ -1877,11 +1878,7 @@
 			textscale 			1
 			forecolor			0.65 0.65 1 1
 			visible				0
-			descText			@MENUS_ADJUST_VOLUME_FOR_SOUND
-			action 
-			{ 
-				play			"sound/interface/button1.wav" ;
-			}
+			descText			@MODERNJK_SOUND_DEVICE_DESC
 
 			mouseenter 
 			{ 
@@ -1891,15 +1888,19 @@
 			{ 
 				hide			highlight1
 			} 
+			action 
+			{
+				play			"sound/interface/button1.wav"
+			}
 		}
 
 		itemDef 
 		{
-			name				music_volume
+			name				effects_volume
 			group				sound
 			type				ITEM_TYPE_SLIDER
-			text				@MENUS_MUSIC_VOLUME
-			cvarfloat			"s_musicvolume" 0 0 1
+			text				@MENUS_EFFECTS_VOLUME
+			cvarfloat			"s_volume" 0 0 1
 			rect				260 216 340 14
 	   		textalign			ITEM_ALIGN_RIGHT
 			textalignx			174
@@ -1908,7 +1909,7 @@
 			textscale 			1
 			forecolor			0.65 0.65 1 1
 			visible				0
-			descText			@MENUS_ADJUST_VOLUME_FOR_MUSIC
+			descText			@MENUS_ADJUST_VOLUME_FOR_SOUND
 			action 
 			{ 
 				play			"sound/interface/button1.wav" ;
@@ -1926,11 +1927,11 @@
 
 		itemDef 
 		{
-			name				voice_volume
+			name				music_volume
 			group				sound
 			type				ITEM_TYPE_SLIDER
-			text				@MENUS_VOICE_VOLUME
-			cvarfloat			"s_volumeVoice" 0 0 1
+			text				@MENUS_MUSIC_VOLUME
+			cvarfloat			"s_musicvolume" 0 0 1
 			rect				260 244 340 14
 	   		textalign			ITEM_ALIGN_RIGHT
 			textalignx			174
@@ -1939,7 +1940,7 @@
 			textscale 			1
 			forecolor			0.65 0.65 1 1
 			visible				0
-			descText			@MENUS_VOICE_VOLUME_DESC
+			descText			@MENUS_ADJUST_VOLUME_FOR_MUSIC
 			action 
 			{ 
 				play			"sound/interface/button1.wav" ;
@@ -1956,6 +1957,37 @@
 		}
 
 		itemDef 
+		{
+			name				voice_volume
+			group				sound
+			type				ITEM_TYPE_SLIDER
+			text				@MENUS_VOICE_VOLUME
+			cvarfloat			"s_volumeVoice" 0 0 1
+			rect				260 272 340 14
+	   		textalign			ITEM_ALIGN_RIGHT
+			textalignx			174
+			textaligny			0
+			font 				4
+			textscale 			1
+			forecolor			0.65 0.65 1 1
+			visible				0
+			descText			@MENUS_VOICE_VOLUME_DESC
+			action 
+			{ 
+				play			"sound/interface/button1.wav" ;
+			}
+
+			mouseenter 
+			{ 
+				show			highlight7
+			}
+			mouseexit 
+			{ 
+				hide			highlight7
+			} 
+		}
+
+		itemDef 
 		{	
 			name				reverb
 			group				sound
@@ -1963,7 +1995,7 @@
 			text				@MODERNJK_REVERB
 			cvar				"s_reverb"
 			cvarFloatList		{ @MENUS_OFF 0 @MENUS_ON 1 }
-			rect				260 272 340 14
+			rect				260 300 340 14
 	   		textalign			ITEM_ALIGN_RIGHT
 			textalignx			174
 			textaligny			0
@@ -1975,11 +2007,11 @@
 
 			mouseenter 
 			{ 
-				show			highlight7
+				show			highlight9
 			}
 			mouseexit 
 			{ 
-				hide			highlight7
+				hide			highlight9
 			} 
 			action 
 			{
@@ -1995,7 +2027,7 @@
 			text				@MODERNJK_MUTE_UNFOCUSED
 			cvar				"s_muteWhenUnfocused"
 			cvarFloatList		{ @MENUS_OFF 0 @MENUS_ON 1 }
-			rect				260 300 340 14
+			rect				260 328 340 14
 	   		textalign			ITEM_ALIGN_RIGHT
 			textalignx			174
 			textaligny			0
@@ -2007,11 +2039,11 @@
 
 			mouseenter 
 			{ 
-				show			highlight9
+				show			highlight11
 			}
 			mouseexit 
 			{ 
-				hide			highlight9
+				hide			highlight11
 			} 
 			action 
 			{

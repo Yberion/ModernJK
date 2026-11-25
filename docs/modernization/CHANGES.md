@@ -1,6 +1,6 @@
 # What this branch changes compared with OpenJK
 
-Last update: 24 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (sections 33 and 34), which concerns the single-player games of Jedi Academy and Jedi Outcast too.
+Last update: 25 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (sections 33 to 36), which concerns the single-player games of Jedi Academy and Jedi Outcast too.
 
 This page lists every change of the branch, with its reason and what it gives. The work follows the goals stated in the [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, a netcode other JKA forks can reuse, Windows and Linux. The measurements in full, and the history of each change, are in the step documents of [progress/](progress/README.md).
 
@@ -26,7 +26,9 @@ This page lists every change of the branch, with its reason and what it gives. T
 9. **No network setting is left**: `rate`, `snaps`, `cl_maxpackets`, `cl_packetdup` and `cl_timeNudge` are gone; the game computes or fixes their values.
 10. **The sound is played by OpenAL Soft**, in the multiplayer and both single-player games: up to 64 sounds heard at once, chosen by how loud they are where you stand, instead of 32 channels where a new sound cut the oldest; every saber, shot and footstep from its own place, real Doppler, nothing played twice, `s_volume` the volume of everything (section [33](#33-the-sound-on-openal-soft)).
 11. **Each map's reverb by zones**, as the original game played it on sound cards with EAX: the room you stand in, the rooms around through their doors, the walls and pillars muffling what is behind them; `s_reverb` switches it off (section [34](#34-the-reverb-by-zones)).
-12. **The price**: a branch client and an OpenJK server (or the reverse) do not understand each other, and demos of one do not play on the other.
+12. **The sound comes sooner**: about 50 ms from a sound asked to the system's mix at every frame rate, against 110 to 116 ms with the old mixer, a shot's sound sent before the screen waits for vsync, the sound's work on the main thread about 4 times smaller (section [35](#35-the-sound-measured-and-what-the-measures-changed)).
+13. **The sound device in the menus**: the system's default output or the one you choose, followed when it is unplugged and plugged back (section [36](#36-the-sound-device-chosen-in-the-menus)).
+14. **The price**: a branch client and an OpenJK server (or the reverse) do not understand each other, and demos of one do not play on the other.
 
 ### Delays before and now
 
@@ -1123,6 +1125,7 @@ Added cvars, all for debugging or measuring:
 | `cl_debugInterpForce`, `cl_debugInterpDelay` | client, cheat-protected | force a display delay (section 4) |
 | `s_muteWhenUnfocused` | client, archived, default 1 | the sound muted while the window has not the focus (section 33) |
 | `s_reverb` | client, archived, default 1 | the reverb of the zones; 0 switches it off, the walls and the water still muffling (section 34) |
+| `s_device` | client, archived, default empty | the output the sound plays on, by its name ("Sound device" in the sound menus); empty, the system's default, followed when it changes (section 36) |
 | `g_debugSeed` | server (game module) | a non-zero value replaces the game's start seed: with `fixedtime` set before the map loads, a run replays the same game |
 
 Added commands. The statistics commands print their counters since the previous call.
@@ -1313,7 +1316,7 @@ The work, its decisions, the inventory of every call and the sound logs: [progre
 | The 64 sounds mixed in a crowd | chosen by distance and volume | a sound behind a wall counts as the quieter sound it is (as FMOD does) |
 | Under water | the muffling of section 33 | and the "underwater" reverb |
 
-Costs: three reverbs take about 0.74 % of a core (measured on 15 November 2026 with 32 voices), the zones' calculations an estimated 0.01 ms per frame (both measured in plan step 21, part 5); the zone files 1.1 MB of text in the two archives. The loudness measured again after ASWG-R001 (section 33): on `mp/duel1`, whose one reverb is a courtyard's, the duels at the default settings at -22.8 LUFS on average with the reverb and -23.3 without (the bots' runs differ by up to 3 dB), a crowd with every slider at 1 at -1.7 dBTP at worst; still within -24 ±2 LUFS and under -1 dBTP. A map with long reverbs is measured in plan step 21, part 5.
+Costs: three reverbs take about 0.74 % of a core (measured on 15 November 2026 with 32 voices), the zones' calculations an estimated 0.01 ms per frame (measured since: about 1.5 % of a core for the mixing with 64 voices, the reverb 0.9 % of it, the zones 6 to 7 us per frame; section 35 and [progress/step-21-sound.md](progress/step-21-sound.md) section 14.4); the zone files 1.1 MB of text in the two archives. The loudness measured again after ASWG-R001 (section 33): on `mp/duel1`, whose one reverb is a courtyard's, the duels at the default settings at -22.8 LUFS on average with the reverb and -23.3 without (the bots' runs differ by up to 3 dB), a crowd with every slider at 1 at -1.7 dBTP at worst; still within -24 ±2 LUFS and under -1 dBTP. A map with long reverbs measured since (section 35): the TIE fighter's hall of `mp/ffa3`, within the range.
 
 <details>
 <summary>Technical details</summary>
@@ -1385,5 +1388,38 @@ Costs: none measured for the swap's order (the same work at another moment); the
 | The loudness's method | `session.sh`'s waits half their intended length (`wait` counts two per frame): about 29 s measured after 10 s of settling, the recording from the device's opening | 60 s after 20 s; `loudness.py --from` starts the measure at the second the session prints (read in the console's log) |
 
 The measures and the tools: [progress/step-21-sound.md](progress/step-21-sound.md) section 14.
+
+</details>
+
+### 36. The sound device chosen in the menus
+
+**Before.** The sound played on the system's default output only: to hear the game in a headset while the system's default stayed on the speakers, a player had to change the default for every application.
+
+**Now.** "Sound device", the first row of the sound menus of the three games: "Default" (the system's default output, followed when it changes, as before) or one of the system's outputs, a click or an arrow moving to the next one; the console's `s_device` (the output's name, empty for the default), kept in the configuration. The chosen output unplugged, the sound goes to the default, and comes back to the chosen one when it is plugged in again; `soundinfo` lists the outputs, the one in use marked. On Windows and Linux alike (WASAPI, PipeWire, PulseAudio; ALSA, which reports no output plugged in, finds the chosen one again at the next start).
+
+**Why.** A player may want the game in a headset while other applications stay on the speakers, and the menus already hold the other sound settings.
+
+**Gain.**
+
+| fix | before | now |
+|---|---|---|
+| The output the game plays on | the system's default, always | the default, or the output chosen in the menu, changed at once without a restart |
+| The chosen output unplugged during a game | (no choice) | the sound on the default meanwhile, back on the chosen output when it is plugged in again |
+
+Costs: one integer compared per frame (the setting's modification count); the outputs listed only when the menu's row is clicked, their names kept until the next click (a few hundred bytes); no change to the CPU of the mixing or to the latency.
+
+<details>
+<summary>Technical details</summary>
+
+| | before | now |
+|---|---|---|
+| The device opened | `alcOpenDevice(nullptr)`, the default | the chosen name, else the default |
+| The events | the default changed | the default changed, an output added (`ALC_EVENT_TYPE_DEVICE_ADDED_SOFT`) |
+| The move at a frame | reopen on the default when it changed or the device was lost | `DecideMove`: the chosen output when it is there, else the default; the outputs listed only when the move depends on them |
+| The names | OpenAL Soft's ("OpenAL Soft on Haut-parleurs (Realtek(R) Audio)" on Windows) | the system's ("Haut-parleurs (Realtek(R) Audio)"), which OpenAL Soft opens as well |
+| The interfaces | | `sound::Api::OutputDevices`, which both interfaces already reach; an owner-drawn row (`UI_SOUND_DEVICE`) cutting the name to the width its menu gives it (`special`) |
+| The menus | effects, music, voices, reverb, mute without the focus | the sound device first, the rest one row down |
+
+The work: [progress/step-21-sound.md](progress/step-21-sound.md) section 15.
 
 </details>

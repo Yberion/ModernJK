@@ -2,8 +2,8 @@ VERSION 1
 CONFIG W:\bin\striped.cfg
 ID 254
 REFERENCE MENUS4
-DESCRIPTION "ModernJK's menu text: the reverb's setting and the mute without the focus"
-COUNT 4
+DESCRIPTION "ModernJK's menu text: the reverb's setting, the mute without the focus and the sound device"
+COUNT 7
 INDEX 0
 {
    REFERENCE REVERB
@@ -35,4 +35,28 @@ INDEX 3
    TEXT_LANGUAGE2 "Couper le son quand la fenêtre du jeu n'est pas au premier plan"
    TEXT_LANGUAGE3 "Schaltet den Ton stumm, solange das Spielfenster nicht im Vordergrund ist."
    TEXT_LANGUAGE8 "Silenciar el sonido mientras la ventana del juego no esté en primer plano."
+}
+INDEX 4
+{
+   REFERENCE SOUND_DEVICE
+   TEXT_LANGUAGE1 "Sound device:"
+   TEXT_LANGUAGE2 "Périphérique audio:"
+   TEXT_LANGUAGE3 "Audiogerät:"
+   TEXT_LANGUAGE8 "Dispositivo de sonido:"
+}
+INDEX 5
+{
+   REFERENCE SOUND_DEVICE_DESC
+   TEXT_LANGUAGE1 "The output the sound plays on: the system's default, or one of its outputs."
+   TEXT_LANGUAGE2 "La sortie où joue le son: celle par défaut du système, ou l'une de ses sorties"
+   TEXT_LANGUAGE3 "Der Ausgang, auf dem der Ton spielt: der Standard des Systems oder einer seiner Ausgänge."
+   TEXT_LANGUAGE8 "La salida donde suena el sonido: la predeterminada del sistema o una de sus salidas."
+}
+INDEX 6
+{
+   REFERENCE SOUND_DEVICE_DEFAULT
+   TEXT_LANGUAGE1 "Default"
+   TEXT_LANGUAGE2 "Par défaut"
+   TEXT_LANGUAGE3 "Standard"
+   TEXT_LANGUAGE8 "Predeterminado"
 }

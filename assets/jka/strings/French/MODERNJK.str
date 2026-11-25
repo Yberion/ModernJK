@@ -1,4 +1,4 @@
-// ModernJK's texts of the menus, beside the game's (strings/<Language>/MENUS.str): the reverb's setting (s_reverb) and the mute without the focus (s_muteWhenUnfocused).
+// ModernJK's texts of the menus, beside the game's (strings/<Language>/MENUS.str): the reverb's setting (s_reverb) the mute without the focus (s_muteWhenUnfocused) and the sound device (s_device).
 VERSION             "1"
 CONFIG              "W:\bin\stringed.cfg"
 FILENOTES           ""
@@ -18,6 +18,18 @@ LANG_FRENCH         "Couper le son sans le focus :"
 REFERENCE           MUTE_UNFOCUSED_DESC
 LANG_ENGLISH        "Mute the sound while the game's window is not in front."
 LANG_FRENCH         "Couper le son quand la fenêtre du jeu n'est pas au premier plan"
+
+REFERENCE           SOUND_DEVICE
+LANG_ENGLISH        "Sound device:"
+LANG_FRENCH         "Périphérique audio :"
+
+REFERENCE           SOUND_DEVICE_DESC
+LANG_ENGLISH        "The output the sound plays on: the system's default, or one of its outputs."
+LANG_FRENCH         "La sortie où joue le son : celle par défaut du système, ou l'une de ses sorties"
+
+REFERENCE           SOUND_DEVICE_DEFAULT
+LANG_ENGLISH        "Default"
+LANG_FRENCH         "Par défaut"
 
 
 ENDMARKER

@@ -11,7 +11,7 @@ Every sound a player hears goes through it: a blaster's shot and the saber's hum
 | folder | what it does | README |
 |---|---|---|
 | `decoder/` | the files' decoders: WAV, MP3, FLAC, Ogg Vorbis, chosen by the file's content; a library of its own, `modernjk_sound_decoder`, which the fuzzer takes without OpenAL Soft | [decoder/README.md](decoder/README.md) |
-| `device/` | OpenAL Soft's device and context: the system's default device followed, HRTF off, the resampler bsinc24, the mute without the focus, the mix's gain after ASWG-R001 (-24 LUFS at the default settings) and the limiter | [device/README.md](device/README.md) |
+| `device/` | OpenAL Soft's device and context: the output chosen by its name (`s_device`) or the system's default device, followed, HRTF off, the resampler bsinc24, the mute without the focus, the mix's gain after ASWG-R001 (-24 LUFS at the default settings) and the limiter | [device/README.md](device/README.md) |
 | `bank/` | the registered sounds: a name given a handle, its file found and decoded whole into an OpenAL buffer, the lip sync's loudness measured | [bank/README.md](bank/README.md) |
 | `voices/` | the sounds playing: the classes and the slots, the 64 real voices chosen at every frame and the virtual ones, the attenuation, Doppler, the listener, the voices' state for the lip sync, the sound log | [voices/README.md](voices/README.md) |
 | `stream/` | the sounds streamed: the music, a level's dynamic music, the cinematics' sound | [stream/README.md](stream/README.md) |

@@ -31,6 +31,9 @@ USER INTERFACE MAIN
 */
 
 #include <algorithm>
+#include <span>
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include <server/exe_headers.h>
@@ -1804,6 +1807,26 @@ static bool UI_Crosshair_HandleKey(int flags, float* special, fakeAscii_t key)
     return false;
 }
 
+// the next output at each click, Enter or right arrow, the one before with the right button or the left arrow, in the
+// order the system's default then each output the system lists
+static bool UI_SoundDevice_HandleKey(fakeAscii_t key)
+{
+    const bool back = key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_CURSOR_LEFT;
+
+    if (!back && key != fakeAscii_t::A_MOUSE1 && key != fakeAscii_t::A_ENTER && key != fakeAscii_t::A_KP_ENTER && key != fakeAscii_t::A_CURSOR_RIGHT) {
+        return false;
+    }
+
+    const std::span<const std::string_view> outputs = DC->sound->OutputDevices();
+    const std::string_view chosen = Cvar_VariableString("s_device");
+    const auto found = std::ranges::find(outputs, chosen);
+    const int count = static_cast<int>(outputs.size()) + 1; // the default first
+    const int index = chosen.empty() || found == outputs.end() ? 0 : static_cast<int>(found - outputs.begin()) + 1;
+    const int next = (index + (back ? count - 1 : 1)) % count;
+    Cvar_Set("s_device", next == 0 ? "" : std::string(outputs[static_cast<std::size_t>(next - 1)]).c_str());
+    return true;
+}
+
 static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float* special, fakeAscii_t key)
 {
 
@@ -1811,6 +1834,8 @@ static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float* special, fake
     case UI_CROSSHAIR:
         UI_Crosshair_HandleKey(flags, special, key);
         break;
+    case UI_SOUND_DEVICE:
+        return UI_SoundDevice_HandleKey(key);
     default:
         break;
     }
@@ -3354,6 +3379,27 @@ static void UI_DrawCrosshair(rectDef_t* rect, float scale, vec4_t color)
 UI_OwnerDraw
 =================
 */
+// the sound's output (s_device): the system's default, or the output's name cut to the width the menu gives the value
+// (the item's special)
+static void UI_DrawSoundDevice(const rectDef_t& rect, float width, float scale, vec4_t color, int textStyle, int iFontIndex)
+{
+    std::string text = Cvar_VariableString("s_device");
+
+    if (text.empty()) {
+#ifdef JK2_MODE
+        text = ui.SP_GetStringTextString("MENUS4_SOUND_DEVICE_DEFAULT");
+#else
+        text = SE_GetString("MODERNJK_SOUND_DEVICE_DEFAULT");
+#endif
+    }
+
+    while (text.size() > 1 && width > 0.0f && static_cast<float>(Text_Width(text.c_str(), scale, iFontIndex)) > width) {
+        text.pop_back();
+    }
+
+    Text_Paint(rect.x, rect.y, scale, color, text.c_str(), 0, textStyle, iFontIndex);
+}
+
 static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special,
                          float scale, vec4_t color, qhandle_t shader, int textStyle, int iFontIndex)
 {
@@ -3367,6 +3413,9 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
     switch (ownerDraw) {
     case UI_EFFECTS:
         UI_DrawEffects(&rect, scale, color);
+        break;
+    case UI_SOUND_DEVICE:
+        UI_DrawSoundDevice(rect, special, scale, color, textStyle, iFontIndex);
         break;
     case UI_VERSION:
         UI_Version(&rect, scale, color, iFontIndex);

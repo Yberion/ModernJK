@@ -33,6 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <array>
 #include <cstdint>
 #include <optional>
+#include <span>
 #include <string_view>
 
 namespace sound {
@@ -181,6 +182,10 @@ public:
     virtual void AddLocalSet(std::string_view name, int entity, const Vector& origin) = 0;
     // The sound of a brush model's set at a stage, kNoSound when the set has none.
     [[nodiscard]] virtual SoundHandle BrushModelSound(std::string_view name, BrushModelStage stage) const = 0;
+
+    // The names of the system's output devices, as the device setting (s_device) takes them; read when a menu asks, since
+    // the system lists its devices each time. The names last until the next call.
+    [[nodiscard]] virtual std::span<const std::string_view> OutputDevices() = 0;
 
 protected:
     Api() = default;

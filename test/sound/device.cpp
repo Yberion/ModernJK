@@ -239,6 +239,53 @@ void TestListenerBoost(const std::filesystem::path& data)
     CHECK(device != nullptr && device->ListenerBoost() == sound::ListenerBoostOf(ALC_STEREO_BASIC_SOFT));
 }
 
+// the output a frame moves to, in each case the menu and the system make; the outputs listed only when the move depends
+// on whether the chosen one is there
+void TestDecideMove()
+{
+    struct Case {
+        sound::DeviceSeen seen;
+        bool chosenPresent;
+        sound::DeviceMove move;
+        bool listed;
+    };
+
+    using sound::DeviceMove;
+    const Case cases[] = {
+        // the default followed: nothing happens; the default changes; another output appears
+        {{}, false, DeviceMove::Stay, false},
+        {{.defaultChanged = true}, false, DeviceMove::ToDefault, false},
+        {{.added = true}, false, DeviceMove::Stay, false},
+        // the chosen output playing: the default changes, another output appears
+        {{.defaultChanged = true, .hasChoice = true, .onChosen = true, .onDefault = false}, true, DeviceMove::Stay, false},
+        {{.added = true, .hasChoice = true, .onChosen = true, .onDefault = false}, true, DeviceMove::Stay, false},
+        // the chosen output unplugged: the default; plugged back: the chosen one; another output appears meanwhile
+        {{.connected = false, .hasChoice = true, .onChosen = true, .onDefault = false}, false, DeviceMove::ToDefault, true},
+        {{.added = true, .hasChoice = true}, true, DeviceMove::ToChosen, true},
+        {{.added = true, .hasChoice = true}, false, DeviceMove::Stay, true},
+        // the menu: an output chosen, there or not; another one; back to the default
+        {{.reselect = true, .hasChoice = true}, true, DeviceMove::ToChosen, true},
+        {{.reselect = true, .hasChoice = true}, false, DeviceMove::Stay, true},
+        {{.reselect = true, .hasChoice = true, .onDefault = false}, true, DeviceMove::ToChosen, true},
+        {{.reselect = true, .onDefault = false}, false, DeviceMove::ToDefault, false},
+        {{.reselect = true}, false, DeviceMove::Stay, false},
+        // no device since a loss: the chosen output if it is there, else the default
+        {{.lost = true, .hasChoice = true, .onChosen = true, .onDefault = false}, true, DeviceMove::ToChosen, true},
+        {{.lost = true, .hasChoice = true, .onChosen = true, .onDefault = false}, false, DeviceMove::ToDefault, true},
+        {{.lost = true}, false, DeviceMove::ToDefault, false},
+    };
+
+    for (const Case& c : cases) {
+        bool listed = false;
+        const DeviceMove move = sound::DecideMove(c.seen, [&] {
+            listed = true;
+            return c.chosenPresent;
+        });
+        CHECK(move == c.move);
+        CHECK(listed == c.listed);
+    }
+}
+
 } // namespace
 
 // a loopback device and its context set up as the sound will, then the checks above on it
@@ -246,6 +293,8 @@ void RunDeviceTests(const std::filesystem::path& data)
 {
     CHECK(alcIsExtensionPresent(nullptr, "ALC_SOFT_loopback"));
     CHECK(alcIsExtensionPresent(nullptr, "ALC_SOFT_system_events"));
+    CHECK(alcIsExtensionPresent(nullptr, "ALC_ENUMERATE_ALL_EXT"));
+    TestDecideMove();
     ALCdevice* device = alcLoopbackOpenDeviceSOFT(nullptr);
     CHECK(device != nullptr);
 

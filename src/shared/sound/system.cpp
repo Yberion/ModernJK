@@ -35,17 +35,25 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 namespace sound {
 
-std::unique_ptr<System> System::Create(const Host& host, std::optional<int> loopbackRate, std::uint32_t firstSerial)
+std::unique_ptr<System> System::Create(const Host& host, std::optional<int> loopbackRate, std::uint32_t firstSerial, std::string_view device)
 {
-    std::unique_ptr<System> system(new System(host, loopbackRate, firstSerial));
+    std::unique_ptr<System> system(new System(host, loopbackRate, firstSerial, device));
     return system->device_ ? std::move(system) : nullptr;
 }
 
 // the device opened first, so that every part after it creates its sources and buffers in its context
-System::System(Host host, std::optional<int> loopbackRate, std::uint32_t firstSerial)
-    : host_(std::move(host)), device_(loopbackRate ? Device::OpenLoopback(host_, *loopbackRate) : Device::OpenSystem(host_)), bank_(host_),
+System::System(Host host, std::optional<int> loopbackRate, std::uint32_t firstSerial, std::string_view device)
+    : host_(std::move(host)), device_(loopbackRate ? Device::OpenLoopback(host_, *loopbackRate) : Device::OpenSystem(host_, device)), bank_(host_),
       voices_(bank_, reverb_, Resampler(), firstSerial), music_(host_, Resampler()), ambient_(bank_, voices_, host_)
 {
+}
+
+// listed again at each call, the system's outputs changing while the game runs
+std::span<const std::string_view> System::OutputDevices()
+{
+    outputNames_ = Device::OutputNames();
+    outputViews_.assign(outputNames_.begin(), outputNames_.end());
+    return outputViews_;
 }
 
 // the parts that hold sources and buffers released before the device closes
@@ -250,10 +258,20 @@ void System::RestoreState(const State& state)
     }
 }
 
+// the device in use, the one chosen and every output, the one in use marked
 std::string System::Info() const
 {
-    return fmt::format("device: {}\nvoices: {} playing, {} mixed of {}\nsounds registered: {}\n{}\n{}", device_->Name(), voices_.Playing(), voices_.Mixed(),
-                       kRealVoices, bank_.Count() - 1, music_.Describe(), reverb_.Info());
+    const std::string name = device_->Name();
+    std::string outputs;
+
+    for (const std::string& output : Device::OutputNames()) {
+        outputs += fmt::format("\n  {} {}", output == name ? '*' : ' ', output);
+    }
+
+    const std::string& chosen = device_->Chosen();
+    return fmt::format("device: {}\nchosen: {}\noutputs:{}\nvoices: {} playing, {} mixed of {}\nsounds registered: {}\n{}\n{}", name,
+                       chosen.empty() ? "the system's default" : chosen, outputs, voices_.Playing(), voices_.Mixed(), kRealVoices, bank_.Count() - 1,
+                       music_.Describe(), reverb_.Info());
 }
 
 std::vector<std::string> System::List() const

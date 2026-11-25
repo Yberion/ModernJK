@@ -63,6 +63,7 @@ public:
     void UpdateAmbientSet(std::string_view /*name*/, const sound::Vector& /*origin*/) override {}
     void AddLocalSet(std::string_view /*name*/, int /*entity*/, const sound::Vector& /*origin*/) override {}
     sound::SoundHandle BrushModelSound(std::string_view /*name*/, sound::BrushModelStage /*stage*/) const override { return sound::kNoSound; }
+    std::span<const std::string_view> OutputDevices() override { return {}; }
 };
 
 std::unique_ptr<sound::System> sys;
@@ -92,6 +93,7 @@ public:
     void UpdateAmbientSet(std::string_view name, const sound::Vector& origin) override { Target().UpdateAmbientSet(name, origin); }
     void AddLocalSet(std::string_view name, int entity, const sound::Vector& origin) override { Target().AddLocalSet(name, entity, origin); }
     sound::SoundHandle BrushModelSound(std::string_view name, sound::BrushModelStage stage) const override { return Target().BrushModelSound(name, stage); }
+    std::span<const std::string_view> OutputDevices() override { return Target().OutputDevices(); }
 
 private:
     // the sound in use
@@ -117,9 +119,11 @@ cvar_t* s_allowDynamicMusic;
 cvar_t* s_show;
 cvar_t* s_debugdynamic;
 cvar_t* s_reverb;
+cvar_t* s_device;
 
 bool focused = true;
 bool logging = false;
+int deviceModification = 0; // s_device's modification count when it was last given to the system
 
 // reads the engine's file system, prints in its console, draws from its random numbers
 sound::Host MakeHost()
@@ -300,6 +304,12 @@ void ApplySettings()
     sys->SetMusicDebug(s_debugdynamic->integer != 0);
     sys->SetReverb(s_reverb->integer != 0);
 
+    // another output chosen in the menu or the console: the device moves at the system's next frame
+    if (s_device->modificationCount != deviceModification) {
+        deviceModification = s_device->modificationCount;
+        sys->SetDevice(s_device->string);
+    }
+
     // s_show 1: the sound log, each line of it in the console
     const bool log = s_show->integer == 1;
 
@@ -309,8 +319,8 @@ void ApplySettings()
     }
 }
 
-// the settings registered, then the sound on the default device; serial the first voice's serial number, so that a
-// restarted sound gives no handle twice
+// the settings registered, then the sound on the chosen output or the default device; serial the first voice's serial
+// number, so that a restarted sound gives no handle twice
 void Start(std::uint32_t serial)
 {
     Q_Println("\n------- sound initialization -------");
@@ -324,13 +334,15 @@ void Start(std::uint32_t serial)
     s_show = Cvar_Get("s_show", "0", cvarFlags_t::CVAR_CHEAT);
     s_debugdynamic = Cvar_Get("s_debugdynamic", "0", cvarFlags_t::CVAR_CHEAT);
     s_reverb = Cvar_Get("s_reverb", "1", cvarFlags_t::CVAR_ARCHIVE);
+    s_device = Cvar_Get("s_device", "", cvarFlags_t::CVAR_ARCHIVE); // the output's name; empty, the system's default
 
     if (s_initsound->integer == 0) {
         Q_Println("not initializing.");
         return;
     }
 
-    sys = sound::System::Create(MakeHost(), std::nullopt, serial);
+    deviceModification = s_device->modificationCount;
+    sys = sound::System::Create(MakeHost(), std::nullopt, serial, s_device->string);
 
     if (!sys) {
         return;

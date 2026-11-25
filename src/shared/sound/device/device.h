@@ -18,20 +18,24 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// device.h -- OpenAL Soft's device and context as the sound uses them: the system's default device, followed when it
-// changes or disappears, HRTF off, the resampler bsinc24, the distances in the game's units, the mute without the
-// window's focus; or OpenAL Soft's loopback device, rendered on demand, for the tests.
+// device.h -- OpenAL Soft's device and context as the sound uses them: the output chosen by its name, or the system's
+// default device, followed when it changes or disappears, HRTF off, the resampler bsinc24, the distances in the game's
+// units, the mute without the window's focus; or OpenAL Soft's loopback device, rendered on demand, for the tests.
 // Example: the window loses its focus: SetMuted(true) silences every sound, which goes on playing; the system's
-// default device changes: the next Frame moves the sound to it.
+// default device changes: the next Frame moves the sound to it, unless an output is chosen; the chosen headset
+// unplugged, the sound goes to the default, and back to the headset when it is plugged in again.
 #pragma once
 
 #include <shared/sound/host.h>
 
 #include <atomic>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <span>
 #include <string>
+#include <string_view>
+#include <vector>
 
 struct ALCdevice;
 struct ALCcontext;
@@ -59,10 +63,43 @@ inline constexpr float kMixGain = 0.355f;
 // ears, as loud as a sound fully to one side on its ear.
 [[nodiscard]] float ListenerBoostOf(int outputMode) noexcept;
 
+// What a frame does with the system's device: stays on it, or reopens it on the chosen output or on the system's default.
+enum class DeviceMove : std::uint8_t {
+    Stay,
+    ToChosen,
+    ToDefault,
+};
+
+// What a frame sees of the system's device, for DecideMove.
+struct DeviceSeen {
+    bool reselect = false;       // another output was chosen
+    bool connected = true;       // the device in use still plays
+    bool lost = false;           // the device was lost and none opened since
+    bool defaultChanged = false; // the system's default output changed
+    bool added = false;          // an output appeared
+    bool hasChoice = false;      // an output is chosen; else the system's default is followed
+    bool onChosen = false;       // the device in use was opened as the chosen output
+    bool onDefault = true;       // the device in use was opened as the system's default
+};
+
+// The move a frame makes: the chosen output when it is there, else the system's default, followed when it changes; an
+// output that appears brings the sound back to the chosen one. chosenPresent lists the outputs, so it is called only when
+// the move depends on it.
+[[nodiscard]] DeviceMove DecideMove(const DeviceSeen& seen, const std::function<bool()>& chosenPresent);
+
+// The system's events, set on OpenAL Soft's own thread and read at the next frame.
+struct DeviceEvents {
+    std::atomic<bool> defaultChanged{false}; // the system's default output changed
+    std::atomic<bool> added{false};          // an output appeared
+};
+
 class Device {
 public:
-    // Opens the system's default device; nullptr, the reason printed, when none opens.
-    [[nodiscard]] static std::unique_ptr<Device> OpenSystem(const Host& host);
+    // Opens the chosen output by its name, or the system's default when none is chosen (an empty name) or the chosen one is
+    // not there; nullptr, the reason printed, when none opens.
+    [[nodiscard]] static std::unique_ptr<Device> OpenSystem(const Host& host, std::string_view chosen = {});
+    // The names of the system's outputs, as OpenSystem and SetChosen take them.
+    [[nodiscard]] static std::vector<std::string> OutputNames();
     // Opens OpenAL Soft's loopback device: stereo 16-bit samples at a rate, rendered by Render, no sound card needed.
     [[nodiscard]] static std::unique_ptr<Device> OpenLoopback(const Host& host, int rate);
 
@@ -72,9 +109,13 @@ public:
     Device& operator=(Device&&) = delete;
     ~Device();
 
-    // At every frame, now in milliseconds: moves to the system's default device when it changed, or when the device in use
-    // disappeared, trying again once per second while none opens.
+    // At every frame, now in milliseconds: moves to the output DecideMove gives, trying again once per second while none
+    // opens.
     [[nodiscard]] DeviceState Frame(int now);
+    // The output to play on, by its name; empty, the system's default. Applied at the next frame.
+    void SetChosen(std::string_view name);
+    // The output chosen; empty when the system's default is followed.
+    [[nodiscard]] const std::string& Chosen() const noexcept { return chosen_; }
     // The loopback device lost until told otherwise, so that the tests play a device unplugged and plugged back.
     void SimulateLoss(bool lost) noexcept { simulatedLoss_ = lost; }
     // The resampler every source takes: bsinc24's index, or the library's default (0) when it lacks it.
@@ -105,7 +146,11 @@ private:
     bool lost_ = false;          // the device in use is gone and no other opened yet
     int nextAttempt_ = 0;        // when to try reopening again
     bool simulatedLoss_ = false; // the tests' unplugged loopback device
-    std::atomic<bool> defaultChanged_{false};
+    std::string chosen_;         // the output chosen; empty, the system's default
+    std::string openedAs_;       // the name the device in use was opened by; empty, the system's default
+    bool onChosen_ = false;      // the device in use was opened as the chosen output
+    bool reselect_ = false;      // another output was chosen since the last frame
+    DeviceEvents events_;
 };
 
 } // namespace sound

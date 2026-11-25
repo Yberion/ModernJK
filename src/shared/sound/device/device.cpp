@@ -18,11 +18,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// device.cpp -- OpenAL Soft's device and context (device.h): the default device opened with HRTF off, its context made
-// current with the straight-line distance model, the speed of sound in game units and bsinc24; the system's event of a
-// new default device, which comes on OpenAL Soft's own thread, only marks the device, and the next frame reopens it in
-// place. Example: headphones plugged in while playing become the system's default device; the sound moves to them at
-// the next frame, every sound going on.
+// device.cpp -- OpenAL Soft's device and context (device.h): the chosen output or the default device opened with HRTF
+// off, its context made current with the straight-line distance model, the speed of sound in game units and bsinc24; the
+// system's events of a new default device and of an output that appears, which come on OpenAL Soft's own thread, only
+// mark the device, and the next frame reopens it in place. Example: headphones plugged in while playing become the
+// system's default device; the sound moves to them at the next frame, every sound going on.
 #include "device.h"
 
 #define AL_ALEXT_PROTOTYPES
@@ -32,8 +32,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <fmt/format.h>
 
+#include <algorithm>
 #include <array>
+#include <cstring>
 #include <string_view>
+#include <utility>
 
 namespace sound {
 
@@ -45,9 +48,10 @@ namespace {
 // under ASWG-R001's -1 dBTP.
 constexpr std::array<ALCint, 5> kSystemAttributes = {ALC_HRTF_SOFT, ALC_FALSE, ALC_OUTPUT_LIMITER_SOFT, ALC_TRUE, 0};
 
-// the event that moves the sound to another device: the system's default changed (the device in use disappearing is
-// seen at every frame, by ALC_CONNECTED)
-constexpr std::array<ALCenum, 1> kEvents = {ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT};
+// the events that move the sound to another device: the system's default changed, an output appeared (the chosen one
+// plugged back); the device in use disappearing is seen at every frame, by ALC_CONNECTED. WASAPI, PipeWire, PulseAudio
+// and CoreAudio report them, ALSA does not.
+constexpr std::array<ALCenum, 2> kEvents = {ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT, ALC_EVENT_TYPE_DEVICE_ADDED_SOFT};
 
 // the index of bsinc24, the band-limited sinc of 24 points, which the library names "23rd order Sinc"; 0, the
 // library's default, when it has none
@@ -66,17 +70,60 @@ int FindBsinc24()
     return 0;
 }
 
-// called by OpenAL Soft on its own thread: a change of the default playback device marks the device to reopen at the
-// next frame
+// a device's name as the system gives it: OpenAL Soft names a Windows device "OpenAL Soft on <the system's name>" and
+// opens it by either name
+std::string SystemName(std::string_view name)
+{
+    constexpr std::string_view prefix = "OpenAL Soft on ";
+
+    if (name.starts_with(prefix)) {
+        name.remove_prefix(prefix.size());
+    }
+
+    return std::string(name);
+}
+
+// called by OpenAL Soft on its own thread: a change of the default playback device, or a playback device that appears,
+// marks the device, which the next frame looks at
 void ALC_APIENTRY OnEvent(ALCenum eventType, ALCenum deviceType, ALCdevice* /*device*/, ALCsizei /*length*/, const ALCchar* /*message*/,
                           void* userParam) noexcept
 {
-    if (deviceType == ALC_PLAYBACK_DEVICE_SOFT && eventType == ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT) {
-        static_cast<std::atomic<bool>*>(userParam)->store(true);
+    if (deviceType != ALC_PLAYBACK_DEVICE_SOFT) {
+        return;
+    }
+
+    auto* events = static_cast<DeviceEvents*>(userParam);
+
+    if (eventType == ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT) {
+        events->defaultChanged.store(true);
+    }
+    else if (eventType == ALC_EVENT_TYPE_DEVICE_ADDED_SOFT) {
+        events->added.store(true);
     }
 }
 
 } // namespace
+
+DeviceMove DecideMove(const DeviceSeen& seen, const std::function<bool()>& chosenPresent)
+{
+    const bool playing = seen.connected && !seen.lost;
+    const bool wanted = seen.reselect || !playing || (seen.defaultChanged && seen.onDefault) || (seen.added && seen.hasChoice && !seen.onChosen);
+
+    if (!wanted) {
+        return DeviceMove::Stay;
+    }
+
+    if (seen.hasChoice && chosenPresent()) {
+        return seen.onChosen && playing ? DeviceMove::Stay : DeviceMove::ToChosen;
+    }
+
+    // the chosen output not there, or none chosen: the default, unless it plays already and has not changed
+    if (seen.onDefault && playing && !seen.defaultChanged) {
+        return DeviceMove::Stay;
+    }
+
+    return DeviceMove::ToDefault;
+}
 
 // measured on OpenAL Soft 1.25.2's loopback device, HRTF off (test/sound/device.cpp measures them again): a mono
 // source at the listener and one fully to the right, the loudest channel of each; stereo 0.596 against 1.0
@@ -98,10 +145,21 @@ float ListenerBoostOf(int outputMode) noexcept
     }
 }
 
-// opens the default device (the null name), then its context
-std::unique_ptr<Device> Device::OpenSystem(const Host& host)
+// opens the chosen output, or the default device (the null name) when none is chosen or it does not open, then its
+// context
+std::unique_ptr<Device> Device::OpenSystem(const Host& host, std::string_view chosen)
 {
-    ALCdevice* device = alcOpenDevice(nullptr);
+    const std::string name(chosen);
+    ALCdevice* device = name.empty() ? nullptr : alcOpenDevice(name.c_str());
+    const bool onChosen = device != nullptr;
+
+    if (!name.empty() && !onChosen) {
+        host.print(Message::Info, fmt::format("the sound device \"{}\" is not there: the system's default until it is", name));
+    }
+
+    if (device == nullptr) {
+        device = alcOpenDevice(nullptr);
+    }
 
     if (device == nullptr) {
         host.print(Message::Error, "no sound device could be opened");
@@ -109,16 +167,33 @@ std::unique_ptr<Device> Device::OpenSystem(const Host& host)
     }
 
     std::unique_ptr<Device> result(new Device(host, device, false));
+    result->chosen_ = name;
+    result->openedAs_ = onChosen ? name : std::string();
+    result->onChosen_ = onChosen;
 
     if (!result->CreateContext(kSystemAttributes)) {
         return nullptr;
     }
 
-    // the default device followed: the events reported on OpenAL Soft's thread, acted on at the next frame
-    alcEventCallbackSOFT(OnEvent, &result->defaultChanged_);
+    // the events reported on OpenAL Soft's thread, acted on at the next frame
+    alcEventCallbackSOFT(OnEvent, &result->events_);
     alcEventControlSOFT(static_cast<ALCsizei>(kEvents.size()), kEvents.data(), ALC_TRUE);
     host.print(Message::Info, fmt::format("sound device: {}", result->Name()));
     return result;
+}
+
+// the outputs' names, a list of strings each ended by a null, the last by two
+std::vector<std::string> Device::OutputNames()
+{
+    std::vector<std::string> names;
+    const ALCchar* name = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
+
+    while (name != nullptr && *name != '\0') {
+        names.push_back(SystemName(name));
+        name += std::strlen(name) + 1;
+    }
+
+    return names;
 }
 
 // opens the loopback device with the format Render writes
@@ -194,9 +269,9 @@ void Device::ApplyGain() const
     alListenerf(AL_GAIN, muted_ ? 0.0f : kMixGain);
 }
 
-// reopens the device on the system's default when the default changed or the device in use is gone, once per second
-// while none opens, warned once per loss; the context, the sources and the buffers stay as they are, the sources
-// possibly stopped by OpenAL Soft (the voices start them again)
+// reopens the device on the output DecideMove gives, once per second while none opens, warned once per loss; the
+// context, the sources and the buffers stay as they are, the sources possibly stopped by OpenAL Soft (the voices start
+// them again)
 DeviceState Device::Frame(int now)
 {
     if (loopback_) {
@@ -212,22 +287,55 @@ DeviceState Device::Frame(int now)
 
     ALCint connected = ALC_TRUE;
     alcGetIntegerv(device_, ALC_CONNECTED, 1, &connected);
-    const bool changed = defaultChanged_.exchange(false);
+    DeviceSeen seen;
+    seen.reselect = std::exchange(reselect_, false);
+    seen.connected = connected == ALC_TRUE;
+    seen.lost = lost_;
+    seen.defaultChanged = events_.defaultChanged.exchange(false);
+    seen.added = events_.added.exchange(false);
 
-    if (!changed && connected == ALC_TRUE && !lost_) {
+    // nothing happened: the device in use goes on, nothing else asked
+    if (!seen.reselect && seen.connected && !seen.lost && !seen.defaultChanged && !seen.added) {
         return DeviceState::Playing;
     }
 
-    if (lost_ && !changed && now - nextAttempt_ < 0) {
+    seen.hasChoice = !chosen_.empty();
+    seen.onChosen = onChosen_;
+    seen.onDefault = openedAs_.empty();
+
+    // a lost device is tried again once per second, or at once when the system reports a change
+    if (lost_ && !seen.reselect && !seen.defaultChanged && !seen.added && now - nextAttempt_ < 0) {
         return DeviceState::Lost;
+    }
+
+    const DeviceMove move = DecideMove(seen, [this] {
+        const std::vector<std::string> names = OutputNames();
+        return std::ranges::find(names, chosen_) != names.end();
+    });
+
+    if (move == DeviceMove::Stay) {
+        return lost_ ? DeviceState::Lost : DeviceState::Playing;
     }
 
     // a reopened device's sources may all have been stopped (OpenAL Soft clears its voices on a reopen as on a loss):
     // the voices are mixed again whatever moved the device
-    if (alcReopenDeviceSOFT(device_, nullptr, kSystemAttributes.data()) == ALC_TRUE) {
+    const auto reopen = [this](bool toChosen) {
+        if (alcReopenDeviceSOFT(device_, toChosen ? chosen_.c_str() : nullptr, kSystemAttributes.data()) != ALC_TRUE) {
+            return false;
+        }
+
         host_.print(Message::Info, fmt::format("sound device: {}", Name()));
         ReadOutputMode();
         lost_ = false;
+        openedAs_ = toChosen ? chosen_ : std::string();
+        onChosen_ = toChosen;
+        return true;
+    };
+
+    // the chosen output listed but refusing to open: the default in its place
+    const bool toChosen = move == DeviceMove::ToChosen;
+
+    if (reopen(toChosen) || (toChosen && reopen(false))) {
         return DeviceState::Reopened;
     }
 
@@ -238,6 +346,14 @@ DeviceState Device::Frame(int now)
     lost_ = true;
     nextAttempt_ = now + 1000;
     return DeviceState::Lost;
+}
+
+// the names compared here, when the choice changes, not at every frame
+void Device::SetChosen(std::string_view name)
+{
+    chosen_ = name;
+    onChosen_ = !chosen_.empty() && openedAs_ == chosen_;
+    reselect_ = true;
 }
 
 void Device::SetMuted(bool muted)
@@ -263,7 +379,7 @@ std::string Device::Name() const
         name = alcGetString(device_, ALC_DEVICE_SPECIFIER);
     }
 
-    return name != nullptr ? std::string(name) : std::string();
+    return name != nullptr ? SystemName(name) : std::string();
 }
 
 } // namespace sound

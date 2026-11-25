@@ -363,6 +363,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define UI_CHAT_REPLY 295
 #define UI_CHAT_SPOT 296
 #define UI_CHAT_TACTICAL 297
+#define UI_SOUND_DEVICE 298 // the sound's output (s_device), the menus naming it by its number
 
 #define VOICECHAT_GETFLAG "getflag"                     // command someone to get the flag
 #define VOICECHAT_OFFENSE "offense"                     // command someone to go on offense
