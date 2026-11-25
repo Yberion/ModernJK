@@ -163,6 +163,16 @@ Read in SDL 3's documentation and source (branch `main`) and in this repository 
 - **The version**: SDL 3.4.20, the latest stable release, published on 3 November 2026; downloaded and vendored in part 1, once approved.
 - **The menus** (the same evening): a menu that shows a removed or changed setting is changed in the game's own pk3, with the part that changes the setting, and the UI's code that drives it (`src/codemp/ui/ui_main.c`, `UI_Update`) with it. Read in the game's menus (`ui/jamp/` in `assets0` to `assets3`): `setup.menu` and `ingame_setup.menu` hold the display's mode list, fullscreen and colour depth (through `ui_r_mode`, `ui_r_fullscreen`, `ui_r_colorbits`), the brightness (`r_gamma`, which then drives the pass of P2), the vertical sync, and the sound's quality and EAX (`s_khz`, `s_UseOpenAL`, removed with the audio library); `controls.menu` and `ingame_controls.menu` the joystick (`in_joystick`, with part 5). The menu files are the retail game's (Raven's and Activision's), not GPL code: a changed copy in the game's pk3 is what mods do.
 
+### Decisions taken when the step started (25 November 2026)
+
+Note of 25 November 2026: the step started with eight more decisions, written with their options in [../progress/step-15-platform.md](../progress/step-15-platform.md) section 1. They change this document on these points:
+
+- Principle 2 and "The parts": the layer is not behind today's interface (section 1's `WIN_Init`, `IN_Frame`): the engines get a new one, the client owning the window and the input handed over as typed events with their time in nanoseconds; a classic `main`, not SDL's main callbacks; the mouse's motion in floating point up to the view angles.
+- "The build": the old code is not kept selectable by a CMake option, it goes with SDL 2 in parts 1 and 2; SDL 3 is linked statically, not shipped as a shared library.
+- P2: the pass at the end of the frame is designed as the output stage of recent engines, `r_gamma` computed in floating point in the shader, not a table of 256 values per channel; the lighting in linear light and the HDR output are plan step 25's.
+- The parts' order: 1 and 2 together, then 4, 5 and 6.
+- New in SDL 3.4 since the facts of 15 November 2026: `SDL_HINT_WINDOWS_RAW_KEYBOARD_EXCLUDE_HOTKEYS` and `SDL_HINT_WINDOWS_RAW_KEYBOARD_INPUTSINK`, both off by default, beside P7's raw keyboard.
+
 ## 8. The checks
 
 The layer is accepted when, on Windows 11 and on Linux (X11 and Wayland):
