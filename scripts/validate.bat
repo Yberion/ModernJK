@@ -5,12 +5,12 @@ rem (tools\eal_converter, out of the presets' builds) in Release, then the size 
 rem benchmark (two runs) and the trainers, which must rewrite the committed tables unchanged. Needs the traces of
 rem docs\modernization\data\traces (export_rans_trace.py, export_codec_trace.py, export_demo_traces.py, and the
 rem client traces of netcodec_bench_client --trace).
-rem Run from anywhere (cmd or PowerShell): src\codemp\netcodec\scripts\validate.bat. It loads Visual Studio's x64
+rem Run from anywhere (cmd or PowerShell): scripts\validate.bat. It loads Visual Studio's x64
 rem environment itself (vcvars64.bat, Visual Studio found by vswhere.exe).
 rem Output: the console and build\validate-windows.log; the summary (with each step's time) and the benchmark figures
 rem come last.
 setlocal EnableDelayedExpansion
-cd /d "%~dp0..\..\..\.."
+cd /d "%~dp0.."
 set "B=build"
 set "T=docs\modernization\data\traces"
 set "G=src\codemp\netcodec\src\generated"

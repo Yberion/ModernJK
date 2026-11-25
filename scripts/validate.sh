@@ -9,11 +9,11 @@
 # the trainers, which must rewrite the committed tables unchanged. Needs the traces of docs/modernization/data/traces
 # (export_rans_trace.py, export_codec_trace.py, export_demo_traces.py, and the client traces of
 # netcodec_bench_client --trace).
-# Run from anywhere: src/codemp/netcodec/scripts/validate.sh
+# Run from anywhere: scripts/validate.sh
 # Output: the console and build/validate-linux.log; the summary (with each step's time) and the benchmark figures
 # come last.
 set -u
-cd "$(dirname "$0")/../../../.."
+cd "$(dirname "$0")/.."
 B=build
 T=docs/modernization/data/traces
 G=src/codemp/netcodec/src/generated
