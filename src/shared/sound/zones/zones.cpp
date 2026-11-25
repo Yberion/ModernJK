@@ -906,6 +906,12 @@ std::optional<int> ZoneOf(const ZoneFile& zones, const ZonePoint& point) noexcep
 
 SourceObstacles ObstaclesOf(const ZoneFile& zones, std::optional<int> listenerZone, const ZonePoint& listener, const ZonePoint& source) noexcept
 {
+    return ObstaclesOf(zones, listenerZone, ZoneOf(zones, source), listener, source);
+}
+
+SourceObstacles ObstaclesOf(const ZoneFile& zones, std::optional<int> listenerZone, std::optional<int> sourceZone, const ZonePoint& listener,
+                            const ZonePoint& source) noexcept
+{
     SourceObstacles result;
 
     if (!IsInBounds(source)) {
@@ -913,7 +919,7 @@ SourceObstacles ObstaclesOf(const ZoneFile& zones, std::optional<int> listenerZo
     }
 
     const int listenerIndex = Order(listenerZone);
-    const int sourceIndex = Order(WalkTree(zones, source));
+    const int sourceIndex = Order(sourceZone);
 
     // the obstacle between the two zones, the leaves in no zone in the first row and column
     if (!zones.matrix.empty()) {

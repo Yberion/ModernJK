@@ -208,6 +208,7 @@ private:
     std::vector<bool> chosen_;
     std::vector<int> perEvent_;
     std::vector<LoopGroup> loopGroups_;
+    std::vector<std::size_t> loopGroupsUsed_; // the groups the frame used, cleared at the next
     Listener listener_;
     std::vector<std::uint32_t> directFilters_; // each source's filter of its direct sound
     std::vector<std::uint32_t> sendFilters_;   // each source's filter of its send to a reverb

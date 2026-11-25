@@ -2011,6 +2011,38 @@
 			}
 		}
 
+		itemDef 
+		{	
+			name				mute_unfocused
+			group				sound
+      			type				ITEM_TYPE_MULTI
+			text				@MODERNJK_MUTE_UNFOCUSED
+			cvar				"s_muteWhenUnfocused"
+			cvarFloatList		{ @MENUS_OFF 0 @MENUS_ON 1 }
+			rect				260 300 340 14
+	   		textalign			ITEM_ALIGN_RIGHT
+			textalignx			174
+			textaligny			0
+			font 				4					
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				0
+			descText			@MODERNJK_MUTE_UNFOCUSED_DESC
+
+			mouseenter 
+			{ 
+				show			highlight9
+			}
+			mouseexit 
+			{ 
+				hide			highlight9
+			} 
+			action 
+			{
+				play			"sound/interface/button1.wav"
+			}
+		}
+
 //--------------------------------------------------------------------------------------------
 //	OPTION FIELDS
 //----------------------------------------------------------------------------------------------

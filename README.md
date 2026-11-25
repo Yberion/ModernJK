@@ -85,7 +85,7 @@ sudo apt install libsdl2-dev libgl1-mesa-dev libpipewire-0.3-dev libpulse-dev li
 | `windows-clang-fuzz` | the fuzzers: the network codec's and the sound decoders' |
 | `windows-clang-tidy`, `windows-clang-cppcheck` | everything, with the report of clang-tidy or cppcheck |
 
-The Release presets build with link-time optimization, the Debug and sanitizer presets without. Everything: the multiplayer client and dedicated server with their renderer and modules, the single-player games of Jedi Academy and Jedi Outcast, a `modernjk.pk3` for each game (from `assets/jka`, installed in `JediAcademy/base`, and `assets/jk2`, in `JediOutcast/base`), the tests, the network codec's benchmarks and tools. The full checks (`validate.sh`, `validate.bat`) are in "How to resume" of [the progress page](docs/modernization/progress/README.md).
+The Release presets build with link-time optimization, the Debug and sanitizer presets without. Everything: the multiplayer client and dedicated server with their renderer and modules, the single-player games of Jedi Academy and Jedi Outcast, a `z_ModernJK.pk3` for each game (from `assets/jka`, installed in `JediAcademy/base`, and `assets/jk2`, in `JediOutcast/base`), the tests, the network codec's benchmarks and tools. The full checks (`validate.sh`, `validate.bat`) are in "How to resume" of [the progress page](docs/modernization/progress/README.md).
 
 ### Formatting
 

@@ -6,7 +6,7 @@ In the game: the music. A duel's music in the multiplayer (`music/mp/duel`) is a
 
 | file | what it does |
 |---|---|
-| `stream.h`, `stream.cpp` | `Stream`: one source, four buffers of 8,192 frames (0.74 s to 1.5 s queued, so that a long frame does not starve it), filled by a function at every frame; how much it has played |
+| `stream.h`, `stream.cpp` | `Stream`: one source, 32 buffers of 1,024 frames (0.74 s to 1.5 s queued, so that a long frame does not starve it; small, so that a frame decodes about one MP3 frame at a time), filled by a function at every frame; how much it has played |
 | `dms.h`, `dms.cpp` | a level's dynamic music read from `ext_data/dms.dat`: its explore, action and boss pieces, their entry markers and their exits, a level using another's entry (`uses`) or another's boss piece (`useboss`); the rules of the changes |
 | `music.h`, `music.cpp` | `Music`: a file, its intro then its loop without a gap; or a level's dynamic music, its pieces cross-faded over a second |
 

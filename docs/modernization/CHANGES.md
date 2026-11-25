@@ -1335,3 +1335,55 @@ Costs: three reverbs take about 0.74 % of a core (measured on 15 November 2026 w
 `soundinfo` prints the map's zones, the listener's environment and the slots; `s_show 1` adds them to the sound log every 50 frames, with each voice's send and direct filter. The work, the data counted and the original's code read: [progress/step-21-sound.md](progress/step-21-sound.md) section 13.
 
 </details>
+
+### 35. The sound measured, and what the measures changed
+
+**Before.** The new sound of sections 33 and 34 was heard but not measured: its CPU, its memory, its delay, its loudness on a map with long reverbs. The client drew the screen and swapped it before it ran the sound's frame, so a sound the game asks while drawing (a shot, a hit) waited for the swap. The music was decoded in large blocks; the mute without the focus could be changed only in the console; the project's archive was `modernjk.pk3`.
+
+**Now.**
+
+- the sound's frame runs between the screen's drawing and its swap, in the multiplayer and both single-player engines;
+- the music decoded in small blocks, a little at every frame;
+- the module's own work per frame made smaller, the same results;
+- "Mute when unfocused" (`s_muteWhenUnfocused`, on by default) in the sound menus of the three games, under "Reverb", in each game's languages;
+- the archive named `z_ModernJK.pk3`, so that it is read after nearly every archive a player adds to `base` (the archives of a folder are read in their names' order, the last one's files winning); the install scripts delete the old `modernjk.pk3`.
+
+**Why.** A sound should start when the game asks it, at every frame rate, with or without vsync (GUIDELINES section 1, "For every player"); the sound's frame should not make the slowest frames; a setting players may want to change should be in the menus.
+
+**Gain.**
+
+| fix | before | now |
+|---|---|---|
+| A sound asked while the screen is drawn | waits for the swap: with vsync up to one frame (2.7 ms measured at 359 Hz; 6.9 ms at 144 Hz, 10 ms at 100 Hz), 0.9 ms without vsync at 125 frames per second | sent before the swap: 0.05 ms with vsync, 0.08 ms without |
+| The music's decoding | 8,192 frames at once every 186 ms, about 0.1 ms on the main thread: the slowest frames of a level (99th percentile 118 us against 33 us with the music stopped) | 1,024 frames at a time, about one MP3 frame per frame; the same 0.74 to 1.5 s queued |
+| The module's work per frame | a voice's zone found twice, two tables as large as the sounds and the events cleared at every frame, every looping voice's state asked | each once; on one demo played by both builds, 7 to 8 % less (21.7 to 20.2 us per frame at 125 frames per second, 14.4 to 13.3 us at 333) |
+| The mute without the focus | the console only | its item in the sound menus |
+| The project's archive | `modernjk.pk3`, before any archive named after it (`mp_*`, `pak*`, `zz*`) | `z_ModernJK.pk3`, after nearly all of them |
+
+Measured on the development machine (Windows 11), the old mixer of section 33 against this branch:
+
+| measure | the old mixer | this branch |
+|---|---|---|
+| The main thread's time in the sound per frame, fifteen bots on `mp/ffa3` | 57 to 104 us (0.80 % of a core at 100 frames per second, 1.91 % at 333) | 16 to 22 us (0.22 % to 0.54 %); OpenAL Soft's mixing thread about 1.5 % of a core more, the reverb 0.9 % of it |
+| The memory | 945.8 MB private | 956.9 MB (within one sample's spread) |
+| A sound asked to its onset in the Windows mix | 110 to 116 ms, 30 to 45 ms between the earliest and the latest | about 50 ms at 100, 125, 333 frames per second and with vsync, within about 10 ms |
+| The loudness of a long reverb (the TIE fighter's hall of `mp/ffa3`, 3.1 s), ASWG-R001's -24 ±2 LUFS and -1 dBTP | | a crowd -21.8 to -24.4 LUFS with the reverb, -23.7 to -23.9 without; the duels that fight -24.7 to -25.4 LUFS; every true peak at -5.0 dBTP or under |
+
+Costs: none measured for the swap's order (the same work at another moment); the music's 32 buffers hold the same frames as the 4 did.
+
+<details>
+<summary>Technical details</summary>
+
+| | before | now |
+|---|---|---|
+| The sound's frame | `SCR_UpdateScreen()` (drawing, then `re->EndFrame`, the swap), then `SND_Frame` | `SCR_UpdateScreen(CL_UpdateSound)`: the function run after the drawing, before `re->EndFrame`; the module tables and the other callers keep `SCR_UpdateScreen()` |
+| The music's stream | 4 buffers of 8,192 frames (`src/shared/sound/stream/stream.cpp`) | 32 buffers of 1,024 frames |
+| A voice's zone | `ZoneOf`, then `ObstaclesOf` walking the BSP again for the same point | the zone found given to `ObstaclesOf` (an overload; the converter's check against EalMan goes through the former) |
+| The loops' groups, the events' counts | `assign` over every registered sound and every event at every frame | only the entries the frame used cleared |
+| A looping voice | its state asked of OpenAL Soft at every frame | not asked: a looping source stops only when the module stops it or the device is lost |
+| OpenAL Soft's buffer on Windows | 32 ms | unchanged: a buffer sized by Windows from its period, as Microsoft documents it (22 ms, about 10 ms less delay), was measured without an underrun on the development machine and not kept, its margin smaller on machines and drivers not measured |
+| The loudness's method | `session.sh`'s waits half their intended length (`wait` counts two per frame): about 29 s measured after 10 s of settling, the recording from the device's opening | 60 s after 20 s; `loudness.py --from` starts the measure at the second the session prints (read in the console's log) |
+
+The measures and the tools: [progress/step-21-sound.md](progress/step-21-sound.md) section 14.
+
+</details>

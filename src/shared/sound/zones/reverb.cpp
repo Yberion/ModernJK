@@ -665,7 +665,7 @@ VoiceZone ZoneReverb::Of(const Vector& position, Hearing hearing) const
         }
 
         if (hearing == Hearing::InWorld) {
-            const SourceObstacles obstacles = ObstaclesOf(zones, listenerZoneNow_, ToZonePoint(listener_.origin), point);
+            const SourceObstacles obstacles = ObstaclesOf(zones, listenerZoneNow_, zone, ToZonePoint(listener_.origin), point);
             DirectFilter(obstacles, result);
             SendFilter(obstacles, result);
         }

@@ -3,11 +3,11 @@
 the file's sample rate as libebur128 derives them), mean squares over blocks of 400 ms every 100 ms, an absolute gate at
 -70 LUFS and a relative gate 10 LU under the gated mean; stereo, both channels weighted 1; the true peak the largest of
 the signal over-sampled four times by the recommendation's filter, on either channel; the first 2 s left out (the
-session's start).
+session's start), or the seconds --from gives (the measure's start that session.sh prints), for the files after it.
 Reads a WAV written by OpenAL Soft's wave writer (16-bit or 32-bit float) or the raw output of SDL's disk driver (.raw:
 16-bit stereo at 44.1 kHz). Python only, no numpy (about 20 s for a minute of stereo at 48 kHz, more for the true peak
 of a mix that stays near its peak).
-usage: python -I loudness.py --selftest | <file> ...
+usage: python -I loudness.py --selftest | [--from <seconds>] <file> ... [--from <seconds>] <file> ...
 The self-test checks the coefficients at 48 kHz against BS.1770's table, EBU Tech 3341's first case (a 1 kHz sine at
 -23 dBFS on both channels reads -23.0 LUFS) and its true-peak cases 15 to 19 (sines at fs/4, fs/6 and fs/8 in phases
 that put the peak between samples, within +0.2/-0.4 dB); cases 20 to 23 need the EBU's files."""
@@ -162,9 +162,14 @@ if __name__ == "__main__":
     if sys.argv[1:] == ["--selftest"]:
         selftest()
     else:
-        for name in sys.argv[1:]:
+        seconds = 2.0
+        args = iter(sys.argv[1:])
+        for name in args:
+            if name == "--from":
+                seconds = float(next(args))
+                continue
             left, right, rate = load(name)
-            start = 2 * rate
+            start = int(seconds * rate)
             peak = max(max(abs(v) for v in left[start:]), max(abs(v) for v in right[start:]))
             peak_true = max(true_peak(left[start:]), true_peak(right[start:]))
             print(f"{name}: {integrated(left[start:], right[start:], rate):.1f} LUFS, sample peak {20.0 * math.log10(max(peak, 1e-9)):.1f} dBFS, "

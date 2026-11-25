@@ -2037,6 +2037,12 @@ void CL_CheckUserinfo(void)
     }
 }
 
+// the client's sound frame, run before the screen's swap (SCR_UpdateScreen)
+static void CL_UpdateSound(void)
+{
+    SND_Frame(cls.realtime);
+}
+
 /*
 ==================
 CL_Frame
@@ -2101,11 +2107,8 @@ void CL_Frame(int msec)
     // predicts the local player and draws it between the last two ticks
     CL_SendCmd();
 
-    // update the screen
-    SCR_UpdateScreen();
-
-    // update audio
-    SND_Frame(cls.realtime);
+    // update the screen, and the audio before the screen's swap
+    SCR_UpdateScreen(CL_UpdateSound);
 
     // advance local effects for next frame
     SCR_RunCinematic();

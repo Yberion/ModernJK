@@ -34,10 +34,11 @@ namespace sound {
 
 namespace {
 
-// four buffers of 8,192 frames: from 0.74 s (at 44,100 Hz) to 1.5 s (at 22,050 Hz) queued, so that a frame that takes
-// long, a level loading, does not starve the music at once
-constexpr std::size_t kBuffers = 4;
-constexpr std::size_t kFramesPerBuffer = 8192;
+// 32 buffers of 1,024 frames: from 0.74 s (at 44,100 Hz) to 1.5 s (at 22,050 Hz) queued, so that a frame that takes
+// long, a level loading, does not starve the music at once; small buffers, so that a frame refills about one MP3 frame
+// (about 12 us) where a buffer of 8,192 frames took about 0.1 ms in one frame every 186 ms
+constexpr std::size_t kBuffers = 32;
+constexpr std::size_t kFramesPerBuffer = 1024;
 
 // the stream's buffers, made by OpenAL Soft
 std::vector<std::uint32_t> GenerateBuffers()

@@ -233,4 +233,8 @@ struct SourceObstacles {
 // diffraction boxes when they are in the same zone, as EAX Manager computed them.
 [[nodiscard]] SourceObstacles ObstaclesOf(const ZoneFile& zones, std::optional<int> listenerZone, const ZonePoint& listener, const ZonePoint& source) noexcept;
 
+// The same, the source's zone already found (ZoneOf), so that its BSP is not walked again.
+[[nodiscard]] SourceObstacles ObstaclesOf(const ZoneFile& zones, std::optional<int> listenerZone, std::optional<int> sourceZone, const ZonePoint& listener,
+                                          const ZonePoint& source) noexcept;
+
 } // namespace sound

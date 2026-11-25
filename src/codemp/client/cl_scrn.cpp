@@ -489,9 +489,21 @@ text to the screen.
 */
 void SCR_UpdateScreen(void)
 {
+    SCR_UpdateScreen(nullptr);
+}
+
+// beforeSwap, when given, runs between the drawing and the swap, drawn or not: the client's frame sends its sound
+// there, so that the sounds the drawing asked for (a shot, a hit) start at once, not after a swap that waits for the
+// screen's refresh (vsync): their delay the same at every frame rate
+void SCR_UpdateScreen(void (*beforeSwap)())
+{
     static int recursive;
 
     if (!scr_initialized) {
+        if (beforeSwap) {
+            beforeSwap();
+        }
+
         return; // not initialized yet
     }
 
@@ -502,7 +514,9 @@ void SCR_UpdateScreen(void)
 
     // If there is no VM, there are also no rendering commands issued. Stop the renderer in
     // that case.
-    if (cls.uiStarted || com_dedicated->integer) {
+    const bool drawing = cls.uiStarted || com_dedicated->integer;
+
+    if (drawing) {
         // if running in stereo, we need to draw the frame twice
         if (cls.glconfig.stereoEnabled) {
             SCR_DrawScreenField(stereoFrame_t::STEREO_LEFT);
@@ -511,7 +525,13 @@ void SCR_UpdateScreen(void)
         else {
             SCR_DrawScreenField(stereoFrame_t::STEREO_CENTER);
         }
+    }
 
+    if (beforeSwap) {
+        beforeSwap();
+    }
+
+    if (drawing) {
         if (com_speeds->integer) {
             re->EndFrame(&time_frontend, &time_backend);
         }

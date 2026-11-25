@@ -317,7 +317,9 @@ void Voices::Frame(int now, bool mixing)
             MakeVirtual(i, true);
         }
 
-        if (voice.source) {
+        // a looping source stops only when it is stopped here or when the device is lost (the device's state): its state
+        // is not asked
+        if (voice.source && !voice.request.loop) {
             ALint state = AL_PLAYING;
             alGetSourcei(sources_[*voice.source], AL_SOURCE_STATE, &state);
 
@@ -368,8 +370,12 @@ void Voices::Frame(int now, bool mixing)
         }
     }
 
+    // the events' counts, zero between frames (cleared below where they were used), the table grown with the events
     std::vector<int>& perEvent = perEvent_;
-    perEvent.assign(static_cast<std::size_t>(bank_.EventCount()), 0);
+
+    if (perEvent.size() < static_cast<std::size_t>(bank_.EventCount())) {
+        perEvent.resize(static_cast<std::size_t>(bank_.EventCount()), 0);
+    }
 
     // the four of one event played once: the most important, a near sound before a far new one, a fast weapon's new
     // shot before the end of an old one (the loops of one sound are one voice)
@@ -382,6 +388,10 @@ void Voices::Frame(int now, bool mixing)
             ++count;
             candidate.eligible = true;
         }
+    }
+
+    for (const Candidate& candidate : candidates) {
+        perEvent[static_cast<std::size_t>(bank_.Event(voices_[candidate.index].request.sound))] = 0;
     }
 
     std::ranges::sort(candidates, [](const Candidate& a, const Candidate& b) {
@@ -458,8 +468,18 @@ void Voices::Frame(int now, bool mixing)
 // front and around the listener, 1.678 on the near ear fully to one side, 0.68 behind)
 void Voices::MergeLoops()
 {
+    // the groups the last frame used cleared, the table grown with the sounds registered
     std::vector<LoopGroup>& groups = loopGroups_;
-    groups.assign(static_cast<std::size_t>(bank_.Count()), LoopGroup{});
+
+    for (const std::size_t used : loopGroupsUsed_) {
+        groups[used] = LoopGroup{};
+    }
+
+    loopGroupsUsed_.clear();
+
+    if (groups.size() < static_cast<std::size_t>(bank_.Count())) {
+        groups.resize(static_cast<std::size_t>(bank_.Count()));
+    }
 
     for (std::size_t i = 0; i < voices_.size(); ++i) {
         Voice& voice = voices_[i];
@@ -471,6 +491,11 @@ void Voices::MergeLoops()
 
         LoopGroup& group = groups[static_cast<std::size_t>(voice.request.sound)];
         const float audibility = Audibility(voice);
+
+        if (group.copies == 0) {
+            loopGroupsUsed_.push_back(static_cast<std::size_t>(voice.request.sound));
+        }
+
         ++group.copies;
         group.sum += audibility;
 
@@ -497,7 +522,9 @@ void Voices::MergeLoops()
         group.cap = std::max(group.cap, listenerBoost_ * ClassVolume(voice.request.soundClass));
     }
 
-    for (const LoopGroup& group : groups) {
+    for (const std::size_t used : loopGroupsUsed_) {
+        const LoopGroup& group = groups[used];
+
         if (group.copies < 2 || !group.player) {
             continue;
         }

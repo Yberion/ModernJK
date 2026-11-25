@@ -778,6 +778,14 @@ void CL_CheckUserinfo(void)
     }
 }
 
+// the client's sound frame, run before the screen's swap (SCR_UpdateScreen): the dynamic music's state the game asks
+// for in its configstring, then the sound's frame
+static void CL_UpdateSound(void)
+{
+    CL_UpdateMusicState();
+    SND_Frame(cls.realtime);
+}
+
 /*
 ==================
 CL_Frame
@@ -872,14 +880,14 @@ void CL_Frame(int msec, float fractionMsec)
             Q_Print(S_COLOR_YELLOW "{}", SE_GetString("CON_TEXT_SKIPPING"));
             SCR_UpdateScreen();
         }
+
+        // update audio
+        CL_UpdateSound();
     }
     else {
-        // update the screen
-        SCR_UpdateScreen();
+        // update the screen, and the audio before the screen's swap
+        SCR_UpdateScreen(CL_UpdateSound);
     }
-    // update audio: the dynamic music's state the game asks for in its configstring, then the sound's frame
-    CL_UpdateMusicState();
-    SND_Frame(cls.realtime);
 
     // advance local effects for next frame
     SCR_RunCinematic();

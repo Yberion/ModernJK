@@ -2,7 +2,7 @@
 
 Converts the EAX zone files of Jedi Academy and Jedi Outcast (`eagle/<map>.eal`, made with Creative's editor and read
 by its EAX Manager in the original game) into the files the sound reads (`eagle/<map>.efxzones`, in each game's
-`modernjk.pk3`): a map's reverb by zones, played through OpenAL Soft's EFX in place of Creative's EAX. The converted
+`z_ModernJK.pk3`): a map's reverb by zones, played through OpenAL Soft's EFX in place of Creative's EAX. The converted
 files are in the repository (`assets/jka/eagle`, `assets/jk2/eagle`); the tool is run again only when the conversion
 changes.
 
