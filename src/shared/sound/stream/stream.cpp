@@ -112,8 +112,14 @@ void Stream::Update(const Fill& fill)
 }
 
 // the stream's gain
-void Stream::SetGain(float gain) const
+// given at every frame, sent only when it changes
+void Stream::SetGain(float gain)
 {
+    if (gain_ == gain) {
+        return;
+    }
+
+    gain_ = gain;
     alSourcef(source_, AL_GAIN, gain);
 }
 

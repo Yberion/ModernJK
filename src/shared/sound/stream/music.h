@@ -58,6 +58,8 @@ public:
     void Stop();
     // Plays again the music Start was last asked for, from its start (after a cinematic, or the sound restarted).
     void Restart();
+    // A new level: the last level's dynamic music, kept for its next start, forgotten (its files are read again).
+    void ForgetLoaded();
     // The level SetLevel gave.
     [[nodiscard]] const std::string& Level() const noexcept { return level_; }
     // The intro and the loop Start was last asked for.
@@ -69,7 +71,7 @@ public:
     void SetState(MusicState state);
     void SetVolume(float volume) noexcept { volume_ = volume; }
     // Whether a level's dynamic music may play: when not, its explore piece plays as a music that is not dynamic.
-    void AllowDynamic(bool allowed) noexcept { allowDynamic_ = allowed; }
+    void AllowDynamic(bool allowed);
     // Whether the dynamic music's changes are printed.
     void SetDebug(bool debug) noexcept { debug_ = debug; }
     // At every frame, now in milliseconds: the streams filled, the fades advanced, the state's changes made.
@@ -115,11 +117,15 @@ private:
     std::unique_ptr<Player> fading_;
     // a music that is not dynamic
     std::string loop_;
-    std::string pendingStart_; // a loop naming a dynamic music, started at the next frame
     bool silent_ = false;
     // the dynamic music
     std::unique_ptr<DynamicMusic> dynamic_;
     std::map<Track, std::shared_ptr<const std::vector<std::byte>>> tracks_;
+    // the last level's dynamic music and its files, kept when the music stops, so that the same level's next start reads
+    // nothing (a level's start loads it, its first snapshot starts it again)
+    std::string cachedLevel_;
+    std::optional<DynamicMusic> cachedMusic_;
+    std::map<Track, std::shared_ptr<const std::vector<std::byte>>> cachedTracks_;
     std::optional<Track> actual_; // nullopt: silence
     DynamicState requested_ = DynamicState::Explore;
     std::optional<int> lastEntry_; // the action piece's entry marker drawn last, none yet

@@ -1738,7 +1738,7 @@ void CG_UpdateSoundTrackers()
                 VectorCopy(cg.refdef.vieworg, cent->lerpOrigin);
                 trap->sound->UpdateEntity(cent->currentState.number, CG_SoundVector(cent->lerpOrigin), CG_SoundVector(cg.predictedPlayerState.velocity));
             }
-            else {
+            else if (cent->currentState.trickedentindex >= 0 && cent->currentState.trickedentindex < ENTITYNUM_NONE) { // a number from the network
                 vec3_t velocity;
 
                 CG_EntitySoundVelocity(&cg_entities[cent->currentState.trickedentindex], velocity);
@@ -2492,7 +2492,10 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayb
     }
 
     // update audio positions, then the looping sounds asked for in this frame
-    CG_SetSoundListener(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, cg.predictedPlayerState.velocity, inwater != 0);
+    // the listener moves with the player's velocity, but for the camera of a death fall, which stays on the ledge
+    const vec3_t still = {0.0f, 0.0f, 0.0f};
+    CG_SetSoundListener(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, gCGHasFallVector ? still : cg.predictedPlayerState.velocity,
+                        inwater != 0);
     CG_UpdateLoopingSounds();
 
     // make sure the lagometerSample and frame timing isn't done twice when in stereo

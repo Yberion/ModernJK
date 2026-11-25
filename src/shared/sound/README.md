@@ -65,9 +65,11 @@ system->SetVolumes(effectsVolume, voiceVolume, musicVolume);
 system->Frame(milliseconds);
 ```
 
+The engines' glue (`engine/`) reads the settings at every frame (the volumes at most 1, the music's times the multiplayer cgame's `s_musicMult`, which lowers it under a short tune), keeps what a sound restarted takes back when the restart fails, and keeps the names the modules register while there is no sound, so that their handles find their sounds once a device opens: a start without a device is tried again every second, its messages printed only when it opens.
+
 ## Tests
 
-`modernjk.sound` in `ctest` (`test/sound`): every part on OpenAL Soft's loopback device, which renders into memory without a sound card, with the sample files of `test/sound/data`; one test file per folder (`decoder.cpp`, `device.cpp`, `bank.cpp`, `voices.cpp`, `stream.cpp`, `ambient.cpp`, `zones.cpp`).
+`modernjk.sound` in `ctest` (`test/sound`): every part on OpenAL Soft's loopback device, which renders into memory without a sound card, with the sample files of `test/sound/data`; one test file per folder (`decoder.cpp`, `device.cpp`, `bank.cpp`, `voices.cpp`, `stream.cpp`, `ambient.cpp`, `zones.cpp`, with the zone files the games ship in the repository's `assets`), and `contacts.cpp` for the rules of `src/shared/qcommon/q_sound.h` (a blade's contacts, the sound events' packing, the channels, the voices' levels, an effect's sound).
 
 ## Rules
 

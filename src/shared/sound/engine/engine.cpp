@@ -28,6 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <qcommon/qcommon.h>
 
+#include <shared/sound/names.h>
 #include <shared/sound/system.h>
 
 #include <algorithm>
@@ -36,14 +37,49 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace {
 
-// the sound's functions when the sound is off: nothing plays, every question answers nothing
+// what a sound started later takes back: the last sound's state when it stopped, with the names the modules registered
+// while there was none, so that their handles find their sounds (a restart that fails, a start without a device)
+sound::System::State kept;
+std::unordered_map<std::string, sound::SoundHandle> keptHandles;
+
+// the state of the sound that stopped, its names' handles with it
+void Keep(sound::System::State state)
+{
+    kept = std::move(state);
+    keptHandles.clear();
+
+    for (std::size_t i = 0; i < kept.sounds.size(); ++i) {
+        keptHandles.emplace(kept.sounds[i].name, static_cast<sound::SoundHandle>(i + 1));
+    }
+}
+
+// the sound's functions when the sound is off: nothing plays, every question answers nothing; a name registered keeps the
+// handle a sound started later gives it
 class Silent final : public sound::Api {
 public:
-    sound::SoundHandle Register(std::string_view /*name*/) override { return sound::kNoSound; }
+    sound::SoundHandle Register(std::string_view name) override
+    {
+        std::string key = sound::NormalizeSoundName(name);
+
+        if (key.empty()) {
+            return sound::kNoSound;
+        }
+
+        if (const auto found = keptHandles.find(key); found != keptHandles.end()) {
+            return found->second;
+        }
+
+        const auto handle = static_cast<sound::SoundHandle>(kept.sounds.size() + 1);
+        kept.sounds.push_back({.name = key, .loaded = true, .milliseconds = 0});
+        keptHandles.emplace(std::move(key), handle);
+        return handle;
+    }
     sound::VoiceHandle Play(const sound::Request& /*request*/) override { return sound::VoiceHandle::None; }
     void Stop(sound::VoiceHandle /*voice*/) override {}
     bool IsPlaying(sound::VoiceHandle /*voice*/) const override { return false; }
@@ -120,10 +156,17 @@ cvar_t* s_show;
 cvar_t* s_debugdynamic;
 cvar_t* s_reverb;
 cvar_t* s_device;
+cvar_t* s_musicMult; // the multiplayer cgame's: the music lowered under a short tune (0.3, raised back to 1 over a second)
 
 bool focused = true;
 bool logging = false;
 int deviceModification = 0; // s_device's modification count when it was last given to the system
+bool openFailed = false;    // the sound wanted but no device opened: tried again every second, as a device lost later is
+int lastOpenTry = 0;        // the frame's time of the last try
+// while a start is tried again, its messages wait: printed if it opens, dropped if not, so that the console gets no
+// line a second
+bool retrying = false;
+std::vector<std::pair<sound::Message, std::string>> retryMessages;
 
 // reads the engine's file system, prints in its console, draws from its random numbers
 sound::Host MakeHost()
@@ -156,6 +199,11 @@ sound::Host MakeHost()
         return true;
     };
     host.print = [](sound::Message kind, std::string_view text) {
+        if (retrying) {
+            retryMessages.emplace_back(kind, std::string(text));
+            return;
+        }
+
         switch (kind) {
         case sound::Message::Info:
             Q_Println("{}", text);
@@ -288,17 +336,20 @@ void Dynamic_f()
 constexpr const char* kCommands[] = {"play", "music", "stopmusic", "soundlist", "soundinfo", "soundstop", "s_dynamic"};
 
 // a volume setting as a gain: its cube, so that a slider moves the loudness evenly over its whole course, where a linear
-// gain crowded the settings heard near 0 (0.05 was -26 dB); now 0.36 gives -26 dB, 0.5 -18 dB, 1 the sounds as recorded
+// gain crowded the settings heard near 0 (0.05 was -26 dB); now 0.36 gives -26 dB, 0.5 -18 dB, 1 the sounds as recorded;
+// at most 1, since a setting above it pushed the mix into the limiter, which raises the quiet sounds (a footstep) against
+// the loud ones for that player alone
 float VolumeGain(float setting)
 {
-    const float position = std::max(setting, 0.0f);
+    const float position = setting > 0.0f ? std::min(setting, 1.0f) : 0.0f; // a setting that is not a number as 0
     return position * position * position;
 }
 
 // the settings given to the system, at every frame since the console changes them at any time
 void ApplySettings()
 {
-    sys->SetVolumes(VolumeGain(s_volume->value), VolumeGain(s_volumeVoice->value), VolumeGain(s_musicvolume->value));
+    const float musicMult = s_musicMult->value > 0.0f ? std::min(s_musicMult->value, 1.0f) : 0.0f;
+    sys->SetVolumes(VolumeGain(s_volume->value), VolumeGain(s_volumeVoice->value), VolumeGain(s_musicvolume->value) * musicMult);
     sys->SetMuteWhenUnfocused(s_muteWhenUnfocused->integer != 0);
     sys->AllowDynamicMusic(s_allowDynamicMusic->integer != 0);
     sys->SetMusicDebug(s_debugdynamic->integer != 0);
@@ -319,33 +370,16 @@ void ApplySettings()
     }
 }
 
-// the settings registered, then the sound on the chosen output or the default device; serial the first voice's serial
-// number, so that a restarted sound gives no handle twice
-void Start(std::uint32_t serial)
+// the sound on the chosen output or the default device, the state kept given back to it (its serial number first, so
+// that a restarted sound gives no handle twice); false when no device opened
+bool Open()
 {
-    Q_Println("\n------- sound initialization -------");
-    s_initsound = Cvar_Get("s_initsound", "1", cvarFlags_t::CVAR_ARCHIVE);
-    s_volume = Cvar_Get("s_volume", "0.79", cvarFlags_t::CVAR_ARCHIVE);
-    s_volumeVoice = Cvar_Get("s_volumeVoice", "1.0", cvarFlags_t::CVAR_ARCHIVE);
-    s_musicvolume = Cvar_Get("s_musicvolume", "0.63", cvarFlags_t::CVAR_ARCHIVE);
-    s_language = Cvar_Get("s_language", "english", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
-    s_muteWhenUnfocused = Cvar_Get("s_muteWhenUnfocused", "1", cvarFlags_t::CVAR_ARCHIVE);
-    s_allowDynamicMusic = Cvar_Get("s_allowDynamicMusic", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
-    s_show = Cvar_Get("s_show", "0", cvarFlags_t::CVAR_CHEAT);
-    s_debugdynamic = Cvar_Get("s_debugdynamic", "0", cvarFlags_t::CVAR_CHEAT);
-    s_reverb = Cvar_Get("s_reverb", "1", cvarFlags_t::CVAR_ARCHIVE);
-    s_device = Cvar_Get("s_device", "", cvarFlags_t::CVAR_ARCHIVE); // the output's name; empty, the system's default
-
-    if (s_initsound->integer == 0) {
-        Q_Println("not initializing.");
-        return;
-    }
-
     deviceModification = s_device->modificationCount;
-    sys = sound::System::Create(MakeHost(), std::nullopt, serial, s_device->string);
+    sys = sound::System::Create(MakeHost(), std::nullopt, kept.serial, s_device->string);
+    openFailed = sys == nullptr;
 
     if (!sys) {
-        return;
+        return false;
     }
 
     Cmd_AddCommand("play", Play_f);
@@ -359,17 +393,49 @@ void Start(std::uint32_t serial)
     sys->SetLanguage(LanguageOf(s_language->string));
     sys->SetFocus(focused);
     ApplySettings();
+    sys->RestoreState(kept);
+    return true;
+}
+
+// the settings registered, then the sound opened
+void Start()
+{
+    Q_Println("\n------- sound initialization -------");
+    s_initsound = Cvar_Get("s_initsound", "1", cvarFlags_t::CVAR_ARCHIVE);
+    s_volume = Cvar_Get("s_volume", "0.79", cvarFlags_t::CVAR_ARCHIVE);
+    s_volumeVoice = Cvar_Get("s_volumeVoice", "1.0", cvarFlags_t::CVAR_ARCHIVE);
+    s_musicvolume = Cvar_Get("s_musicvolume", "0.63", cvarFlags_t::CVAR_ARCHIVE);
+    s_language = Cvar_Get("s_language", "english", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
+    s_muteWhenUnfocused = Cvar_Get("s_muteWhenUnfocused", "1", cvarFlags_t::CVAR_ARCHIVE);
+    s_allowDynamicMusic = Cvar_Get("s_allowDynamicMusic", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
+    s_show = Cvar_Get("s_show", "0", cvarFlags_t::CVAR_CHEAT);
+    s_debugdynamic = Cvar_Get("s_debugdynamic", "0", cvarFlags_t::CVAR_CHEAT);
+    s_reverb = Cvar_Get("s_reverb", "1", cvarFlags_t::CVAR_ARCHIVE);
+    s_device = Cvar_Get("s_device", "", cvarFlags_t::CVAR_ARCHIVE); // the output's name; empty, the system's default
+    s_musicMult = Cvar_Get("s_musicMult", "1", cvarFlags_t::CVAR_NONE);
+
+    if (s_initsound->integer == 0) {
+        Q_Println("not initializing.");
+        openFailed = false;
+        return;
+    }
+
+    (void)Open();
 }
 
 } // namespace
 
+// a new session's sound: nothing kept from a sound before, the modules registering their sounds again
 void SND_Init()
 {
-    Start(1);
+    Keep({});
+    Start();
 }
 
 void SND_Shutdown()
 {
+    openFailed = false;
+
     if (!sys) {
         return;
     }
@@ -378,23 +444,35 @@ void SND_Shutdown()
         Cmd_RemoveCommand(command);
     }
 
+    Keep(sys->SaveState());
     sys.reset();
 }
 
+// the sound stopped and started again with what it held; kept when the new start fails, for the next one
 void SND_Restart()
 {
-    const sound::System::State state = sys ? sys->SaveState() : sound::System::State{};
     SND_Shutdown();
-    Start(state.serial);
-
-    if (sys) {
-        sys->RestoreState(state);
-    }
+    Start();
 }
 
 void SND_Frame(int now)
 {
     if (!sys) {
+        if (openFailed && (now - lastOpenTry >= 1000 || now < lastOpenTry)) {
+            lastOpenTry = now;
+            retrying = true;
+            const bool opened = Open();
+            retrying = false;
+
+            for (const auto& [kind, line] : retryMessages) {
+                if (opened) {
+                    MakeHost().print(kind, line);
+                }
+            }
+
+            retryMessages.clear();
+        }
+
         return;
     }
 

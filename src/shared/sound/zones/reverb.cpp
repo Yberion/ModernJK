@@ -163,6 +163,12 @@ float Logarithmic(float a, float b, float t, float offset = 0.0f) noexcept
 
     const float from = a + offset;
     const float to = b + offset;
+
+    // a value of 0, which a hand-made file may give (a density): linearly, where the logarithm gave a value not a number
+    if (from <= 0.0f || to <= 0.0f) {
+        return Linear(a, b, t);
+    }
+
     return (from * LIBC_NAMESPACE::shared::powf(to / from, t)) - offset;
 }
 
@@ -292,6 +298,7 @@ ZoneReverb::~ZoneReverb()
 void ZoneReverb::Load(std::optional<ZoneFile> zones)
 {
     zones_ = std::move(zones);
+    listenerKnown_ = false;
     listenerZone_.reset();
     listenerZoneNow_.reset();
     neighbours_ = {};
@@ -324,10 +331,11 @@ void ZoneReverb::SetEnabled(bool enabled)
     }
 }
 
-// the listener's zone, the water, then the slots of a map with neighbours or with one reverb
+// the listener's zone, the water, then the slots of a map with neighbours or with one reverb; the zone is followed with
+// the reverb off too, since the obstacles' filters it chooses stay
 void ZoneReverb::Frame(int now)
 {
-    if (!enabled_ || !zones_) {
+    if (!zones_ || !listenerKnown_) {
         return;
     }
 
@@ -336,6 +344,10 @@ void ZoneReverb::Frame(int now)
 
     if (listenerZoneNow_) {
         listenerZone_ = listenerZoneNow_;
+    }
+
+    if (!enabled_) {
+        return;
     }
 
     // under water, the "underwater" reverb alone in the first slot; out of it, the zones' again at once

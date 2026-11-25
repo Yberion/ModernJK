@@ -400,41 +400,6 @@ plane 2194 1867 594 0 -1 0 - p340
 plane 2194 3577 2286 0 0 -1 p341 -
 plane 2194 3577 2286 0 1 0 - z29
 default-obstacle 0 0.25 1.5 occludes
-row - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
-row d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
-row d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
-row d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
-row d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
-row d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d d
-row d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d d
-row d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d d
-row d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d d
-row d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d d
-row d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d d
-row d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d d
-row d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d d
-row d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d d
-row d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d d
-row d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d d
-row d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d d
-row d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d d
-row d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d d
-row d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d d
-row d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d d
-row d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d d
-row d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d d
-row d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d d
-row d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d d
-row d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d d
-row d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d d
-row d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d d
-row d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d d
-row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d d
-row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d d
-row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d d
-row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d d
-row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d - d
-row d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d -
 diffraction -6000 0.25 90
 aperture 0 -54.345985 104.87758 534.5499 -50.488926 104.87758 413.05255
 aperture 1 79.74331 58.641342 528.82007 -20.34936 58.641342 564.85345

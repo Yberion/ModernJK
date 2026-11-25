@@ -197,7 +197,8 @@ struct ZoneFile {
     Obstacle defaultObstacle;
     std::vector<Obstacle> obstacles;
     // the obstacle between a listener's zone (the rows) and a source's (the columns), the leaves in no zone first: (the
-    // zones + 1) squared entries, or none when the file has no obstacle at all
+    // zones + 1) squared entries, or none when no obstacle of it acts (the converter counts the default obstacle at 0 mB,
+    // every game file's, as none)
     std::vector<ObstacleRef> matrix;
     DiffractionModel diffraction;
     std::vector<DiffractionBox> boxes; // in the file's order: by their zone, which the calculation relies on

@@ -261,6 +261,20 @@ void TestPlay(const std::filesystem::path& data)
     run.Advance(400);
     CHECK(system.GetVoiceState(5) == sound::VoiceState::NotTalking);
 
+    // the frame's clock behind the sound (timescale under 1, the single player's Force Speed): the mouth follows the line
+    // as it plays, so closed once the 0.25 s tone has played, though the clock is still within it
+    voice.entity = 9;
+    system.Play(voice);
+    run.Advance(kStep);
+    CHECK(system.GetVoiceState(9) != sound::VoiceState::NotTalking);
+
+    for (int played = 0; played < 400; played += kStep) {
+        system.GetDevice().Render(run.out);
+    }
+
+    CHECK(system.GetVoiceState(9) == sound::VoiceState::NotTalking);
+    run.Advance(400);
+
     // twice at one instant and place: one voice; again at the next frame: two
     const sound::Request shot = At(tone, sound::SoundClass::Weapon, 8, 20.0f);
     system.Play(shot);

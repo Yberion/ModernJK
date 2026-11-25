@@ -1,6 +1,6 @@
 # What this branch changes compared with OpenJK
 
-Last update: 25 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (sections 33 to 36) and the seed of the random numbers (section 37), which concern the single-player games of Jedi Academy and Jedi Outcast too.
+Last update: 25 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (sections 33 to 36 and 38) and the seed of the random numbers (section 37), which concern the single-player games of Jedi Academy and Jedi Outcast too.
 
 This page lists every change of the branch, with its reason and what it gives. The work follows the goals stated in the [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, a netcode other JKA forks can reuse, Windows and Linux. The measurements in full, and the history of each change, are in the step documents of [progress/](progress/README.md).
 
@@ -29,7 +29,8 @@ This page lists every change of the branch, with its reason and what it gives. T
 12. **The sound comes sooner**: about 50 ms from a sound asked to the system's mix at every frame rate, against 110 to 116 ms with the old mixer, a shot's sound sent before the screen waits for vsync, the sound's work on the main thread about 4 times smaller (section [35](#35-the-sound-measured-and-what-the-measures-changed)).
 13. **The sound device in the menus**: the system's default output or the one you choose, followed when it is unplugged and plugged back (section [36](#36-the-sound-device-chosen-in-the-menus)).
 14. **A run replayed in the three games**: with one seed and a fixed frame time, a single-player session of Jedi Academy or Jedi Outcast plays the same game and the same sounds again, and a multiplayer demo the same effects and sounds; a tool for testing, not a setting for play (section [37](#37-one-seed-for-every-random-number-stream)).
-15. **The price**: a branch client and an OpenJK server (or the reverse) do not understand each other, and demos of one do not play on the other.
+15. **The sound audited**: the walls heard once behind loops of one sound, the same walls for a player with the reverb off, the fans and beams of three single-player levels sounding again, the mouths following the lines in Force Speed, the sound back when a headset is plugged in after the game started (section [38](#38-the-sound-audited)).
+16. **The price**: a branch client and an OpenJK server (or the reverse) do not understand each other, and demos of one do not play on the other.
 
 ### Delays before and now
 
@@ -176,6 +177,12 @@ Each line links to its section.
 | change | before | now |
 |---|---|---|
 | [37. One seed for every random number stream](#37-one-seed-for-every-random-number-stream) | a fixed seed for the multiplayer's game only (`g_debugSeed`); none in the single player | `com_debugSeed`: every stream of the three games, each its own sequence; a run replays its game and its sounds |
+
+**The sound audited**
+
+| change | before | now |
+|---|---|---|
+| [38. The sound audited](#38-the-sound-audited) | a wall heard twice behind loops of one sound, a fixed zone with the reverb off, three levels' fans and beams silent or wrong, the lips behind the voices in slow motion, no sound for a game started without a device | each of 40 defects found by an audit and checked in the code, fixed and tested |
 
 **Reference**: [27. Settings and commands](#27-settings-and-commands), [28. Build, tests and repository](#28-build-tests-and-repository), [29. Name: ModernJK](#29-name-modernjk), [30. Compatibility](#30-compatibility), [31. C++20, 64-bit Windows, Linux and macOS](#31-c20-64-bit-windows-linux-and-macos), [32. Not changed yet](#32-not-changed-yet).
 
@@ -1133,6 +1140,7 @@ Added cvars, all for debugging or measuring:
 | `cl_debugInterpForce`, `cl_debugInterpDelay` | client, cheat-protected | force a display delay (section 4) |
 | `s_muteWhenUnfocused` | client, archived, default 1 | the sound muted while the window has not the focus (section 33) |
 | `s_reverb` | client, archived, default 1 | the reverb of the zones; 0 switches it off, the walls and the water still muffling (section 34) |
+| `s_musicMult` | client (multiplayer cgame) | the music's level, which the cgame lowers to 0.3 under a short tune (becoming the Jedi Master, dying as the Jedi Master) and raises back over a second; at most 1, back to 1 at a disconnection (section 38) |
 | `s_device` | client, archived, default empty | the output the sound plays on, by its name ("Sound device" in the sound menus); empty, the system's default, followed when it changes (section 36) |
 | `com_debugSeed` | engine (server and client, the three games), cheat-protected | a non-zero value seeds every random number stream at each level's start (the game, the cgame, the UI, the engine, the renderer's weather), each with its own sequence: with `fixedtime` set before the level loads, a run replays the same game and the same sounds (section 37) |
 
@@ -1474,5 +1482,66 @@ Costs: none. Each stream is seeded once per level, as before; no memory, no byte
 A single-player session sets the seed and `fixedtime` on the command line (`+set`): a `set` of a cheat-protected cvar is refused before `devmap`.
 
 The work: [progress/step-30-random-seed.md](progress/step-30-random-seed.md).
+
+</details>
+
+## H. The sound audited
+
+### 38. The sound audited
+
+**Before.** An audit of the sound (25 November 2026, by three agents reading the module, the engines' glue, the data paths, the reverb and the cgames), each finding checked again in the code and in the game's data, found defects of three kinds: what a player heard wrongly (walls muffling twice, a zone frozen with the reverb off, silent or wrong sounds on three single-player levels, the lips behind the voices in slow motion), what failed to recover (no sound for a game started without a device, a sound restart that failed losing every sound's handle), and work done for nothing (the music read twice at each level, the listener sent to OpenAL Soft at every frame).
+
+**Now.** Each fixed, with a test that fails before the fix and passes after it where a test can show it.
+
+**Why.** The sound the players hear must be the same for all, the original game's where it was right, and must come back when the device does.
+
+**Gain.**
+
+| fix | before | now |
+|---|---|---|
+| Loops of one sound behind a wall (two torches, sabers' hums), merged into one voice | the wall's attenuation counted twice, and the merged voice filtered by the wall of whichever copy held the source (a far player's hum behind a wall muffled the near one) | the wall counted once per copy, the merged voice filtered for its high frequencies and sent to the reverb as its loudest copy |
+| `s_reverb 0` | the listener's zone no longer followed, while the walls' and pillars' filters used it: on `mp/siege_desert` none of the 73 pillars' boxes muffled anything for that player, who heard the enemies behind them louder than the others | the zone followed with the reverb off, the walls and pillars the same for every player |
+| A set's name given twice in `sound/sound.txt` | the first definition used: Jedi Outcast's `artus_detention` fan and two vents silent, `cairn_reactor`'s 16 beams and Jedi Academy's `vjun2` beam with another beam's sounds and no stop sound | the original game's choice: the brush model's set over a local one, the later of two of one kind |
+| A set without some keywords (a mod's) | silent, or a one-shot at every frame | the original game's defaults (10 to 25 s, a volume of 255, a radius of 250) |
+| A general set fading in | its first one-shot at a fraction of its volume, then its delay of 10 to 50 s spent | its first one-shot once the fade has ended |
+| The lips of a character speaking in Force Speed or a script's slow motion | following the frame's clock, which follows `timescale`: behind the voice | following the voice as it plays |
+| A game started without a sound device | no sound until `snd_restart`, even once a headset was plugged in | the device tried again every second, quietly; the sounds the game registered meanwhile keep their handles and play |
+| `snd_restart` failing (no device), then again with one | every handle the modules held pointing to nothing or to another sound until the next level | the sounds kept and given back; only the sounds that were loaded loaded again, the freed ones with their length |
+| A dynamic music missing one of its transition pieces (a mod's) | no music for the whole level | played, warned, a missing transition going straight to the next state's piece |
+| A level's dynamic music | read twice at its start (the preload and the first snapshot), and after each cinematic | read once per level |
+| `s_allowDynamicMusic` changed | at the next music | at once |
+| The multiplayer's music under a short tune (becoming the Jedi Master) | at full volume: `s_musicMult`, which the cgame sets, read by nothing | lowered to 0.3 for 5 s, as the cgame asks |
+| A volume setting above 1 (the console) | the mix pushed into the limiter, which raises the quiet sounds against the loud ones for that player | at most 1 |
+| `EV_MUTE_SOUND` and the sound trackers | an entity's number from the network used unchecked: a hostile server or demo could write outside the entities | a number outside the entities ignored |
+| A disconnection in the multiplayer (`connect` in a game) | the level's loops and the music's duck playing on over the connection; the reverb computed in the menus (both games) | stopped; the zones left |
+| A thrown saber returning, a fading corpse's hum | the hum 1.5 dB above a held saber's; the corpse's restarted at every frame for 2.2 s | at a held saber's level; the corpse's a loop |
+| The single players' own saber hum in third person | on the body, muffled by a pillar or a zone between the body and the camera | at the camera while the view is the player's, as the multiplayer's |
+| The listener's velocity during a death fall's camera (multiplayer), a cinematic or another entity's view (single players) | the player's: a Doppler shift on every sound while the camera stood still | none |
+| The single players' jump grunt | a sound of the world, under `s_volume` and muffled by walls | a voice, under `s_volumeVoice`, never muffled, without the voice's slot so that it cuts no line (the original game played it on `CHAN_AUTO`) |
+| A sound started twice in one frame in a slot | one voice at twice the gain | the second replaces the first, as a channel did |
+| The zone files' matrix of obstacles | written in every file, the default obstacle at 0 mB counted as one: every sound of 65 maps looked up, at every frame, an obstacle that changed nothing | written only when one of its obstacles acts; the 83 files converted again, each checked against EalMan |
+| Smaller defects | a `sound.txt` with lines ended by a carriage return alone read as one line; a WAV without its frame count said to have none; a level's name with a folder not found in `dms.dat`; the silence asked by `s_dynamic` kept on every later music; `dms.dat`'s problems shown to developers only; a hand-made zone file with a density of 0 giving values that are not numbers, or boxes out of order ignored; the reverb chosen from the map before's place until the game gave the new one; a sound at the listener with an entity's slot cutting that slot without taking it | each fixed |
+
+Costs: none to measure. The listener and the streams' gains are now sent only when they change (OpenAL Soft computes every voice again at each change of its listener); a mono sound is moved into its buffer, not copied; the last level's dynamic music is kept in memory until the next level (its files, as the old mixer kept them).
+
+<details>
+<summary>Technical details</summary>
+
+| | before | now |
+|---|---|---|
+| The merged loops (`voices/voices.cpp`) | the player copy's `VoiceZone` on the merged source | `mergedZone`: the loudest copy's, its broadband gain 1 |
+| The reverb's frame (`zones/reverb.cpp`) | returned before the listener's zone with the reverb off | the zone first; nothing after a load until `SetListener` (`listenerKnown_`); a logarithmic fade from or to 0 done linearly; boxes sorted by zone at parse (`zones.cpp`) |
+| The ambient sets (`ambient/`) | the first set of a name; defaults 0; lines split on `\n` | duplicates kept as the original's `CSetGroup` map did; its defaults; `\r` and `\n`; a general set's one-shots after its fade in |
+| The bank (`bank/`) | `Names()`, every name loaded again at a restart | `Save()`: name, loaded, length; `Restore` loads only those that were |
+| The glue (`engine/engine.cpp`) | `SND_Restart` with a local state; no retry; `Silent::Register` gave none | `kept` and its handles, the silent sound registering into it; `SND_Frame` tries a failed start every second, its messages printed only when it opens; volumes at most 1; `s_musicMult` |
+| The music (`stream/music.cpp`) | every track required; `Stop` freed the level's; `pendingStart_` | explore and action required; the last level's kept (`ForgetLoaded` at a level's registration); `pendingStart_` removed (unreachable) |
+| The cgames | `EV_MUTE_SOUND` unchecked, the corpse's one-shot, the hums' volumes and places, the listener's velocity, the jump grunt, the effect sound's rule written three times | checked; a loop; `kSaberHumVolume`, `CG_SaberHumOrigin`; zero velocity; `Voice`; `BG_EffectSound` in `q_sound.h` |
+| OpenAL Soft's build (`Dependencies.cmake`) | JACK and PortAudio off on Linux only | off everywhere |
+| The converter (`tools/eal_converter`) | the matrix written when a `d` or an obstacle appeared in it; the check's ratios compared at any level | the matrix written when an obstacle of it acts (the default one only when its level is not 0); a ratio compared where its level is not 0; 65 of the 83 files without their matrix (`assets/jka/eagle`, `assets/jk2/eagle`) |
+| Tests | | the merged loops behind a wall, the reverb off from the map's load, a map loaded with the listener not yet given, a density of 0, boxes out of order, the 83 zone files the games ship read and written back, a robustness test of the reverb, the duplicate sets and the defaults, the first one-shot after the fade, the lip sync with the clock behind the sound, a restart's sounds saved and restored, the dynamic music read once and played without a transition, the setting changed while it plays, the sound events' packing, the channels, the voices' levels and the effect sound's rule; the system fuzzer loading zones and reading `dms.dat` and `sound.txt` from its input, the decoders' reading after a failed seek |
+
+Not changed, with the reason (each in the work's document): decisions documented as they are (a missing sound never looked for again, the best format looked for first), defects that need a run to show and were not reproduced (a reopen retried every frame, races of a few microseconds, the output modes' boost), a delayed effect's sound losing its shooter (no effect of the games' data has one on a shot).
+
+The work: [progress/step-21-sound.md](progress/step-21-sound.md) section 16.
 
 </details>

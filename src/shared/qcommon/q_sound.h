@@ -120,6 +120,18 @@ inline int BG_PackSoundEvent(const soundEvent_t& event)
 // ear once the shots were no longer played twice
 inline constexpr float kShotVolume = 1.26f;
 
+// An effect's sound: a shot's (the effect played for a shooter, a weapon's muzzle effect) a weapon sound at the shots'
+// volume, any other a sound of the world as recorded
+struct effectSound_t {
+    sound::SoundClass soundClass = sound::SoundClass::World;
+    float volume = 1.0f;
+};
+
+constexpr effectSound_t BG_EffectSound(bool shot)
+{
+    return shot ? effectSound_t{.soundClass = sound::SoundClass::Weapon, .volume = kShotVolume} : effectSound_t{};
+}
+
 // a lit saber's hum: OpenAL Soft pans a sound in front at 0.596 of full on each ear where the old mixer gave 0.5, so
 // the hum is brought back to its old level in front (1.5 dB down), the panning kept
 inline constexpr float kSaberHumVolume = 0.84f;

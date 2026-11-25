@@ -14,8 +14,9 @@ The format is read and written by `src/shared/sound/zones/zones.cpp`, which says
   as OpenAL Soft's own EAX layer turns them (`EaxReverbCommitter::commit` in `libs/openal-soft/al/effects/reverb.cpp`);
   the file's default environment added when zones play it (EAX Manager's environment -1, which the original engine
   played there);
-- the zones' BSP (its planes, each leaf a zone or none), the obstacles and the matrix of the obstacle between two zones,
-  the diffraction boxes and their model, as EalMan read them, in the axes of Creative's editor; one repair: a box whose
+- the zones' BSP (its planes, each leaf a zone or none), the obstacles and the matrix of the obstacle between two zones
+  (left out when none of its obstacles acts: the default obstacle of every game file is at 0 mB, so that 65 of the 83
+  files have no matrix), the diffraction boxes and their model, as EalMan read them, in the axes of Creative's editor; one repair: a box whose
   zone is not the one that holds its centre (the zones renumbered in the editor after the boxes were placed, which EAX
   Manager never applies) is given that zone, both in the file and in EalMan's data for the check, and the boxes are
   sorted again by zone (69 boxes of the game's files: `t2_rancor`'s 12, `yavin_temple`'s 31...);
@@ -33,7 +34,8 @@ A file EalMan refuses but whose one environment it read gets that environment ov
 Every file written is read back by the sound's reader, then compared with EalMan, which was checked against Creative's
 `EaxMan.dll`: the environment of every point of a grid over the BSP and of the planes' base points, and the obstruction
 and occlusion of 200,000 random pairs of a listener and a source and of 4,000 more around each diffraction box, to the
-bit. The tool prints, for each file, how many pairs were obstructed and occluded, so that the check is seen to reach
+bit (an obstacle's ratios compared only where its level is not 0, a level of 0 making the same filters whatever its
+ratios: a file without a matrix gives no obstacle where EalMan gives its default one at 0 mB). The tool prints, for each file, how many pairs were obstructed and occluded, so that the check is seen to reach
 them, and ends with an error when a file differs.
 
 ## Running it

@@ -21,13 +21,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // stream.h -- a sound streamed to the listener: one OpenAL Soft source, not positioned, fed through a queue of buffers
 // that the frame fills again as they are played, from a decoder (the music) or from samples the engine gives (the
 // cinematics).
-// Example: the music's stream asks its decoder for 8,192 frames each time a buffer has played; the cinematics' asks
+// Example: the music's stream asks its decoder for 1,024 frames each time a buffer has played; the cinematics' asks
 // the samples the engine queued.
 #pragma once
 
 #include <cstdint>
 #include <deque>
 #include <functional>
+#include <optional>
 #include <span>
 #include <vector>
 
@@ -47,7 +48,7 @@ public:
 
     // At every frame: the buffers played filled again by fill and queued, the source started again if it ran dry.
     void Update(const Fill& fill);
-    void SetGain(float gain) const;
+    void SetGain(float gain);
     // Whether everything queued has been played and the last fill gave nothing.
     [[nodiscard]] bool Ended() const;
     // The frames played so far.
@@ -64,7 +65,8 @@ private:
     std::vector<std::int16_t> scratch_;
     std::deque<std::int64_t> queued_; // the frames of each queued buffer, in queue order
     std::int64_t processedFrames_ = 0;
-    bool fillEmpty_ = false; // the last fill gave nothing
+    bool fillEmpty_ = false;    // the last fill gave nothing
+    std::optional<float> gain_; // the gain given to the source, none yet
 };
 
 } // namespace sound

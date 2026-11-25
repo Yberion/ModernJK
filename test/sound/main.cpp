@@ -19,22 +19,24 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // The tests of src/shared/sound and of OpenAL Soft as the sound uses it.
-// Usage: modernjk_test_sound <test/sound/data>; prints each failed check, exits with their count.
+// Usage: modernjk_test_sound <test/sound/data> <assets>; prints each failed check, exits with their count.
 #include "sound.h"
 
 #include <check.h>
 
 #include <fmt/base.h>
 
-// runs every part on the data folder given as the argument, and exits with the count of failed checks
+// runs every part on the data folder given as the first argument (the repository's assets, the second, for the files
+// the games ship), and exits with the count of failed checks
 int main(int argc, char** argv)
 {
-    if (argc != 2) {
-        fmt::println("usage: modernjk_test_sound <test/sound/data>");
+    if (argc != 3) {
+        fmt::println("usage: modernjk_test_sound <test/sound/data> <assets>");
         return 1;
     }
 
     const std::filesystem::path data = argv[1];
+    const std::filesystem::path assets = argv[2];
     RunDecoderTests(data);
     RunDeviceTests(data);
     RunBankTests(data);
@@ -42,7 +44,7 @@ int main(int argc, char** argv)
     RunStreamTests(data);
     RunAmbientTests(data);
     RunContactTests(data);
-    RunZonesTests(data);
+    RunZonesTests(data, assets);
     fmt::println("{} failed check(s)", ::test::failures);
     return ::test::failures;
 }

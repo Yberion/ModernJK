@@ -84,7 +84,11 @@ public:
     // The reverb on or off; the obstacles' and the water's filters stay either way.
     void SetEnabled(bool enabled);
     // The ears, as the voices take them.
-    void SetListener(const Listener& listener) { listener_ = listener; }
+    void SetListener(const Listener& listener)
+    {
+        listener_ = listener;
+        listenerKnown_ = true;
+    }
     // Once per frame, before the voices: the listener's zone, the slots' environments and pans, the fade, the water.
     void Frame(int now);
     // What a sound heard from a point (in the game's axes) gets.
@@ -120,6 +124,7 @@ private:
     std::optional<ZoneFile> zones_;
     bool enabled_ = true;
     Listener listener_;
+    bool listenerKnown_ = false;         // given since the zones were loaded: the map before's place is no place on this one
     std::optional<int> listenerZone_;    // the last zone the listener was in, whose reverb it keeps out of every zone
     std::optional<int> listenerZoneNow_; // the zone it is in now, none out of every zone, for the obstacles
     std::array<std::optional<int>, 2> neighbours_{};

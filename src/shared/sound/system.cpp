@@ -19,8 +19,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // system.cpp -- the sound as an engine runs it (system.h): the device opened first, so that the other parts create
-// their sources and buffers in its context; the frame's order (the ambient sets and the music start their sounds, then
-// the voices choose and update, then the device is followed); the volumes, the focus, the cinematics' stream. Example:
+// their sources and buffers in its context; the frame's order (the device followed first, then the ambient sets and the
+// music start their sounds, then the voices choose and update); the volumes, the focus, the cinematics' stream. Example:
 // an engine calls Frame(now) once per frame after its game modules, and SetFocus when its window gains or loses the
 // focus.
 #include "system.h"
@@ -224,7 +224,7 @@ void System::CloseStream()
 System::State System::SaveState() const
 {
     State state;
-    state.sounds = bank_.Names();
+    state.sounds = bank_.Save();
     state.sets.assign(ambient_.Precached().begin(), ambient_.Precached().end());
     state.intro = music_.LastIntro();
     state.loop = music_.LastLoop();
@@ -234,12 +234,13 @@ System::State System::SaveState() const
     return state;
 }
 
-// the names registered again in their order, so that every handle the modules hold finds its sound; a name whose file
-// has since gone takes its handle all the same, kept by the bank as a sound that does not load
+// the sounds registered again in their order, so that every handle the modules hold finds its sound; those loaded
+// loaded again, the others when a level uses them; a name whose file has since gone takes its handle all the same, kept
+// by the bank as a sound that does not load
 void System::RestoreState(const State& state)
 {
-    for (const std::string& name : state.sounds) {
-        bank_.Restore(name);
+    for (const Bank::Saved& saved : state.sounds) {
+        bank_.Restore(saved);
     }
 
     for (const std::string& set : state.sets) {

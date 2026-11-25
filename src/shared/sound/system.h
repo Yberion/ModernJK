@@ -87,8 +87,13 @@ public:
 
     // At every frame, now in milliseconds, after the game's calls.
     void Frame(int now);
-    // A level's registration starts, then ends: the sounds the level did not register or play are freed at its end.
-    void BeginRegistration() { bank_.BeginLevel(); }
+    // A level's registration starts, then ends: the sounds the level did not register or play are freed at its end; the
+    // last level's dynamic music forgotten at its start.
+    void BeginRegistration()
+    {
+        bank_.BeginLevel();
+        music_.ForgetLoaded();
+    }
     void EndRegistration();
     // Every sound stopped, the music and the cinematics' stream too.
     void StopAll();
@@ -119,11 +124,11 @@ public:
 
     void RestartMusic() { music_.Restart(); }
 
-    // What a restarted sound takes from the one before: the names registered (the same handles again), the ambient
-    // sets precached, the music asked for and the dynamic music's level, the voices' next serial number (so that no
-    // handle a module kept finds a voice of the new sound).
+    // What a restarted sound takes from the one before: the sounds registered (the same handles again, those loaded
+    // loaded again), the ambient sets precached, the music asked for and the dynamic music's level, the voices' next
+    // serial number (so that no handle a module kept finds a voice of the new sound).
     struct State {
-        std::vector<std::string> sounds;
+        std::vector<Bank::Saved> sounds;
         std::vector<std::string> sets;
         std::string intro;
         std::string loop;

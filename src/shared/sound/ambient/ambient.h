@@ -88,7 +88,7 @@ private:
 
     [[nodiscard]] std::optional<std::size_t> Find(std::string_view name) const;
     [[nodiscard]] float GeneralVolume(const General& general) const noexcept;
-    void PlaySet(Playing& playing, float volume, Place place, std::optional<int> entity, const Vector& origin);
+    void PlaySet(Playing& playing, float volume, Place place, std::optional<int> entity, const Vector& origin, bool oneShots = true);
     void StopSet(Playing& playing);
 
     Bank& bank_;

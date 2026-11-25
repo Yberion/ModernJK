@@ -250,8 +250,9 @@ void CG_S_UpdateLoopingSounds(int entityNum)
     if (Any(cent->currentState.eFlags & entityFlags_t::EF_SOUNDTRACKER) &&
         (!cg.snap || cent->currentState.trickedentindex !=
                          cg.snap->ps.clientNum)) { // keep sound for this entity updated in accordance with its attached entity at all times
-        // entity out of range
-        if (!cg_entities[cent->currentState.trickedentindex].currentValid)
+        // entity out of range (its number comes from the network)
+        if (cent->currentState.trickedentindex < 0 || cent->currentState.trickedentindex >= ENTITYNUM_NONE ||
+            !cg_entities[cent->currentState.trickedentindex].currentValid)
             return;
 
         VectorCopy(cg_entities[cent->currentState.trickedentindex].lerpOrigin, lerpOrg);
@@ -1480,8 +1481,10 @@ static void CG_General(centity_t* cent)
             if (curTimeDif < 3400) {
                 if (lightSide) {
                     if (curTimeDif < 2200) { // probably temporary
-                        CG_StartSound(nullptr, cent->currentState.number, sound::SoundClass::Saber, sound::Slot::None,
-                                      trap->sound->Register("sound/weapons/saber/saberhum1.wav"));
+                        // asked at every frame for 2.2 s: a loop at a lit saber's hum level, where a one-shot started again at
+                        // every frame
+                        CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, trap->sound->Register("sound/weapons/saber/saberhum1.wav"),
+                                           sound::SoundClass::Saber, kSaberHumVolume);
                     }
                 }
                 else { // probably temporary as well

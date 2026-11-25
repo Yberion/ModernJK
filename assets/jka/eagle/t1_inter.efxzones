@@ -9,6 +9,4 @@ plane 481 532 -33 0 1 0 - p4
 plane -583 532 -841 -1 0 0 - p5
 plane 481 532 -841 -1 0 0 z0 -
 default-obstacle 0 0.25 1.5 occludes
-row - -
-row d -
 diffraction -6000 0.25 90

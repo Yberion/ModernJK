@@ -23,11 +23,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // stop an entity's slot or all its sounds, move entities and the listener, run frames and render them, ask a voice's
 // state, start and change the music and the dynamic music, play and read again the ambient sets, feed the cinematics'
 // stream at any format, register and free a level's sounds, change the volumes and the focus, lose the device and get
-// it back, put the clock back, restart the sound), every byte choosing the next call and its arguments; the sanitizers stop
+// it back, put the clock back, load the reverb's zones whole, cut or not at all with the reverb on or off, read a
+// dms.dat or a sound.txt the input gives, restart the sound), every byte choosing the next call and its arguments; the sanitizers stop
 // at a read outside a buffer, a use after free or an undefined operation. Example, from an empty corpus:
 //   sound_fuzz_system <work folder>
 #include <shared/sound/system.h>
+#include <shared/sound/zones/zones.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -146,6 +149,8 @@ struct Fixture {
 
         files["ext_data/dms.dat"] = Bytes(kDms);
         files["sound/sound.txt"] = Bytes(kSets);
+        zones = Bytes(sound::WriteZoneFile(TwoRooms()));
+        files["eagle/rooms.efxzones"] = zones;
         host.readFile = [this](std::string_view path) -> std::optional<std::vector<std::byte>> {
             const auto found = files.find(std::string(path));
             return found != files.end() ? std::optional(found->second) : std::nullopt;
@@ -160,6 +165,29 @@ struct Fixture {
         sounds = {sound::kNoSound, system->Register("sound/x/a"), system->Register("sound/x/b")};
     }
 
+    // a hall and a room, a wall between them both ways, a pillar's box in the hall, an aperture each
+    static sound::ZoneFile TwoRooms()
+    {
+        sound::ZoneFile zones;
+        zones.environments.push_back({.name = "Hall", .reverb = {}});
+        sound::Reverb room;
+        room.decayTime = 0.5f;
+        zones.environments.push_back({.name = "Room", .reverb = room});
+        zones.zoneEnvironment = {0, 1};
+        zones.start = {.kind = sound::ChildKind::Plane, .index = 0};
+        zones.planes.push_back(
+            {.base = {}, .normal = {.x = 1.0f}, .front = {.kind = sound::ChildKind::Zone, .index = 1}, .back = {.kind = sound::ChildKind::Zone, .index = 0}});
+        zones.obstacles.push_back({.name = "Wall", .level = -2000, .lfRatio = 0.25f, .roomRatio = 0.5f, .kind = sound::ObstacleKind::Occludes});
+        const sound::ObstacleRef none{};
+        const sound::ObstacleRef wall{.kind = sound::ObstacleRefKind::Listed, .index = 0};
+        zones.matrix = {none, none, none, none, none, wall, none, wall, none};
+        zones.diffraction = {.maxAttenuation = -6000, .lfRatio = 0.25f, .angleMaxAttenuation = 90};
+        zones.boxes.push_back({.zone = 0, .min = {.x = -300.0f, .y = -100.0f, .z = 200.0f}, .max = {.x = -200.0f, .y = 100.0f, .z = 300.0f}});
+        zones.apertures.push_back({.environment = 0, .first = {.x = -1.0f, .y = 0.0f, .z = -64.0f}, .second = {.x = -1.0f, .y = 0.0f, .z = 64.0f}});
+        zones.apertures.push_back({.environment = 1, .first = {.x = 1.0f, .y = 0.0f, .z = -64.0f}, .second = {.x = 1.0f, .y = 0.0f, .z = 64.0f}});
+        return zones;
+    }
+
     static std::vector<std::byte> Bytes(std::string_view text)
     {
         std::vector<std::byte> bytes(text.size());
@@ -172,6 +200,7 @@ struct Fixture {
     }
 
     std::map<std::string, std::vector<std::byte>> files;
+    std::vector<std::byte> zones; // the rooms' zone file as written
     sound::Host host;
     std::unique_ptr<sound::System> system;
     std::array<sound::SoundHandle, 3> sounds{};
@@ -194,6 +223,18 @@ public:
 
     int Entity() { return static_cast<int>(Byte() % 66) - 2; }
 
+    // the next bytes, as many as the next byte says
+    std::vector<std::byte> Bytes()
+    {
+        std::vector<std::byte> bytes(Byte());
+
+        for (std::byte& b : bytes) {
+            b = static_cast<std::byte>(Byte());
+        }
+
+        return bytes;
+    }
+
 private:
     const std::uint8_t* data_;
     std::size_t size_;
@@ -213,7 +254,7 @@ extern "C" int LLVMFuzzerTestOneInput(const std::uint8_t* data, std::size_t size
     while (!input.Empty()) {
         sound::System& system = *fixture.system;
 
-        switch (input.Byte() % 20) {
+        switch (input.Byte() % 22) {
         case 0: {
             sound::Request request;
             request.sound = fixture.sounds[input.Byte() % fixture.sounds.size()];
@@ -331,6 +372,30 @@ extern "C" int LLVMFuzzerTestOneInput(const std::uint8_t* data, std::size_t size
             }
 
             system.StopSounds();
+            break;
+        case 19: {
+            // the rooms' zones loaded whole, cut or not at all, the reverb on or off
+            const std::uint8_t which = input.Byte();
+            std::vector<std::byte> file = fixture.zones;
+            file.resize(which % 3 == 2 ? std::min<std::size_t>(file.size(), input.Byte() * 8U) : file.size());
+            fixture.files["eagle/rooms.efxzones"] = file;
+            system.LoadZones(which % 3 == 1 ? "" : "rooms");
+            system.SetReverb((input.Byte() & 1U) != 0);
+            break;
+        }
+        case 20:
+            // the dynamic music's file or the ambient sets' from the input, read at once
+            if ((input.Byte() & 1U) != 0) {
+                fixture.files["ext_data/dms.dat"] = input.Bytes();
+                system.BeginRegistration();
+                system.StartMusic("lvl", "");
+            }
+            else {
+                fixture.files["sound/sound.txt"] = input.Bytes();
+                system.PrecacheSet("general");
+                system.ParseSets();
+            }
+
             break;
         default: {
             // the sound restarted: what it had restored into a new one, every handle kept by the input now stale

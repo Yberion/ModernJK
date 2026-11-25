@@ -154,17 +154,6 @@ plane 9741 1030 3776 0 0 -1 p133 z6
 plane 8927 1030 2488 -1 0 0 z6 z1
 plane 10275 2191 902 0 0 -1 - z6
 default-obstacle 0 0.25 1.5 occludes
-row - d d d d d d d d d d
-row d - d d d d d d d d d
-row d d - d d d d d d d d
-row d d d - d d d d d d d
-row d d d d - d d d d d d
-row d d d d d - d d d d d
-row d d d d d d - d d d d
-row d d d d d d d - d d d
-row d d d d d d d d - d d
-row d d d d d d d d d - d
-row d d d d d d d d d d -
 diffraction -6000 0.25 90
 aperture 0 7860.024 216.28044 4987.783 7850.1826 216.28044 4761.4336
 aperture 0 7925.5913 216.28044 3650.4954 7805.464 216.28044 3528.4612

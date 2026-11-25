@@ -540,7 +540,8 @@ static void CG_General(centity_t* cent)
                 if (cent->gent->owner->client &&
                     cg_entities[cent->currentState.otherEntityNum].currentState.saberActive) { // saber is in-flight and active, play a sound on it
                     if (cent->gent->owner->client->ps.saberEntityState == saberEntityState_t::SES_RETURNING) {
-                        CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, CG_SaberHumSoundForEnt(cent->gent->owner), sound::SoundClass::Saber);
+                        CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, CG_SaberHumSoundForEnt(cent->gent->owner), sound::SoundClass::Saber,
+                                           kSaberHumVolume);
                     }
                     else {
                         int spinSound;

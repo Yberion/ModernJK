@@ -166,7 +166,7 @@ std::vector<AmbientSet> ParseAmbientSets(std::string_view text, const std::set<s
     std::size_t start = 0;
 
     while (start < text.size()) {
-        std::size_t end = text.find('\n', start);
+        std::size_t end = text.find_first_of("\r\n", start); // a line ended by a newline, a carriage return or both
 
         if (end == std::string_view::npos) {
             end = text.size();
@@ -212,13 +212,29 @@ std::vector<AmbientSet> ParseAmbientSets(std::string_view text, const std::set<s
         }
     }
 
+    // a name given twice keeps the definition the original game kept: it read the general sets, then the local ones, then
+    // the brush models', each replacing an earlier set of its name, so that the last of the latest kind wins (the game's
+    // file has a local and a brush model's set "fanblade", the brush model's being the fan's)
+    std::vector<AmbientSet> kept;
+
+    for (AmbientSet& set : sets) {
+        const auto same = std::ranges::find(kept, set.name, &AmbientSet::name);
+
+        if (same == kept.end()) {
+            kept.push_back(std::move(set));
+        }
+        else if (set.kind >= same->kind) {
+            *same = std::move(set);
+        }
+    }
+
     for (const std::string& name : wanted) {
-        if (std::ranges::none_of(sets, [&name](const AmbientSet& set) { return set.name == name; })) {
+        if (std::ranges::none_of(kept, [&name](const AmbientSet& set) { return set.name == name; })) {
             host.print(Message::Warning, fmt::format("no ambient set \"{}\" in sound/sound.txt", name));
         }
     }
 
-    return sets;
+    return kept;
 }
 
 } // namespace sound

@@ -272,17 +272,37 @@ void TestMusic(const std::filesystem::path& data)
     CHECK(system.Info().find(": death") != std::string::npos);
     system.StopMusic();
 
-    // boss music from another level's entry; the dynamic music not allowed: its explore piece as a file
+    // boss music from another level's entry, the level's dynamic music started again without reading a file (the level's
+    // start preloads it, its first snapshot starts it again); the dynamic music then not allowed: its explore piece as a
+    // file at once, the music started again without the game asking, and the dynamic music back when allowed again
+    run.host.asked.clear();
     system.StartMusic("lvl", "");
+    CHECK(run.host.asked.empty());
     system.SetMusicState(sound::MusicState::Boss);
     run.Advance(kStep);
     CHECK(system.Info().find(": boss") != std::string::npos);
     system.AllowDynamicMusic(false);
-    system.StartMusic("lvl", "");
     run.Advance(kStep);
     CHECK(system.Info().find("music music/lvl/lvl_explore") != std::string::npos);
     system.AllowDynamicMusic(true);
+    run.Advance(kStep);
+    CHECK(system.Info().find("dynamic music lvl (lvl): explore") != std::string::npos);
     system.StopMusic();
+
+    // a new level whose transition piece is missing (a mod's): the dynamic music played all the same, warned, the
+    // silence asked for reached at the explore piece's exit time without the transition
+    system.BeginRegistration();
+    run.host.texts.erase("music/lvl/lvl_etr00.wav");
+    const std::size_t warnings = run.host.Count(sound::Message::Warning);
+    system.StartMusic("lvl", "");
+    run.Advance(50);
+    CHECK(system.Info().find("dynamic music lvl (lvl): explore") != std::string::npos);
+    CHECK_EQUAL(run.host.Count(sound::Message::Warning), warnings + 1);
+    system.SetMusicState(sound::MusicState::Silence);
+    run.Advance(200);
+    CHECK(system.Info().find(": silence") != std::string::npos);
+    system.StopMusic();
+    run.host.texts["music/lvl/lvl_etr00.wav"] = piece;
 
     // an intro then a loop of another format, on a stream of its own; then the music asked for played again
     system.StartMusic("music/mono22k_s16", "music/stereo44k_s16");
@@ -293,10 +313,13 @@ void TestMusic(const std::filesystem::path& data)
     CHECK(system.Info().find("music music/mono22k_s16") != std::string::npos);
     system.StopMusic();
 
-    // a dynamic piece of six seconds loops by fading its start in over its end, two seconds before it
+    // a dynamic piece of six seconds loops by fading its start in over its end, two seconds before it (a new level, whose
+    // files are read again)
     for (const char* file : {"music/lvl/lvl_explore.wav", "music/lvl/lvl_action.wav"}) {
         run.host.texts[file] = LongWav(6);
     }
+
+    system.BeginRegistration();
 
     system.StartMusic("lvl", "");
     run.Advance(3000);

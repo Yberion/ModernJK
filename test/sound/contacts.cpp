@@ -22,7 +22,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // the test at frames of 1 ms, from the rule's constants: a 3 s scrape plays its sounds kScrapeSoundInterval apart,
 // kScrapeSounds at once at most (with sounds slightly longer than that many intervals, the next one waiting for the
 // first to end); a strike after the blade left the wall plays at once, but not within kContactSoundInterval of the
-// blade's last sound.
+// blade's last sound. The other rules of q_sound.h: a sound event packed and read back for every class, slot and loop, a
+// field out of range read as a sound of the world without a slot; the channels' classes and slots (CHAN_MENU1 for a tree
+// that has it); a voice's state as the faces' level.
 #include "sound.h"
 
 #include <check.h>
@@ -31,6 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <cstddef>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -66,10 +69,98 @@ struct Sounds {
     }
 };
 
+// the channels of a tree's soundChannel_t, the multiplayer's CHAN_MENU1 among them
+enum class TestChannel {
+    CHAN_AUTO,
+    CHAN_LOCAL,
+    CHAN_WEAPON,
+    CHAN_VOICE,
+    CHAN_VOICE_ATTEN,
+    CHAN_ITEM,
+    CHAN_BODY,
+    CHAN_AMBIENT,
+    CHAN_LOCAL_SOUND,
+    CHAN_ANNOUNCER,
+    CHAN_LESS_ATTEN,
+    CHAN_MENU1,
+    CHAN_VOICE_GLOBAL,
+    CHAN_MUSIC
+};
+
+// the same without CHAN_MENU1, as the single players' have them
+enum class SingleChannel {
+    CHAN_AUTO,
+    CHAN_LOCAL,
+    CHAN_WEAPON,
+    CHAN_VOICE,
+    CHAN_VOICE_ATTEN,
+    CHAN_ITEM,
+    CHAN_BODY,
+    CHAN_AMBIENT,
+    CHAN_LOCAL_SOUND,
+    CHAN_ANNOUNCER,
+    CHAN_LESS_ATTEN,
+    CHAN_VOICE_GLOBAL,
+    CHAN_MUSIC
+};
+
+bool Uses(soundUse_t use, sound::SoundClass soundClass, sound::Slot slot)
+{
+    return use.soundClass == soundClass && use.slot == slot;
+}
+
+void TestEvents()
+{
+    // every class, slot and loop packed into the event's field and read back as they were, within its eight bits
+    for (int c = 0; c <= std::to_underlying(sound::SoundClass::Ambient); ++c) {
+        for (int s = 0; s <= std::to_underlying(sound::Slot::Menu); ++s) {
+            for (const bool loop : {false, true}) {
+                const soundEvent_t event{.soundClass = static_cast<sound::SoundClass>(c), .slot = static_cast<sound::Slot>(s), .loop = loop};
+                const int packed = BG_PackSoundEvent(event);
+                const soundEvent_t back = BG_UnpackSoundEvent(packed);
+                CHECK(packed >= 0 && packed < 256);
+                CHECK(back.soundClass == event.soundClass && back.slot == event.slot && back.loop == event.loop);
+            }
+        }
+    }
+
+    // a class and a slot beyond the last ones (a damaged or hostile field): a sound of the world without a slot
+    const soundEvent_t odd = BG_UnpackSoundEvent(0xF | (0x7 << SOUND_EVENT_SLOT_SHIFT));
+    CHECK(odd.soundClass == sound::SoundClass::World && odd.slot == sound::Slot::None && !odd.loop);
+
+    // the channels the game's data names
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_WEAPON), sound::SoundClass::Weapon, sound::Slot::Weapon));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_VOICE), sound::SoundClass::Voice, sound::Slot::Voice));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_VOICE_ATTEN), sound::SoundClass::VoiceQuiet, sound::Slot::Voice));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_VOICE_GLOBAL), sound::SoundClass::VoiceEverywhere, sound::Slot::Voice));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_ITEM), sound::SoundClass::World, sound::Slot::Item));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_BODY), sound::SoundClass::Body, sound::Slot::None));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_LOCAL), sound::SoundClass::Interface, sound::Slot::Menu));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_LOCAL_SOUND), sound::SoundClass::Interface, sound::Slot::Menu));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_MENU1), sound::SoundClass::Interface, sound::Slot::Menu));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_ANNOUNCER), sound::SoundClass::Announcer, sound::Slot::Announcer));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_LESS_ATTEN), sound::SoundClass::Vehicle, sound::Slot::None));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_AMBIENT), sound::SoundClass::Ambient, sound::Slot::None));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_AUTO), sound::SoundClass::World, sound::Slot::None));
+    CHECK(Uses(BG_SoundUseOfChannel(TestChannel::CHAN_MUSIC), sound::SoundClass::World, sound::Slot::None));
+    CHECK(Uses(BG_SoundUseOfChannel(SingleChannel::CHAN_VOICE), sound::SoundClass::Voice, sound::Slot::Voice));
+    CHECK(Uses(BG_SoundUseOfChannel(SingleChannel::CHAN_LOCAL_SOUND), sound::SoundClass::Interface, sound::Slot::Menu));
+
+    // an effect's sound: a shot's a weapon sound at the shots' volume, another a sound of the world as recorded
+    static_assert(BG_EffectSound(true).soundClass == sound::SoundClass::Weapon && BG_EffectSound(true).volume == kShotVolume);
+    static_assert(BG_EffectSound(false).soundClass == sound::SoundClass::World && BG_EffectSound(false).volume == 1.0f);
+
+    // a voice's state as the faces' level: 0 not talking, -1 in a silence, then 1 to 4
+    static_assert(BG_VoiceLevel(sound::VoiceState::NotTalking) == 0 && BG_VoiceLevel(sound::VoiceState::Silent) == -1);
+    static_assert(BG_VoiceLevel(sound::VoiceState::Level1) == 1 && BG_VoiceLevel(sound::VoiceState::Level4) == 4);
+}
+
 } // namespace
 
 void RunContactTests(const std::filesystem::path& /*data*/)
 {
+    TestEvents();
+
     // a 3 s scrape of sounds 19 ms longer than kScrapeSounds intervals: the first kScrapeSounds one interval apart, the
     // next one held until the first ends
     constexpr auto kAtOnce = static_cast<int>(kScrapeSounds);

@@ -32,4 +32,4 @@ bank.Free(bank.Unused());                   // what it did not use
 
 ## Tests
 
-`test/sound/bank.cpp`: the names, the best format first, a stereo file mixed to mono, a missing file reported once, the language, the length, the freeing and the loading again; the lip sync on a signal of silence, then loud, then quiet.
+`test/sound/bank.cpp`: the names, the best format first, a stereo file mixed to mono, a missing file reported once, the language, the length, the freeing and the loading again, a restart's sounds saved and restored (the loaded ones loaded again, the freed ones with their length); the lip sync on a signal of silence, then loud, then quiet.

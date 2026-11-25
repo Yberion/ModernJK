@@ -332,35 +332,6 @@ plane 15 364 5522 0 1 0 z26 z26
 plane 990 404 5816 0 1 0 z25 p279
 plane -14 404 4310 -1 0 0 z25 z26
 default-obstacle 0 0.25 1.5 occludes
-row - d d d d d d d d d d d d d d d d d d d d d d d d d d d d
-row d - d d d d d d d d d d d d d d d d d d d d d d d d d d d
-row d d - d d d d d d d d d d d d d d d d d d d d d d d d d d
-row d d d - d d d d d d d d d d d d d d d d d d d d d d d d d
-row d d d d - d d d d d d d d d d d d d d d d d d d d d d d d
-row d d d d d - d d d d d d d d d d d d d d d d d d d d d d d
-row d d d d d d - d d d d d d d d d d d d d d d d d d d d d d
-row d d d d d d d - d d d d d d d d d d d d d d d d d d d d d
-row d d d d d d d d - d d d d d d d d d d d d d d d d d d d d
-row d d d d d d d d d - d d d d d d d d d d d d d d d d d d d
-row d d d d d d d d d d - d d d d d d d d d d d d d d d d d d
-row d d d d d d d d d d d - d d d d d d d d d d d d d d d d d
-row d d d d d d d d d d d d - d d d d d d d d d d d d d d d d
-row d d d d d d d d d d d d d - d d d d d d d d d d d d d d d
-row d d d d d d d d d d d d d d - d d d d d d d d d d d d d d
-row d d d d d d d d d d d d d d d - d d d d d d d d d d d d d
-row d d d d d d d d d d d d d d d d - d d d d d d d d d d d d
-row d d d d d d d d d d d d d d d d d - d d d d d d d d d d d
-row d d d d d d d d d d d d d d d d d d - d d d d d d d d d d
-row d d d d d d d d d d d d d d d d d d d - d d d d d d d d d
-row d d d d d d d d d d d d d d d d d d d d - d d d d d d d d
-row d d d d d d d d d d d d d d d d d d d d d - d d d d d d d
-row d d d d d d d d d d d d d d d d d d d d d d - d d d d d d
-row d d d d d d d d d d d d d d d d d d d d d d d - d d d d d
-row d d d d d d d d d d d d d d d d d d d d d d d d - d d d d
-row d d d d d d d d d d d d d d d d d d d d d d d d d - d d d
-row d d d d d d d d d d d d d d d d d d d d d d d d d d - d d
-row d d d d d d d d d d d d d d d d d d d d d d d d d d d - d
-row d d d d d d d d d d d d d d d d d d d d d d d d d d d d -
 diffraction -6000 0.25 90
 aperture 0 1877.7006 136.04688 -5289.315 1876.1022 150.76793 -5205.663
 aperture 1 1816.9247 142.19595 -5193.939 1823.5333 142.19595 -5300.4116

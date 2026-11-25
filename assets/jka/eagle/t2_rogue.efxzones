@@ -35,12 +35,6 @@ plane 2967 1145 2326 0 0 -1 p22 z0
 plane 2967 1145 2326 0 1 0 z0 p23
 plane 2967 1145 1896 -1 0 0 z2 z0
 default-obstacle 0 0.25 1.5 occludes
-row - d d d d d
-row d - d d d d
-row d d - d d d
-row d d d - d d
-row d d d d - d
-row d d d d d -
 diffraction -6000 0.25 90
 aperture 0 1828.5122 -519.09827 432.63147 2011.026 -519.09827 429.2516
 aperture 0 3550.47 -1104.5127 -949.12915 3378.9885 -1110.4294 -949.12915

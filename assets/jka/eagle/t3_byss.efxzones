@@ -35,9 +35,4 @@ plane 1220 -490 2964 0.816666 0 -0.57711065 z3 p25
 plane 372 -490 2964 -1 0 0 z3 p26
 plane 584 -490 2664 -0.816666 0 -0.57711065 z3 z2
 default-obstacle 0 0.25 1.5 occludes
-row - d d d d
-row d - d d d
-row d d - d d
-row d d d - d
-row d d d d -
 diffraction -6000 0.25 90

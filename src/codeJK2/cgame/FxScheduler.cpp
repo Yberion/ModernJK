@@ -1342,13 +1342,11 @@ void CFxScheduler::CreateEffect(CPrimitiveTemplate* fx, const vec3_t origin, vec
             theFxHelper.PlaySound(org, mShooter.value_or(ENTITYNUM_NONE), sound::SoundClass::Vehicle, sound::Slot::None, fx->mMediaHandles.GetHandle(),
                                   ShotVolume());
         }
-        else if (mShooter) {
-            // a shot: its shooter's weapon sound, from the effect's point, so that the listener's own is heard as the
-            // listener's own sounds are
-            theFxHelper.PlaySound(org, *mShooter, sound::SoundClass::Weapon, sound::Slot::None, fx->mMediaHandles.GetHandle(), kShotVolume);
-        }
         else {
-            theFxHelper.PlaySound(org, ENTITYNUM_NONE, sound::SoundClass::World, sound::Slot::None, fx->mMediaHandles.GetHandle());
+            // a shot's sound its shooter's, from the effect's point, so that the listener's own is heard as the listener's
+            // own sounds are; another effect's a sound of the world
+            const effectSound_t use = BG_EffectSound(mShooter.has_value());
+            theFxHelper.PlaySound(org, mShooter.value_or(ENTITYNUM_NONE), use.soundClass, sound::Slot::None, fx->mMediaHandles.GetHandle(), use.volume);
         }
         break;
 

@@ -110,10 +110,26 @@ void TestRegister(const std::filesystem::path& data)
     bank.Free(unused);
     CHECK(bank.Find(stereo) == nullptr);
     CHECK(bank.Length(stereo) > 0);
+
+    // saved for a restart: the same handles, the loaded sound loaded again, the freed one restored with its length and
+    // its file read only when a level uses it
+    {
+        const std::vector<sound::Bank::Saved> saved = bank.Save();
+        sound::Bank restarted(host.host);
+
+        for (const sound::Bank::Saved& sound : saved) {
+            (void)restarted.Restore(sound);
+        }
+
+        CHECK(restarted.Find(mono) != nullptr && restarted.Find(stereo) == nullptr && restarted.Length(stereo) == bank.Length(stereo));
+        host.asked.clear();
+        CHECK(restarted.Use(stereo) != nullptr && !host.asked.empty());
+    }
+
     CHECK(bank.Use(stereo) != nullptr);
 
     // a name restored after a restart whose file is gone: its handle all the same, its file looked for once per level
-    const sound::SoundHandle restored = bank.Restore("sound/gone/track.v2");
+    const sound::SoundHandle restored = bank.Restore({.name = "sound/gone/track.v2"});
     CHECK(restored != sound::kNoSound);
     CHECK_EQUAL(bank.Name(restored), "sound/gone/track.v2");
     host.asked.clear();
@@ -125,9 +141,9 @@ void TestRegister(const std::filesystem::path& data)
     CHECK(!host.asked.empty());
 
     // the variants of a sound one event: the names that differ only by a trailing number
-    const sound::SoundHandle hit1 = bank.Restore("sound/weapons/saber/saberhitwall1");
-    const sound::SoundHandle hit3 = bank.Restore("sound/weapons/saber/saberhitwall3");
-    const sound::SoundHandle hum = bank.Restore("sound/weapons/saber/saberhum1");
+    const sound::SoundHandle hit1 = bank.Restore({.name = "sound/weapons/saber/saberhitwall1"});
+    const sound::SoundHandle hit3 = bank.Restore({.name = "sound/weapons/saber/saberhitwall3"});
+    const sound::SoundHandle hum = bank.Restore({.name = "sound/weapons/saber/saberhum1"});
     CHECK_EQUAL(bank.Event(hit1), bank.Event(hit3));
     CHECK(bank.Event(hit1) != bank.Event(hum));
     CHECK(bank.Event(hit1) < bank.EventCount() && bank.Event(hum) < bank.EventCount());

@@ -69,9 +69,16 @@ public:
 
     // The handle of a sound, loaded if it is not; kNoSound, with one warning, when its file does not exist.
     [[nodiscard]] SoundHandle Register(std::string_view name);
-    // A name registered again after a restart, in its old order: it takes the next handle even when its file no longer
-    // loads, so that the names after it keep theirs.
-    SoundHandle Restore(std::string_view name);
+    // A sound as a restarted bank gets it back: its name as stored, whether it was loaded, its length.
+    struct Saved {
+        std::string name;
+        bool loaded = true;
+        int milliseconds = 0;
+    };
+    // A sound registered again after a restart, in its old order: it takes the next handle even when its file no longer
+    // loads, so that the names after it keep theirs; loaded again only if it was, else kept with its length until a
+    // level uses it.
+    SoundHandle Restore(const Saved& saved);
     // A sound to play, loaded again if a level freed it; nullptr for kNoSound or a sound that cannot load.
     [[nodiscard]] const Sound* Use(SoundHandle handle);
     // A sound as it is, nullptr when it is not loaded.
@@ -86,9 +93,8 @@ public:
     [[nodiscard]] int Length(SoundHandle handle) const;
     // A line of the soundlist command: the sound's name, rate, length and whether it is loaded.
     [[nodiscard]] std::string Describe(SoundHandle handle) const;
-    // The names registered, in the order of their handles from 1: registered again in that order, they get the same
-    // handles.
-    [[nodiscard]] std::vector<std::string> Names() const;
+    // The sounds registered, in the order of their handles from 1: restored in that order, they get the same handles.
+    [[nodiscard]] std::vector<Saved> Save() const;
     // The handles registered so far, kNoSound excluded: from 1 to Count() - 1.
     [[nodiscard]] SoundHandle Count() const noexcept { return static_cast<SoundHandle>(entries_.size()); }
 

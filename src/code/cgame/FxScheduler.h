@@ -657,7 +657,7 @@ private:
     // the entity whose shot the effect being played is (a weapon's muzzle effect): its sounds created at once that
     // entity's weapon sounds at the shots' volume, those scheduled later the world's
     std::optional<int> mShooter;
-    [[nodiscard]] float ShotVolume() const { return mShooter ? kShotVolume : 1.0f; }
+    [[nodiscard]] float ShotVolume() const { return BG_EffectSound(mShooter.has_value()).volume; }
 
     // Private function prototypes
     SEffectTemplate* GetNewEffectTemplate(int* id, const char* file);

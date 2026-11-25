@@ -821,6 +821,8 @@ std::optional<ZoneFile> ParseZoneFile(std::string_view text, std::string& error)
         return std::nullopt;
     }
 
+    // the boxes in the order the obstruction's search takes them, by zone, a file written by hand giving them in another
+    std::ranges::stable_sort(zones.boxes, {}, [](const DiffractionBox& box) { return Order(box.zone); });
     return zones;
 }
 

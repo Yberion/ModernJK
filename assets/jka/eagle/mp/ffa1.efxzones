@@ -53,16 +53,6 @@ plane 4179 2120 1375 0 0 -1 z0 z7
 plane 4380 2120 1193 0 0 -1 z0 p38
 plane 4380 2120 1725 0 0 -1 z8 z0
 default-obstacle 0 0.25 1.5 occludes
-row - d d d d d d d d d
-row d - d d d d d d d d
-row d d - d d d d d d d
-row d d d - d d d d d d
-row d d d d - d d d d d
-row d d d d d - d d d d
-row d d d d d d - d d d
-row d d d d d d d - d d
-row d d d d d d d d - d
-row d d d d d d d d d -
 diffraction -6000 0.25 90
 aperture 0 2530.2761 940.3801 1227.4658 2713.0852 940.3801 1153.6036
 aperture 0 4062.918 1466.9476 459.29843 3872.7227 1466.9476 333.73257

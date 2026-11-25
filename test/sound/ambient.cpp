@@ -62,6 +62,19 @@ bmodelSet door
 subWaves movers mono22k_s16 missing_file mono11k_u8
 radius 100
 
+localSet fan
+loopedWave movers/mono22k_s16
+radius 200
+
+bmodelSet beam
+subWaves movers mono22k_s16
+
+bmodelSet fan
+subWaves movers missing_file mono11k_u8
+
+bmodelSet beam
+subWaves movers mono11k_u8
+
 generalSet notwanted
 loopedWave ambience/mono22k_s16
 )";
@@ -84,7 +97,7 @@ void TestSets(const std::filesystem::path& data)
     system->SetLog([&lines](std::string_view line) { lines.emplace_back(line); });
     system->ClearPrecachedSets();
 
-    for (const char* name : {"Birds", "console", "door", "absent"}) {
+    for (const char* name : {"Birds", "console", "door", "fan", "beam", "absent"}) {
         system->PrecacheSet(name);
     }
 
@@ -99,8 +112,14 @@ void TestSets(const std::filesystem::path& data)
     CHECK(system->BrushModelSound("door", sound::BrushModelStage::End) != sound::kNoSound);
     CHECK(system->BrushModelSound("notwanted", sound::BrushModelStage::Start) == sound::kNoSound);
 
-    // a general set for 59 s, the draws at their highest: its loop started once, a one-shot every 20 s (at 0, 20 and
-    // 40 s), where the old mixer, drawing at every frame, played one about every 10 s
+    // a name given twice: the brush model's set over the local one, the later of two brush models' sets, as the original
+    // game kept them (the game's "fanblade" and "reactor_beam")
+    CHECK(system->BrushModelSound("fan", sound::BrushModelStage::Middle) != sound::kNoSound);
+    CHECK(system->BrushModelSound("beam", sound::BrushModelStage::Start) == system->Register("sound/movers/mono11k_u8"));
+
+    // a general set for 59 s, the draws at their highest: its loop started once, a one-shot every 20 s (from the end of
+    // the set's fade in of a second: at 1.1, 21.1 and 41.1 s), where the old mixer, drawing at every frame, played one
+    // about every 10 s
     for (int elapsed = 0; elapsed < 59000; elapsed += kStep) {
         system->UpdateAmbientSet("birds", {});
         now += kStep;
@@ -117,6 +136,13 @@ void TestSets(const std::filesystem::path& data)
     CHECK_EQUAL(starts("loop=1"), 1);
     CHECK_EQUAL(starts("loop=0"), 3);
 
+    // the first one-shot heard at the set's volume, once its fade in has ended: drawn during it, it came at a fraction of
+    // its volume and spent its delay
+    const auto first = std::ranges::find_if(lines, [](const std::string& line) {
+        return line.find(" start ") != std::string::npos && line.find("class=ambient") != std::string::npos && line.find("loop=0") != std::string::npos;
+    });
+    CHECK(first != lines.end() && std::stoi(first->substr(std::string_view("SNDLOG ").size())) >= 1000);
+
     // a local set at an entity, then neither: everything stopped
     system->AddLocalSet("console", 40, {100.0f, 0.0f, 0.0f});
     system->UpdateAmbientSet("birds", {});
@@ -132,6 +158,48 @@ void TestSets(const std::filesystem::path& data)
     }
 
     CHECK_EQUAL(system->Playing(), 0U);
+    system->SetLog({});
+}
+
+// sets without their keywords take the original game's defaults: a one-shot every 10 to 25 s at full volume, a local
+// set heard within 250 units; the file's lines ended by a carriage return alone
+void TestDefaults(const std::filesystem::path& data)
+{
+    test::Host host(data);
+    host.texts["sound/sound.txt"] = "type ambientSet\rgeneralSet plain\rsubWaves ambience mono22k_s16\rlocalSet near\rloopedWave ambience/mono11k_u8\r";
+    host.random = [](int /*min*/, int max) { return max; };
+    const std::unique_ptr<sound::System> system = sound::System::Create(host.host, kRate);
+    CHECK(system != nullptr);
+
+    if (system == nullptr) {
+        return;
+    }
+
+    std::vector<std::int16_t> out(static_cast<std::size_t>(kRate * kStep / 1000) * 2);
+    std::vector<std::string> lines;
+    system->SetLog([&lines](std::string_view line) { lines.emplace_back(line); });
+    system->ClearPrecachedSets();
+    system->PrecacheSet("plain");
+    system->PrecacheSet("near");
+    system->ParseSets();
+
+    // 59 s, the draws at their highest: the general set's one-shots every 25 s from the end of its fade in (1.1, 26.1 and
+    // 51.1 s), the local set's loop started once
+    for (int now = kStep; now < 59000 + kStep; now += kStep) {
+        system->UpdateAmbientSet("plain", {});
+        system->AddLocalSet("near", 40, {100.0f, 0.0f, 0.0f});
+        system->Frame(now);
+        system->GetDevice().Render(out);
+    }
+
+    const auto starts = [&lines](std::string_view what) {
+        return std::ranges::count_if(lines, [what](const std::string& line) {
+            return line.find(" start ") != std::string::npos && line.find("class=ambient") != std::string::npos && line.find(what) != std::string::npos;
+        });
+    };
+
+    CHECK_EQUAL(starts("loop=0"), 3);
+    CHECK_EQUAL(starts("loop=1"), 1);
     system->SetLog({});
 }
 
@@ -176,5 +244,6 @@ void TestCrossFade(const std::filesystem::path& data)
 void RunAmbientTests(const std::filesystem::path& data)
 {
     TestSets(data);
+    TestDefaults(data);
     TestCrossFade(data);
 }

@@ -77,12 +77,13 @@ public:
     // always had
     inline void PlaySound(const vec3_t origin, sfxHandle_t sfxHandle, std::optional<int> shooter = std::nullopt)
     {
+        const effectSound_t use = BG_EffectSound(shooter.has_value());
         sound::Request request;
         request.sound = sfxHandle;
-        request.soundClass = shooter ? sound::SoundClass::Weapon : sound::SoundClass::World;
+        request.soundClass = use.soundClass;
         request.place = sound::Place::Point;
         request.entity = shooter;
-        request.volume = shooter ? kShotVolume : 1.0f;
+        request.volume = use.volume;
         request.origin = {origin[0], origin[1], origin[2]};
         SND_Api().Play(request);
     }

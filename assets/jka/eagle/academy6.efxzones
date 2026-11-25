@@ -17,7 +17,4 @@ plane 5336 897 -1862 -1 0 0 p10 -
 plane 5336 897 3896 0 0 -1 p11 -
 plane -532 897 -1862 -1 0 0 - z1
 default-obstacle 0 0.25 1.5 occludes
-row - d d
-row d - d
-row d d -
 diffraction -6000 0.25 90

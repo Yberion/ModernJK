@@ -19,10 +19,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // engine.h -- the sound as an engine runs it, compiled by each engine against its own headers (engine.cpp): its
-// settings (s_volume, s_volumeVoice, s_musicvolume, s_language, s_muteWhenUnfocused, s_allowDynamicMusic, s_initsound,
-// and the cheats s_show and s_debugdynamic), its console commands (play, music, stopmusic, soundlist, soundinfo,
-// soundstop, s_dynamic), the game's files read through the engine's file system, its messages in the engine's console,
-// and the one sound::Api every module receives, silent when the sound is off.
+// settings (s_volume, s_volumeVoice, s_musicvolume, s_language, s_muteWhenUnfocused, s_allowDynamicMusic, s_reverb,
+// s_device, s_initsound, and the cheats s_show and s_debugdynamic), its console commands (play, music, stopmusic,
+// soundlist, soundinfo, soundstop, s_dynamic), the game's files read through the engine's file system, its messages in
+// the engine's console, and the one sound::Api every module receives, silent when the sound is off.
 // Example: the client starts it with SND_Init, calls SND_Frame(cls.realtime) once per frame, gives its modules
 // &SND_Api(), and SND_SetFocus(false) when its window loses the focus.
 #pragma once
@@ -32,7 +32,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cstdint>
 #include <span>
 
-// Starts the sound on the system's default device: its settings and commands; no sound with s_initsound 0 or no device.
+// Starts the sound on the output s_device names, else the system's default: its settings and commands; no sound with
+// s_initsound 0, and with no device until one opens (tried again every second).
 void SND_Init();
 void SND_Shutdown();
 // The sound started again (the snd_restart command): the sounds registered get their handles again, the ambient sets

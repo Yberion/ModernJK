@@ -2860,7 +2860,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
             sfx = trap->sound->BrushModelSound(soundSet, static_cast<sound::BrushModelStage>(es->eventParm));
 
-            if (sfx == -1) {
+            if (sfx == sound::kNoSound) {
                 break;
             }
 
@@ -2870,6 +2870,10 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
     case entity_event_t::EV_MUTE_SOUND:
         DEBUGNAME("EV_MUTE_SOUND");
+        // the entity's number comes from the network: one outside the entities is ignored
+        if (es->trickedentindex2 < 0 || es->trickedentindex2 >= ENTITYNUM_NONE) {
+            break;
+        }
         if (Any(cg_entities[es->trickedentindex2].currentState.eFlags & entityFlags_t::EF_SOUNDTRACKER)) {
             cg_entities[es->trickedentindex2].currentState.eFlags &= ~entityFlags_t::EF_SOUNDTRACKER;
         }

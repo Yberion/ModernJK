@@ -45,6 +45,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <filesystem>
+#include <fstream>
+#include <iterator>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <string>
@@ -115,6 +119,42 @@ void TestFile()
     cycle.replace(cycle.find(" z1 z0"), 6, " p0 z0");
     const std::optional<sound::ZoneFile> looped = sound::ParseZoneFile(cycle, error);
     CHECK(looped.has_value() && !sound::ZoneOf(*looped, {.x = 10.0f}).has_value());
+
+    // boxes a hand-made file gives out of the zones' order: read in that order, which the obstruction's search needs
+    sound::ZoneFile unordered = TwoRooms(true);
+    unordered.boxes.insert(unordered.boxes.begin(),
+                           {.zone = 1, .min = {.x = 200.0f, .y = -100.0f, .z = 200.0f}, .max = {.x = 300.0f, .y = 100.0f, .z = 300.0f}});
+    const std::optional<sound::ZoneFile> sorted = sound::ParseZoneFile(sound::WriteZoneFile(unordered), error);
+    CHECK(sorted.has_value() && sorted->boxes.size() == 2 && sorted->boxes[0].zone == 0 && sorted->boxes[1].zone == 1);
+}
+
+// the zone files both games ship (assets/jka/eagle and its mp folder, assets/jk2/eagle, 83 in all): each read, and written back as it
+// was, so that a change of the reader that refuses one shows here rather than as a map without reverb
+void TestShippedFiles(const std::filesystem::path& assets)
+{
+    int files = 0;
+
+    for (const char* game : {"jka", "jk2"}) {
+        for (const std::filesystem::directory_entry& entry : std::filesystem::recursive_directory_iterator(assets / game / "eagle")) {
+            if (entry.path().extension() != ".efxzones") {
+                continue;
+            }
+
+            ++files;
+            std::ifstream in(entry.path(), std::ios::binary);
+            const std::string text{std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
+            std::string error;
+            const std::optional<sound::ZoneFile> zones = sound::ParseZoneFile(text, error);
+            CHECK(zones.has_value());
+
+            if (zones) {
+                const std::optional<sound::ZoneFile> again = sound::ParseZoneFile(sound::WriteZoneFile(*zones), error);
+                CHECK(again.has_value() && *again == *zones);
+            }
+        }
+    }
+
+    CHECK_EQUAL(files, 83);
 }
 
 void TestCalculations()
@@ -251,6 +291,37 @@ void TestReverb(const std::filesystem::path& data)
     CHECK(system.Info().find("slot: Hall") != std::string::npos);
     CHECK_EQUAL(alGetError(), AL_NO_ERROR);
     system.StopAll();
+}
+
+// two loops of one sound behind the wall, merged into one voice: the wall heard once, so about twice one loop's level,
+// where the merged voice took the wall's filter again over the copies' sum, already muffled (the reverb off, the direct
+// sounds alone)
+void TestMergedLoops(const std::filesystem::path& data)
+{
+    Run run(data, true);
+
+    if (run.system == nullptr) {
+        return;
+    }
+
+    sound::System& system = *run.system;
+    system.LoadZones("test");
+    system.SetReverb(false);
+    system.SetListener(ListenerAt(-100.0f));
+    const sound::SoundHandle tone = system.Register("sound/a/mono22k_s16");
+    sound::Request first = WorldAt(tone, 100.0f, true);
+    first.volume = 0.3f;
+    const sound::VoiceHandle a = system.Play(first);
+    run.Advance(50);
+    const int one = run.Loudest(300);
+    sound::Request second = WorldAt(tone, 120.0f, true);
+    second.volume = 0.3f;
+    const sound::VoiceHandle b = system.Play(second);
+    run.Advance(50);
+    const int two = run.Loudest(300);
+    system.Stop(a);
+    system.Stop(b);
+    CHECK(one > 0 && two > one * 3 / 2);
 }
 
 void TestOneReverb(const std::filesystem::path& data)
@@ -432,6 +503,31 @@ void TestFilters(const std::filesystem::path& data)
         CHECK(reverb.SlotReverb(0) && reverb.SlotReverb(0)->decayTime > third - 0.001f && reverb.SlotReverb(0)->decayTime < third + 0.001f);
         reverb.Frame(1010);
         CHECK(reverb.SlotReverb(0) && reverb.SlotReverb(0)->decayTime == 0.5f);
+
+        // another map loaded: no reverb chosen from the place on the map before (the room) until the game gives the new
+        // one, the hall's then at once
+        reverb.Load(TwoRooms(false));
+        reverb.Frame(1020);
+        CHECK(!reverb.SlotReverb(0));
+        reverb.SetListener(ListenerAt(-100.0f));
+        reverb.Frame(1030);
+        CHECK(reverb.SlotReverb(0) && Near(reverb.SlotReverb(0)->decayTime, 1.49f));
+    }
+
+    // a hand-made file whose room has a density of 0: the fade from it gives numbers, linearly on that value, where the
+    // logarithm from 0 gave a value that is not a number
+    {
+        sound::ZoneFile zeroDensity = TwoRooms(false);
+        zeroDensity.environments[1].reverb.density = 0.0f;
+        sound::ZoneReverb reverb;
+        reverb.Load(zeroDensity);
+        reverb.SetListener(ListenerAt(100.0f));
+        reverb.Frame(0);
+        reverb.SetListener(ListenerAt(-100.0f));
+        reverb.Frame(10);
+        reverb.Frame(360);
+        const std::optional<sound::Reverb>& fading = reverb.SlotReverb(0);
+        CHECK(fading && !std::isnan(fading->density) && fading->density > 0.0f && fading->density < 1.0f);
     }
 
     sound::ZoneReverb reverb;
@@ -472,6 +568,62 @@ void TestFilters(const std::filesystem::path& data)
           Near(water.sendGainHF, 0.031623f));
     const sound::VoiceZone own = reverb.Of({}, sound::Hearing::OwnNotInWorld);
     CHECK(own.slot == 0 && Near(own.directGainHF, 0.031623f));
+
+    // the reverb off from before the map loads: no slot, but the listener's zone followed, so that the wall muffles what
+    // is behind it from either room, as for a player with the reverb on, and nothing in the listener's own room
+    {
+        sound::ZoneReverb off;
+        off.SetEnabled(false);
+        off.Load(TwoRooms(true));
+        off.SetListener(ListenerAt(-100.0f));
+        off.Frame(0);
+        const sound::VoiceZone fromHall = off.Of({100.0f, 0.0f, 0.0f}, sound::Hearing::InWorld);
+        CHECK(fromHall.slot == 0 && Near(fromHall.directGain, 0.56234f) && Near(fromHall.directGainHF, 0.17783f));
+        off.SetListener(ListenerAt(100.0f));
+        off.Frame(10);
+        CHECK(Near(off.Of({-100.0f, 0.0f, 0.0f}, sound::Hearing::InWorld).directGain, 0.56234f));
+        CHECK(off.Of({150.0f, 0.0f, 0.0f}, sound::Hearing::InWorld).directGain == 1.0f);
+    }
+
+    CHECK_EQUAL(alGetError(), AL_NO_ERROR);
+}
+
+// what a frame meets without a fault or an OpenAL error: a map loaded with fewer environments while the slots hold the
+// map before's, a listener at a point that is not a number (in no zone), the clock going back during a fade; then the
+// reverb of the place given again
+void TestRobustness(const std::filesystem::path& data)
+{
+    Run run(data, true);
+
+    if (run.system == nullptr) {
+        return;
+    }
+
+    sound::ZoneReverb reverb;
+    reverb.Load(TwoRooms(true));
+    reverb.SetListener(ListenerAt(100.0f));
+    reverb.Frame(0);
+    sound::ZoneFile one = TwoRooms(true);
+    one.environments.pop_back();
+    one.zoneEnvironment = {0, 0};
+    one.apertures.pop_back();
+    reverb.Load(one);
+    reverb.SetListener(ListenerAt(std::numeric_limits<float>::quiet_NaN()));
+    reverb.Frame(100);
+    (void)reverb.Of({std::numeric_limits<float>::quiet_NaN(), 0.0f, 0.0f}, sound::Hearing::InWorld);
+    reverb.SetListener(ListenerAt(-100.0f));
+    reverb.Frame(200);
+    CHECK(reverb.SlotReverb(0) && Near(reverb.SlotReverb(0)->decayTime, 1.49f));
+
+    sound::ZoneReverb fading;
+    fading.Load(TwoRooms(false));
+    fading.SetListener(ListenerAt(-100.0f));
+    fading.Frame(1000);
+    fading.SetListener(ListenerAt(100.0f));
+    fading.Frame(1010);
+    fading.Frame(600);
+    fading.Frame(2500);
+    CHECK(fading.SlotReverb(0) && fading.SlotReverb(0)->decayTime == 0.5f);
     CHECK_EQUAL(alGetError(), AL_NO_ERROR);
 }
 
@@ -506,13 +658,16 @@ void TestChoice(const std::filesystem::path& data)
 
 } // namespace
 
-void RunZonesTests(const std::filesystem::path& data)
+void RunZonesTests(const std::filesystem::path& data, const std::filesystem::path& assets)
 {
     TestFile();
+    TestShippedFiles(assets);
     TestCalculations();
     TestReverb(data);
+    TestMergedLoops(data);
     TestOneReverb(data);
     TestChoiceAndPans(data);
     TestFilters(data);
     TestChoice(data);
+    TestRobustness(data);
 }

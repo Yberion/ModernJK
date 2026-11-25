@@ -55,11 +55,12 @@ std::string_view VoicesFolder(Language language) noexcept
     return kVoices;
 }
 
-// a stereo sound mixed to mono, each frame the mean of its two samples
-std::vector<std::int16_t> ToMono(const Pcm& pcm)
+// a stereo sound mixed to mono, each frame the mean of its two samples; a mono sound's samples taken as they are, not
+// copied
+std::vector<std::int16_t> ToMono(Pcm pcm)
 {
     if (pcm.channels == 1) {
-        return pcm.samples;
+        return std::move(pcm.samples);
     }
 
     std::vector<std::int16_t> mono(pcm.samples.size() / 2);
@@ -115,18 +116,30 @@ SoundHandle Bank::RegisterKey(std::string key)
 }
 
 // the name as the bank stored it, not normalized again (a dot in a name without extension stays)
-SoundHandle Bank::Restore(std::string_view name)
+SoundHandle Bank::Restore(const Saved& saved)
 {
-    const SoundHandle handle = RegisterKey(std::string(name));
-
-    if (handle != kNoSound) {
-        return handle;
+    if (const auto found = handles_.find(saved.name); found != handles_.end()) {
+        return found->second;
     }
 
+    if (saved.loaded) {
+        const SoundHandle handle = RegisterKey(saved.name);
+
+        if (handle != kNoSound) {
+            return handle;
+        }
+    }
+
+    // a sound that was not loaded keeps its length and loads when a level uses it; a file gone since is not tried again
+    // in this level
     const auto added = static_cast<SoundHandle>(entries_.size());
-    entries_.push_back(
-        Entry{.name = std::string(name), .sound = std::nullopt, .milliseconds = 0, .level = level_, .failedLevel = level_, .event = EventOf(name)});
-    handles_.emplace(std::string(name), added);
+    entries_.push_back(Entry{.name = saved.name,
+                             .sound = std::nullopt,
+                             .milliseconds = saved.milliseconds,
+                             .level = level_,
+                             .failedLevel = saved.loaded ? std::optional<int>(level_) : std::nullopt,
+                             .event = EventOf(saved.name)});
+    handles_.emplace(saved.name, added);
     return added;
 }
 
@@ -193,15 +206,15 @@ std::string_view Bank::Name(SoundHandle handle) const
     return entries_[static_cast<std::size_t>(handle)].name;
 }
 
-std::vector<std::string> Bank::Names() const
+std::vector<Bank::Saved> Bank::Save() const
 {
-    std::vector<std::string> names;
+    std::vector<Saved> saved;
 
     for (std::size_t i = 1; i < entries_.size(); ++i) {
-        names.push_back(entries_[i].name);
+        saved.push_back({.name = entries_[i].name, .loaded = entries_[i].sound.has_value(), .milliseconds = entries_[i].milliseconds});
     }
 
-    return names;
+    return saved;
 }
 
 int Bank::Length(SoundHandle handle) const
@@ -282,17 +295,18 @@ std::optional<Sound> Bank::Load(std::string_view name) const
         return std::nullopt;
     }
 
-    const std::optional<Pcm> pcm = Decode(*file);
+    std::optional<Pcm> pcm = Decode(*file);
 
     if (!pcm) {
         host_.print(Message::Warning, fmt::format("could not decode sound {}", name));
         return std::nullopt;
     }
 
-    const std::vector<std::int16_t> mono = ToMono(*pcm);
-    Sound sound{.rate = pcm->rate, .frames = static_cast<std::int64_t>(mono.size()), .loudness = MeasureLoudness(mono, pcm->rate)};
+    const int rate = pcm->rate;
+    const std::vector<std::int16_t> mono = ToMono(std::move(*pcm));
+    Sound sound{.rate = rate, .frames = static_cast<std::int64_t>(mono.size()), .loudness = MeasureLoudness(mono, rate)};
     alGenBuffers(1, &sound.buffer);
-    alBufferData(sound.buffer, AL_FORMAT_MONO16, mono.data(), static_cast<ALsizei>(mono.size() * sizeof(std::int16_t)), pcm->rate);
+    alBufferData(sound.buffer, AL_FORMAT_MONO16, mono.data(), static_cast<ALsizei>(mono.size() * sizeof(std::int16_t)), rate);
     return sound;
 }
 

@@ -192,8 +192,11 @@ void Ambient::Frame(int now, const Vector& listener)
         general_->fadeStart = now;
     }
 
+    // a general set fading in plays its loop, its first one-shot once it is heard at its volume: drawn during the fade, it
+    // came at a fraction of it and spent its delay of 10 to 50 s
     if (general_) {
-        PlaySet(*general_, GeneralVolume(*general_), Place::Listener, std::nullopt, {});
+        const float volume = GeneralVolume(*general_);
+        PlaySet(*general_, volume, Place::Listener, std::nullopt, {}, volume >= 1.0f);
     }
 
     if (previous_) {
@@ -265,7 +268,7 @@ float Ambient::GeneralVolume(const General& general) const noexcept
 
 // the set's loop kept at its volume and place; a one-shot when it is due, at a volume drawn within the set's range
 // scaled by the set's volume, the delay before the next one drawn now
-void Ambient::PlaySet(Playing& playing, float volume, Place place, std::optional<int> entity, const Vector& origin)
+void Ambient::PlaySet(Playing& playing, float volume, Place place, std::optional<int> entity, const Vector& origin, bool oneShots)
 {
     const AmbientSet& set = sets_[playing.set];
 
@@ -287,7 +290,7 @@ void Ambient::PlaySet(Playing& playing, float volume, Place place, std::optional
         }
     }
 
-    if (set.subWaves.empty() || (playing.nextShot && now_ < *playing.nextShot)) {
+    if (!oneShots || set.subWaves.empty() || (playing.nextShot && now_ < *playing.nextShot)) {
         return;
     }
 

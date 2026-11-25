@@ -51,14 +51,6 @@ plane 6305 -94 4505 0 1 0 z3 p35
 plane 6305 -94 4153 0 0 -1 z3 p36
 plane 6305 -94 4153 -1 0 0 z6 z3
 default-obstacle 0 0.25 1.5 occludes
-row - d d d d d d d
-row d - d d d d d d
-row d d - d d d d d
-row d d d - d d d d
-row d d d d - d d d
-row d d d d d - d d
-row d d d d d d - d
-row d d d d d d d -
 diffraction -6000 0.25 90
 aperture 0 3982.235 -257.58957 2424.3047 3982.235 -244.7471 2731.8564
 aperture 0 3974.603 -263.48633 3242.8767 3982.6492 -266.57446 3500.3564

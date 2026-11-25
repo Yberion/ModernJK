@@ -11,9 +11,6 @@ plane -3318 1504 2789 0 1 0 z1 p4
 plane -5424 1504 1363 -1 0 0 z1 p5
 plane -3318 1504 1363 -1 0 0 z0 z1
 default-obstacle 0 0.25 1.5 occludes
-row - d d
-row d - d
-row d d -
 diffraction -6000 0.25 90
 aperture 0 -3900.8528 -189 2330.9414 -4629.74 -144 1602.054
 aperture 1 -3788.7163 -280 1994.5317 -4902.072 -280 2034.5806

@@ -122,25 +122,6 @@ plane -26 792 1337 0 1 0 z17 p85
 plane -26 792 1337 0 0 -1 p86 z17
 plane -26 792 579 -1 0 0 z10 z17
 default-obstacle 0 0.25 1.5 occludes
-row - d d d d d d d d d d d d d d d d d d
-row d - d d d d d d d d d d d d d d d d d
-row d d - d d d d d d d d d d d d d d d d
-row d d d - d d d d d d d d d d d d d d d
-row d d d d - d d d d d d d d d d d d d d
-row d d d d d - d d d d d d d d d d d d d
-row d d d d d d - d d d d d d d d d d d d
-row d d d d d d d - d d d d d d d d d d d
-row d d d d d d d d - d d d d d d d d d d
-row d d d d d d d d d - d d d d d d d d d
-row d d d d d d d d d d - d d d d d d d d
-row d d d d d d d d d d d - d d d d d d d
-row d d d d d d d d d d d d - d d d d d d
-row d d d d d d d d d d d d d - d d d d d
-row d d d d d d d d d d d d d d - d d d d
-row d d d d d d d d d d d d d d d - d d d
-row d d d d d d d d d d d d d d d d - d d
-row d d d d d d d d d d d d d d d d d - d
-row d d d d d d d d d d d d d d d d d d -
 diffraction -6000 0.25 90
 aperture 0 -3935.4 673.40497 503.2526 -3818.3032 673.40497 507.29044
 aperture 0 -3631.5525 659.886 69.96369 -3633.302 659.886 -293.89215

@@ -723,6 +723,12 @@ void CL_Disconnect(bool showMainMenu)
 
     SCR_StopCinematic();
 
+    // the level's sounds stopped, since its loops would play on while connecting to another server, and its reverb zones
+    // left, so that no reverb is computed in the menus
+    SND_StopSounds();
+    SND_LoadZones("");
+    Cvar_Set("s_musicMult", "1"); // the music the cgame was lowering under a tune back to its level
+
     // send a disconnect message to the server
     // send it a few times in case one is dropped
     if (cls.state >= connstate_t::CA_CONNECTED) {

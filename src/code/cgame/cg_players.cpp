@@ -4810,6 +4810,21 @@ static void CG_GetPlayerLightLevel(centity_t* cent)
 
 /*
 ===============
+CG_SaberHumOrigin
+
+Where an entity's saber hum is heard from: the player's own at the camera while the view is the player's, as the listener's
+own sounds are, so that a camera in third person behind a pillar or in another zone does not muffle it; any other at the
+entity
+===============
+*/
+static const float* CG_SaberHumOrigin(const centity_t* cent)
+{
+    const bool viewIsPlayer = !in_camera && !(cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD);
+    return cent->currentState.number == cg.snap->ps.clientNum && viewIsPlayer ? cg.refdef.vieworg : cent->lerpOrigin;
+}
+
+/*
+===============
 CG_StopWeaponSounds
 
 Stops any weapon sounds as needed
@@ -4832,7 +4847,7 @@ static void CG_StopWeaponSounds(centity_t* cent)
             }
         }
 
-        CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin,
+        CG_AddLoopingSound(cent->currentState.number, CG_SaberHumOrigin(cent),
                            cgs.sound_precache[g_entities[cent->currentState.clientNum].client->ps.saber[0].soundLoop], sound::SoundClass::Saber,
                            kSaberHumVolume);
         return;

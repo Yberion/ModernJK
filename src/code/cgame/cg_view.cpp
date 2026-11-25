@@ -2047,7 +2047,10 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView)
     }
     CG_SetSoundListener( cg.snap->ps.clientNum, listener_origin, cg.refdef.viewaxis, cg.predicted_player_state.velocity, inwater );
     */
-    CG_SetSoundListener(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, cg.predicted_player_state.velocity, inwater);
+    // the listener moves with the player's velocity, but for a cinematic's camera and a view from another entity
+    const bool viewIsPlayer = !in_camera && !(cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD);
+    const vec3_t still = {0.0f, 0.0f, 0.0f};
+    CG_SetSoundListener(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, viewIsPlayer ? cg.predicted_player_state.velocity : still, inwater);
     // the looping sounds asked for in this frame
     CG_UpdateLoopingSounds();
 

@@ -312,6 +312,9 @@ std::optional<ZoneFile> Convert(EalMan& eal, std::optional<int>& defaultEnvironm
         zones.obstacles.push_back(ToObstacle(data.obstacles[i], data.obsNames[i]));
     }
 
+    // the matrix written only when one of its obstacles acts: the default obstacle of every file of the games is at 0 mB,
+    // so that a matrix of it alone would only make every sound look up an obstacle that changes nothing
+    const bool defaultActs = zones.defaultObstacle.level != 0;
     bool anyObstacle = false;
 
     for (const int32_t entry : data.gemaEnvironmentMatrix) {
@@ -324,7 +327,7 @@ std::optional<ZoneFile> Convert(EalMan& eal, std::optional<int>& defaultEnvironm
             ref = {.kind = sound::ObstacleRefKind::Listed, .index = static_cast<std::uint16_t>(entry)};
         }
 
-        anyObstacle = anyObstacle || ref.kind != sound::ObstacleRefKind::None;
+        anyObstacle = anyObstacle || ref.kind == sound::ObstacleRefKind::Listed || (ref.kind == sound::ObstacleRefKind::Default && defaultActs);
         zones.matrix.push_back(ref);
     }
 
@@ -457,8 +460,13 @@ Counts Check(EalMan& eal, const ZoneFile& zones, std::optional<int> defaultEnvir
         eal.GetSourceDynamicAttributes(0, ToEM(source), theirs.obstruction, theirs.obstructionLF, theirs.occlusion, theirs.occlusionLF, theirs.occlusionRoom,
                                        virtualPosition, 0);
         const sound::SourceObstacles ours = sound::ObstaclesOf(zones, sound::ZoneOf(zones, listener), listener, source);
-        const bool same = ours.obstruction == theirs.obstruction && SameBits(ours.obstructionLF, theirs.obstructionLF) && ours.occlusion == theirs.occlusion &&
-                          SameBits(ours.occlusionLF, theirs.occlusionLF) && SameBits(ours.occlusionRoom, theirs.occlusionRoom);
+        // the levels to the bit, a ratio only where its level is not 0: a level of 0 makes the same filters whatever its
+        // ratios (a file without a matrix gives none where EalMan gives its default obstacle at 0 mB)
+        const bool sameObstruction = ours.obstruction == theirs.obstruction && (ours.obstruction == 0 || SameBits(ours.obstructionLF, theirs.obstructionLF));
+        const bool sameOcclusion =
+            ours.occlusion == theirs.occlusion &&
+            (ours.occlusion == 0 || (SameBits(ours.occlusionLF, theirs.occlusionLF) && SameBits(ours.occlusionRoom, theirs.occlusionRoom)));
+        const bool same = sameObstruction && sameOcclusion;
         ++counts.pairs;
         counts.obstructed += ours.obstruction < 0 ? 1 : 0;
         counts.occluded += ours.occlusion < 0 ? 1 : 0;

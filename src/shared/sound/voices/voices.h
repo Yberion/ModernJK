@@ -120,9 +120,11 @@ private:
         std::optional<std::size_t> source; // its source while it is real
         VoiceZone zone;                    // its send and filters at this frame, from the zones
         // the loops of its sound merged into it at this frame, set on the copy that plays them: their summed gain
-        // and the direction they come from, in the listener's space
+        // and the direction they come from, in the listener's space, and the send and filters of the loudest copy, its
+        // broadband gain 1 since each copy's is in the sum
         std::optional<float> mergedGain;
         Vector mergedDirection{};
+        VoiceZone mergedZone;
     };
 
     struct Entity {
@@ -143,10 +145,9 @@ private:
         float silentFrom = 0.0f;
     };
 
-    // a voice the frame may mix
     // the loops of one sound at a frame: how many, their summed and loudest audibility, the most their sum may reach,
     // the direction they come from weighted by it, the copy that plays them (the one holding a source, else the
-    // loudest), the best priority
+    // loudest), the loudest copy
     struct LoopGroup {
         int copies = 0;
         float sum = 0.0f;
@@ -155,6 +156,7 @@ private:
         Vector direction{};
         std::optional<std::size_t> player;
         bool playerReal = false;
+        std::optional<std::size_t> loudestCopy;
     };
 
     struct Candidate {
@@ -210,6 +212,7 @@ private:
     std::vector<LoopGroup> loopGroups_;
     std::vector<std::size_t> loopGroupsUsed_; // the groups the frame used, cleared at the next
     Listener listener_;
+    bool listenerSent_ = false;                // the listener given to OpenAL Soft once
     std::vector<std::uint32_t> directFilters_; // each source's filter of its direct sound
     std::vector<std::uint32_t> sendFilters_;   // each source's filter of its send to a reverb
     std::uint32_t nextSerial_ = 1;

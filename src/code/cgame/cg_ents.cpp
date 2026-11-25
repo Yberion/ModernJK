@@ -534,8 +534,8 @@ static void CG_General(centity_t* cent)
                     if (cent->gent->owner->client->ps.saberEntityState == saberEntityState_t::SES_RETURNING &&
                         cent->gent->owner->client->ps.saber[0].type != saberType_t::SABER_STAR) {
                         CG_AddLoopingSound(cent->currentState.number, cent->lerpOrigin,
-                                           cgs.sound_precache[g_entities[cent->currentState.clientNum].client->ps.saber[0].soundLoop],
-                                           sound::SoundClass::Saber);
+                                           cgs.sound_precache[g_entities[cent->currentState.clientNum].client->ps.saber[0].soundLoop], sound::SoundClass::Saber,
+                                           kSaberHumVolume);
                     }
                     else {
                         int spinSound;

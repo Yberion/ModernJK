@@ -136,7 +136,8 @@ VoiceHandle Voices::Play(const Request& request)
         return VoiceHandle::None;
     }
 
-    if (!request.loop) {
+    // the same sound twice at one instant and place adds up, but in a slot the second replaces the first, as a channel did
+    if (!request.loop && request.slot == Slot::None) {
         for (const std::size_t index : started_) {
             Voice& voice = voices_[index];
             const Request& other = voice.request;
@@ -150,7 +151,8 @@ VoiceHandle Voices::Play(const Request& request)
         }
     }
 
-    if (request.slot != Slot::None) {
+    // only a voice that takes the slot replaces the one there (a sound at the listener with an entity's slot takes none)
+    if (InSlot(request, request.entity, request.slot)) {
         for (std::size_t i = 0; i < voices_.size(); ++i) {
             if (voices_[i].active && InSlot(voices_[i].request, request.entity, request.slot)) {
                 Log("replace {} ent={} slot={} audible={}", bank_.Name(voices_[i].request.sound), EntityOf(voices_[i].request), Name(request.slot),
@@ -276,7 +278,15 @@ void Voices::UpdateEntity(int entity, const Vector& origin, const Vector& veloci
 // the ears: OpenAL Soft's listener takes the game's axes as they are, its right being forward x up as the game's is
 void Voices::SetListener(const Listener& listener)
 {
+    // given at every frame, sent only when it moves: OpenAL Soft computes every voice again at each change of its listener
+    const bool moved = !listenerSent_ || listener.origin != listener_.origin || listener.velocity != listener_.velocity || listener.axes != listener_.axes;
     listener_ = listener;
+
+    if (!moved) {
+        return;
+    }
+
+    listenerSent_ = true;
     const std::array<float, 6> orientation = {listener.axes[0][0], listener.axes[0][1], listener.axes[0][2],
                                               listener.axes[2][0], listener.axes[2][1], listener.axes[2][2]};
     alListenerfv(AL_POSITION, listener.origin.data());
@@ -518,6 +528,10 @@ void Voices::MergeLoops()
             group.player = i;
         }
 
+        if (!group.loudestCopy || audibility > group.loudest) {
+            group.loudestCopy = i;
+        }
+
         group.loudest = std::max(group.loudest, audibility);
         group.cap = std::max(group.cap, listenerBoost_ * ClassVolume(voice.request.soundClass));
     }
@@ -525,12 +539,14 @@ void Voices::MergeLoops()
     for (const std::size_t used : loopGroupsUsed_) {
         const LoopGroup& group = groups[used];
 
-        if (group.copies < 2 || !group.player) {
+        if (group.copies < 2 || !group.player || !group.loudestCopy) {
             continue;
         }
 
         Voice& voice = voices_[*group.player];
         voice.mergedGain = std::max(group.loudest, std::min(group.sum, group.cap));
+        voice.mergedZone = voices_[*group.loudestCopy].zone;
+        voice.mergedZone.directGain = 1.0f;
         const Vector& d = group.direction;
         const auto& axes = listener_.axes;
         const Vector local = {-((d[0] * axes[1][0]) + (d[1] * axes[1][1]) + (d[2] * axes[1][2])),
@@ -562,6 +578,16 @@ VoiceState Voices::GetVoiceState(int entity) const
 
         if (sound == nullptr) {
             return VoiceState::NotTalking;
+        }
+
+        // a real voice's place read from its source, which plays in real time while the frame's clock follows timescale
+        // (the mouth kept with the line in the single player's Force Speed); a virtual one's from the clock
+        if (voice.source) {
+            ALint state = AL_STOPPED;
+            ALint offset = 0;
+            alGetSourcei(sources_[*voice.source], AL_SOURCE_STATE, &state);
+            alGetSourcei(sources_[*voice.source], AL_SAMPLE_OFFSET, &offset);
+            return state == AL_STOPPED ? VoiceState::NotTalking : LipSyncState(sound->loudness, offset);
         }
 
         return LipSyncState(sound->loudness, voice.start ? FrameOf(voice, *sound) : 0);
@@ -817,7 +843,7 @@ void Voices::UpdateSource(const Voice& voice, std::size_t source)
     const bool merged = voice.mergedGain.has_value();
     const bool atListener = merged || !info.positioned || voice.request.place == Place::Listener || IsOwn(voice.request);
     const float gain = merged ? *voice.mergedGain : Gain(voice);
-    const VoiceZone& zone = voice.zone;
+    const VoiceZone& zone = merged ? voice.mergedZone : voice.zone;
     Vector position{};
 
     if (merged) {

@@ -356,8 +356,13 @@ void Device::SetChosen(std::string_view name)
     reselect_ = true;
 }
 
+// asked at every frame: the listener's gain sent only when it changes
 void Device::SetMuted(bool muted)
 {
+    if (muted == muted_) {
+        return;
+    }
+
     muted_ = muted;
     ApplyGain();
 }

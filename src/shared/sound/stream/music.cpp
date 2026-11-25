@@ -112,6 +112,7 @@ std::string_view StateName(DynamicState state) noexcept
 void Music::Start(std::string_view intro, std::string_view loop)
 {
     Stop();
+    silent_ = false;
     lastIntro_ = intro;
     lastLoop_ = loop;
 
@@ -123,8 +124,10 @@ void Music::Start(std::string_view intro, std::string_view loop)
     const std::string loopName = NormalizeSoundName(loop);
     std::string label(WithoutFolder(introName));
 
+    // the level's name without its folder, as dms.dat names it (map test/foo is foo)
     if (label.empty()) {
-        label = NormalizeSoundName(level_);
+        const std::string level = NormalizeSoundName(level_);
+        label = WithoutFolder(level);
     }
 
     if (!allowDynamic_ && LoadDynamic(label)) {
@@ -159,7 +162,28 @@ void Music::Restart()
     Start(intro, loop);
 }
 
-// the music stopped at once, the dynamic music's files freed; the music asked for kept for Restart
+// the setting changed: the music playing started again under it, a dynamic music or its explore piece as a file
+void Music::AllowDynamic(bool allowed)
+{
+    if (allowed == allowDynamic_) {
+        return;
+    }
+
+    allowDynamic_ = allowed;
+
+    if (current_ || dynamic_) {
+        Restart();
+    }
+}
+
+void Music::ForgetLoaded()
+{
+    cachedLevel_.clear();
+    cachedMusic_.reset();
+    cachedTracks_.clear();
+}
+
+// the music stopped at once; the music asked for kept for Restart, the last level's dynamic music for its next start
 void Music::Stop()
 {
     current_.reset();
@@ -168,7 +192,6 @@ void Music::Stop()
     tracks_.clear();
     actual_.reset();
     loop_.clear();
-    pendingStart_.clear();
 }
 
 // the state as the game names it; boss and death only when the level has them, else the state stays
@@ -218,11 +241,6 @@ void Music::Frame(int now)
         if (now_ - fading_->fadeStart >= kFadeMilliseconds || fading_->stream->Ended()) {
             fading_.reset();
         }
-    }
-
-    if (!pendingStart_.empty()) {
-        const std::string name = std::move(pendingStart_);
-        Start(name, name);
     }
 }
 
@@ -292,8 +310,9 @@ std::unique_ptr<Music::Player> Music::Open(std::shared_ptr<const std::vector<std
     return player;
 }
 
-// ext_data/dms.dat read for the level, every file of its tracks found and read; false, the reason as a debug line, when
-// it has no dynamic music or one of its files is missing
+// ext_data/dms.dat read for the level, the files of its tracks found and read; false when it has no dynamic music or
+// lacks the file of its explore or action piece, warned; another piece's file missing warned and that piece left out, as
+// the original game did; the last level's kept
 bool Music::LoadDynamic(std::string_view level)
 {
     dynamic_.reset();
@@ -301,6 +320,12 @@ bool Music::LoadDynamic(std::string_view level)
 
     if (level.empty()) {
         return false;
+    }
+
+    if (cachedMusic_ && level == cachedLevel_) {
+        dynamic_ = std::make_unique<DynamicMusic>(*cachedMusic_);
+        tracks_ = cachedTracks_;
+        return true;
     }
 
     const std::optional<std::vector<std::byte>> text = host_.readFile(kDynamicMusicFile);
@@ -314,14 +339,14 @@ bool Music::LoadDynamic(std::string_view level)
 
     if (!music) {
         if (!error.empty()) {
-            host_.print(Message::Debug, fmt::format("{}: {}", kDynamicMusicFile, error));
+            host_.print(Message::Warning, fmt::format("{}: {}", kDynamicMusicFile, error));
         }
 
         return false;
     }
 
     if (!music->explore || !music->action) {
-        host_.print(Message::Debug, fmt::format("the dynamic music of {} lacks its explore or action piece", level));
+        host_.print(Message::Warning, fmt::format("the dynamic music of {} lacks its explore or action piece", level));
         return false;
     }
 
@@ -335,14 +360,22 @@ bool Music::LoadDynamic(std::string_view level)
         std::shared_ptr<const std::vector<std::byte>> bytes = ReadMusic(LowerSoundName(file));
 
         if (bytes == nullptr) {
-            host_.print(Message::Debug, fmt::format("the dynamic music of {} lacks its file {}", level, file));
-            tracks_.clear();
-            return false;
+            host_.print(Message::Warning, fmt::format("the dynamic music of {} lacks its file {}", level, file));
+
+            if (track == Track::Explore || track == Track::Action) {
+                tracks_.clear();
+                return false;
+            }
+
+            continue;
         }
 
         tracks_.emplace(track, std::move(bytes));
     }
 
+    cachedLevel_ = level;
+    cachedMusic_ = *music;
+    cachedTracks_ = tracks_;
     dynamic_ = std::make_unique<DynamicMusic>(std::move(*music));
     return true;
 }
@@ -402,7 +435,8 @@ void Music::Switch(std::optional<Track> track, bool startsFull, float seconds)
     actual_ = track;
 
     if (track) {
-        current_ = Open(tracks_.at(*track), TrackFile(*dynamic_, *track), seconds);
+        const auto file = tracks_.find(*track);
+        current_ = file != tracks_.end() ? Open(file->second, TrackFile(*dynamic_, *track), seconds) : nullptr;
 
         if (current_) {
             current_->track = track;
@@ -432,6 +466,12 @@ void Music::ChangeState()
         }
 
         if (const std::optional<Transition> transition = AllowedTransition(*dynamic_, piece, Elapsed(*current_))) {
+            // a transition piece the level's files lack (a mod's): straight to the next state's piece
+            if (!tracks_.contains(transition->track)) {
+                Switch(next == DynamicState::Explore ? std::optional<Track>(Track::Explore) : std::nullopt, false, transition->entryTime);
+                return;
+            }
+
             Switch(transition->track, false, 0.0f);
 
             if (current_) {
@@ -517,8 +557,8 @@ void Music::Feed(Player& player, float gain)
     });
 }
 
-// the intro's frames, then the loop's from its start, without a gap when the loop has the intro's rate and channels;
-// a loop that is no file names a dynamic music, started at the end of this frame
+// the intro's frames, then the loop's from its start, without a gap when the loop has the intro's rate and channels; a
+// loop whose file has gone ends the music (Start replaces a loop that is no file by the intro)
 std::size_t Music::FillPlain(Player& player, std::span<std::int16_t> out)
 {
     const std::size_t frames = player.decoder->Read(out);
@@ -536,11 +576,6 @@ std::size_t Music::FillPlain(Player& player, std::span<std::int16_t> out)
 
     if (!MusicExists(loop_)) {
         player.ended = true;
-
-        if (!loop_.empty()) {
-            pendingStart_ = loop_;
-        }
-
         return 0;
     }
 
@@ -574,7 +609,7 @@ void Music::FramePlain()
 
     // a loop of another format than the intro's, on a stream of its own; the same file again would play nothing more
     if (current_->ended && current_->stream->Ended()) {
-        const bool another = pendingStart_.empty() && current_->name != loop_ && MusicExists(loop_);
+        const bool another = current_->name != loop_ && MusicExists(loop_);
         current_ = another ? Open(ReadMusic(loop_), loop_, 0.0f) : nullptr;
     }
 }

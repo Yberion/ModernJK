@@ -74,14 +74,4 @@ plane 5569 2654 3713.5 -1 0 0 z3 p56
 plane 5971 2654 3587 0 0 -1 z3 p57
 plane 5703 2654 3587 -0.6864642 0 -0.7271636 z3 z0
 default-obstacle 0 0.25 1.5 occludes
-row - d d d d d d d d d
-row d - d d d d d d d d
-row d d - d d d d d d d
-row d d d - d d d d d d
-row d d d d - d d d d d
-row d d d d d - d d d d
-row d d d d d d - d d d
-row d d d d d d d - d d
-row d d d d d d d d - d
-row d d d d d d d d d -
 diffraction -6000 0.25 90

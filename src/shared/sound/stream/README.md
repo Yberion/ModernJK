@@ -17,7 +17,7 @@ The dynamic music:
 - a piece loops by fading its start in over its end, two seconds before it; the death piece fades to silence instead;
 - entering a piece at a marker seeks into its file: an MP3 gets a table of 256 seek points at its first seek (0.7 ms), so that the seek takes 0.23 ms instead of decoding every frame up to the marker (23 ms for 60 s of music).
 
-A music asked for by name plays as a file when the name has a folder and the file exists (`music/mp/duel`), and is otherwise the dynamic music of the level the name gives (`yavin1`); when the dynamic music is not allowed (`AllowDynamic(false)`), a level's explore piece plays as a file.
+A music asked for by name plays as a file when the name has a folder and the file exists (`music/mp/duel`), and is otherwise the dynamic music of the level the name gives (`yavin1`, the level's folder left out); when the dynamic music is not allowed (`AllowDynamic(false)`), a level's explore piece plays as a file, and a change of the setting starts the music playing again under it. A dynamic music needs the files of its explore and action pieces; another piece's file missing (a mod's) is warned and left out, a missing transition going straight to the next state's piece. The last level's dynamic music is kept when the music stops, so that the level's start, which loads it, and its first snapshot, which starts it again, read its files once; a new level's registration forgets it. A music started clears the silence a state asked for.
 
 ## Example
 
@@ -31,4 +31,4 @@ music.Frame(now);                                  // at every frame
 
 ## Tests
 
-`test/sound/stream.cpp`: the dynamic music read from a text written for the tests (a level using another's entry and another's boss piece, the tracks' files, the exits' tolerance, the entry markers, the rules, the errors), a file played and looped, a dynamic music changing state through its transition, the cinematics' stream.
+`test/sound/stream.cpp`: the dynamic music read from a text written for the tests (a level using another's entry and another's boss piece, the tracks' files, the exits' tolerance, the entry markers, the rules, the errors), a file played and looped, a dynamic music changing state through its transition, started again without reading a file, played without a missing transition, the setting changed while it plays, the cinematics' stream.

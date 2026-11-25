@@ -45,13 +45,14 @@ enum class SetKind : std::uint8_t {
 struct AmbientSet {
     std::string name; // lower case
     SetKind kind = SetKind::General;
-    int timeStart = 0;                 // seconds between two one-shots, at least
-    int timeEnd = 0;                   // and at most
-    int volumeStart = 0;               // a one-shot's volume, from 0 to 255, at least
-    int volumeEnd = 0;                 // and at most
+    // a keyword not given keeps the original game's default
+    int timeStart = 10;                // seconds between two one-shots, at least
+    int timeEnd = 25;                  // and at most
+    int volumeStart = 255;             // a one-shot's volume, from 0 to 255, at least
+    int volumeEnd = 255;               // and at most
     std::vector<SoundHandle> subWaves; // the one-shots; a brush model's sounds by stage
     SoundHandle loopedWave = kNoSound;
-    int radius = 0; // a local set's, in units
+    int radius = 250; // a local set's, in units
 };
 
 // The sets of sound/sound.txt named in wanted (lower case), their sounds registered; a set wanted and missing, or a

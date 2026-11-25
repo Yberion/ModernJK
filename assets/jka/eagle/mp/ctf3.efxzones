@@ -79,16 +79,6 @@ plane 1414 341 -2431 -1 0 0 p58 z8
 plane 1414 341 -1341 0 0 -1 z6 z8
 plane 5875 2194 -6988 -1 0 0 z8 -
 default-obstacle 0 0.25 1.5 occludes
-row - d d d d d d d d d
-row d - d d d d d d d d
-row d d - d d d d d d d
-row d d d - d d d d d d
-row d d d d - d d d d d
-row d d d d d - d d d d
-row d d d d d d - d d d
-row d d d d d d d - d d
-row d d d d d d d d - d
-row d d d d d d d d d -
 diffraction -6000 0.25 90
 aperture 0 -334.5946 87.19324 -1950.8315 -336.4991 87.19324 -2108.907
 aperture 0 -1713.4684 76.29883 -2141.2837 -1719.182 76.29883 -1956.5452

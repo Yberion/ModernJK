@@ -402,13 +402,15 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
     case entity_event_t::EV_JUMP:
         DEBUGNAME("EV_JUMP");
-        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::None, "*jump1.wav", customSoundSet_t::CS_BASIC); // CHAN_VOICE
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::None, "*jump1.wav",
+                              customSoundSet_t::CS_BASIC); // a voice, not in the voice's slot: it does not cut the line being spoken
         break;
 
     case entity_event_t::EV_ROLL:
         DEBUGNAME("EV_ROLL");
-        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::World, sound::Slot::None, "*jump1.wav", customSoundSet_t::CS_BASIC); // CHAN_VOICE
-        CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.rollSound);                               // CHAN_AUTO
+        CG_TryPlayCustomSound(nullptr, es->number, sound::SoundClass::Voice, sound::Slot::None, "*jump1.wav",
+                              customSoundSet_t::CS_BASIC); // a voice, not in the voice's slot: it does not cut the line being spoken
+        CG_StartSound(nullptr, es->number, sound::SoundClass::Body, sound::Slot::None, cgs.media.rollSound); // CHAN_AUTO
         // FIXME: need some sort of body impact on ground sound and maybe kick up some dust?
         break;
 

@@ -266,6 +266,9 @@ void CL_Disconnect(void)
 
     SCR_StopCinematic();
 
+    // the level's reverb zones left, so that no reverb is computed in the menus (its sounds stop with the client's state)
+    SND_LoadZones("");
+
     // send a disconnect message to the server
     // send it a few times in case one is dropped
     if (cls.state >= connstate_t::CA_CONNECTED) {

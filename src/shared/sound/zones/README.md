@@ -12,7 +12,7 @@ In the game: on `mp/ffa3`, a player in the hall of the TIE fighter hears its lon
 The rules:
 
 - **The file** is written once by `tools/eal_converter` from the game's EAX zone files (`eagle/<map>.eal`), in each game's `z_ModernJK.pk3`; a map without it has no reverb. It keeps the axes of Creative's editor (x as the game's, y up, z the game's y): a game's point is swapped into them, without arithmetic, and the calculations follow EAX Manager's operation by operation, so that the converter finds the same results as EalMan to the bit on every file. A damaged file is refused with its reason (it comes from the players' archives): the limits are far above the game's files, a BSP that loops is walked no longer than its planes.
-- **The listener's zone**, at every frame; out of every zone, the reverbs of the last zone it was in.
+- **The listener's zone**, at every frame, the reverb on or off (the obstacles' filters depend on it); out of every zone, the reverbs of the last zone it was in. After a map is loaded, nothing is chosen until the game gives the listener's new place, the place on the map before being no place on this one.
 - **The neighbours** (a file with apertures): the two environments whose nearest aperture is nearest to the listener, chosen again every 100 ms, as the original did, and at once when the listener enters another environment, so that the one it leaves keeps its slot; each slot holds an environment, an emptied slot computes nothing.
 - **The pans** (`REFLECTIONSPAN`, `LATEREVERBPAN`), at every frame, in the listener's axes (right, up, forward): a neighbour's towards its aperture, as strong as the chord over the arc of the angle the aperture covers; the listener's own away from its environment's nearest aperture, as strong as one minus that.
 - **One reverb** (a file without apertures): the listener's environment in one slot, faded into the next in 1 s by ten steps of 100 ms (the levels linearly in mB, the density and the times on a logarithmic scale, the rest linearly, as Jedi Outcast's original interpolated EAX's values), each step one of OpenAL Soft's own short fades.
@@ -20,6 +20,8 @@ The rules:
 - **The obstacles**: the obstacle between the listener's zone and the sound's (an occlusion muffles the direct sound and the send, an obstruction the direct sound), then in one zone the first diffraction box crossed, as low-pass filters with the conversions of OpenAL Soft's own EAX layer (`al/source.cpp`); a character's voice never, as the original left the voices out. The direct filter's broadband gain lowers the sound's audibility in the choice of the 64 voices mixed.
 - **Under water**: every sound in the world through the water's filter (-30 dB at 5 kHz, the low frequencies kept), sent to the "underwater" reverb alone (`EFX_REVERB_PRESET_UNDERWATER`); the zones' obstacles not computed; out of the water, the zones' reverbs again at once.
 - **`s_reverb 0`**: the slots emptied, no send; the obstacles' and the water's filters stay, since they change what a player hears of the others.
+- **Under water** on a map without a zone file: the water's filter, not the "underwater" reverb, which takes the zones' slots.
+- **A hand-made file**: its diffraction boxes sorted by zone when it is read, the search taking them in that order; a reverb value of 0 faded linearly, where the logarithm from 0 gave a value that is not a number.
 
 ## Example
 

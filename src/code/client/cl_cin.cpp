@@ -1821,7 +1821,6 @@ void CIN_DrawCinematic(int handle)
 // external vars so I can check if the game is setup enough that I can play the intro video...
 //
 extern bool com_fullyInitialized;
-extern bool s_soundStarted, s_soundMuted;
 //
 // ... and if the app isn't ready yet (which should only apply for the intro video), then I use these...
 //

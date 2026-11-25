@@ -29,7 +29,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cstdint>
 #include <span>
 
-// one input, as libFuzzer calls it: decoded whole, then opened again, its frames counted, moved and read to its end
+// one input, as libFuzzer calls it: decoded whole, then opened again, its frames counted, moved and read to its end, the
+// move failed or not (the music reads on after a failed one)
 extern "C" int LLVMFuzzerTestOneInput(const std::uint8_t* data, std::size_t size)
 {
     const std::span<const std::byte> file(reinterpret_cast<const std::byte*>(data), size);
@@ -39,11 +40,10 @@ extern "C" int LLVMFuzzerTestOneInput(const std::uint8_t* data, std::size_t size
         (void)decoder->Frames();
         const std::uint64_t frame = size >= 2 ? (std::uint64_t{data[size - 2]} << 8 | data[size - 1]) : 0;
 
-        if (decoder->Seek(frame)) {
-            std::int16_t out[2048];
+        (void)decoder->Seek(frame);
+        std::int16_t out[2048];
 
-            while (decoder->Read(out) > 0) {
-            }
+        while (decoder->Read(out) > 0) {
         }
     }
 
