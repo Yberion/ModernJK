@@ -23,7 +23,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // integers in a range (ACM TOMACS, 2019).
 #include "q_rand.h"
 
+#include <utility>
+
 #include "q_libm.h"
+
+// the module stream's seeding is never inlined: MSVC 19.52 at /O2, inlining it into a loop whose counter is the seed,
+// kept the counter sign-extended in a 64-bit register and used it as (uint32_t)seed, so a negative seed's upper bits
+// overwrote the stream's number; given as a 32-bit argument, the seed is converted in the function
+#if defined(_MSC_VER)
+#define Q_RAND_NOINLINE __declspec(noinline) // NOLINT(cppcoreguidelines-macro-usage): no portable attribute
+#else
+#define Q_RAND_NOINLINE [[gnu::noinline]] // NOLINT(cppcoreguidelines-macro-usage): same
+#endif
 
 static uint32_t Rotl(uint32_t x, int k)
 {
@@ -97,9 +108,14 @@ float Q_RandFloat(qrand_t* rng, float min, float max)
 // the module's stream; this state is SplitMix64's from 0x89abcdef, the seed holdrand had before Rand_Init
 static qrand_t s_rand = {{0xe20699a6u, 0xcb6f5641u, 0x12146e10u, 0x67debd8eu}};
 
-void Rand_Init(int seed)
+Q_RAND_NOINLINE void Rand_Init(int seed)
 {
     Q_RandSeed(&s_rand, (uint32_t)seed);
+}
+
+Q_RAND_NOINLINE void Rand_InitFixed(int seed, randStream_t stream)
+{
+    Q_RandSeed(&s_rand, ((uint64_t)std::to_underlying(stream) << 32) | (uint32_t)seed);
 }
 
 int Q_irand(int min, int max)

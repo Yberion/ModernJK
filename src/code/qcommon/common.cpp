@@ -50,6 +50,7 @@ cvar_t* com_speeds;
 cvar_t* com_developer;
 cvar_t* com_timescale;
 cvar_t* com_fixedtime;
+cvar_t* com_debugSeed;
 cvar_t* com_sv_running;
 cvar_t* com_cl_running;
 cvar_t* com_logfile; // 1 = buffer log, 2 = flush after each print
@@ -1127,6 +1128,9 @@ void Com_Init(char* commandLine)
 
         com_timescale = Cvar_Get("timescale", "1", cvarFlags_t::CVAR_CHEAT);
         com_fixedtime = Cvar_Get("fixedtime", "0", cvarFlags_t::CVAR_CHEAT);
+        // a fixed seed for every random number stream, read at each level's start: with fixedtime set before the level
+        // loads, a run replays the same game
+        com_debugSeed = Cvar_Get("com_debugSeed", "0", cvarFlags_t::CVAR_CHEAT);
         com_showtrace = Cvar_Get("com_showtrace", "0", cvarFlags_t::CVAR_CHEAT);
         com_speeds = Cvar_Get("com_speeds", "0", cvarFlags_t::CVAR_NONE);
 
@@ -1168,8 +1172,11 @@ void Com_Init(char* commandLine)
 
         Sys_SetProcessorAffinity();
 
-        Netchan_Init(Com_Milliseconds() & 0xffff); // pick a port value that should be nice and random
-                                                   //	VM_Init();
+        // Pick a random port value
+        int qport;
+        Com_RandomBytes((byte*)&qport, sizeof(int));
+        Netchan_Init(qport & 0xffff); // pick a port value that should be nice and random
+                                      //	VM_Init();
         SV_Init();
 
         CL_Init();

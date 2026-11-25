@@ -520,8 +520,6 @@ int Com_HexStrToInt(const char* str);
 char* Com_SkipTokens(char* s, int numTokens, const char* sep);
 char* Com_SkipCharset(char* s, const char* sep);
 
-void Com_RandomBytes(byte* string, int len);
-
 // mode parm for FS_FOpenFile
 enum class fsMode_t { FS_READ, FS_WRITE, FS_APPEND, FS_APPEND_SYNC };
 

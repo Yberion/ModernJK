@@ -1131,7 +1131,13 @@ ratl::vector_vs<CWeatherParticleCloud, MAX_PARTICLE_CLOUDS> mParticleClouds;
 ////////////////////////////////////////////////////////////////////////////////////////
 void R_InitWorldEffects(void)
 {
-    Rand_Init(ri.Milliseconds());
+    // com_debugSeed when it is set, so that a run replays the same weather, else the clock's
+    if (const int debugSeed = ri.Cvar_VariableIntegerValue("com_debugSeed"); debugSeed != 0) {
+        Rand_InitFixed(debugSeed, randStream_t::RAND_RENDERER);
+    }
+    else {
+        Rand_Init(ri.Milliseconds());
+    }
 
     for (int i = 0; i < mParticleClouds.size(); i++) {
         mParticleClouds[i].Reset();

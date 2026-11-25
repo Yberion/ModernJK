@@ -114,6 +114,8 @@ extern "C" void Sys_SnapVector(float* v);
 
 bool Sys_RandomBytes(byte* string, int len);
 void Sys_InitRand(void);
+void Sys_InitRandForLevel(void);
+void Com_RandomBytes(byte* string, int len);
 
 void Sys_SetErrorText(const char* text);
 

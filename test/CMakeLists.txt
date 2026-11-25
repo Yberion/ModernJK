@@ -36,6 +36,15 @@ if(MINGW)
 endif()
 add_test(NAME modernjk.fmt COMMAND modernjk_test_fmt)
 
+# The tests of src/shared/qcommon/q_rand.h and q_rand.cpp: the streams seeded from one fixed seed
+add_executable(modernjk_test_rand qcommon/q_rand.cpp "${PROJECT_SOURCE_DIR}/src/shared/qcommon/q_rand.cpp")
+target_include_directories(modernjk_test_rand PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src")
+target_link_libraries(modernjk_test_rand PRIVATE qlibm modernjk_options modernjk_warnings modernjk_defines vendored::fmt)
+if(MINGW)
+	target_link_options(modernjk_test_rand PRIVATE -static)
+endif()
+add_test(NAME modernjk.rand COMMAND modernjk_test_rand)
+
 # The tests of src/shared/sound and of OpenAL Soft as the sound uses it, on the files of sound/data, and of a blade's
 # contacts with the world (src/shared/qcommon/q_sound.h)
 if(TARGET modernjk_sound AND TARGET vendored::openal)

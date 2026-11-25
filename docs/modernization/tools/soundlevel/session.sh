@@ -14,7 +14,7 @@
 #   ffa3duel  two bots on mp/ffa3 in free for all, the client following the first
 # The force is off in every session (g_forcePowerDisable 262143), the bots' runs differing less without it.
 # Settings (the client's cvars): VOL (s_volume, default 1), VOICE (s_volumeVoice, 1), MUSIC (s_musicvolume, 0), REVERB
-# (s_reverb, 1); SEED (g_debugSeed, 7). The default settings are VOL=0.79 VOICE=1 MUSIC=0.63 REVERB=1. The bin folder's
+# (s_reverb, 1); SEED (com_debugSeed, 7). The default settings are VOL=0.79 VOICE=1 MUSIC=0.63 REVERB=1. The bin folder's
 # z_ModernJK.pk3, when it has one, is put in the session's home folder: the zone files and the menus of the build
 # measured, not those installed in the game's folder.
 # usage: session.sh <old|new> <ambience|duel|crowd|hums|hall|ffa3duel> <bin folder> <work folder>
@@ -65,7 +65,7 @@ cp "$BIN/cgamex86_64.dll" "$BIN/jampgamex86_64.dll" "$BIN/uix86_64.dll" "$R/base
 	echo "set com_maxfps 125"
 	echo "set g_weaponDisable 0"
 	echo "set g_forcePowerDisable 262143"
-	echo "set g_debugSeed ${SEED:-7}"
+	echo "set com_debugSeed ${SEED:-7}"
 	# wait counts two per frame (the command buffer runs twice in a frame): 250 a second at 125 frames per second
 	echo "wait 200"
 	echo "devmap $MAP"

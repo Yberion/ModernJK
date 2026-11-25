@@ -84,7 +84,6 @@ XCVAR_DEF(g_debugDamage, "0", nullptr, cvarFlags_t::CVAR_NONE, false)
 XCVAR_DEF(g_debugMelee, "0", nullptr, cvarFlags_t::CVAR_SERVERINFO, true)
 XCVAR_DEF(g_debugMove, "0", nullptr, cvarFlags_t::CVAR_NONE, false)
 XCVAR_DEF(g_debugSaberLocks, "0", nullptr, cvarFlags_t::CVAR_CHEAT, false)
-XCVAR_DEF(g_debugSeed, "0", nullptr, cvarFlags_t::CVAR_NONE, false)
 XCVAR_DEF(g_debugServerSkel, "0", nullptr, cvarFlags_t::CVAR_CHEAT, false)
 #ifdef _DEBUG
 XCVAR_DEF(g_disableServerG2, "0", nullptr, cvarFlags_t::CVAR_NONE, true)

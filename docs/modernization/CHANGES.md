@@ -1,6 +1,6 @@
 # What this branch changes compared with OpenJK
 
-Last update: 25 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (sections 33 to 36), which concerns the single-player games of Jedi Academy and Jedi Outcast too.
+Last update: 25 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (sections 33 to 36) and the seed of the random numbers (section 37), which concern the single-player games of Jedi Academy and Jedi Outcast too.
 
 This page lists every change of the branch, with its reason and what it gives. The work follows the goals stated in the [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, a netcode other JKA forks can reuse, Windows and Linux. The measurements in full, and the history of each change, are in the step documents of [progress/](progress/README.md).
 
@@ -28,7 +28,8 @@ This page lists every change of the branch, with its reason and what it gives. T
 11. **Each map's reverb by zones**, as the original game played it on sound cards with EAX: the room you stand in, the rooms around through their doors, the walls and pillars muffling what is behind them; `s_reverb` switches it off (section [34](#34-the-reverb-by-zones)).
 12. **The sound comes sooner**: about 50 ms from a sound asked to the system's mix at every frame rate, against 110 to 116 ms with the old mixer, a shot's sound sent before the screen waits for vsync, the sound's work on the main thread about 4 times smaller (section [35](#35-the-sound-measured-and-what-the-measures-changed)).
 13. **The sound device in the menus**: the system's default output or the one you choose, followed when it is unplugged and plugged back (section [36](#36-the-sound-device-chosen-in-the-menus)).
-14. **The price**: a branch client and an OpenJK server (or the reverse) do not understand each other, and demos of one do not play on the other.
+14. **A run replayed in the three games**: with one seed and a fixed frame time, a single-player session of Jedi Academy or Jedi Outcast plays the same game and the same sounds again, and a multiplayer demo the same effects and sounds; a tool for testing, not a setting for play (section [37](#37-one-seed-for-every-random-number-stream)).
+15. **The price**: a branch client and an OpenJK server (or the reverse) do not understand each other, and demos of one do not play on the other.
 
 ### Delays before and now
 
@@ -169,6 +170,12 @@ Each line links to its section.
 |---|---|---|
 | [34. The reverb by zones](#34-the-reverb-by-zones) | no reverb (the original's, through EAX, removed with its 32-bit OpenAL path) | each map's reverb by zones, the neighbouring rooms through their doors, the walls and pillars muffling; `s_reverb` |
 | [33. The sound on OpenAL Soft](#33-the-sound-on-openal-soft) | a software mixer with 32 channels shared by every sound, a 1995 MP3 decoder, SDL 2's device | OpenAL Soft: 64 voices mixed, chosen by loudness, the others followed silently; real Doppler; the reference decoders; the system's device followed; the loudness after the standard for games, ASWG-R001 (-24 LUFS at the default settings) |
+
+**The three games alike**
+
+| change | before | now |
+|---|---|---|
+| [37. One seed for every random number stream](#37-one-seed-for-every-random-number-stream) | a fixed seed for the multiplayer's game only (`g_debugSeed`); none in the single player | `com_debugSeed`: every stream of the three games, each its own sequence; a run replays its game and its sounds |
 
 **Reference**: [27. Settings and commands](#27-settings-and-commands), [28. Build, tests and repository](#28-build-tests-and-repository), [29. Name: ModernJK](#29-name-modernjk), [30. Compatibility](#30-compatibility), [31. C++20, 64-bit Windows, Linux and macOS](#31-c20-64-bit-windows-linux-and-macos), [32. Not changed yet](#32-not-changed-yet).
 
@@ -584,7 +591,7 @@ Survey, measurements and choice: [surveys/deterministic-math.md](surveys/determi
 
 **Why.** Identical results everywhere; and a challenge an attacker cannot guess.
 
-**Gain.** The same game on Windows and Linux for the same seed: a run can be replayed exactly (`g_debugSeed`, section 27).
+**Gain.** The same game on Windows and Linux for the same seed: a run can be replayed exactly (`com_debugSeed`, section 37).
 
 <details>
 <summary>Technical details</summary>
@@ -1092,6 +1099,7 @@ Removed cvars. A removed cvar keeps the behaviour of its default, except `cg_smo
 | `pmove_float`, `pmove_fixed`, `pmove_msec` | exact velocity, steps of one tick | 9 |
 | `cg_smoothCamera` | the default's camera damping | 11 |
 | `g_randFix` | the default's correct range | 12 |
+| `g_debugSeed` | the engine's `com_debugSeed`, which seeds every stream of the three games | 37 |
 | `sv_padPackets` | nothing: it padded only OpenJK's format | 13 |
 | `cg_dynamicCrosshairPrecision` | the crosshair's ray traced against the players' models | 26 |
 | `s_khz`, `s_mixahead`, `s_mixPreStep`, `s_separation`, `s_testsound`, `s_soundpoolmegs`, `s_sdlBits`, `s_sdlChannels`, `s_sdlDevSamps`, `s_sdlMixSamps` (and the menus' `s_UseOpenAL`) | OpenAL Soft mixes at the device's rate and pans in 3D; every sound decoded when registered, outside the zone | 33 |
@@ -1126,7 +1134,7 @@ Added cvars, all for debugging or measuring:
 | `s_muteWhenUnfocused` | client, archived, default 1 | the sound muted while the window has not the focus (section 33) |
 | `s_reverb` | client, archived, default 1 | the reverb of the zones; 0 switches it off, the walls and the water still muffling (section 34) |
 | `s_device` | client, archived, default empty | the output the sound plays on, by its name ("Sound device" in the sound menus); empty, the system's default, followed when it changes (section 36) |
-| `g_debugSeed` | server (game module) | a non-zero value replaces the game's start seed: with `fixedtime` set before the map loads, a run replays the same game |
+| `com_debugSeed` | engine (server and client, the three games), cheat-protected | a non-zero value seeds every random number stream at each level's start (the game, the cgame, the UI, the engine, the renderer's weather), each with its own sequence: with `fixedtime` set before the level loads, a run replays the same game and the same sounds (section 37) |
 
 Added commands. The statistics commands print their counters since the previous call.
 
@@ -1421,5 +1429,50 @@ Costs: one integer compared per frame (the setting's modification count); the ou
 | The menus | effects, music, voices, reverb, mute without the focus | the sound device first, the rest one row down |
 
 The work: [progress/step-21-sound.md](progress/step-21-sound.md) section 15.
+
+</details>
+
+## G. The three games alike
+
+### 37. One seed for every random number stream
+
+**Before.** A run could be replayed only in the multiplayer, and only its game: `g_debugSeed` fixed the game module's seed, while the cgame, the menus, the engine and the renderer's weather took the clock's or the system's random values, so a demo played twice picked other variants of its sounds (footsteps, saber hits) and other effects. The single-player games of Jedi Academy and Jedi Outcast had no fixed seed at all: two sessions never played the same game.
+
+**Now.** `com_debugSeed`, a setting of the engine, replaces `g_debugSeed`. Set before the level loads, with `fixedtime`, it seeds every random number stream of the three games at each level's start: the game, the cgame, the menus, the engine (the multiplayer's NPC navigation and client effects, the sound's ambient sets and music) and the renderer's weather, each stream with its own sequence drawn from the one seed, the game's the seed itself as before. Not set, every stream takes the clock's or the system's values, as before.
+
+**Why.** Two sessions of one build must be comparable line for line: the sound's checks of the single player could compare only the kinds of sounds two sessions played, and those of the multiplayer had to set the variants aside. And the same system of random numbers in the three games.
+
+**Gain.**
+
+| fix | before | now |
+|---|---|---|
+| A single-player session started again with the same seed and fixed frame time | other outcomes and other sounds at every launch | the same: 160 of 160 sounds started in Jedi Academy (`yavin1b`), 70 of 70 in Jedi Outcast (`artus_mine`), 194 of 194 on `t2_trip`, the wind's one-shots at the same moments |
+| A multiplayer demo played twice with the same seed | the same sounds with other variants, from the cgame's clock seed | the same: 275 of 275 sounds started |
+| The seed's reach | the multiplayer's game module | every stream of the three games, each its own sequence |
+| The single player's game seed | the frame's start time; the level's global time given the clock's milliseconds instead (the two swapped, both clock values, so nothing visible) | the seed, or the clock's when none is set; the global time in its own place |
+| The single player's connection port | the clock's milliseconds | the system's random bytes, as in the multiplayer (no effect on the loopback) |
+| A single-player level loaded by `devmap` with `fixedtime` set before | every cheat refused (`god`, `give`, `npc spawn`, `s_show`), `fixedtime` and the seed back to 0: the session on the real clock | the cheats allowed, `fixedtime` and the seed kept, as without `fixedtime` |
+
+Costs: none. Each stream is seeded once per level, as before; no memory, no bytes on the network, no delay.
+
+<details>
+<summary>Technical details</summary>
+
+| | before | now |
+|---|---|---|
+| The setting | `g_debugSeed`, the multiplayer game module's, read at `G_InitGame` | `com_debugSeed`, both engines', cheat-protected as `fixedtime`; the game's seed chosen by the engine (`SV_InitGame`, `sv_game.cpp`), the cgame, the UI and the renderers reading it themselves |
+| The streams from one seed | | `Rand_InitFixed( seed, randStream_t )` in `src/shared/qcommon/q_rand.h`: SplitMix64 seeding of the stream's number above the seed's 32 bits; `RAND_GAME`, number 0, the same sequence as `Rand_Init( seed )`, so a scenario's game replays as before |
+| The engine's stream | the system's random bytes, once at the start | the same, then from `com_debugSeed` at each level's start when it is set (`Sys_InitRandForLevel`: the multiplayer server's `SV_InitGame`, every client's `CL_InitCGame`), since the scripts set it in a cfg run after the engine's start |
+| The single player's `ge->Init` | `com_frameTime` in the random seed's place, `Com_Milliseconds()` in the global time's | the seed, then `com_frameTime` as the global time, in the order of `InitGame`'s parameters |
+| The single player's game and cgame | one module, one stream | the same (decided 25 November 2026: one stream per module, as in the multiplayer) |
+| `Com_RandomBytes` | the multiplayer's engine only | `src/shared/sys/sys_main.cpp`, one definition for both engines |
+| The single player's systeminfo | written in a frame where a server frame runs only; with `fixedtime 8` the first frame after `devmap` (8 ms, less than the server's 50) returned first, so the client, which shares the server's cvars, took back the spawn's `helpUsObi` 0 and reset the cheat-protected cvars | written before `SV_Frame` waits for its next frame, as the multiplayer's (`code/server/sv_main.cpp`) |
+| Tests | | `modernjk.rand` (`test/qcommon/q_rand.cpp`): each stream's first values against the published algorithms computed in Python, the game's stream the same as `Rand_Init`'s, the streams different from each other, a stream seeded again repeating itself |
+| `Rand_Init`, `Rand_InitFixed` | inlined where the compiler chose | never inlined: MSVC 19.52 at `/O2`, inlining the seeding into a loop over the seed, used the counter sign-extended for `(uint32_t)seed`, so that a negative seed gave every stream the same numbers (found by the test; no caller of the game in such a loop); the seed now crosses the call as 32 bits |
+| The scripts | `set g_debugSeed` | `set com_debugSeed` (`tools/gamestats/gamestats_cfg.sh`, `tools/soundlevel/session.sh`, `tools/visibility/coverrun.sh`) |
+
+A single-player session sets the seed and `fixedtime` on the command line (`+set`): a `set` of a cheat-protected cvar is refused before `devmap`.
+
+The work: [progress/step-30-random-seed.md](progress/step-30-random-seed.md).
 
 </details>

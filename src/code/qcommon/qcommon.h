@@ -470,6 +470,7 @@ void Com_StartupVariable(const char* match);
 extern cvar_t* com_developer;
 extern cvar_t* com_speeds;
 extern cvar_t* com_timescale;
+extern cvar_t* com_debugSeed;
 extern cvar_t* com_sv_running;
 extern cvar_t* com_cl_running;
 extern cvar_t* com_version;

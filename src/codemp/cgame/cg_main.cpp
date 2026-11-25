@@ -2341,7 +2341,15 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
     int i = 0;
 
     CG_StartSounds(true);
-    Rand_Init(trap->Milliseconds());
+
+    // com_debugSeed when it is set, so that a run or a demo replays the same effects and sounds, else the clock's
+    trap->Cvar_VariableStringBuffer("com_debugSeed", buf, sizeof(buf));
+    if (const int debugSeed = atoi(buf); debugSeed != 0) {
+        Rand_InitFixed(debugSeed, randStream_t::RAND_CGAME);
+    }
+    else {
+        Rand_Init(trap->Milliseconds());
+    }
 
     BG_InitAnimsets(); // clear it out
 

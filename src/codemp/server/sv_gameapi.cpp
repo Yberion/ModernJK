@@ -1946,7 +1946,10 @@ void SV_InitGame(bool restart)
     for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
         cl->gentity = nullptr;
 
-    GVM_InitGame(sv.time, Com_Milliseconds(), restart);
+    // the game's random seed: com_debugSeed when it is set, so that a run replays the same game, else the clock's; the
+    // engine's stream, which the NPCs' navigation draws from, from it too
+    Sys_InitRandForLevel();
+    GVM_InitGame(sv.time, com_debugSeed->integer != 0 ? com_debugSeed->integer : Com_Milliseconds(), restart);
 }
 
 void SV_BindGame(void)

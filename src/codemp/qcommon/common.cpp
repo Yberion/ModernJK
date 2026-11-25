@@ -45,6 +45,7 @@ cvar_t* com_developer;
 cvar_t* com_dedicated;
 cvar_t* com_timescale;
 cvar_t* com_fixedtime;
+cvar_t* com_debugSeed;
 cvar_t* com_journal;
 cvar_t* com_timedemo;
 cvar_t* com_sv_running;
@@ -1226,6 +1227,10 @@ void Com_Init(char* commandLine)
 
         com_timescale = Cvar_Get("timescale", "1", cvarFlags_t::CVAR_CHEAT | cvarFlags_t::CVAR_SYSTEMINFO);
         com_fixedtime = Cvar_Get("fixedtime", "0", cvarFlags_t::CVAR_CHEAT);
+        com_debugSeed =
+            Cvar_Get("com_debugSeed", "0", cvarFlags_t::CVAR_CHEAT,
+                     "A fixed seed for every random number stream, read at each level's start: with fixedtime set before the level loads, a run replays "
+                     "the same game");
         com_showtrace = Cvar_Get("com_showtrace", "0", cvarFlags_t::CVAR_CHEAT);
 
         com_speeds = Cvar_Get("com_speeds", "0", cvarFlags_t::CVAR_NONE);
@@ -2012,25 +2017,6 @@ void Field_AutoComplete(field_t* field)
     completionField = field;
 
     Field_CompleteCommand(completionField->buffer, true, true);
-}
-
-/*
-==================
-Com_RandomBytes
-
-fills string array with len radom bytes, peferably from the OS randomizer
-==================
-*/
-void Com_RandomBytes(byte* string, int len)
-{
-    int i;
-
-    if (Sys_RandomBytes(string, len))
-        return;
-
-    Q_Println("Com_RandomBytes: using weak randomization");
-    for (i = 0; i < len; i++)
-        string[i] = (unsigned char)Q_irand(0, 255);
 }
 
 /*

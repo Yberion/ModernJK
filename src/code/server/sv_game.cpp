@@ -1040,10 +1040,10 @@ void SV_InitGameProgs(void)
 
     sv.entityParsePoint = CM_EntityString();
 
-    // use the current msec count for a random seed
+    // the game's random seed: com_debugSeed when it is set, so that a run replays the same game, else the current msec count
     Z_TagFree(memtag::TAG_G_ALLOC);
-    ge->Init(sv_mapname->string, sv_spawntarget->string, sv_mapChecksum->integer, CM_EntityString(), sv.time, com_frameTime, Com_Milliseconds(),
-             eSavedGameJustLoaded, qbLoadTransition);
+    ge->Init(sv_mapname->string, sv_spawntarget->string, sv_mapChecksum->integer, CM_EntityString(), sv.time,
+             com_debugSeed->integer != 0 ? com_debugSeed->integer : Com_Milliseconds(), com_frameTime, eSavedGameJustLoaded, qbLoadTransition);
 
     // clear all gentity pointers that might still be set from
     // a previous level

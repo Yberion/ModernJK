@@ -477,6 +477,18 @@ void SV_Frame(int msec, float fractionMsec)
             sv.timeResidual++;
         }
     }
+    // update infostrings if anything has been changed, even in a frame where no server frame runs: the client shares
+    // these cvars and takes the systeminfo's values when it reads a gamestate, so a frame shorter than the server's
+    // (fixedtime 8 after devmap) would give it back the cheat state from before devmap, helpUsObi 0
+    if (Any(cvar_modifiedFlags & cvarFlags_t::CVAR_SERVERINFO)) {
+        SV_SetConfigstring(CS_SERVERINFO, Cvar_InfoString(cvarFlags_t::CVAR_SERVERINFO));
+        cvar_modifiedFlags &= ~cvarFlags_t::CVAR_SERVERINFO;
+    }
+    if (Any(cvar_modifiedFlags & cvarFlags_t::CVAR_SYSTEMINFO)) {
+        SV_SetConfigstring(CS_SYSTEMINFO, Cvar_InfoString(cvarFlags_t::CVAR_SYSTEMINFO));
+        cvar_modifiedFlags &= ~cvarFlags_t::CVAR_SYSTEMINFO;
+    }
+
     if (sv.timeResidual < frameMsec) {
         return;
     }
@@ -489,16 +501,6 @@ void SV_Frame(int msec, float fractionMsec)
         SV_Shutdown("Restarting server due to time wrapping");
         Q_Println("You win.  if you can play this long and not die, you deserve to win.");
         return;
-    }
-
-    // update infostrings if anything has been changed
-    if (Any(cvar_modifiedFlags & cvarFlags_t::CVAR_SERVERINFO)) {
-        SV_SetConfigstring(CS_SERVERINFO, Cvar_InfoString(cvarFlags_t::CVAR_SERVERINFO));
-        cvar_modifiedFlags &= ~cvarFlags_t::CVAR_SERVERINFO;
-    }
-    if (Any(cvar_modifiedFlags & cvarFlags_t::CVAR_SYSTEMINFO)) {
-        SV_SetConfigstring(CS_SYSTEMINFO, Cvar_InfoString(cvarFlags_t::CVAR_SYSTEMINFO));
-        cvar_modifiedFlags &= ~cvarFlags_t::CVAR_SYSTEMINFO;
     }
 
     if (com_speeds->integer) {

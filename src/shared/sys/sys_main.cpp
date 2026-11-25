@@ -194,6 +194,41 @@ void Sys_InitRand(void)
     Rand_Init((int)seed);
 }
 
+/*
+=================
+Sys_InitRandForLevel
+
+At a level's start, the engine's stream from com_debugSeed when it is set, as every module's stream is: with fixedtime
+set before the level loads, a run draws the same numbers again (the multiplayer navigation's retries, the effects of
+the multiplayer client, the sound's ambient sets and music).
+=================
+*/
+void Sys_InitRandForLevel(void)
+{
+    if (com_debugSeed->integer != 0) {
+        Rand_InitFixed(com_debugSeed->integer, randStream_t::RAND_ENGINE);
+    }
+}
+
+/*
+==================
+Com_RandomBytes
+
+fills string array with len radom bytes, peferably from the OS randomizer
+==================
+*/
+void Com_RandomBytes(byte* string, int len)
+{
+    int i;
+
+    if (Sys_RandomBytes(string, len))
+        return;
+
+    Q_Println("Com_RandomBytes: using weak randomization");
+    for (i = 0; i < len; i++)
+        string[i] = (unsigned char)Q_irand(0, 255);
+}
+
 static void NORETURN Sys_Exit(int ex)
 {
     IN_Shutdown();

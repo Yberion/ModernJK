@@ -11,7 +11,7 @@ names=(Alora Chewbacca Cultist Desann Gran Noghri Rodian Tavion)
 {
 	echo "set sv_maxclients 32"; echo "set g_gametype ${GT:-0}"; echo "set fraglimit 0"; echo "set timelimit 0"; echo "set capturelimit 0"
 	echo "set g_weaponDisable 524279"; echo "set g_forcePowerDisable 163837"; echo "set g_saberLocking 0"; echo "set g_privateDuel 0"
-	echo "set g_debugSeed 5"; echo "set fixedtime 10"; echo "set timedemo 1"
+	echo "set com_debugSeed 5"; echo "set fixedtime 10"; echo "set timedemo 1"
 	echo "map $map"; echo "wait 100"
 	echo "TMPvisprep $mode"
 	for (( i = 0; i < 31; i++ )); do echo "addbot ${names[$(( i % 8 ))]} 4"; done

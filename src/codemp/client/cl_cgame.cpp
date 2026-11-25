@@ -526,6 +526,9 @@ void CL_InitCGame(void)
 
     cls.state = connstate_t::CA_LOADING;
 
+    // the engine's stream, which the effects and the sound's ambient sets and music draw from, from com_debugSeed when set
+    Sys_InitRandForLevel();
+
     // init for this gamestate
     // use the lastExecutedServerCommand instead of the serverCommandSequence
     // otherwise server commands sent just before a gamestate are dropped

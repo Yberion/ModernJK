@@ -9322,8 +9322,16 @@ UI_Init
 void UI_Init(bool inGameLoad)
 {
     const char* menuSet;
+    char debugSeed[16];
 
-    Rand_Init(trap->Milliseconds());
+    // com_debugSeed when it is set, as every stream, else the clock's
+    trap->Cvar_VariableStringBuffer("com_debugSeed", debugSeed, sizeof(debugSeed));
+    if (const int seed = atoi(debugSeed); seed != 0) {
+        Rand_InitFixed(seed, randStream_t::RAND_UI);
+    }
+    else {
+        Rand_Init(trap->Milliseconds());
+    }
 
     // Get the list of possible languages
     uiInfo.languageCount = trap->SE_GetNumLanguages(); // this does a dir scan, so use carefully

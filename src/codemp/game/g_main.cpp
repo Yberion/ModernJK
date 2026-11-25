@@ -168,11 +168,8 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
     vmCvar_t ckSum;
     char serverinfo[MAX_INFO_STRING] = {0};
 
-    // g_debugSeed: a fixed seed instead of the clock's, so that a run replays the same game when fixedtime is also set
-    // before the map loads (the bench scripts' SEED); read here, before the cvars are registered
-    if (trap->Cvar_VariableIntegerValue("g_debugSeed")) {
-        randomSeed = trap->Cvar_VariableIntegerValue("g_debugSeed");
-    }
+    // the engine's com_debugSeed when it is set, so that a run replays the same game when fixedtime is also set before the
+    // map loads (the bench scripts' SEED), else the clock's
     Rand_Init(randomSeed);
 
     // Init RMG to 0, it will be autoset to 1 if there is terrain on the level.

@@ -541,13 +541,14 @@ Depends on: step 19. Added on 23 November 2026: the project's tests at the repos
 - What it touches: the folder; `CMakeLists.txt` (`add_subdirectory(test)`) and the include roots of the tests' targets (`test/CMakeLists.txt`); `.gitattributes` (`test/sound/data`); `validate.sh`, whose formatting check covers `src/` and `test/`; GUIDELINES.md (its list of the trees, its layout section); the repository's README; the living documents (the finished steps' documents keep `test/`).
 - To decide at its start: whether netcodec's own `src/codemp/netcodec/test/` becomes `tests/` too.
 - Check: the build and `ctest` unchanged on the three compilers, the formatting check passing.
-### ⏳ Step 30: the single player's random numbers as the multiplayer's (S)
+### ✅ Step 30: the single player's random numbers as the multiplayer's (S)
 
 Depends on: step 18 (the single player's random numbers through `q_rand.h`). Added on 24 November 2026, during step 21: the multiplayer's game takes a fixed seed from `g_debugSeed` when it is set (plan step 14, when only the multiplayer was in scope), the single player's game always the clock's (`Com_Milliseconds()`, given by `src/code/server/sv_game.cpp`), so that no single-player session can be replayed: step 21's checks of the sound in Jedi Academy and Jedi Outcast compared the kinds of sounds of two sessions, not their lines ([progress/step-21-sound.md](progress/step-21-sound.md) section 10.10). Its place (decided 24 November 2026): right after step 21, before step 15.
 
 - What it touches: the single player's game modules of both games (the seed given to `G_Init`) and their settings; the one stream their game and cgame share (one module), which the sound's real-time voices draw from too (a blade's contact sounds); the cgames' seeds (the multiplayer's cgame is seeded from the clock too, `Rand_Init(trap->Milliseconds())`).
 - To decide at its start: what is aligned beyond the seed (the stream the single player's game and cgame share).
 - Check: two single-player sessions of one build with the same seed and `fixedtime` start the same sounds, in both games.
+- Decided on 25 November 2026 ([progress/step-30-random-seed.md](progress/step-30-random-seed.md) section 1): one seed for every stream of the three games (the engine, the game, the multiplayer's cgame and UI, the renderers' weather), each its own sequence; the setting `com_debugSeed`, the engine's, in place of `g_debugSeed`; the single player's game and cgame one stream, as one module; the single player's `qport` from the system's random bytes. Written and checked the same day (sections 3 and 4: 160 of 160 sounds the same in Jedi Academy, 70 of 70 in Jedi Outcast, a multiplayer demo 275 of 275, `golden: SAME` with clang, the streams' tests); a defect found with it fixed the same day, `fixedtime` before `devmap` turning the single player's cheats off (section 5); MSVC 19.52's miscompilation of the seeding in a loop worked around (section 6); the VM validations ALL OK; `golden: SAME` on the VPS. Done on 25 November 2026.
 
 ## 3. Order at a glance
 
@@ -584,7 +585,7 @@ Order of work (10 November 2026): step 14 comes right after step 11, before step
 | 27 | the logs (at the end, perhaps after step 28) | 22 | M | ⏳ |
 | 28 | the game under the sanitizers (its place decided at its start) | 19 | M | ⏳ |
 | 29 | the folder `test` renamed `tests` (at the very end, after every other step) | 19 | S | ⏳ |
-| 30 | the single player's random numbers as the multiplayer's (right after step 21, before step 15) | 18 | S | ⏳ |
+| 30 | the single player's random numbers as the multiplayer's (right after step 21, before step 15) | 18 | S | ✅ |
 
 ## 4. Test matrix
 

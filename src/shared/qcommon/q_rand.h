@@ -57,6 +57,19 @@ float Q_crandom(int* seed);
 
 #include <type_traits>
 
+// the streams a fixed seed reaches (com_debugSeed), each given its own sequence from that one seed
+enum class randStream_t {
+    RAND_GAME, // the seed itself, as Rand_Init gives it
+    RAND_ENGINE,
+    RAND_CGAME,
+    RAND_UI,
+    RAND_RENDERER
+};
+
+// the module's stream from a fixed seed, so that a run replays the same draws: the stream's number above the seed's
+// 32 bits, so that two modules never draw the same sequence
+void Rand_InitFixed(int seed, randStream_t stream);
+
 // an enumerator from min to max, both included: the draw of Q_irand on their values
 template <typename E>
     requires std::is_enum_v<E>

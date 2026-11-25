@@ -44,11 +44,11 @@ measure_cfg() {
 	# the map loads, in ticks of 10 ms (400 values, at most 4 s), gives each server its own seed (40 values of a
 	# 50 ms frame gave the same seed, so the same game, twice)
 	echo "wait $(( RANDOM % 400 + 1 ))"
-	# SEED: server n of the command line (from 0) gets the game seed SEED+n (g_debugSeed) and, in fast mode, the fixed
+	# SEED: server n of the command line (from 0) gets the game seed SEED+n (com_debugSeed) and, in fast mode, the fixed
 	# frame from before the map loads (the frames of the map's first seconds otherwise follow the real time, so the free
 	# play depended on the machine's load): every run then replays the same game, its free play included
 	if [ -n "${SEED:-}" ]; then
-		echo "set g_debugSeed $(( SEED + idx ))"
+		echo "set com_debugSeed $(( SEED + idx ))"
 		if [ "$fast" = "1" ]; then echo "set fixedtime 10"; echo "set timedemo 1"; fi
 	fi
 	echo "devmap ${MAP:-mp/ffa3}"
