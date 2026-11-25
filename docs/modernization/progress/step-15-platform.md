@@ -13,7 +13,7 @@ Put all at once, each with its options; none changes the CPU, the memory or a de
 | 1 | The program's structure | a classic `main` and the engine's own loop: SDL's documentation calls it "the primary way", and the loop keeps the tick's wait in its hands (P8) | SDL's main callbacks (`SDL_AppIterate`, `SDL_AppEvent`): SDL calls the engine at its own pace; meant for iOS, the web and Wayland |
 | 2 | The boundary between the engines and the layer | a new interface: the client creates the window once and keeps it, the renderer receives the context and never destroys the window; the input is a list of typed events, each with its own time in nanoseconds; in place of `WIN_*`, `IN_*`, `Sys_QueEvent` and the queue of 256 events dated in milliseconds; `vid_restart` no longer creates the window again | the new layer behind today's function names: fewer changes in the engines, the shape of ioquake3 kept |
 | 3 | The present layer | `src/shared/sdl/` and SDL 2 removed in the part that replaces them; a build of the commit before is the reference for the comparisons. With decision 2, keeping it selectable by a CMake option (the plan until then) would keep two interfaces in the engines | kept selectable until the new layer is accepted |
-| 4 | The order | nothing is done on SDL 2: it goes at the start. Parts 1 and 2 (the window, the keyboard, the mouse) are one piece of work, since SDL 2's input cannot read an SDL 3 window; then part 4 (the picture's output stage), part 5 (the gamepad), part 6 (the wait). `r_gamma` has no effect between parts 1 and 2 and part 4 | the brightness pass written first on SDL 2 and compared with the hardware ramp on one build; the plan's order with a throwaway bridge for the input |
+| 4 | The order | nothing is done on SDL 2: it goes at the start. Parts 1 and 2 (the window, the keyboard, the mouse) are one piece of work, since SDL 2's input cannot read an SDL 3 window; then part 4 (the picture's output stage), part 5 (the gamepad), part 6 (the wait). Between parts 1 and 2 and part 4, `r_gamma` acts through the renderer's existing path for a device without a ramp, applied to the textures when they are loaded, so after a `vid_restart` (section 10.3) | the brightness pass written first on SDL 2 and compared with the hardware ramp on one build; the plan's order with a throwaway bridge for the input |
 | 5 | The mouse's motion | kept in floating point up to the view angles: SDL 3 gives floats, without the system's acceleration by default (`SDL_HINT_MOUSE_RELATIVE_SYSTEM_SCALE` is "0"); nothing is rounded | rounded to integers when read, as today |
 | 6 | The single player's view that does not turn | not diagnosed apart: looked at when the single player runs on the new input, which is the multiplayer's (section 8) | a short instrumented session before part 1 |
 | 7 | The brightness | the output stage of a recent engine, in both OpenGL renderers: the scene drawn into an offscreen image, one final shader pass that writes it to the window and applies `r_gamma`, the curve computed in floating point in the shader (this revises P2's table of 256 values), the offscreen image's precision (8, 10 or 16 bits) chosen by a measurement of the banding in the dark tones. The lighting in linear light and the HDR output go to plan step 25 (section 4). Cost: one full-screen pass per frame, to measure at 100, 125, 144 (vsync) and 333 frames per second; no frame of delay | the whole model now in rd-vanilla (the work of step 25 done twice); nothing before step 25 (`r_gamma` is 1 by default, the menus' brightness removed until then) |
@@ -170,7 +170,7 @@ The input's settings are in the six controls menus, which are still the games' o
 
 ### 9.5 What the interface has to settle
 
-Read from the above, for the interface's proposal (section 10, point 1); none is decided:
+Read from the above, for the interface's proposal; settled in section 10:
 
 1. the clock: the events' times in nanoseconds against the engine's `int` of milliseconds, and how one is brought onto the other;
 2. the display's rows in the menus fed at run time (the state, the screen, a mode for exclusive fullscreen) and the presets no longer touching them;
@@ -180,14 +180,85 @@ Read from the above, for the interface's proposal (section 10, point 1); none is
 6. the `main`: `SDL_main.h` for the clients only, the dedicated server linking no SDL;
 7. the three dead joystick rows, with part 5.
 
-## 10. Where to resume
+## 10. The interface, and its decisions (25 November 2026)
 
-Parts 1 and 2 (the window, the keyboard and the mouse, with SDL 2's removal) start, once approved, with:
+### 10.1 The interface proposed
 
-1. the interface of `src/shared/platform/`, proposed with its open choices (section 9.5) before any code (the model: [step-21-sound.md](step-21-sound.md) section 12);
-2. SDL 3.4.20's source into `libs/SDL3` from `build/sdl3/` (the files left out and the options in its README, as GUIDELINES section 9 asks), linked statically; `libs/SDL2`, `src/shared/sdl/` and the exception for SDL 2 in GUIDELINES section 9 removed.
+A module independent of the engines, as the sound is: the namespace `platform`, one folder per subject (`window/`, `input/`, later `gamepad/`), a README in each, and tests (`modernjk.platform`) that run without a screen, on SDL's dummy video driver with events pushed into SDL's queue.
 
-## 11. Not read or verified
+```cpp
+namespace platform {
+
+using Time = std::chrono::nanoseconds;      // the client's one clock
+Time Now() noexcept;
+
+enum class DisplayState : std::uint8_t { Window, Borderless, Exclusive };
+struct DisplayMode { int width, height; float refresh; };
+struct WindowSettings { DisplayState state; int screen; int width, height; DisplayMode exclusive; int swapInterval; };
+
+class Window {                               // created once by the client, kept until quit
+    static std::expected<Window, std::string> Open(const WindowSettings&, const GlRequest&);
+    bool Apply(const WindowSettings&);       // state, screen, mode: never a new window
+    void Present();
+    PixelSize Size() const;
+    // the screens and their modes, the OpenGL functions, the icon, the pointer's image
+};
+
+struct KeyEvent    { Time time; Key key; bool down; bool repeat; };
+struct TextEvent   { Time time; char32_t character; };
+struct MouseMotion { Time time; float dx, dy; };
+struct MouseButton { Time time; int button; bool down; };
+struct MouseWheel  { Time time; int notches; };
+struct WindowEvent { Time time; WindowChange change; };   // focus, minimized, size, close
+using Event = std::variant<KeyEvent, TextEvent, MouseMotion, MouseButton, MouseWheel, WindowEvent>;
+
+std::span<const Event> Poll();               // everything since the last call
+void SetMouseMode(MouseMode);                // game (raw, relative) or pointer
+void SetTextInput(bool);                     // on while the console, the chat or a menu takes characters
+}
+```
+
+The names and the signatures are a sketch; the code settles them.
+
+### 10.2 What it settles without a choice
+
+- The key codes: `fakeAscii_t` in one definition shared by the trees. A key its table lacks (P1) takes a free code when it is first met, with the name SDL gives it (`SDL_GetKeyName`); a bind of such a key is written by that name.
+- The characters: the modules get a character event of their own, and `K_CHAR_FLAG` goes (decided 17 November 2026). The layer hands a Unicode code point; the engine turns it into its one-byte set, with today's tables, until plan step 26.
+- The text input is on while something takes characters (the console, the chat, a menu, the cgame's own catcher), off in game.
+- The wheel: one key press per whole notch (`integer_y`, SDL 3.2.12), not one per event.
+- Linux: SDL tries Wayland first, then X11 (`Wayland_preferred_bootstrap` before `X11_bootstrap`, SDL 3.4.20's `src/video/SDL_video.c`); no setting.
+- The single player reads the same input, at its frames only.
+- The Windows manifest already declares the program aware of each screen's pixel density (`src/shared/sys/win_manifest.manifest`), and on Windows SDL's sizes are in pixels (`README-highdpi`).
+
+### 10.3 Facts found while designing it
+
+- A switch of the display's state without a restart of the video is whole only at the same size in pixels: the cgame and the UI keep the picture's size they read at their start (`cgs.glconfig`, `uiInfo.uiDC.glconfig`: `src/codemp/cgame/cg_main.cpp:2490`, `src/codemp/ui/ui_main.cpp:9352`, `src/code/cgame/cg_main.cpp:1670`, `src/code/ui/ui_main.cpp:2349`). In parts 1 and 2 a change of the size restarts the renderer and the modules, as a change of mode does today, without creating the window again. Whether the offscreen image of part 4 lets the size change without it is decided with part 4.
+- Between parts 1 and 2 and part 4, `r_gamma` is not without effect: for a device without a ramp the renderer already applies it to the textures when they are loaded (`R_LightScaleTexture`, `src/codemp/rd-vanilla/tr_image.cpp:314-330`), so after a `vid_restart`. Part 4 removes that path.
+- The raw keyboard's times are real (P7): SDL reads the raw input on a thread of time-critical priority that sleeps until input arrives, and dates each key when it is read (`WIN_RawInputThread`, `WIN_PollRawInput`: SDL 3.4.20's `src/video/windows/SDL_windowsrawinput.c:102-122`, `SDL_windowsevents.c:805-871`); the mouse's packets of one read are spread over the time since the read before.
+- The clocks differ: the engine's is `timeGetTime` on Windows and `CLOCK_MONOTONIC` on Linux, SDL's is `QueryPerformanceCounter` and `CLOCK_MONOTONIC_RAW` (`src/timer/windows/SDL_systimer.c`, `src/timer/unix/SDL_systimer.c`). Two clocks drift apart, so one cannot be brought onto the other by a constant.
+
+### 10.4 The decisions (25 November 2026)
+
+| # | question | decided | not taken |
+|---|---|---|---|
+| 1 | The clock | one clock for the client, SDL's in nanoseconds (`SDL_GetTicksNS`, given by `platform::Now`); the client's `Sys_Milliseconds` reads it; the events' times stay in nanoseconds up to the computation of the share of a tick a key was held, which becomes exact instead of steps of 1 ms (a tenth of a 10 ms tick at each press and release). The dedicated server keeps its own clock | one clock with the times rounded to milliseconds on entering the engine; two clocks and a conversion measured again at each read |
+| 2 | The display's settings | four new ones, each with its row in the six setup menus and its texts in the games' languages: `r_displayState` (0 a window, 1 borderless fullscreen, the default, 2 exclusive fullscreen; in place of `r_fullscreen` and `r_noborder`), `r_screen` (0 the system's primary screen, then the others; new), `r_windowWidth` and `r_windowHeight` (the window's size, 1280x720 by default; in place of `r_mode`, `r_customwidth`, `r_customheight`), `r_exclusiveMode` (empty for the screen's present mode, else a mode such as `1920x1080@144`; in place of `r_mode` and `r_displayRefresh`). Kept: `r_swapInterval`, `r_ext_multisample`, `r_gamma`. Removed without a replacement: `r_centerWindow` (the window is centred on its screen), `r_availableModes`, `r_sdlDriver` (printed by `gfxinfo`), `in_mouse`, `in_nograb`, and P3's list | other names or defaults |
+| 3 | The menus' pointer | the system's pointer with the game's image (`SDL_CreateColorCursor`), the raw relative mode in game only: the pointer moves at the system's pace, also while a level loads or at a low frame rate, at the speed of the player's desktop, and leaves a window. It is what recent engines do: Godot's documentation says a pointer drawn by the game "will add at least one frame of latency compared to a "hardware" mouse cursor" and recommends the system's "whenever possible"; Unity's default mode is "Use hardware cursors on supported platforms"; Unreal Engine has its "Hardware Cursors" setting. The UI then receives a position in place of a displacement, in the three games, and no longer draws its pointer | the pointer drawn by the game at the system's position (the desktop's speed, still a frame late); as today (drawn by the game, moved by the raw motion) |
+| 2b | The refresh rate, which `r_displayRefresh` held as a free number from 0 to 240 | part of `r_exclusiveMode`, taken from the modes the screen itself reports; in a window and in borderless fullscreen the rate is the desktop's, which a program changes only by changing the screen's mode. In the menus, two rows write that one setting: the resolution, then the refresh rate among those the screen has at that resolution, the highest first; one row listing every mode would be some hundred values to step through on a recent screen. Unity does the same (the refresh rate of `Screen.SetResolution` applies in exclusive fullscreen only); Unreal Engine's stock settings have a window mode, a resolution of two integers and a frame rate limit, and no refresh rate | a setting of its own for the rate; one row for the whole mode |
+| 4 | A tool to measure the presentation (P4: whether Windows shows a borderless OpenGL window directly or through the compositor) | its download approved; the tool chosen by a search when the measurement is made | |
+
+## 11. Where to resume
+
+The code of parts 1 and 2 (the window, the keyboard and the mouse, with SDL 2's removal), once approved, in this order, each point built and checked before the next:
+
+1. SDL 3.4.20's source into `libs/SDL3` from `build/sdl3/` (the files left out and the options in its README, as GUIDELINES section 9 asks), built as a static library by the three compilers;
+2. the module `src/shared/platform` (the window, the input) with its tests `modernjk.platform`, under netcodec's strict warnings and clang-tidy at zero, as the sound;
+3. the multiplayer's engine on it: the client owning the window, the renderer's import table, the events and the clock, the key and character events to the modules, the pointer;
+4. the single player's engine (both games) on it; then `libs/SDL2`, `src/shared/sdl/` and the exception for SDL 2 in GUIDELINES section 9 removed, the root README's packages updated;
+5. the menus: the four settings' rows and their texts, the rows removed, the presets no longer touching the display;
+6. the checks in game (the plan's list), the measurements (`netstats`' input margin at 100, 125 and 333 frames per second, the presentation path), `CHANGES.md`, the VM validations.
+
+## 12. Not read or verified
 
 - The menus' five other copies were read by their settings only (the rows' lists as in the multiplayer's `setup.menu`); Jedi Outcast's multiplayer menus (`ui/jk2mp/`) are not this project's.
 - In SDL 3's documentation: `README-highdpi`, `SDL_events.h`, `SDL_timer.h` (`SDL_DelayPrecise`), and which video driver SDL chooses first on Linux (Wayland or X11); the truncated parts of `SDL_video.h` and `SDL_hints.h` were read in two passes, not line by line.
@@ -196,7 +267,7 @@ Parts 1 and 2 (the window, the keyboard and the mouse, with SDL 2's removal) sta
 - The cost of the output stage's pass and the banding of an 8-bit offscreen image: to measure in part 4.
 - Whether Windows presents a borderless OpenGL window directly or through the compositor (P4): to measure in part 1.
 
-## 12. Sources
+## 13. Sources
 
 Primary:
 - SDL releases: https://github.com/libsdl-org/SDL/releases
@@ -212,6 +283,12 @@ Primary:
 - Unreal Engine, "High dynamic range display output": https://dev.epicgames.com/documentation/en-us/unreal-engine/high-dynamic-range-display-output-in-unreal-engine
 - Unreal Engine, console variables reference: https://dev.epicgames.com/documentation/unreal-engine/unreal-engine-console-variables-reference
 - Godot, "High dynamic range lighting": https://docs.godotengine.org/en/stable/tutorials/3d/high_dynamic_range.html
+- Godot, "Customizing the mouse cursor": https://docs.godotengine.org/en/stable/tutorials/inputs/custom_mouse_cursor.html
+- Unity, `CursorMode`: https://docs.unity.com/en-us/engine/current/script-reference/unityengine/cursormode
+- Unity, `Screen.SetResolution` and `RefreshRate`: https://docs.unity3d.com/ScriptReference/Screen.SetResolution.html, https://docs.unity.com/en-us/engine/6000.3/script-reference/unityengine/refreshrate
+- Unreal Engine, `GameUserSettings` (Python API page, "Set Screen Resolution", "Set Frame Rate Limit"): https://dev.epicgames.com/documentation/en-us/unreal-engine/python-api/class/GameUserSettings?application_version=5.3, https://dev.epicgames.com/documentation/unreal-engine/BlueprintAPI/Settings/SetScreenResolution, https://dev.epicgames.com/documentation/unreal-engine/BlueprintAPI/Settings/SetFrameRateLimit
+- Unreal Engine, "User Interface Settings" (hardware cursors): https://dev.epicgames.com/documentation/en-us/unreal-engine/user-interface-settings-in-the-unreal-engine-project-settings
+- SDL 3.4.20's source, read in the release's archive: `src/video/SDL_video.c`, `src/video/windows/SDL_windowsrawinput.c`, `src/video/windows/SDL_windowsevents.c`, `src/timer/windows/SDL_systimer.c`, `src/timer/unix/SDL_systimer.c`, `include/SDL3/SDL_events.h`, `docs/README-highdpi.md`
 - Quake3e's documentation: https://github.com/ec-/Quake3e/blob/main/docs/quake3e.htm
 - ioquake3 issue 632: https://github.com/ioquake/ioq3/issues/632
 
