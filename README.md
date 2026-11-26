@@ -14,7 +14,7 @@ The work is in progress and centred on the multiplayer game. The single-player g
 
 ModernJK needs the game data of Jedi Academy (the `base` folder of the `GameData` folder). The multiplayer client is `modernjk.x86_64` (`modernjk.x86_64.exe` on Windows) and the dedicated server `modernjkded.x86_64`; their modules go in the `ModernJK` folder next to them or in `base`. The configuration is `modernjk.cfg` (`modernjk_server.cfg` for the dedicated server), in `~/.local/share/modernjk` on Linux, and on Windows in the game's folder with the builds of the presets (portable) or in `Documents\My Games\ModernJK` otherwise. A configuration of OpenJK (`openjk.cfg`) is not read: copy it under the new name to keep it.
 
-The single-player game is `modernjk_sp.x86_64` (`modernjk_sp.x86_64.exe` on Windows), with its renderer `rdsp-vanilla_x86_64` next to it and its game module `jagamex86_64` in the `ModernJK` folder; its configuration is `modernjk_sp.cfg`, in the same folder as the multiplayer one. A known issue (16 November 2026): in game, the mouse does not turn the view (the menus work); it is left for the new input layer of plan step 15.
+The single-player game is `modernjk_sp.x86_64` (`modernjk_sp.x86_64.exe` on Windows), with its renderer `rdsp-vanilla_x86_64` next to it and its game module `jagamex86_64` in the `ModernJK` folder; its configuration is `modernjk_sp.cfg`, in the same folder as the multiplayer one.
 
 ## Building
 

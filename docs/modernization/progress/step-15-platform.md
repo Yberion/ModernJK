@@ -283,7 +283,7 @@ At the end of the step, asked on 25 November 2026: the sound's engine part (`src
 - Whether Ubuntu 22.04's versions of Wayland and libdecor are enough for SDL 3.4.20: they are (section 14.1).
 - SDL 3 built with GCC 15 and with MSVC: done (section 14.1).
 - The cost of the output stage's pass and the banding of an 8-bit offscreen image: to measure in part 4.
-- Whether Windows presents a borderless OpenGL window directly or through the compositor (P4): to measure in part 1.
+- Whether Windows presents a borderless OpenGL window directly or through the compositor (P4): directly, measured on 26 November 2026 (section 14.17, measure A).
 
 ## 13. Sources
 
