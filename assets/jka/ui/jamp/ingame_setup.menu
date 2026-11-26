@@ -1410,6 +1410,38 @@
 		}
 
 		itemDef 
+		{	
+			name				multisample
+			group				video2
+			type				ITEM_TYPE_OWNERDRAW
+			text				@MODERNJK_MULTISAMPLE
+			ownerdraw			302	// UI_MULTISAMPLE, the samples a pixel (r_ext_multisample)
+			rect				220 243 300 20
+			textalign			ITEM_ALIGN_RIGHT
+			textalignx			165
+			textaligny			0
+			font 				4
+			textscale 			1
+			forecolor		.615 .615 .956 1
+			visible			0
+
+			descText			@MODERNJK_MULTISAMPLE_DESC
+			action 
+			{ 
+				play			"sound/interface/button1"
+			}
+
+			mouseenter 
+			{ 
+				show			highlight11
+			}
+			mouseexit 
+			{ 
+				hide			highlight11
+			} 
+		}
+
+		itemDef 
 		{			
 			name				light_flares
 			group				video2_obsolete

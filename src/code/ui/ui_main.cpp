@@ -55,6 +55,7 @@ USER INTERFACE MAIN
 
 #include <shared/platform/engine/engine.h>
 #include <shared/platform/menus/display.h>
+#include <shared/rd-common/output/samples.h>
 
 extern bool ItemParse_model_g2anim_go(itemDef_t* item, const char* animName);
 extern bool ItemParse_asset_model_go(itemDef_t* item, const char* name);
@@ -1884,6 +1885,21 @@ static bool UI_SoundDevice_HandleKey(fakeAscii_t key)
     return true;
 }
 
+// a click on the multisampling's row: the next of Off and the samples the driver allows at each click, Enter or right
+// arrow, the one before with the right button or the left arrow; applied at once by the renderer
+static bool UI_Multisample_HandleKey(fakeAscii_t key)
+{
+    const bool back = key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_CURSOR_LEFT;
+
+    if (!back && key != fakeAscii_t::A_MOUSE1 && key != fakeAscii_t::A_ENTER && key != fakeAscii_t::A_KP_ENTER && key != fakeAscii_t::A_CURSOR_RIGHT) {
+        return false;
+    }
+
+    Cvar_SetValue("r_ext_multisample", render_output::NextSamples(static_cast<int>(trap_Cvar_VariableValue("r_ext_multisample")),
+                                                                  static_cast<int>(trap_Cvar_VariableValue("r_ext_multisample_avail")), back));
+    return true;
+}
+
 static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float* special, fakeAscii_t key)
 {
 
@@ -1897,6 +1913,8 @@ static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float* special, fake
     case UI_DISPLAY_RESOLUTION:
     case UI_DISPLAY_REFRESH:
         return UI_DisplayRow_HandleKey(ownerDraw, key);
+    case UI_MULTISAMPLE:
+        return UI_Multisample_HandleKey(key);
     default:
         break;
     }
@@ -3464,6 +3482,20 @@ static void UI_DrawDisplayRow(int ownerDraw, const rectDef_t& rect, float width,
     UI_DrawCutText(std::move(text), rect, width, scale, color, textStyle, iFontIndex);
 }
 
+// the multisampling's row: Off, or the samples a pixel ("4x"), as the renderer applies them with the driver's limit
+static void UI_DrawMultisample(const rectDef_t& rect, float scale, vec4_t color, int textStyle, int iFontIndex)
+{
+    const int samples = render_output::AllowedSamples(static_cast<int>(trap_Cvar_VariableValue("r_ext_multisample")),
+                                                      static_cast<int>(trap_Cvar_VariableValue("r_ext_multisample_avail")));
+#ifdef JK2_MODE
+    const char* off = ui.SP_GetStringTextString("MENUS0_OFF");
+#else
+    const char* off = SE_GetString("MENUS_OFF");
+#endif
+    const std::string text = samples == 0 ? std::string(off) : std::string(Q_Format("{}x", samples).c_str());
+    Text_Paint(rect.x, rect.y, scale, color, text.c_str(), 0, textStyle, iFontIndex);
+}
+
 static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special,
                          float scale, vec4_t color, qhandle_t shader, int textStyle, int iFontIndex)
 {
@@ -3485,6 +3517,9 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
     case UI_DISPLAY_RESOLUTION:
     case UI_DISPLAY_REFRESH:
         UI_DrawDisplayRow(ownerDraw, rect, special, scale, color, textStyle, iFontIndex);
+        break;
+    case UI_MULTISAMPLE:
+        UI_DrawMultisample(rect, scale, color, textStyle, iFontIndex);
         break;
     case UI_VERSION:
         UI_Version(&rect, scale, color, iFontIndex);

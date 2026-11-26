@@ -80,10 +80,6 @@ constexpr char32_t kSharpS = 0xDF;
 constexpr char32_t kLastUnicode = 0x10FFFF;
 // the mouse's buttons beyond the five named ones go to the engine's auxiliary keys, which are this many
 constexpr int kAuxiliaryKeys = 32;
-// what the window's context always has, told to the renderer
-constexpr int kColourBits = 24;
-constexpr int kDepthBits = 24;
-constexpr int kStencilBits = 8;
 
 // The display's settings, each registered once and never null after.
 struct Settings {
@@ -93,7 +89,6 @@ struct Settings {
     cvar_t* windowHeight;
     cvar_t* exclusiveMode;
     cvar_t* swapInterval;
-    cvar_t* multisample;
 };
 
 // What the engine's functions share from the window's opening to the program's end.
@@ -155,8 +150,7 @@ Settings RegisterSettings()
             .windowWidth = Cvar_Get("r_windowWidth", "1280", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH),
             .windowHeight = Cvar_Get("r_windowHeight", "720", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH),
             .exclusiveMode = Cvar_Get("r_exclusiveMode", "", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH),
-            .swapInterval = Cvar_Get("r_swapInterval", "0", cvarFlags_t::CVAR_ARCHIVE_ND),
-            .multisample = Cvar_Get("r_ext_multisample", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH)};
+            .swapInterval = Cvar_Get("r_swapInterval", "0", cvarFlags_t::CVAR_ARCHIVE_ND)};
 }
 
 // The swap r_swapInterval names: 0 at once, a negative value the adaptive sync, any other the vertical sync.
@@ -584,7 +578,7 @@ void Platform_OpenWindow()
 
     const Settings cvars = RegisterSettings();
     const platform::WindowSettings settings = ReadSettings(cvars);
-    auto opened = platform::Window::Open(CLIENT_WINDOW_TITLE, settings, platform::GlRequest{.samples = cvars.multisample->integer});
+    auto opened = platform::Window::Open(CLIENT_WINDOW_TITLE, settings, platform::Context::OpenGl);
 
     if (!opened) {
         Q_Error(errorParm_t::ERR_FATAL, "{}", opened.error());
@@ -733,9 +727,6 @@ void Platform_Display(glconfig_s* glConfig)
     const platform::PixelSize size = layer.window.Size();
     glConfig->vidWidth = size.width;
     glConfig->vidHeight = size.height;
-    glConfig->colorBits = kColourBits;
-    glConfig->depthBits = kDepthBits;
-    glConfig->stencilBits = kStencilBits;
     glConfig->displayFrequency = RefreshRate(layer.screens, layer.settings);
     glConfig->isFullscreen = layer.settings.state != platform::DisplayState::Window;
     glConfig->stereoEnabled = false;

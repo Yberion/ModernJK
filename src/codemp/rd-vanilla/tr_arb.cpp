@@ -102,17 +102,6 @@ const unsigned char g_strGlowPShaderARB[] = {"!!ARBfp1.0\
 	MOV		oColor, r0;\
 	\
 	END"};
-
-static const char* gammaCorrectVtxShader = "!!ARBvp1.0\
-MOV result.position, vertex.position;\
-MOV result.texcoord[0], vertex.texcoord[0];\
-END";
-
-static const char* gammaCorrectPxShader = "!!ARBfp1.0\
-TEMP r0;\
-TEX r0, fragment.texcoord[0], texture[0], RECT;\
-TEX result.color, r0, texture[1], 3D;\
-END";
 /***********************************************************************************************************/
 
 #define GL_PROGRAM_ERROR_STRING_ARB 0x8874
@@ -194,27 +183,5 @@ void ARB_InitGPUShaders(void)
         int iErrPos = 0;
         qglGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos);
         assert(iErrPos == -1);
-    }
-
-    qglGenProgramsARB(1, &tr.gammaCorrectVtxShader);
-    qglBindProgramARB(GL_VERTEX_PROGRAM_ARB, tr.gammaCorrectVtxShader);
-    qglProgramStringARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(gammaCorrectVtxShader), gammaCorrectVtxShader);
-
-    int errorChar;
-    qglGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorChar);
-    if (errorChar != -1) {
-        Q_PrintlnError("Failed to compile gamma correction vertex shader. Error at character {}", errorChar);
-        glConfigExt.doGammaCorrectionWithShaders = false;
-    }
-    else {
-        qglGenProgramsARB(1, &tr.gammaCorrectPxShader);
-        qglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, tr.gammaCorrectPxShader);
-        qglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(gammaCorrectPxShader), gammaCorrectPxShader);
-
-        qglGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorChar);
-        if (errorChar != -1) {
-            Q_Println(S_COLOR_RED "Failed to compile gamma correction pixel shader. Error at character {}", errorChar);
-            glConfigExt.doGammaCorrectionWithShaders = false;
-        }
     }
 }

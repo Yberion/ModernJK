@@ -928,11 +928,6 @@ typedef struct trGlobals_s {
     // Image used to downsample and blur scene to.	- AReis
     GLuint blurImage;
 
-    // Gamma correction using vertex/pixel programs
-    GLuint gammaCorrectLUTImage;
-    GLuint gammaCorrectVtxShader;
-    GLuint gammaCorrectPxShader;
-
     shader_t* defaultShader;
     shader_t* shadowShader;
     shader_t* distortionShader;
@@ -951,9 +946,8 @@ typedef struct trGlobals_s {
 
     viewParms_t viewParms;
 
-    float identityLight;   // 1.0 / ( 1 << overbrightBits )
+    float identityLight;   // 1.0: the lights at their own scale, without overbright
     int identityLightByte; // identityLight * 255
-    int overbrightBits;    // r_overbrightBits->integer, but set to 0 if no hw gamma
 
     orientationr_t ori; // for current entity
 
@@ -1003,7 +997,6 @@ typedef struct trGlobals_s {
 struct glconfigExt_t {
     glconfig_t* glConfig;
 
-    bool doGammaCorrectionWithShaders;
     bool doStencilShadowsInOneDrawcall;
     const char* originalExtensionString;
 };
@@ -1143,8 +1136,11 @@ extern cvar_t* r_skipBackEnd;
 
 extern cvar_t* r_ignoreGLErrors;
 
-extern cvar_t* r_overBrightBits;
 extern cvar_t* r_mapOverBrightBits;
+
+extern cvar_t* r_ext_multisample; // the samples a pixel of the scene, applied at once
+extern cvar_t* r_outputPrecision; // the scene's colour: 0 8 bits a channel, 1 16 bits, until the measure chooses
+extern cvar_t* r_outputDither;    // the output pass's ordered dither, until the measure chooses
 
 extern cvar_t* r_debugSurface;
 extern cvar_t* r_simpleMipMaps;
@@ -1246,8 +1242,6 @@ image_t* R_CreateImage(const char* name, const byte* pic, int width, int height,
                        bool bRectangle = false);
 
 void R_SetColorMappings(void);
-void R_SetGammaCorrectionLUT();
-void R_GammaCorrect(byte* buffer, int bufSize);
 
 void R_ImageList_f(void);
 void R_SkinList_f(void);
@@ -1622,7 +1616,6 @@ typedef struct setColorCommand_s {
 
 typedef struct drawBufferCommand_s {
     renderCommand_t commandId;
-    int buffer;
 } drawBufferCommand_t;
 
 typedef struct subImageCommand_s {

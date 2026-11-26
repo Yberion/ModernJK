@@ -26,6 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tr_local.h"
 #include <rd-common/tr_common.h>
+#include <shared/rd-common/output/engine/engine.h>
 
 backEndData_t* backEndData;
 backEndState_t backEnd;
@@ -846,7 +847,9 @@ void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, int numDrawSurfs)
                     }
 
                     // now copy a portion of the screen to this texture
+                    Output_MakeReadable(render_output::Buffers::Colour, cX, cY, rad, rad);
                     qglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, cX, cY, rad, rad, 0);
+                    Output_DrawScene();
 
                     lastPostEnt = pRender->entNum;
                 }
@@ -1258,8 +1261,11 @@ const void* RB_DrawSurfs(const void* data)
         qglDisable(GL_TEXTURE_2D);
         qglEnable(GL_TEXTURE_RECTANGLE_ARB);
         qglBindTexture(GL_TEXTURE_RECTANGLE_ARB, tr.sceneImage);
+        Output_MakeReadable(render_output::Buffers::Colour, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth,
+                            backEnd.viewParms.viewportHeight);
         qglCopyTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth,
                              backEnd.viewParms.viewportHeight);
+        Output_DrawScene();
         qglDisable(GL_TEXTURE_RECTANGLE_ARB);
         qglEnable(GL_TEXTURE_2D);
 
@@ -1277,8 +1283,11 @@ const void* RB_DrawSurfs(const void* data)
         qglDisable(GL_TEXTURE_2D);
         qglEnable(GL_TEXTURE_RECTANGLE_ARB);
         qglBindTexture(GL_TEXTURE_RECTANGLE_ARB, tr.screenGlow);
+        Output_MakeReadable(render_output::Buffers::Colour, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth,
+                            backEnd.viewParms.viewportHeight);
         qglCopyTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth,
                              backEnd.viewParms.viewportHeight);
+        Output_DrawScene();
         qglDisable(GL_TEXTURE_RECTANGLE_ARB);
         qglEnable(GL_TEXTURE_2D);
 
@@ -1296,7 +1305,9 @@ const void* RB_DrawSurfs(const void* data)
         qglDisable(GL_TEXTURE_2D);
         qglEnable(GL_TEXTURE_RECTANGLE_ARB);
         qglBindTexture(GL_TEXTURE_RECTANGLE_ARB, tr.blurImage);
+        Output_MakeReadable(render_output::Buffers::Colour, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
         qglCopyTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+        Output_DrawScene();
         qglDisable(GL_TEXTURE_RECTANGLE_ARB);
         qglEnable(GL_TEXTURE_2D);
 
@@ -1325,7 +1336,7 @@ const void* RB_DrawBuffer(const void* data)
 
     cmd = (const drawBufferCommand_t*)data;
 
-    qglDrawBuffer(cmd->buffer);
+    Output_DrawScene();
 
     // clear screen for debugging
     if (!Any(backEnd.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL) && tr.world && Any(tr.refdef.rdflags & refdefFlags_t::RDF_doLAGoggles)) {
@@ -1472,7 +1483,9 @@ const void* RB_SwapBuffers(const void* data)
         unsigned char* stencilReadback;
 
         stencilReadback = (unsigned char*)R_Malloc(glConfig.vidWidth * glConfig.vidHeight, memtag::TAG_TEMP_WORKSPACE, false);
+        Output_MakeReadable(render_output::Buffers::DepthStencil, 0, 0, glConfig.vidWidth, glConfig.vidHeight);
         qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback);
+        Output_DrawScene();
 
         for (i = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++) {
             sum += stencilReadback[i];
@@ -1482,6 +1495,9 @@ const void* RB_SwapBuffers(const void* data)
         R_Free(stencilReadback);
     }
 
+    // the scene into the window, with the player's brightness
+    Output_Present();
+
     if (!glState.finishCalled) {
         qglFinish();
     }
@@ -1489,6 +1505,8 @@ const void* RB_SwapBuffers(const void* data)
     GLimp_LogComment("***************** RB_SwapBuffers *****************\n\n\n");
 
     ri.Platform_Present();
+    // what is drawn or read until the next image is the scene's
+    Output_DrawScene();
 
     backEnd.projection2D = false;
 
@@ -1725,7 +1743,9 @@ static inline void RB_BlurGlowTexture()
 
             // Copy the current image over.
             qglBindTexture(GL_TEXTURE_RECTANGLE_ARB, uiTex);
+            Output_MakeReadable(render_output::Buffers::Colour, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
             qglCopyTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+            Output_DrawScene();
         }
 
         // Draw the fullscreen quad.
@@ -1744,7 +1764,9 @@ static inline void RB_BlurGlowTexture()
         qglEnd();
 
         qglBindTexture(GL_TEXTURE_RECTANGLE_ARB, tr.blurImage);
+        Output_MakeReadable(render_output::Buffers::Colour, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
         qglCopyTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+        Output_DrawScene();
 
         // Increase the texel offsets.
         // NOTE: This is possibly the most important input to the effect. Even by using an exponential function I've been able to

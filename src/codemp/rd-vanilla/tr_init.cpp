@@ -31,6 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "tr_WorldEffects.h"
 #include <qcommon/MiniHeap.h>
 #include <ghoul2/g2_local.h>
+#include <shared/rd-common/output/engine/engine.h>
 
 glconfig_t glConfig;
 glconfigExt_t glConfigExt;
@@ -100,7 +101,9 @@ cvar_t* r_ext_multitexture;
 cvar_t* r_ext_compiled_vertex_array;
 cvar_t* r_ext_texture_env_add;
 cvar_t* r_ext_texture_filter_anisotropic;
-cvar_t* r_gammaShaders;
+cvar_t* r_ext_multisample;
+cvar_t* r_outputPrecision;
+cvar_t* r_outputDither;
 
 cvar_t* r_environmentMapping;
 
@@ -147,7 +150,6 @@ cvar_t* r_portalOnly;
 cvar_t* r_subdivisions;
 cvar_t* r_lodCurveError;
 
-cvar_t* r_overBrightBits;
 cvar_t* r_mapOverBrightBits;
 
 cvar_t* r_debugSurface;
@@ -222,10 +224,6 @@ PFNGLSTENCILOPSEPARATEPROC qglStencilOpSeparate;
 PFNGLACTIVETEXTUREARBPROC qglActiveTextureARB;
 PFNGLCLIENTACTIVETEXTUREARBPROC qglClientActiveTextureARB;
 PFNGLMULTITEXCOORD2FARBPROC qglMultiTexCoord2fARB;
-#if !defined(__APPLE__)
-PFNGLTEXIMAGE3DPROC qglTexImage3D;
-PFNGLTEXSUBIMAGE3DPROC qglTexSubImage3D;
-#endif
 
 PFNGLCOMBINERPARAMETERFVNVPROC qglCombinerParameterfvNV;
 PFNGLCOMBINERPARAMETERIVNVPROC qglCombinerParameterivNV;
@@ -309,7 +307,9 @@ void R_Splash()
     qglVertex2f(x2, y2);
     qglEnd();
 
+    Output_Present();
     ri.Platform_Present();
+    Output_DrawScene();
 }
 
 /*
@@ -645,19 +645,6 @@ static void GLimp_InitExtensions(void)
     if (bNVRegisterCombiners)
         qglGetIntegerv(GL_MAX_GENERAL_COMBINERS_NV, &iNumGeneralCombiners);
 
-    glConfigExt.doGammaCorrectionWithShaders = false;
-    if (r_gammaShaders->integer && qglActiveTextureARB && bTexRectSupported && bARBVertexProgram && bARBFragmentProgram) {
-#if !defined(__APPLE__)
-        qglTexImage3D = (PFNGLTEXIMAGE3DPROC)ri.GL_GetProcAddress("glTexImage3D");
-        qglTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC)ri.GL_GetProcAddress("glTexSubImage3D");
-        if (qglTexImage3D && qglTexSubImage3D) {
-            glConfigExt.doGammaCorrectionWithShaders = true;
-        }
-#else
-        glConfigExt.doGammaCorrectionWithShaders = true;
-#endif
-    }
-
     // Only allow dynamic glows/flares if they have the hardware
     if (bTexRectSupported && bARBVertexProgram && qglActiveTextureARB && glConfig.maxActiveTextures >= 4 &&
         ((bNVRegisterCombiners && iNumGeneralCombiners >= 2) || bARBFragmentProgram)) {
@@ -746,6 +733,9 @@ static void InitOpenGL(void)
 
         // initialize extensions
         GLimp_InitExtensions();
+
+        // the picture is drawn into the output stage's scene, then into the window through its pass
+        Output_Init();
 
         // set default state
         GL_SetDefaultState();
@@ -843,7 +833,10 @@ byte* RB_ReadPixels(int x, int y, int width, int height, size_t* offset, int* pa
     buffer = (byte*)Hunk_AllocateTempMemory(padwidth * height + *offset + packAlign - 1);
 
     bufstart = (byte*)PADP((intptr_t)buffer + *offset, packAlign);
+    // the picture as the screen shows it: through the output stage's pass, read in the window's back buffer
+    Output_Present();
     qglReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, bufstart);
+    Output_DrawScene();
 
     *offset = bufstart - buffer;
     *padlen = padwidth - linelen;
@@ -901,10 +894,6 @@ void R_TakeScreenshot(int x, int y, int width, int height, char* fileName)
 
     memcount = linelen * height;
 
-    // gamma correct
-    if (glConfig.deviceSupportsGamma && !glConfigExt.doGammaCorrectionWithShaders)
-        R_GammaCorrect(allbuf + offset, memcount);
-
     ri.FS_WriteFile(fileName, buffer, memcount + 18);
 
     ri.Hunk_FreeTempMemory(allbuf);
@@ -934,16 +923,10 @@ R_TakeScreenshotJPEG
 void R_TakeScreenshotJPEG(int x, int y, int width, int height, char* fileName)
 {
     byte* buffer;
-    size_t offset = 0, memcount;
+    size_t offset = 0;
     int padlen;
 
     buffer = RB_ReadPixels(x, y, width, height, &offset, &padlen);
-    memcount = (width * 3 + padlen) * height;
-
-    // gamma correct
-    if (glConfig.deviceSupportsGamma && !glConfigExt.doGammaCorrectionWithShaders)
-        R_GammaCorrect(buffer + offset, memcount);
-
     RE_SaveJPG(fileName, r_screenshotJpegQuality->integer, width, height, buffer + offset, padlen);
     ri.Hunk_FreeTempMemory(buffer);
 }
@@ -1019,11 +1002,6 @@ static void R_LevelShot(void)
             dst[1] = g / 12;
             dst[2] = r / 12;
         }
-    }
-
-    // gamma correct
-    if ((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma && !glConfigExt.doGammaCorrectionWithShaders) {
-        R_GammaCorrect(buffer + 18, LEVELSHOTSIZE * LEVELSHOTSIZE * 3);
     }
 
     ri.FS_WriteFile(checkname, buffer, LEVELSHOTSIZE * LEVELSHOTSIZE * 3 + 18);
@@ -1274,12 +1252,7 @@ void GfxInfo_f(void)
     else {
         Q_Println("N/A");
     }
-    if (glConfig.deviceSupportsGamma && !glConfigExt.doGammaCorrectionWithShaders) {
-        Q_Println("GAMMA: hardware w/ {} overbright bits", tr.overbrightBits);
-    }
-    else {
-        Q_Println("GAMMA: software w/ {} overbright bits", tr.overbrightBits);
-    }
+    Output_PrintInfo();
 
     // rendering primitives
     {
@@ -1404,7 +1377,9 @@ void R_Register(void)
     r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "1", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH, "");
     r_ext_texture_env_add = ri.Cvar_Get("r_ext_texture_env_add", "1", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH, "");
     r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "16", cvarFlags_t::CVAR_ARCHIVE_ND, "");
-    r_gammaShaders = ri.Cvar_Get("r_gammaShaders", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH, "");
+    r_ext_multisample = ri.Cvar_Get("r_ext_multisample", "0", cvarFlags_t::CVAR_ARCHIVE_ND, "");
+    r_outputPrecision = ri.Cvar_Get("r_outputPrecision", "0", cvarFlags_t::CVAR_NONE, "");
+    r_outputDither = ri.Cvar_Get("r_outputDither", "0", cvarFlags_t::CVAR_NONE, "");
     r_environmentMapping = ri.Cvar_Get("r_environmentMapping", "1", cvarFlags_t::CVAR_ARCHIVE_ND, "");
     r_DynamicGlow = ri.Cvar_Get("r_DynamicGlow", "0", cvarFlags_t::CVAR_ARCHIVE_ND, "");
     r_DynamicGlowPasses = ri.Cvar_Get("r_DynamicGlowPasses", "5", cvarFlags_t::CVAR_ARCHIVE_ND, "");
@@ -1419,7 +1394,6 @@ void R_Register(void)
     r_detailTextures = ri.Cvar_Get("r_detailtextures", "1", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH, "");
     r_texturebits = ri.Cvar_Get("r_texturebits", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH, "");
     r_texturebitslm = ri.Cvar_Get("r_texturebitslm", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH, "");
-    r_overBrightBits = ri.Cvar_Get("r_overBrightBits", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH, "");
     r_mapOverBrightBits = ri.Cvar_Get("r_mapOverBrightBits", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH, "");
     r_simpleMipMaps = ri.Cvar_Get("r_simpleMipMaps", "1", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH, "");
     r_vertexLight = ri.Cvar_Get("r_vertexLight", "0", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH, "");
@@ -1668,21 +1642,11 @@ void RE_Shutdown(bool destroyWindow, bool restarting)
             }
         }
 
-        if (tr.gammaCorrectVtxShader) {
-            qglDeleteProgramsARB(1, &tr.gammaCorrectVtxShader);
-        }
-
-        if (tr.gammaCorrectPxShader) {
-            qglDeleteProgramsARB(1, &tr.gammaCorrectPxShader);
-        }
-
         // Release the scene glow texture.
         qglDeleteTextures(1, &tr.screenGlow);
 
         // Release the scene texture.
         qglDeleteTextures(1, &tr.sceneImage);
-
-        qglDeleteTextures(1, &tr.gammaCorrectLUTImage);
 
         // Release the blur texture.
         qglDeleteTextures(1, &tr.blurImage);
@@ -1705,6 +1669,7 @@ void RE_Shutdown(bool destroyWindow, bool restarting)
     // library may stay loaded until the next start, keeping these, since glibc never unloads a library that holds GCC's
     // unique symbols (a debug build's)
     if (destroyWindow) {
+        Output_Shutdown();
         memset(&glConfig, 0, sizeof(glConfig));
         memset(&glConfigExt, 0, sizeof(glConfigExt));
     }

@@ -370,6 +370,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define UI_DISPLAY_SCREEN 299
 #define UI_DISPLAY_RESOLUTION 300
 #define UI_DISPLAY_REFRESH 301
+// the multisampling's row of the video menu (r_ext_multisample), offering the samples the driver allows
+#define UI_MULTISAMPLE 302
 
 #define VOICECHAT_GETFLAG "getflag"                     // command someone to get the flag
 #define VOICECHAT_OFFENSE "offense"                     // command someone to go on offense

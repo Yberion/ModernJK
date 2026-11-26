@@ -57,6 +57,6 @@ add_library(rd-vanilla MODULE
 	../rd-common/tr_font.cpp)
 set_target_properties(rd-vanilla PROPERTIES OUTPUT_NAME "rd-vanilla_${modernjk_ARCH}" PREFIX "")
 target_include_directories(rd-vanilla PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src")
-target_link_libraries(rd-vanilla PRIVATE modernjk_shared_common modernjk_rd_common OpenGL::GL modernjk_options
+target_link_libraries(rd-vanilla PRIVATE modernjk_shared_common modernjk_rd_common modernjk_render_output_engine OpenGL::GL modernjk_options
 	modernjk_warnings modernjk_defines)
 install(TARGETS rd-vanilla LIBRARY DESTINATION "${modernjk_INSTALL_JKA}")

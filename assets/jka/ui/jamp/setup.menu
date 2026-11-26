@@ -1851,6 +1851,36 @@
 		}
 
 		itemDef 
+		{	
+			name				multisample
+			group				video2
+			type				ITEM_TYPE_OWNERDRAW
+			text				@MODERNJK_MULTISAMPLE
+			ownerdraw			302	// UI_MULTISAMPLE, the samples a pixel (r_ext_multisample)
+			rect				260 370 340 14
+			textalign			ITEM_ALIGN_RIGHT
+			textalignx			174
+			textaligny			0
+			font 				4
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				0
+			descText			@MODERNJK_MULTISAMPLE_DESC
+			action
+			{ 
+				play			"sound/interface/button1.wav" ; 
+			}
+			mouseenter 
+			{ 
+				show			highlight14
+			}
+			mouseexit 
+			{ 
+				hide			highlight14
+			} 
+		}
+
+		itemDef 
 		{
 			name				advancedvideobutton_glow
 			group				highlights

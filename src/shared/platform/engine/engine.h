@@ -19,8 +19,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // engine.h -- the platform layer as an engine runs it, compiled by each engine against its own headers (engine.cpp):
-// the display's settings (r_displayState, r_screen, r_windowWidth, r_windowHeight, r_exclusiveMode, r_swapInterval,
-// r_ext_multisample), its commands (modelist, minimize), the one window the client opens and keeps, what the renderer asks of it, and the input read
+// the display's settings (r_displayState, r_screen, r_windowWidth, r_windowHeight, r_exclusiveMode, r_swapInterval),
+// its commands (modelist, minimize), the one window the client opens and keeps, what the renderer asks of it, and the input read
 // and given to the client as its keys, its characters and its mouse.
 // Example: the client opens the window before it starts its renderer (Platform_OpenWindow), gives the renderer
 // Platform_Display, Platform_Present and the two OpenGL lookups, and calls Platform_Frame where it reads its input.

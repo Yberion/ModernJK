@@ -443,7 +443,7 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
     }
 
     //
-    // draw buffer stuff
+    // draw buffer stuff: the image is drawn into the output stage's scene (RB_DrawBuffer)
     //
     cmd = (drawBufferCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
     if (!cmd) {
@@ -451,27 +451,9 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
     }
     cmd->commandId = renderCommand_t::RC_DRAW_BUFFER;
 
-    if (glConfig.stereoEnabled) {
-        if (stereoFrame == stereoFrame_t::STEREO_LEFT) {
-            cmd->buffer = (int)GL_BACK_LEFT;
-        }
-        else if (stereoFrame == stereoFrame_t::STEREO_RIGHT) {
-            cmd->buffer = (int)GL_BACK_RIGHT;
-        }
-        else {
-            Q_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was {}", stereoFrame);
-        }
-    }
-    else {
-        if (stereoFrame != stereoFrame_t::STEREO_CENTER) {
-            Q_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was {}", stereoFrame);
-        }
-        //		if ( !Q_stricmp( r_drawBuffer->string, "GL_FRONT" ) ) {
-        //			cmd->buffer = (int)GL_FRONT;
-        //		} else
-        {
-            cmd->buffer = (int)GL_BACK;
-        }
+    // the window has no stereo buffers
+    if (stereoFrame != stereoFrame_t::STEREO_CENTER) {
+        Q_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was {}", stereoFrame);
     }
 }
 

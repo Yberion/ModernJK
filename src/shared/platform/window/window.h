@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // size is applied to that window, which is never created again. Every size is in pixels. What can fail says so by
 // its result, which the caller must read: the layer throws no exception of its own.
 // Example: an engine opens its window, then follows a setting changed in the menus:
-//     auto window = platform::Window::Open("ModernJK", settings, platform::GlRequest{.samples = 4});
+//     auto window = platform::Window::Open("ModernJK", settings, platform::Context::OpenGl);
 //     if (!window) { /* window.error() says what failed */ }
 //     settings.state = platform::DisplayState::Window;
 //     if (!window->Apply(settings)) { /* the system refused: the window is as it was */ }
@@ -33,7 +33,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cstdint>
 #include <expected>
 #include <memory>
-#include <optional>
 #include <span>
 #include <string>
 #include <vector>
@@ -75,10 +74,12 @@ struct WindowSettings {
     [[nodiscard]] bool operator==(const WindowSettings&) const = default;
 };
 
-// What the renderer asks of the OpenGL context: 24 bits of colour, 24 of depth and 8 of stencil always, and this.
-struct GlRequest {
-    // the samples per pixel of the multisampling, 0 for none
-    int samples = 0;
+// Whether the window has an OpenGL context. The context's window has 8 bits a colour channel and nothing more: the
+// renderer draws into images of its own, with their depth and their samples, and the window receives the finished
+// picture only.
+enum class Context {
+    None,   // drawn by another API, or by none (the tests' windows)
+    OpenGl, // with an OpenGL context of the driver's highest compatibility profile
 };
 
 // A size in pixels.
@@ -137,10 +138,8 @@ enum class ScreenModes {
 
 class Window {
 public:
-    // Opens the window in the state asked, with an OpenGL context when gl is given: one request, one more without
-    // multisampling when the first fails, then the error's text, which gives both failures. Without gl the window
-    // has no context (the tests' windows; another drawing API's).
-    [[nodiscard]] static std::expected<Window, std::string> Open(const std::string& title, const WindowSettings& settings, const std::optional<GlRequest>& gl);
+    // Opens the window in the state asked, with the context requested, or the error's text.
+    [[nodiscard]] static std::expected<Window, std::string> Open(const std::string& title, const WindowSettings& settings, Context request);
 
     // Applies the display's state, the screen, the size and the mode to the window, and waits for the system to have
     // done it. False when the system refused (a screen without a mode that fits); the window stays usable.
@@ -154,9 +153,6 @@ public:
 
     // False without a context, or when the system refused (a driver with no vertical sync to set).
     [[nodiscard]] bool SetSwapInterval(SwapInterval interval);
-
-    // The samples per pixel the context has; 0 without multisampling or without a context.
-    [[nodiscard]] int Samples() const;
 
     // A function of the OpenGL library by its name. Under X11 a pointer comes back for any name, also one the driver
     // lacks, which must not be called: a function of an extension is asked only once GlExtensionSupported said yes.
@@ -188,9 +184,6 @@ private:
 
     // takes a window that exists and its context, null for a window without one
     Window(WindowPtr window, ContextPtr context);
-
-    // one attempt of Open, with the samples given
-    [[nodiscard]] static std::expected<Window, std::string> Create(const std::string& title, const WindowSettings& settings, bool gl, int samples);
 
     // destroyed in the reverse order: the pointer, the context, then the window
     WindowPtr window_;

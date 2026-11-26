@@ -72,3 +72,16 @@ if(TARGET modernjk_platform)
 	endif()
 	add_test(NAME modernjk.platform COMMAND modernjk_test_platform)
 endif()
+
+# The tests of src/shared/rd-common, its output stage without OpenGL; by hand with the argument "real", the stage on
+# the system's own driver in a window of the platform layer
+if(TARGET modernjk_render_output AND TARGET modernjk_platform)
+	add_executable(modernjk_test_rd_common rd-common/main.cpp rd-common/real.cpp)
+	target_include_directories(modernjk_test_rd_common PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src")
+	target_link_libraries(modernjk_test_rd_common PRIVATE modernjk_render_output modernjk_platform vendored::sdl modernjk_options
+		modernjk_warnings modernjk_defines vendored::fmt)
+	if(MINGW)
+		target_link_options(modernjk_test_rd_common PRIVATE -static)
+	endif()
+	add_test(NAME modernjk.rd-common COMMAND modernjk_test_rd_common)
+endif()

@@ -21,12 +21,12 @@ The "display" rows of the setup menus: a player picks borderless fullscreen (the
 - The screens' modes are listed only when asked (`platform::Screens(ScreenModes::Listed)`, the default): the system enumerates them slowly the first time (0.49 s for two screens of some 440 modes each), then SDL keeps them until Windows reports a change of the screens (one plugged or unplugged, a desktop's mode changed by the player or another program), not at a mode the program sets itself. A program that needs only the names, the desktops and the usable areas asks `ScreenModes::Skipped`, which costs microseconds.
 - Every size is in pixels. SDL counts in the screen's own units on a screen of high density (macOS, Wayland with a scale): the layer converts with the window's or the mode's pixel density, both ways.
 - `Open` creates the window hidden, makes the context, applies the state and only then shows it: a player never sees it somewhere else first.
-- The context is asked once, with 24 bits of colour, 24 of depth, 8 of stencil and the samples wanted; when that fails with samples, once more without them; then the error's text gives both failures. `Samples()` says what the driver gave.
+- The context is asked once, with 24 bits of colour and nothing more: no alpha (a compositor would blend the window with what is behind it), no depth, stencil nor samples, which the renderer's own images have; the window only receives the finished picture.
 - SDL applies a window's changes asynchronously: `Apply` waits for them (`SDL_SyncWindow`), so that `Size()` after it is the new size.
 - `Apply` then binds the window's context again: Mesa's software drivers under Wayland take a new size into their buffer only then or at the first drawing after a swap, and an image drawn before the change would otherwise be copied at its old size into the resized window, which crashed in Mesa.
 - Under Wayland the program cannot place its window (`SDL_SetWindowPosition` is refused, the compositor places it): the position is a request, its refusal fails nothing, and SDL keeps the screen it names for the fullscreen that follows.
 - What can fail says so by its result, which the caller must read (`[[nodiscard]]`): `Open` gives the window or the error's text, the others `bool`. `Apply` returns false when the system refuses (a screen without a mode that fits); the window stays as it was and stays usable.
-- A window opened without a `GlRequest` has no context: `Present`, `SetSwapInterval` and `GlExtensionSupported` return false, `GlProcAddress` nullptr. The tests' windows are such; so will a window drawn by another API be, which takes `Handle()`.
+- A window opened with `Context::None` has no context: `Present`, `SetSwapInterval` and `GlExtensionSupported` return false, `GlProcAddress` nullptr. The tests' windows are such; so will a window drawn by another API be, which takes `Handle()`.
 - `GlProcAddress` gives a pointer for any name under X11, also for a function the driver lacks (SDL's documentation of `SDL_GL_GetProcAddress`): a function of an extension is asked only once `GlExtensionSupported` said yes.
 - `SetSwapInterval` takes `SwapInterval::Immediate`, `VerticalSync` or `AdaptiveSync` (the vertical sync where the system lacks the adaptive one) and returns false where the driver has no vertical sync to set (seen on a virtual machine's): the images are then shown at once.
 - An image is given as an `Image` (its bytes and its size, four bytes per pixel) that the caller keeps; one whose bytes are not its size's is refused.
@@ -36,7 +36,7 @@ The "display" rows of the setup menus: a player picks borderless fullscreen (the
 
 ```cpp
 platform::WindowSettings settings{.state = platform::DisplayState::Borderless, .screen = 1};
-auto window = platform::Window::Open("ModernJK", settings, platform::GlRequest{.samples = 4});
+auto window = platform::Window::Open("ModernJK", settings, platform::Context::OpenGl);
 
 if (!window) {
     return std::unexpected(window.error()); // "the OpenGL context (...) could not be created: ..."

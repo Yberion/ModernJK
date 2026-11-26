@@ -25,6 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_surf.c
 #include "tr_local.h"
 
+#include <shared/rd-common/output/engine/engine.h>
+
 /*
 
   THIS ENTIRE FILE IS BACK END
@@ -1613,7 +1615,9 @@ static bool RB_TestZFlare(vec3_t point)
     // doing a readpixels is as good as doing a glFinish(), so
     // don't bother with another sync
     glState.finishCalled = false;
+    Output_MakeReadable(render_output::Buffers::DepthStencil, backEnd.viewParms.viewportX + window[0], backEnd.viewParms.viewportY + window[1], 1, 1);
     qglReadPixels(backEnd.viewParms.viewportX + window[0], backEnd.viewParms.viewportY + window[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+    Output_DrawScene();
 
     screenZ = backEnd.viewParms.projectionMatrix[14] / ((2 * depth - 1) * backEnd.viewParms.projectionMatrix[11] - backEnd.viewParms.projectionMatrix[10]);
 

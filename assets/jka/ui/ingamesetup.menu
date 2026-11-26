@@ -1889,6 +1889,39 @@
 
 		itemDef 
 		{	
+			name				multisample
+			group				video2
+			type				ITEM_TYPE_OWNERDRAW
+			text				@MODERNJK_MULTISAMPLE
+			ownerdraw			261	// UI_MULTISAMPLE, the samples a pixel (r_ext_multisample)
+			rect				260 373 340 14
+			textalign			ITEM_ALIGN_RIGHT
+			textalignx			174
+			textaligny			0
+			font 				4					
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				0
+
+			descText			@MODERNJK_MULTISAMPLE_DESC
+
+			mouseenter 
+			{ 
+				show			button_glow
+				setitemrect		button_glow	260 373 340 20
+			}
+			mouseexit 
+			{ 
+				hide			button_glow
+			}
+			action 
+			{
+				play			"sound/interface/button1.wav"
+			} 
+		}
+
+		itemDef 
+		{	
 			name				advancedvideo
 			group				video2
       			type				ITEM_TYPE_BUTTON

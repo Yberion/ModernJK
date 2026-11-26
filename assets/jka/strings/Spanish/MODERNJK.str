@@ -1,4 +1,4 @@
-// ModernJK's texts of the menus, beside the game's (strings/<Language>/MENUS.str): the reverb's setting (s_reverb) the mute without the focus (s_muteWhenUnfocused), the sound device (s_device), the display's rows (r_displayState, r_screen, the resolution and the refresh rate) and the adaptive vertical sync (r_swapInterval -1).
+// ModernJK's texts of the menus, beside the game's (strings/<Language>/MENUS.str): the reverb's setting (s_reverb) the mute without the focus (s_muteWhenUnfocused), the sound device (s_device), the display's rows (r_displayState, r_screen, the resolution and the refresh rate), the adaptive vertical sync (r_swapInterval -1) and the multisampling (r_ext_multisample).
 VERSION             "1"
 CONFIG              "W:\bin\stringed.cfg"
 FILENOTES           ""
@@ -82,6 +82,14 @@ LANG_SPANISH        "Escritorio"
 REFERENCE           VSYNC_ADAPTIVE
 LANG_ENGLISH        "Adaptive"
 LANG_SPANISH        "Adaptativa"
+
+REFERENCE           MULTISAMPLE
+LANG_ENGLISH        "Anti-aliasing:"
+LANG_SPANISH        "Antialiasing:"
+
+REFERENCE           MULTISAMPLE_DESC
+LANG_ENGLISH        "Smooths the edges by drawing each pixel with several samples; more is smoother and costs the graphics card more."
+LANG_SPANISH        "Suaviza los bordes calculando cada píxel con varias muestras; más muestras suavizan más y exigen más a la tarjeta gráfica."
 
 
 ENDMARKER

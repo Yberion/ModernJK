@@ -191,6 +191,7 @@ Each line links to its section.
 | [39. The multiplayer's window and input on a new platform layer](#39-the-multiplayers-window-and-input-on-a-new-platform-layer) | SDL 2 behind a layer of 2005: keys dated by the frame and rounded to the millisecond, the mouse rounded to whole counts and held in the menus, a window created again at each restart of the video, thirteen fixed video modes | a layer written from zero on SDL 3.4.20, linked into the client: keys dated in nanoseconds when they move, the mouse in floats, the system's pointer in the menus, one window kept, borderless fullscreen by default and the screen's own modes |
 | [40. The single player's two games on the platform layer](#40-the-single-players-two-games-on-the-platform-layer) | Jedi Academy's and Jedi Outcast's single player still on SDL 2, with `SDL2.dll` beside them; on this branch their view turned neither with the mouse nor with the keys | both on the same layer as the multiplayer, with what section 39 lists; the view turns again |
 | [41. The display's rows in the setup menus](#41-the-displays-rows-in-the-setup-menus) | a video mode among eight fixed sizes, a colour depth and full screen on or off, which the quality presets also changed | the display (window, borderless, exclusive), the screen, the resolution and the refresh rate from the screen's own modes; the presets leave the display alone |
+| [42. The picture's output stage](#42-the-pictures-output-stage) | the brightness by the screen's ramp, for the whole desktop, given back at each alt-tab and missing from the screenshots (on this branch since section 39, baked into the textures after a restart of the video); the multisampling in the console only, after a restart | the game draws into an image of its own and one pass draws it into the window with the brightness, at once, on the whole picture and in the screenshots; the multisampling an Anti-aliasing row of the menus, applied at once |
 
 **Reference**: [27. Settings and commands](#27-settings-and-commands), [28. Build, tests and repository](#28-build-tests-and-repository), [29. Name: ModernJK](#29-name-modernjk), [30. Compatibility](#30-compatibility), [31. C++20, 64-bit Windows, Linux and macOS](#31-c20-64-bit-windows-linux-and-macos), [32. Not changed yet](#32-not-changed-yet).
 
@@ -1121,6 +1122,8 @@ Removed cvars. A removed cvar keeps the behaviour of its default, except `cg_smo
 | `s_doppler` | Doppler on, for every moving sound | 33 |
 | `s_threshold1` to `s_threshold4` | the lip sync's levels, Jedi Academy's (0.3, 4, 6, 8) for every game | 33 |
 | `cl_aviFrameRate`, `cl_aviMotionJpeg`, `cl_avi2GBLimit`, `cl_forceavidemo`, `r_aviMotionJpegQuality`, and the single player's `cl_avidemo` | no video recorder: a player records with a program made for it | 33 |
+| `r_gammaShaders` (the multiplayer's) | the brightness applied by the output stage's pass, to every picture | 42 |
+| `r_overBrightBits` | no overbright, as with the default: the lights at their own scale | 42 |
 
 Changed: `cl_shownet` has levels 1, 2 and 3 (section 13). `g_userinfoValidate` has a new default (section 8). `r_ext_compress_textures` defaults to 0: the graphics driver no longer compresses the textures (section 25); a configuration file holds it only where a player had set 0, so nothing is to reset.
 
@@ -1688,5 +1691,49 @@ The vertical sync's row takes a third value, Adaptive (`r_swapInterval -1`). The
 | The texts | | `assets/jka/strings/<Language>/MODERNJK.str` and `assets/jk2/strip/MENUS4.sp`, in English, French, German and Spanish |
 
 The work: [progress/step-15-platform.md](progress/step-15-platform.md) section 14.16.
+
+</details>
+
+### 42. The picture's output stage
+
+**Before.** The game drew straight into its window. The brightness slider (`r_gamma`) changed the screen's own colour table: the whole desktop was brightened while the game ran, the table was given back at each alt-tab and taken again when the game came back (the picture changed a little each time), and the screenshots were taken without it. On this branch since section 39 the table was never touched, and the brightness was baked into the textures when they were loaded: a change needed a restart of the video, and what is not a texture (the colours of the vertices, the fog, part of the menus and the HUD) stayed as it was. The multisampling (`r_ext_multisample`) was the window's: in the console only, applied at the next restart.
+
+**Now.** The three games draw their whole picture into an image of their own, the scene; at the end of each image one pass draws it into the window and applies the brightness there.
+
+- **The brightness** changes the whole picture at once while the slider moves, the menus and the HUD included, the same in a window, in borderless and in exclusive fullscreen, with or without the focus; the desktop is never touched.
+- **The screenshots**, the level shots and Jedi Outcast's saved pictures are read after the pass: they show what the screen shows.
+- **Anti-aliasing** (the multisampling) has its row on the advanced video page of the six setup menus: Off, 2x, 4x, 8x, as far as the graphics card allows, applied at the next image without a restart.
+- **The window** itself holds the finished picture only: its colour, without depth, stencil nor samples, which the scene has.
+
+**Why.** Recent games leave the screen's table alone (Microsoft's documentation of DirectX asks it, since the table may hold the monitor's calibration) and apply the player's brightness in a last pass of their own, so that it is the same everywhere, in the captures included, and changes at once (decided 25 November 2026; the decisions of 26 November 2026 in [progress/step-15-platform.md](progress/step-15-platform.md) section 16.2).
+
+**Gain.**
+
+| fix | before | now |
+|---|---|---|
+| The brightness slider | the desktop brightened with the game and put back at each alt-tab (this branch: a restart of the video, the textures only) | the whole picture at once, the desktop untouched |
+| A screenshot with the brightness raised | as dark as without it | as bright as the screen |
+| The multisampling | `r_ext_multisample` in the console, then a restart of the video | the Anti-aliasing row, applied at the next image |
+| The single player's dissolve (the screen melting into the next) | started from what the driver had left in the window after the last swap | started from the last image drawn |
+
+The cost, estimated before the measure that comes with this part's last sub-step: one pass over the picture per image (at 1920 by 1080, 16.6 MB read and written in 8 bits a channel: some hundredths of a millisecond on a recent graphics card, a few tenths on an integrated one), no image of delay added, 8.3 MB more of the graphics card's memory.
+
+<details>
+<summary>Technical details</summary>
+
+| | before | now |
+|---|---|---|
+| Where the picture is drawn | the window's back buffer, with its depth, stencil and samples | a framebuffer object of the renderer (`src/shared/rd-common/output/`, its README): one colour image and one `DEPTH24_STENCIL8` image; multisampled, renderbuffers and a single-sampled copy for the resolve |
+| The brightness | the screen's ramp (SDL 2), then `R_LightScaleTexture` on the textures; the multiplayer's `r_gammaShaders` (0 by default): the back buffer copied each image and drawn through ARB programs and a 3D table of 64 levels a channel | one pass in GLSL 1.30 into the window, `pow(c, 1 / r_gamma)` in floating point, the formula of the ramp's table, `r_gamma` kept in [0.5, 3] |
+| What reads the picture | the back buffer: the dynamic glow's copies, the distortion's capture, the post-render entities' copy, the flares' depth, the overdraw's stencil, the dissolve | the scene, made readable first (`Output_MakeReadable`: resolved when multisampled) |
+| The captures (`RB_ReadPixels`) | the back buffer, then `R_GammaCorrect` with the screen's ramp | the window's back buffer after the pass |
+| The window's context | 24 bits of colour, 8 of alpha (SDL 3's default), 24 of depth, 8 of stencil, the samples of `r_ext_multisample` | 24 bits of colour only (`platform::Context::OpenGl`) |
+| OpenGL | any version | 3.0 or later, checked at the start, with the driver's text when below |
+| `r_ext_multisample` | latched, read when the window opened | applied at the next image; 2, 4 or 8 at most what the driver allows, which `r_ext_multisample_avail` gives the menus' row (owner-drawn, `UI_MULTISAMPLE`) |
+| Overbright (`r_overBrightBits`) | needed the screen's ramp and fullscreen, 0 by default | removed; `r_mapOverBrightBits` still scales the lightmaps when loaded |
+| Until the measure | | `r_outputPrecision` (0: the scene in 8 bits a channel, 1: 16) and `r_outputDither` (an ordered dither of 4 by 4 pixels within 0.375 of a level), temporary |
+| The tests | | `modernjk.rd-common` (`test/rd-common`); by hand, `modernjk_test_rd_common real` draws the 256 levels of grey through the pass on the system's driver and reads them back: exact at `r_gamma` 1, within one level of the curve otherwise |
+
+The work: [progress/step-15-platform.md](progress/step-15-platform.md) section 16.
 
 </details>

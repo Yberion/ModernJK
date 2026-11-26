@@ -28,6 +28,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <rd-common/tr_common.h>
 #include "tr_local.h"
 
+#include <shared/rd-common/output/engine/engine.h>
+
 /*
 =============
 RE_StretchRaw
@@ -160,7 +162,7 @@ void RE_GetScreenShot(byte* buffer, int w, int h)
 {
     byte* source;
     byte *src, *dst;
-    size_t offset = 0, memcount;
+    size_t offset = 0;
     int padlen;
 
     int x, y;
@@ -169,11 +171,6 @@ void RE_GetScreenShot(byte* buffer, int w, int h)
     int xx, yy;
 
     source = RB_ReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, &offset, &padlen);
-    memcount = (glConfig.vidWidth * 3 + padlen) * glConfig.vidHeight;
-
-    // gamma correct
-    if (glConfig.deviceSupportsGamma)
-        R_GammaCorrect(source + offset, memcount);
 
     // resample from source
     xScale = glConfig.vidWidth / (4.0 * w);
@@ -739,7 +736,10 @@ bool RE_InitDissolve(bool bForceCircularExtroWipe)
         if (pBuffer) {
             // read current screen image...  (GL_RGBA should work even on 3DFX in that the RGB parts will be valid at least)
             //
+            // the scene as drawn: the dissolve is drawn into it again, and the output stage's pass then brightens both
+            Output_MakeReadable(render_output::Buffers::Colour, 0, 0, glConfig.vidWidth, glConfig.vidHeight);
             qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
+            Output_DrawScene();
             //
             // now expand the pic over the top of itself so that it has a stride value of {PowerOf2(glConfig.vidWidth)}
             //	(for GL power-of-2 rules)

@@ -31,16 +31,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
+#include <optional>
 #include <utility>
 
 namespace platform {
 
 namespace {
 
-// what the context is asked for, beside its samples
+// what the context's window is asked for: its colour only, the renderer drawing into images of its own
 constexpr int kColourChannelBits = 8;
-constexpr int kDepthBits = 24;
-constexpr int kStencilBits = 8;
 // the bytes of a pixel of an Image
 constexpr std::size_t kPixelBytes = 4;
 
@@ -183,19 +182,19 @@ SurfacePtr SurfaceFrom(const Image& image)
     return surface;
 }
 
-// Asks SDL for the context every window of the layer gets, with the samples given.
-void RequestContext(int samples)
+// Asks SDL for the context every window of the layer gets: the colour, without alpha (a compositor would blend the
+// window with what is behind it), depth, stencil nor samples, which the renderer's own images have.
+void RequestContext()
 {
     SDL_GL_ResetAttributes();
     // an attribute SDL knows is never refused here: the request as a whole is, when the context is made
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, kColourChannelBits);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, kColourChannelBits);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, kColourChannelBits);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, kDepthBits);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, kStencilBits);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, samples > 0 ? 1 : 0);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, samples);
 }
 
 // A hidden window of SDL centred on a screen, at the pixel density of that screen, for OpenGL or not; null, with
@@ -326,27 +325,8 @@ Window::Window(WindowPtr window, ContextPtr context) : window_(std::move(window)
     assert(window_);
 }
 
-// One request, and one more without multisampling: a driver that lacks the samples asked refuses the whole context.
-std::expected<Window, std::string> Window::Open(const std::string& title, const WindowSettings& settings, const std::optional<GlRequest>& gl)
-{
-    const int samples = gl ? std::max(gl->samples, 0) : 0;
-    std::expected<Window, std::string> window = Create(title, settings, gl.has_value(), samples);
-
-    if (!window && samples > 0) {
-        std::expected<Window, std::string> plain = Create(title, settings, true, 0);
-
-        if (!plain) {
-            return std::unexpected(fmt::format("{}; without multisampling: {}", window.error(), plain.error()));
-        }
-
-        return plain;
-    }
-
-    return window;
-}
-
 // Creates the window hidden on its screen, makes its context, applies the display's state, then shows it.
-std::expected<Window, std::string> Window::Create(const std::string& title, const WindowSettings& settings, bool gl, int samples)
+std::expected<Window, std::string> Window::Open(const std::string& title, const WindowSettings& settings, Context request)
 {
     const std::optional<SDL_DisplayID> display = DisplayOf(settings.screen);
 
@@ -354,8 +334,10 @@ std::expected<Window, std::string> Window::Create(const std::string& title, cons
         return std::unexpected(fmt::format("the system reports no screen: {}", SDL_GetError()));
     }
 
+    const bool gl = request == Context::OpenGl;
+
     if (gl) {
-        RequestContext(samples);
+        RequestContext();
     }
 
     WindowPtr window(CreateHidden(title, *display, {.width = settings.width, .height = settings.height}, gl), SDL_DestroyWindow);
@@ -370,8 +352,7 @@ std::expected<Window, std::string> Window::Create(const std::string& title, cons
         context.reset(SDL_GL_CreateContext(window.get()));
 
         if (!context) {
-            return std::unexpected(fmt::format("the OpenGL context ({}-bit colour, {}-bit depth, {}-bit stencil, {} samples) could not be created: {}",
-                                               3 * kColourChannelBits, kDepthBits, kStencilBits, samples, SDL_GetError()));
+            return std::unexpected(fmt::format("the OpenGL context ({}-bit colour) could not be created: {}", 3 * kColourChannelBits, SDL_GetError()));
         }
     }
 
@@ -471,18 +452,6 @@ bool Window::SetSwapInterval(SwapInterval interval)
     }
 
     return false;
-}
-
-// What the driver gave, which can be less than what was asked.
-int Window::Samples() const
-{
-    int samples = 0;
-
-    if (!context_ || !SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &samples)) {
-        return 0;
-    }
-
-    return samples;
 }
 
 // The library's function, for the renderer's own table.

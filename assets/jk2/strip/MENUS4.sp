@@ -2,8 +2,8 @@ VERSION 1
 CONFIG W:\bin\striped.cfg
 ID 254
 REFERENCE MENUS4
-DESCRIPTION "ModernJK's menu text: the reverb's setting, the mute without the focus, the sound device, the display's rows and the adaptive vertical sync"
-COUNT 20
+DESCRIPTION "ModernJK's menu text: the reverb's setting, the mute without the focus, the sound device, the display's rows, the adaptive vertical sync and the multisampling"
+COUNT 22
 INDEX 0
 {
    REFERENCE REVERB
@@ -163,4 +163,20 @@ INDEX 19
    TEXT_LANGUAGE2 "Adaptative"
    TEXT_LANGUAGE3 "Adaptiv"
    TEXT_LANGUAGE8 "Adaptativa"
+}
+INDEX 20
+{
+   REFERENCE MULTISAMPLE
+   TEXT_LANGUAGE1 "Anti-aliasing:"
+   TEXT_LANGUAGE2 "Anticrénelage:"
+   TEXT_LANGUAGE3 "Kantenglättung:"
+   TEXT_LANGUAGE8 "Antialiasing:"
+}
+INDEX 21
+{
+   REFERENCE MULTISAMPLE_DESC
+   TEXT_LANGUAGE1 "Smooths the edges by drawing each pixel with several samples; more is smoother and costs the graphics card more."
+   TEXT_LANGUAGE2 "Lisse les bords en calculant chaque pixel avec plusieurs échantillons; plus il y en a, plus la carte graphique travaille"
+   TEXT_LANGUAGE3 "Glättet die Kanten mit mehreren Abtastwerten je Pixel; mehr glättet stärker und belastet die Grafikkarte mehr."
+   TEXT_LANGUAGE8 "Suaviza los bordes calculando cada píxel con varias muestras; más muestras suavizan más y exigen más a la tarjeta gráfica."
 }

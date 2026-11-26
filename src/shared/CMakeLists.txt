@@ -86,6 +86,12 @@ target_sources(modernjk_rd_common INTERFACE rd-common/tr_image_codec.cpp rd-comm
 	rd-common/tr_noise.cpp)
 target_link_libraries(modernjk_rd_common INTERFACE vendored::wuffs vendored::stb)
 
+# The renderers' output stage: the scene drawn into images of their own, then one pass into the window with the
+# player's brightness
+if(modernjk_BUILD_MP_CLIENT OR modernjk_BUILD_SP OR BUILD_TESTING)
+	add_subdirectory(rd-common/output)
+endif()
+
 # The sounds a cgame plays, the same in the three games: compiled by each cgame against its own headers
 # (<cgame/cg_local.h>), the tree's own part in its cgame/cg_sound.cpp
 add_library(modernjk_cgame_sound INTERFACE)

@@ -163,3 +163,5 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define UI_DISPLAY_SCREEN 258
 #define UI_DISPLAY_RESOLUTION 259
 #define UI_DISPLAY_REFRESH 260
+// the multisampling's row of the video menu (r_ext_multisample), offering the samples the driver allows
+#define UI_MULTISAMPLE 261

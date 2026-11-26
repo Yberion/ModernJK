@@ -324,7 +324,8 @@ void RunInputTests()
     }
 
     {
-        auto window = platform::Window::Open("modernjk_test_platform", platform::WindowSettings{.state = platform::DisplayState::Window}, std::nullopt);
+        auto window =
+            platform::Window::Open("modernjk_test_platform", platform::WindowSettings{.state = platform::DisplayState::Window}, platform::Context::None);
         CHECK(window.has_value());
 
         if (window) {

@@ -28,7 +28,7 @@ if (auto started = platform::Start("ModernJK", version); !started) {
     return 1;
 }
 
-auto window = platform::Window::Open("ModernJK", settings, platform::GlRequest{.samples = 4});
+auto window = platform::Window::Open("ModernJK", settings, platform::Context::OpenGl);
 platform::Input input(*window);
 const bool view = input.SetMouseMode(platform::MouseMode::Game);
 

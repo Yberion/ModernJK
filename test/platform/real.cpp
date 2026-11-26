@@ -77,7 +77,7 @@ void RunRealWindowTests()
     {
         const platform::PixelSize desktop{.width = screens.front().desktop.width, .height = screens.front().desktop.height};
         platform::WindowSettings settings;
-        auto window = platform::Window::Open("modernjk_test_platform", settings, platform::GlRequest{.samples = 4});
+        auto window = platform::Window::Open("modernjk_test_platform", settings, platform::Context::OpenGl);
         CHECK(window.has_value());
 
         if (!window) {
@@ -85,7 +85,7 @@ void RunRealWindowTests()
         }
         else {
             platform::Input input(*window);
-            fmt::println("borderless: {}x{}, {} samples", window->Size().width, window->Size().height, window->Samples());
+            fmt::println("borderless: {}x{}", window->Size().width, window->Size().height);
             CHECK_EQUAL(window->Size(), desktop);
             CHECK(window->GlProcAddress("glClear") != nullptr);
             // a driver may have no vertical sync to set (a virtual machine's): told, not a failure

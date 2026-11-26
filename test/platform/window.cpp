@@ -32,7 +32,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <shared/platform/window/window.h>
 
 #include <cstdint>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -54,7 +53,7 @@ void CheckLayer()
 void CheckStates(const platform::Screen& screen)
 {
     platform::WindowSettings settings{.state = platform::DisplayState::Window, .width = 800, .height = 600};
-    auto window = platform::Window::Open("modernjk_test_platform", settings, std::nullopt);
+    auto window = platform::Window::Open("modernjk_test_platform", settings, platform::Context::None);
     CHECK(window.has_value());
 
     if (!window) {
@@ -99,7 +98,6 @@ void CheckStates(const platform::Screen& screen)
     // without a context
     CHECK(!window->Present());
     CHECK(!window->SetSwapInterval(platform::SwapInterval::VerticalSync));
-    CHECK_EQUAL(window->Samples(), 0);
     CHECK(window->GlProcAddress("glClear") == nullptr);
     CHECK(!window->GlExtensionSupported("GL_ARB_multisample"));
 
@@ -116,14 +114,14 @@ void CheckStates(const platform::Screen& screen)
     CHECK(!window->Minimize());
 }
 
-// the dummy driver has no OpenGL: both requests fail, and the text gives the two errors
+// the dummy driver has no OpenGL: the request fails, and the text says so
 void CheckContextRefused()
 {
-    const auto window = platform::Window::Open("modernjk_test_platform", platform::WindowSettings{}, platform::GlRequest{.samples = 4});
+    const auto window = platform::Window::Open("modernjk_test_platform", platform::WindowSettings{}, platform::Context::OpenGl);
     CHECK(!window.has_value());
 
     if (!window) {
-        CHECK(window.error().contains("without multisampling"));
+        CHECK(window.error().contains("OpenGL"));
     }
 }
 

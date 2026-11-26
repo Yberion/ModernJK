@@ -25,6 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tr_local.h"
 
+#include <shared/rd-common/output/engine/engine.h>
+
 /*
 
   for a projection shadow:
@@ -563,7 +565,9 @@ void RB_CaptureScreenImage(void)
         cY = 0;
     }
 
+    Output_MakeReadable(render_output::Buffers::Colour, cX, cY, radX, radY);
     qglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, cX, cY, radX, radY, 0);
+    Output_DrawScene();
 }
 
 // yeah.. not really shadow-related.. but it's stencil-related. -rww

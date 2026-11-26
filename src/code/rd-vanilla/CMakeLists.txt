@@ -59,7 +59,7 @@ target_sources(sp_renderer_common INTERFACE
 target_include_directories(sp_renderer_common INTERFACE "${PROJECT_SOURCE_DIR}/src/code" "${PROJECT_SOURCE_DIR}/src")
 target_compile_definitions(sp_renderer_common INTERFACE RENDERER _JK2EXE)
 target_link_libraries(sp_renderer_common INTERFACE vendored::gsl_lite modernjk_shared_common modernjk_safe_string
-	modernjk_rd_common OpenGL::GL)
+	modernjk_rd_common modernjk_render_output_engine OpenGL::GL)
 
 if(modernjk_BUILD_SP)
 	add_library(rdsp-vanilla MODULE)

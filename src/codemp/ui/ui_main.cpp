@@ -51,6 +51,7 @@ USER INTERFACE MAIN
 #include "ui_shared.h"
 
 #include <shared/platform/menus/display.h>
+#include <shared/rd-common/output/samples.h>
 
 extern void UI_SaberAttachToChar(itemDef_t* item);
 
@@ -1546,6 +1547,15 @@ static void UI_DrawDisplayRow(int ownerDraw, rectDef_t* rect, float width, float
     UI_DrawCutText(std::move(text), rect, width, scale, color, textStyle, iMenuFont);
 }
 
+// the multisampling's row: Off, or the samples a pixel ("4x"), as the renderer applies them with the driver's limit
+static void UI_DrawMultisample(rectDef_t* rect, float scale, vec4_t color, int textStyle, menuFont_t iMenuFont)
+{
+    const int samples = render_output::AllowedSamples(static_cast<int>(trap->Cvar_VariableValue("r_ext_multisample")),
+                                                      static_cast<int>(trap->Cvar_VariableValue("r_ext_multisample_avail")));
+    const std::string text = samples == 0 ? std::string(UI_GetStringEdString("MENUS", "OFF")) : std::string(Q_Format("{}x", samples).c_str());
+    Text_Paint(rect->x, rect->y, scale, color, text.c_str(), 0, 0, textStyle, iMenuFont);
+}
+
 static void UI_DrawClanName(rectDef_t* rect, float scale, vec4_t color, int textStyle, menuFont_t iMenuFont)
 {
     Text_Paint(rect->x, rect->y, scale, color, UI_Cvar_VariableString("ui_teamName"), 0, 0, textStyle, iMenuFont);
@@ -2999,6 +3009,9 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
     case UI_DISPLAY_REFRESH:
         UI_DrawDisplayRow(ownerDraw, &rect, special, scale, color, textStyle, iMenuFont);
         break;
+    case UI_MULTISAMPLE:
+        UI_DrawMultisample(&rect, scale, color, textStyle, iMenuFont);
+        break;
     case UI_SKIN_COLOR:
         UI_DrawSkinColor(&rect, scale, color, textStyle, uiSkinColor, team_t::TEAM_FREE, team_t::TEAM_BLUE, iMenuFont);
         break;
@@ -3408,6 +3421,21 @@ static bool UI_DisplayRow_HandleKey(int ownerDraw, fakeAscii_t key)
     }
 
     UI_SetDisplayChoice(next);
+    return true;
+}
+
+// a click on the multisampling's row: the next of Off and the samples the driver allows at each click, Enter or right
+// arrow, the one before with the right button or the left arrow; applied at once by the renderer
+static bool UI_Multisample_HandleKey(fakeAscii_t key)
+{
+    const bool back = key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_CURSOR_LEFT;
+
+    if (!back && key != fakeAscii_t::A_MOUSE1 && key != fakeAscii_t::A_ENTER && key != fakeAscii_t::A_KP_ENTER && key != fakeAscii_t::A_CURSOR_RIGHT) {
+        return false;
+    }
+
+    trap->Cvar_SetValue("r_ext_multisample", render_output::NextSamples(static_cast<int>(trap->Cvar_VariableValue("r_ext_multisample")),
+                                                                        static_cast<int>(trap->Cvar_VariableValue("r_ext_multisample_avail")), back));
     return true;
 }
 
@@ -4191,6 +4219,8 @@ static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float* special, fake
     case UI_DISPLAY_RESOLUTION:
     case UI_DISPLAY_REFRESH:
         return UI_DisplayRow_HandleKey(ownerDraw, key);
+    case UI_MULTISAMPLE:
+        return UI_Multisample_HandleKey(key);
     case UI_SKIN_COLOR:
         return UI_SkinColor_HandleKey(flags, special, key, uiSkinColor, team_t::TEAM_FREE, team_t::TEAM_BLUE, ownerDraw);
         break;
