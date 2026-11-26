@@ -124,8 +124,16 @@ enum class SwapInterval {
 // A function of the OpenGL library, to cast to its own type.
 using GlFunction = void (*)();
 
-// The screens, the system's primary one first: the order of WindowSettings::screen.
-[[nodiscard]] std::vector<Screen> Screens();
+// Whether platform::Screens lists each screen's modes. The system enumerates them slowly the first time it is asked
+// (half a second for two screens of some 440 modes each, then a few microseconds), so a program that needs only the
+// screens' names, desktops and usable areas leaves them out.
+enum class ScreenModes {
+    Skipped, // Screen::modes left empty
+    Listed,  // Screen::modes filled
+};
+
+// The screens, the system's primary one first: the order of WindowSettings::screen; with their modes or without.
+[[nodiscard]] std::vector<Screen> Screens(ScreenModes modes = ScreenModes::Listed);
 
 class Window {
 public:

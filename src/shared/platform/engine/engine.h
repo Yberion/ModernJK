@@ -61,9 +61,11 @@ void Platform_Frame();
 // False when the system refused or before the window is open: the pointer stays the system's arrow.
 [[nodiscard]] bool Platform_SetPointerImage(std::span<const std::uint8_t> rgba, int width, int height, int shownWidth, int shownHeight);
 
-// The screens, the system's primary one first, for the menus' display rows (src/shared/platform/menus/display.h):
-// read when the window opens, again at each start of the renderer and when a screen is plugged or unplugged or its
-// desktop's mode or usable area changes; empty before the window opens. The list stays valid until one of those.
+// The screens, the system's primary one first, with their modes, for the menus' display rows
+// (src/shared/platform/menus/display.h): the modes are read at the first call, which waits for the system to enumerate
+// them (half a second for two screens of some 440 modes each), the screens read again at each start of the renderer
+// and when a screen is plugged or unplugged or its desktop's mode or usable area changes; empty before the window
+// opens. The list stays valid until one of those.
 std::span<const platform::Screen> Platform_Screens();
 
 // The client's clock, the layer's: in milliseconds; in nanoseconds; and the time, in nanoseconds, at which

@@ -1,6 +1,6 @@
 # Step 15: a new platform layer on SDL 3
 
-Plan step 15 ([../PLAN.md](../PLAN.md)). The survey and the decisions P1 to P9 of 15 November 2026 are in [../surveys/platform-layer.md](../surveys/platform-layer.md). This page holds what was read and decided when the step started, on 25 November 2026, the code of parts 1 and 2 as it was written from that day on (section 14), and where to resume (section 15, 26 November 2026: the multiplayer's client is on the layer, committed the same day; the single player's engines on it and SDL 2 removed the same day, sections 14.14 and 14.15, committed the same day; the menus' display rows written, validated and tried by hand the same day, section 14.16, not committed).
+Plan step 15 ([../PLAN.md](../PLAN.md)). The survey and the decisions P1 to P9 of 15 November 2026 are in [../surveys/platform-layer.md](../surveys/platform-layer.md). This page holds what was read and decided when the step started, on 25 November 2026, the code of parts 1 and 2 as it was written from that day on (section 14), and where to resume (section 15, 26 November 2026: the multiplayer's client is on the layer, committed the same day; the single player's engines on it and SDL 2 removed the same day, sections 14.14 and 14.15, committed the same day; the menus' display rows, section 14.16, and the checks and measurements before and after, section 14.17, committed the same day).
 
 The step is not a migration: the layer is designed from SDL 3's own documentation, as a new SDL 3 program is written today, and the present code (`src/shared/sdl/`) only tells which features a player has. Three criteria hold for every choice (25 November 2026): the most responsive possible (the picture, the keys, the feedback), one system for the multiplayer and both single-player games, and the same on every platform.
 
@@ -256,7 +256,7 @@ The code of parts 1 and 2 (the window, the keyboard and the mouse, with SDL 2's 
 3. ✅ (sections 14.3 to 14.13) the multiplayer's engine on it: the client owning the window, the renderer's import table, the events and the clock, the key and character events to the modules, the pointer;
 4. ✅ (sections 14.14 and 14.15) the single player's engine (both games) on it, with Escape while a key is bound or a field edited tried in its menus (section 14.12); then `libs/SDL2`, `src/shared/sdl/` and the exception for SDL 2 in GUIDELINES section 9 removed, the root README's packages updated;
 5. ✅ (section 14.16) the menus: the four settings' rows and their texts, the rows removed, the presets no longer touching the display;
-6. the checks in game (the plan's list), the measurements before (SDL 2) and after (asked on 25 November 2026: as many as can be made, list below), `CHANGES.md`, the VM validations.
+6. ✅ (section 14.17) the checks in game (the plan's list), the measurements before (SDL 2) and after (asked on 25 November 2026: as many as can be made, list below), `CHANGES.md`, the VM validations.
 
 The measurements of point 6, each before and after, at 100, 125, 144 (vsync) and 333 frames per second where a frame rate matters. The reference is a build of the commit before this work, kept in a worktree made before `src/shared/sdl/` is removed (point 4), so that a measure can be made again with the same instrumentation:
 
@@ -669,6 +669,145 @@ Checked on the development machine (llvm-mingw's clang): the presets Release, De
 
 The full VM validations, the same day (logs `build/validate-linux.log`, `build/validate-windows.log`): `validate.sh` ALL OK (GCC 15 and Clang 23: Release, Debug, AddressSanitizer, the server's preset, the Debug build with link-time optimization, the formatting) and `validate.bat` ALL OK (MSVC: Release, Debug, AddressSanitizer; its Release build failed once on the shared folder, `C1001` "In-page error", and passed when built again from clean), `ctest` 16 of 16 in every preset that runs it, no compiler warning. The rows tried by hand in the three games, from the main menu and in game, the same day: the display's state, a window's size, an exclusive mode and its rate, the second screen, the vertical sync's Adaptive, a quality preset leaving the display alone, the multiplayer's in-game menu: all passed.
 
+### 14.17 Point 6: the checks and the measurements before and after (26 November 2026)
+
+Point 6 of section 11, its list of measures. The reference is the worktree `E:\Git\jka\ModernJK_sdl2ref` (section 14.14), its clang Release build; HEAD's is the same preset here. Every client silent (`s_initsound 0`), the two builds alternated session by session.
+
+The decisions, put all at once on 26 November 2026:
+
+| # | question | decided | not taken |
+|---|---|---|---|
+| 1 | The tool for the presentation (section 10.4, decision 4) | PresentMon 2.6.0 (Intel, MIT licence, 21 September 2026; https://github.com/GameTechDev/PresentMon), its console program, outside the repository (its SHA-256 the release's, its signature Intel's): per image, the present mode and the time until it is shown; for OpenGL its README says the runtime is "Other", the mode exact and the times counted from the kernel's present, about 0.5 ms after the program's | the same downloaded by hand; the Windows Performance Toolkit already installed (GPUView), read by hand |
+| 2 | The case "144 Hz with the vertical sync", on screens of 360 and 320 Hz where only the second has 144.23 Hz, in exclusive fullscreen, and the reference cannot choose its screen | 165 Hz in exclusive fullscreen on the primary screen, in both builds: the rate nearest to 144 both can set | 120 Hz; 144.23 Hz on the second screen with HEAD only |
+| 3 | The share of a tick a key was held, against the real one | a temporary harness in both builds (lines marked `TMPDBG`, removed afterwards): the key bound to `+forward` pressed and released through SDL's queue at known times, the share each command gave it printed | computed from the code; left to the tests of the end of the step |
+| 4 | The input's reading per frame, with a mouse at 1,000 and 8,000 reports a second | a temporary timer around the frame's reading in both builds, the mouse moved by hand | a samply profile |
+
+The machine was quiet for measure A only; the others ran while the machine was in use (decided the same day: measured now, the times measured again on a quiet machine later). Their times are marked so.
+
+**A. A demo played in real time** (a 30 s demo of two bots dueling on `mp/duel1`, recorded by HEAD; each session settled 6 s, measured 20 s; the process's CPU in % of one core; the images' times and present modes by PresentMon; two rounds, quiet machine):
+
+| case | CPU, HEAD | CPU, reference | time between images, 99th percentile, HEAD / reference | present mode, both builds |
+|---|---|---|---|---|
+| borderless fullscreen, 100 images a second | 25.1, 25.6 % | 31.0, 32.6 % | 10.60 / 10.86 ms | Hardware: Legacy Flip |
+| borderless fullscreen, 125 | 31.5, 33.8 % | 34.0, 34.9 % | 8.78 / 8.95 ms | Hardware: Legacy Flip |
+| borderless fullscreen, 333 | 42.4, 41.9 % | 54.7, 55.6 % | 3.50 / 3.72 ms | Hardware: Legacy Flip |
+| exclusive fullscreen, vertical sync at 165 Hz | 68.6, 57.9 % | 74.7, 74.3 % | 6.41 / 6.31 ms | Hardware: Legacy Flip |
+| a window of 1280 by 720, 125 | 26.7, 29.7 % | 35.6, 33.5 % | 8.87 / 8.97 ms | Composed: Copy with GPU GDI |
+
+No image left unshown in any session; the median time between images at 333 images a second 3.00 ms with HEAD, 3.06 with the reference, whose clock counts whole milliseconds; the memory the same (about 186 MB). Without a cap (`timedemo 1`, a window of 640 by 480): 982 and 989 images a second. What P4 asked (section 1): Windows shows the borderless OpenGL window directly, the program owning the screen ("Hardware: Legacy Flip", PresentMon's mode of exclusive fullscreen), 0.28 ms from the present to the screen, in both builds; a window goes through the compositor (2.3 ms). With the vertical sync and no cap on the frame rate, 17.5 ms from the present to the screen in both builds, about three images queued: the same before and after.
+
+**B. The input margin** (`netstats` over 20 s, each client in a window on a dedicated server of HEAD on this machine with two bots on `mp/ffa3`; machine in use):
+
+| images a second | HEAD: mean, lowest, after their tick | reference |
+|---|---|---|
+| 100 | 3.5 ms, 3 ms, 0 of 999 | 3.6 ms, 1 ms, 0 of 1,000 |
+| 125 | 3.7 ms, 2 ms, 0 of 999 | 3.9 ms, 2 ms, 0 of 1,000 |
+| 333 | 3.6 ms, 2 ms, 0 of 999 | 3.6 ms, 3 ms, 0 of 999 |
+
+Seen there: at 100 images a second some sessions send every client packet without a base, 26.0 bytes per packet against 10.0 in others, with either build (measured again twice per build: HEAD twice, the reference once of two). The netcode's, not this step's: placed in plan step 13 (decided 26 November 2026).
+
+**C. The share of a tick a key was held** (the harness of decision 3; the length counted is the sum of each command's share times its span; a level on a local server, a window; machine in use):
+
+| real press | HEAD, 125 images a second | reference, 125 | HEAD, 333 | reference, 333 |
+|---|---|---|---|---|
+| 3.2 ms (three presses) | 3.200, 3.200, 3.200 ms | 6.0, 6.0, 6.0 ms | 3.198, 3.200, 3.200 ms | 4.0, 6.0, 5.0 ms |
+| 5 ms | 5.000 | 6.0 | 5.000 | 7.0 |
+| 7.5 ms | 7.499 | 10.0 | 7.499 | 9.0 |
+| 12.5 ms | 12.499 | 14.0 | 12.499 | 14.0 |
+| 25 ms | 25.000 | 30.0 | 24.999 | 25.0 |
+
+HEAD counts the time the key was held, split between the ticks it spans; the reference counts the time between the two frames that read the press and the release, in whole milliseconds. Found while writing the harness: a bind's `+forward` goes through the command buffer, behind any `wait` there, so the presses are driven by the harness itself (`tmpseries`), and a level started by `devmap` from a configuration file at the program's start leaves the UI's key catcher set (the harness clears it).
+
+**F. A restart of the video** (`CL_Vid_Restart_f`, a window of 1280 by 720, three restarts and two changes of size per session; machine in use): 340 to 410 ms with HEAD, 520 to 660 ms with the reference, which creates the window again.
+
+**G. The start to the main menu** (from the process's start to "--- Common Initialization Complete ---" in its log, a window, three times each, median; machine in use): first 0.78 to 0.95 s with HEAD against 0.48 to 0.66 s with the reference, in the three games. Found with temporary timings: the first listing of the screens' modes (`SDL_GetFullscreenDisplayModes`) took 0.49 s, SDL enumerating the modes of both screens (some 440 each), then 35 us once SDL keeps them; it ran when the window opened, since part 1 (the refresh rate's computation for the renderer) and since point 5 (the menus' list). Decided on 26 November 2026: the modes read only when something needs them, the menus' display rows (`Platform_Screens`), `modelist` and an exclusive mode applied; the window's opening and the renderer read the screens without them (`platform::ScreenModes::Skipped`). The first opening of the video menu, or the first switch to exclusive fullscreen, then waits for them once. After the change:
+
+| game | HEAD | reference |
+|---|---|---|
+| the multiplayer | 413 ms | 616 ms |
+| Jedi Academy | 465 ms | 658 ms |
+| Jedi Outcast | 321 ms | 525 ms |
+
+**H. The memory and the sizes**: the process's memory at the main menu the same in both builds (the multiplayer 165 MB, Jedi Academy 130 MB, Jedi Outcast 97 MB). On disk: the multiplayer's client 8.61 MB against 5.79 MB and `SDL2.dll`'s 1.47 MB, 7.26 MB together; Jedi Academy's 7.15 MB against 5.93 MB; Jedi Outcast's 7.13 MB against 5.91 MB; the dedicated server 2.298 MB against 2.302 MB.
+
+**I. A minimized window** (the demo played at 125 images a second, minimized by `minimize`; machine in use): 17.0 and 17.3 % of a core with HEAD, 18.4 and 17.6 % with the reference, both capped at 50 images a second (`com_maxfpsMinimized`). A first session gave HEAD 27.9 % at 125 images a second; not reproduced in two more nor at the main menu (12.1 and 9.1 % against 11.4 and 7.3 %): the window was restored meanwhile, not a defect.
+
+**A window without the focus** (the demo at 125 images a second in a window; another window clicked by hand at once, Windows asked at the measure's start and end which window was in front): 34.2 % of a core with HEAD, 36.1 % with the reference, neither in front. Without a cap out of the focus (`com_maxfpsUnfocused` is 0 in both builds), about what a window in front takes.
+
+**D. The input's reading per frame** (the harness of decision 4: the time from the frame's reading of the input to the end of `Com_EventLoop`, `Platform_Frame` or `IN_Frame` included, mean and maximum over 1,000 frames; a level on a local server, a window of 1280 by 720 at 125 images a second, the mouse still then moved by hand without a pause; the mouse at 1,000 then 8,000 reports a second):
+
+| mouse | HEAD: still, moving | reference: still, moving |
+|---|---|---|
+| 1,000 reports a second | about 4 us; 3.7 to 4.6 us (max 75 us) | 7.4 us; 35 to 37 us (max 504 us) |
+| 8,000 reports a second | 4.1 to 4.3 us; 5.3 to 5.4 us (max 20 us) | 5.1 to 5.3 us; 162 to 176 us (max 1.3 ms) |
+
+The work is not gone: SDL 3 reads the raw mouse on a thread of its own (`WIN_RawInputThread`, section 10.3), which hands the frame the motion already gathered, where SDL 2 handled each of the mouse's messages in the frame's own loop; at 8,000 reports a second the reference's frame waited up to 1.3 ms for it.
+
+**The black moment at alt-tab, measured** (PresentMon over 60 s, the client in borderless fullscreen on the primary screen at its main menu, alt-tabs by hand): in both builds the window is "Hardware: Legacy Flip" with the focus and "Composed: Copy with GPU GDI" without it, and the game's images stop at each switch for 52 to 67 ms with HEAD, 60 to 82 ms with the reference, the composed desktop showing meanwhile; on the screen, a black moment of about 10 ms at each alt-tab, the same in both builds. Not this step's: the reference does it the same.
+
+**Read for the black moment at alt-tab** (section 14.7; 26 November 2026, the GPU of the development machine an NVIDIA GeForce RTX 5070 Ti): SDL's issue 12791 (https://github.com/libsdl-org/SDL/issues/12791, open, milestone 3.x) reports the same: on Windows 11 an OpenGL window without borders that covers its screen is turned by NVIDIA's driver into exclusive fullscreen at its first swap, with a flicker and a slow alt-tab (an engine reports 3 to 5 s of black screen per alt-tab). SDL's maintainer, primary: "This is intentional OpenGL driver behavior to increase performance and not something SDL can affect", it "reduces latency and improves performance because it bypasses the DWM compositor pipeline", and a hint building a workaround into SDL would be accepted. The ways reported there, community, none verified here: the driver's setting "Vulkan/OpenGL present method: Prefer layered on DXGI Swapchain" (NVIDIA's control panel), a player's setting and not the game's; a window one line shorter than the screen (the taskbar then drawn over it); the window without the style `WS_POPUP` (some drivers only); OpenGL presented through a DXGI swap chain with `WGL_NV_DX_interop2`, said to exist on the three vendors' drivers. Measure A's "Hardware: Legacy Flip" in borderless fullscreen is that conversion. To decide after PresentMon during alt-tabs, with each way's latency against today's.
+
+**On a quiet machine** (the same series in one batch, the virtual machines off, nothing else running; HEAD with the change of measure G; the builds alternated):
+
+| measure | HEAD | reference |
+|---|---|---|
+| A, CPU at 100 / 125 / 333 images a second, borderless | 29.6 / 33.7 / 39.3 % | 30.7 / 38.7 / 51.8 % |
+| A, CPU with the vertical sync at 165 Hz | 56.1 % | 75.1 % |
+| A, CPU in a window at 125 | 33.5 % | 35.2 % |
+| A, 99th percentile between images at 100 / 125 / 333 | 10.68 / 8.83 / 3.59 ms | 10.95 / 8.92 / 3.81 ms |
+| A, the same with the vertical sync at 165 Hz | 7.64 ms (max 8.49) | 6.46 ms (max 6.99) |
+| B, input margin at 100 / 125 / 333 (mean) | 7.0 / 7.9 / 8.3 ms, none after its tick | 8.1 / 8.0 / 8.1 ms, none after its tick |
+| C, a press of 3.2 ms (three) at 125 / 333 | 3.199-3.200 / 3.198-3.201 ms | 8.0, 8.0, 8.0 / 6.0, 5.0, 4.0 ms |
+| C, a press of 25 ms at 125 / 333 | 25.000 / 24.998 ms | 32.0 / 27.0 ms |
+| F, a restart of the video | 328 to 418 ms | 493 to 732 ms |
+| G, the start to the main menu: multiplayer / Jedi Academy / Jedi Outcast | 406 / 448 / 308 ms | 567 / 627 / 497 ms |
+| I, minimized, capped at 50 images a second in both | 6.6 then 37.7 % | 10.5 then 26.6 % |
+
+The input margin's level moved between the two batches for both builds alike (3.5 to 3.9 ms the first time): the 20 s measured start 10 s after the connection, while the command clock may still be settling; the builds do not differ. The CPU of a minimized window varies between sessions as much in both builds, the images capped at 50 a second in each: no difference shown. The vertical sync's 99th percentile, higher with HEAD this time (7.64 against 6.46 ms) and the reverse the first time (6.41 against 6.31 ms), shows no image left unshown in either.
+
+The temporary lines removed afterwards from both trees, the reference's diff empty again; HEAD built again with the three clang presets, the tests passed, clang-tidy at zero on the layer's files.
+
+Decided on 26 November 2026, the black moment at alt-tab: the present way kept, the most direct, and the question left to plan step 25, whose Vulkan renderer lets the program choose whether the driver takes the screen (`VK_EXT_full_screen_exclusive`), on every system (Windows, Linux with X11 and Wayland, macOS when it is built); not taken: OpenGL presented through a DXGI swap chain (`WGL_NV_DX_interop2`) in part 4, work step 25 may replace; only telling NVIDIA's players the driver's setting.
+
+The VM validations of the change of measure G, the same day: `validate.sh` ALL OK without a warning; `validate.bat`'s Debug and AddressSanitizer passed, its Release build failed twice on the shared folder (`C1001`, exception `C0000006`, "In-page error", while both VMs ran) and passed built again alone.
+
+**Wayland** (the Linux VM, `SDL_VIDEO_DRIVER=wayland`, 26 November 2026): the client did not start, "the display's state could not be set: wayland cannot position non-popup windows". The layer centred the window with `SDL_SetWindowPosition` and took its refusal for a failure of the whole state, while Wayland refuses every program's own window a position ("Wayland does not allow toplevel windows to position themselves programmatically", SDL's README-wayland; `Wayland_SetWindowPosition`), its compositor placing them; SDL keeps the screen such a call names for the fullscreen that follows (`SDL_GetVideoDisplayForFullscreenWindow`: "the very common pattern of SDL_SetWindowPosition() followed immediately by SDL_SetWindowFullscreen()"). Fixed the same day (decided the same day): the position asked, its refusal failing nothing (`RequestCentred`, `src/shared/platform/window/window.cpp`); leaving fullscreen, the size and entering fullscreen still fail the state when refused.
+
+| | before | now |
+|---|---|---|
+| The client started under Wayland | an error box, "the display's state could not be set: wayland cannot position non-popup windows", and no game | the game opens; in a window the compositor places it, in fullscreen it goes on the screen chosen |
+| Under X11 and Windows | the window centred on its screen | the same |
+
+Tried again under Wayland the same day: the keys, alt-tab, borderless and exclusive fullscreen work. The mouse did not turn the view, as under X11 on this VM since 25 November 2026 ("Known issues"); with VirtualBox's mouse integration turned off (Input menu, the host key and I) it does: VirtualBox gives the guest an absolute pointer, which has no motion to give a locked pointer. The VM's, not the game's.
+
+**A restart of the video that changed nothing on Linux** (seen there the same day): with the Debug build, a change of the display's state applied from the menus left the display as it was, the renderer's `MODE` line repeating the old state, while the settings had their new values. `InitOpenGL` asks the client for the display only when `glConfig.vidWidth` is 0, which it is when the renderer's library is loaded afresh; glibc never unloads a library that holds GCC's unique symbols (`STB_GNU_UNIQUE`), and the Debug renderer for Linux holds 32 ({fmt}'s and the standard library's static objects; the Release one none), so the library stayed loaded with its `glConfig`, and the display was never asked again. Windows and Linux's Release worked because their renderer is unloaded. Fixed the same day (decided the same day): `RE_Shutdown` resets `glConfig` (and the multiplayer's `glConfigExt`) when the renderer restarts, in both renderers; checked on Windows, the multiplayer and Jedi Academy going between a window, another size and borderless fullscreen by `vid_restart`.
+
+| | before | now |
+|---|---|---|
+| Linux, a GCC Debug build: the display's state, size or screen changed and applied | nothing changes, `MODE` repeats the old state | applied, as on Windows |
+| Linux Release, Windows | applied, the renderer being loaded afresh | applied, whether it is or not |
+
+**A crash under Wayland at a change of size** (the Linux VM, Mesa 23.2.1 of Ubuntu 22.04, its software drivers llvmpipe and softpipe; 26 November 2026): the client crashed at the first image shown after any change of the window's size, from fullscreen to a window or between two sizes of a window, in Mesa (`swrast_dri.so`, then `memmove` in `libEGL_mesa` once Ubuntu's symbols were fetched through debuginfod: the copy of the image into the window's shared-memory buffer), under `eglSwapBuffers`. Found by steps, each a session or a small program:
+
+| step | result |
+|---|---|
+| X11 (XWayland), from fullscreen to a window | works |
+| Wayland: a wait for leaving fullscreen before the size; without libdecor; `SDL_VIDEO_DOUBLE_BUFFER`; softpipe in place of llvmpipe | crashes, at the same address with both drivers: code they share |
+| Wayland, `vid_restart` without a change | works |
+| a small SDL 3 program (`build/linux-wayland/sdlresize/resize.cpp`, outside the repository): the context asked as the layer asks it, a resize between two images, out of fullscreen, the swap interval 0, the splash's drawing, the layer's three calls, a pause of 400 ms without events | works, every variant |
+| the game, an empty image shown right after the change, before the renderer draws anything (a temporary line) | crashes on that image |
+
+The cause, as these steps show it: Mesa's software path under Wayland takes the window's new size into its buffer only at the first drawing after a swap or when the context is bound again; the renderer that stops at `vid_restart` still runs its pending commands (`R_IssuePendingRenderCommands`) after the last swap, so the buffer is checked at the old size, then the size changes without a swap between, and the next swap copies a buffer of the old size into the window of the new one. The small program never draws between a swap and its resize. Mesa's resize callback should invalidate the buffer; the layer does not count on it: fixed the same day (decided the same day), `Window::Apply` binds the context to the window again after a change (released first, since SDL leaves a context already current as it is). Checked under Wayland, scripted: a window, borderless fullscreen, a window, exclusive fullscreen, a window, another size, each `MODE` line right, no crash; on Windows the same changes by `vid_restart`.
+
+| | before | now |
+|---|---|---|
+| Linux under Wayland with Mesa's software drivers: the window's size changed, or from fullscreen to a window | the client crashes in Mesa at the first image after the change | the change applied |
+| Windows, X11, hardware drivers | works | the same, the context bound again once at such a change |
+
+`SDL_HINT_VIDEO_DOUBLE_BUFFER` (`SDL_VIDEO_DOUBLE_BUFFER=1`), tried under Wayland on the VM the same day: the game runs as without it; whether it saves a frame of delay, as SDL's documentation says, needs a measure of the delay this VM has no tool for. Left at SDL's default (off), to measure with plan step 25's presentation on every system.
+
+The full VM validations of these fixes, the same day (logs `build/validate-linux.log`, `build/validate-windows.log`): `validate.sh` ALL OK (GCC 15 and Clang 23: Release, Debug, AddressSanitizer, the server's preset, the Debug build with link-time optimization, the formatting) and `validate.bat` ALL OK (MSVC: Release, Debug, AddressSanitizer), `ctest` 16 of 16 in every preset that runs it, no compiler warning. Tried by hand on Windows the same day, in the multiplayer and Jedi Outcast: borderless fullscreen, a window, exclusive fullscreen and borderless fullscreen again from the video menu, each applied: passed.
+
 ## 15. Where to resume (26 November 2026)
 
 ### 15.1 The state
@@ -679,7 +818,8 @@ The full VM validations, the same day (logs `build/validate-linux.log`, `build/v
 - The scripted scenarios on the development machine, 26 November 2026 (`scenarios.sh step15mp`, the clang Release build; the journal's removal touched the file system the server uses): `golden: SAME`, in 2 min 42 s.
 - The full VM validations, 26 November 2026 (logs `build/validate-linux.log`, `build/validate-windows.log`): `validate.sh` ALL OK (GCC 15 and Clang 23: Release, Debug, AddressSanitizer, the server's preset, the Debug build with link-time optimization, the formatting) and `validate.bat` ALL OK (MSVC: Release, Debug, AddressSanitizer), `ctest` 16 of 16 in every preset that runs it, no compiler warning; the only messages are the `wayland-scanner`'s of section 14.1, once per protocol and configuration.
 - `CHANGES.md` section 39 is written for the multiplayer's part, section 40 for the single player's.
-- Point 5, the menus, decided and written on 26 November 2026 (section 14.16; `CHANGES.md` section 41): the VM validations ALL OK without a warning, the rows tried by hand in the three games the same day; not committed.
+- Point 5, the menus, decided and written on 26 November 2026 (section 14.16; `CHANGES.md` section 41): the VM validations ALL OK without a warning, the rows tried by hand in the three games; committed the same day (`feat(platform): step 15, parts 1 and 2, the display's rows in the setup menus`).
+- Point 6, the checks and the measurements before and after, done on 26 November 2026 (section 14.17), with four fixes found on the way; the VM validations ALL OK, the display's changes tried by hand on Windows; committed the same day (`fix(platform): step 15, parts 1 and 2, point 6, the checks and the measurements before and after`). Points 1 to 6 of section 11 are done: the code of parts 1 and 2 is complete.
 
 ### 15.2 Next, in this order
 
@@ -693,8 +833,8 @@ The full VM validations, the same day (logs `build/validate-linux.log`, `build/v
    - the single player's view that does not turn (section 8), looked at once it runs on the new input;
    - then the removals: `libs/SDL2`, `src/shared/sdl/` (its icon `sdl_icon.h`, which the engine part includes, moves into `src/shared/platform/engine/`), the target `modernjk_sys_client` and `modernjk_copy_runtime_dlls`, the definition `MODERNJK_PLATFORM` and every branch it chooses (`src/shared/sys/sys_main.cpp`, `sys_loadlib.h`, `sys_win32.cpp`, `sys_unix.cpp`), `K_CHAR_FLAG` (`src/shared/qcommon/q_limits.h`), the SDL 2 exception of GUIDELINES section 9, `libsdl2-dev` and SDL's row of the root README, clang-tidy's `-DSDL_DISABLE_ANALYZE_MACROS` (`cmake/StaticAnalyzers.cmake`);
    - the key codes in one definition for the trees (`src/codemp/ui/keycodes.h` and `src/code/client/keycodes.h` into `src/shared/qcommon`).
-4. Point 5, the menus: the four settings' rows in the six setup menus and their texts in the games' languages (the sound device's row, `UI_SOUND_DEVICE`, is the model), the old rows removed, the quality presets no longer touching the display (section 9.2). Decided and written on 26 November 2026 (section 14.16); the VM validations ALL OK and the rows tried by hand in the three games the same day. Left of this point: the commit.
-5. Point 6: the checks in game, the measurements before and after (section 11's list; the black moment at alt-tab in borderless fullscreen, section 14.7, with the presentation's tool), the Wayland driver on the Linux VM (`SDL_VIDEO_DRIVER=wayland`), `SDL_HINT_VIDEO_DOUBLE_BUFFER`, then the validations.
+4. Point 5, the menus: the four settings' rows in the six setup menus and their texts in the games' languages (the sound device's row, `UI_SOUND_DEVICE`, is the model), the old rows removed, the quality presets no longer touching the display (section 9.2). Decided and written on 26 November 2026 (section 14.16); the VM validations ALL OK and the rows tried by hand in the three games the same day; committed the same day.
+5. Point 6: the checks in game, the measurements before and after (section 11's list; the black moment at alt-tab in borderless fullscreen, section 14.7, with the presentation's tool), the Wayland driver on the Linux VM (`SDL_VIDEO_DRIVER=wayland`), `SDL_HINT_VIDEO_DOUBLE_BUFFER`, then the validations. Done on 26 November 2026 (section 14.17), with four fixes found on the way (the screens' modes read when needed, the position under Wayland, a restart of the video on Linux that changed nothing, the crash under Wayland at a change of size); the VM validations ALL OK and the changes tried by hand on Windows the same day; committed the same day.
 6. At the end of the step: one code for the clients' keys and input and the menus' shared code, if it can be (section 11); the sound's engine part against the C++ Core Guidelines (section 14.5); the menus' pointer placed exactly, in floats, where it is placed in whole units of the menus' 640 by 480 today (3 pixels on a screen 1,920 wide, 6 on one of 3,840: section 14.9's known limit), taken with the menus' one code (decided 26 November 2026: left as it is until then).
    - Asked on 26 November 2026, where it is needed: the layer's tests made stronger, fuzzers included. What has no test today: the engine part (`src/shared/platform/engine/engine.cpp`: the keys' codes from the layer's events, the name of a key without a code, `r_exclusiveMode`'s reading, `Platform_IsKeyName`), the client's `Key_DynamicKey` (its sixteen codes, the one taken back) and `CL_KeyState` (the share of a span a key was held), all compiled into the engine only: to test them they have to be reachable from a test, as the sound's are. What reads text or data a player's files or the system give, so what a fuzzer is for: a bind's key name and `r_exclusiveMode` (configuration files), a typed text (UTF-8 from the system, turned into the one-byte set), an image for the pointer or the icon (its size against its bytes), and any sequence of SDL's events through `Input::Poll` and of display states through `Window::Apply` on the dummy driver. The fuzzers' preset is `windows-clang-fuzz` (netcodec's and the sound's, `src/shared/sound/fuzz/` the model).
 7. Then, each on a word: part 4 (the renderers' output stage; among its decisions, the offscreen image's depth format and the multisampling's row, section 14.16), part 5 (the gamepad), part 6 (`SDL_DelayPrecise`).
@@ -711,3 +851,6 @@ The full VM validations, the same day (logs `build/validate-linux.log`, `build/v
 - A latched setting takes a new value only when it is registered again: the engine part registers the display's settings again at each start of the renderer.
 - SDL's dummy video driver, which the tests run on, has no OpenGL, no icon, no minimizing and no exclusive mode: `modernjk_test_platform real` checks those on a real driver, by hand.
 - The guidelines' text is at https://raw.githubusercontent.com/isocpp/CppCoreGuidelines/master/CppCoreGuidelines.md (the edition of 14 June 2026 was read).
+- Measuring against the build before this work (point 6, section 14.17): the worktree `E:\Git\jka\ModernJK_sdl2ref` (clang Release, SDL 2, diff empty); the clients started from PowerShell need llvm-mingw's `bin` folder in their `PATH` (its `libc++.dll`, `libunwind.dll`), and a number PowerShell formats takes the system's decimal comma unless the invariant culture is asked; PresentMon (Intel, MIT, 2.6.0) runs elevated through `cmd /c` (started directly it stopped without a word) and records every present of a process, its present mode and the time to the screen; a client connects to a server of the same machine by `127.0.0.1` (`localhost` is the engine's own loopback).
+- Scripted sessions in a level: a configuration file's `wait` counts every pass of the command buffer, a tick's included (about 225 a second at 125 frames a second in a game), and a bind's `+command` goes into that buffer behind any `wait` there, so a test that presses keys drives itself from code (section 14.17's harness, `tmpseries`); a level started by `devmap` from a configuration at the program's start leaves the UI's key catcher set.
+- The Linux VM: VirtualBox's mouse integration gives the guest an absolute pointer, which turns no view: turn it off (Input menu, the host key and I) to try the mouse in game; under Wayland its OpenGL is Mesa's software driver (llvmpipe, Mesa 23.2.1); `gdb` with Ubuntu's debuginfod (`DEBUGINFOD_URLS=https://debuginfod.ubuntu.com`, `-iex "set debuginfod enabled on"`) names Mesa's functions in a trace; a GCC Debug library with unique symbols is never unloaded by glibc (`readelf --dyn-syms`, `UNIQUE`).

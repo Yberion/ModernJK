@@ -99,7 +99,7 @@ struct Settings {
 // What the engine's functions share from the window's opening to the program's end.
 struct Layer {
     Layer(platform::Window&& opened, const platform::WindowSettings& applied, const Settings& registered)
-        : window(std::move(opened)), input(window), settings(applied), cvars(registered), screens(platform::Screens())
+        : window(std::move(opened)), input(window), settings(applied), cvars(registered), screens(platform::Screens(screenModes))
     {
     }
 
@@ -109,7 +109,9 @@ struct Layer {
     // the display's settings as the window has them
     platform::WindowSettings settings;
     Settings cvars;
-    // the screens as the menus list them, read again when they change
+    // the screens as the menus list them, read again when they change; their modes, which the system enumerates slowly
+    // the first time, only once the menus ask for them (Platform_Screens)
+    platform::ScreenModes screenModes = platform::ScreenModes::Skipped;
     std::vector<platform::Screen> screens;
     // the key pressed last, so that the character of the key that opens the console is not typed into it
     fakeAscii_t lastKeyDown = fakeAscii_t::A_NULL;
@@ -497,7 +499,7 @@ void OnWindow(Layer& layer, const platform::WindowEvent& event)
         Cbuf_ExecuteText(cbufExec_t::EXEC_NOW, "quit Closed window\n");
         break;
     case platform::WindowChange::ScreensChanged:
-        layer.screens = platform::Screens();
+        layer.screens = platform::Screens(layer.screenModes);
         break;
     case platform::WindowChange::PixelSizeChanged:
         break;
@@ -672,8 +674,20 @@ bool Platform_SetPointerImage(std::span<const std::uint8_t> rgba, int width, int
 
 std::span<const platform::Screen> Platform_Screens()
 {
-    const std::optional<Layer>& running = Running();
-    return running ? std::span<const platform::Screen>(running->screens) : std::span<const platform::Screen>();
+    std::optional<Layer>& running = Running();
+
+    if (!running) {
+        return {};
+    }
+
+    Layer& layer = *running;
+
+    if (layer.screenModes == platform::ScreenModes::Skipped) {
+        layer.screenModes = platform::ScreenModes::Listed;
+        layer.screens = platform::Screens(platform::ScreenModes::Listed);
+    }
+
+    return layer.screens;
 }
 
 int Platform_Milliseconds()
@@ -706,7 +720,7 @@ void Platform_Display(glconfig_s* glConfig)
     // are applied to the window, which stays the same one. A latched setting takes its new value when it is
     // registered again.
     layer.cvars = RegisterSettings();
-    layer.screens = platform::Screens();
+    layer.screens = platform::Screens(layer.screenModes);
 
     if (const platform::WindowSettings wanted = ReadSettings(layer.cvars); wanted != layer.settings) {
         if (!layer.window.Apply(wanted)) {

@@ -13,6 +13,8 @@ The video page of the setup menus shows four rows in place of the old video mode
 | Resolution | `r_windowWidth` and `r_windowHeight` in a window, `r_exclusiveMode` in exclusive fullscreen | in a window, the screen's own sizes that fit in its usable area (without the taskbar); in exclusive fullscreen, "Desktop" (the screen's present mode, `r_exclusiveMode` empty) then each size of the screen's modes; greyed in borderless fullscreen, showing the desktop's size |
 | Refresh rate | `r_exclusiveMode` | in exclusive fullscreen with a mode of its own, the rates the screen has at that size, the highest first; greyed otherwise, showing the desktop's rate |
 
+The screens' modes are read the first time the rows ask for them (`Platform_Screens`), not when the game starts: the system enumerates them slowly that first time (half a second for two screens of some 440 modes each), once, then again only after a change of the screens.
+
 A click, Enter or the right arrow gives the next value, the right button or the left arrow the one before; a list wraps around. The changes wait for "Apply", which restarts the video, as the page's other rows.
 
 ## Rules

@@ -218,21 +218,42 @@ SDL_Window* CreateHidden(const std::string& title, SDL_DisplayID display, PixelS
     return window;
 }
 
-// A window: out of fullscreen, at its size in pixels (SDL's sizes are in the screen's units), centred on its screen.
+// Asks for the window centred on a screen: a request the system may refuse, which fails nothing. Wayland refuses it
+// for every window of a program ("Wayland does not allow toplevel windows to position themselves programmatically",
+// SDL's README-wayland), its compositor placing them; SDL keeps the screen asked for the fullscreen that follows ("the
+// very common pattern of SDL_SetWindowPosition() followed immediately by SDL_SetWindowFullscreen()", SDL_video.c), so
+// that a window still goes fullscreen on that screen.
+void RequestCentred(SDL_Window* window, SDL_DisplayID display) noexcept
+{
+    const auto centred = static_cast<int>(SDL_WINDOWPOS_CENTERED_DISPLAY(display));
+    SDL_SetWindowPosition(window, centred, centred);
+}
+
+// A window: out of fullscreen, at its size in pixels (SDL's sizes are in the screen's units), centred on its screen
+// where the system lets a program place its windows.
 bool ApplyWindowed(SDL_Window* window, SDL_DisplayID display, PixelSize size)
 {
     const float density = std::max(SDL_GetWindowPixelDensity(window), 1.0F);
     const int width = std::max(RoundSize(static_cast<float>(size.width) / density), 1);
     const int height = std::max(RoundSize(static_cast<float>(size.height) / density), 1);
-    const auto centred = static_cast<int>(SDL_WINDOWPOS_CENTERED_DISPLAY(display));
-    return SDL_SetWindowFullscreen(window, false) && SDL_SetWindowSize(window, width, height) && SDL_SetWindowPosition(window, centred, centred);
+
+    if (!SDL_SetWindowFullscreen(window, false) || !SDL_SetWindowSize(window, width, height)) {
+        return false;
+    }
+
+    RequestCentred(window, display);
+    return true;
 }
 
-// Borderless fullscreen: no fullscreen mode, the window moved onto its screen, then fullscreen.
+// Borderless fullscreen: no fullscreen mode, the window asked onto its screen, then fullscreen.
 bool ApplyBorderless(SDL_Window* window, SDL_DisplayID display)
 {
-    const auto centred = static_cast<int>(SDL_WINDOWPOS_CENTERED_DISPLAY(display));
-    return SDL_SetWindowFullscreenMode(window, nullptr) && SDL_SetWindowPosition(window, centred, centred) && SDL_SetWindowFullscreen(window, true);
+    if (!SDL_SetWindowFullscreenMode(window, nullptr)) {
+        return false;
+    }
+
+    RequestCentred(window, display);
+    return SDL_SetWindowFullscreen(window, true);
 }
 
 // Exclusive fullscreen: the screen's mode for the one asked, or its desktop's when none is; the mode carries its
@@ -257,7 +278,7 @@ bool ApplyExclusive(SDL_Window* window, SDL_DisplayID display, const DisplayMode
 
 // Each screen with its desktop's mode and the modes exclusive fullscreen can set; SDL lists a mode once per pixel
 // format, kept once here.
-std::vector<Screen> Screens()
+std::vector<Screen> Screens(ScreenModes modes)
 {
     std::vector<Screen> screens;
 
@@ -281,10 +302,10 @@ std::vector<Screen> Screens()
                             : PixelSize{.width = screen.desktop.width, .height = screen.desktop.height};
 
         int count = 0;
-        const ModeListPtr modes(SDL_GetFullscreenDisplayModes(id, &count), SDL_free);
+        const ModeListPtr list(modes == ScreenModes::Listed ? SDL_GetFullscreenDisplayModes(id, &count) : nullptr, SDL_free);
 
-        if (modes) {
-            for (const SDL_DisplayMode* const mode : std::span(modes.get(), static_cast<std::size_t>(count))) {
+        if (list) {
+            for (const SDL_DisplayMode* const mode : std::span(list.get(), static_cast<std::size_t>(count))) {
                 const DisplayMode pixels = ModeInPixels(*mode);
 
                 if (std::ranges::find(screen.modes, pixels) == screen.modes.end()) {
@@ -396,6 +417,18 @@ bool Window::Apply(const WindowSettings& settings)
     // because the system took too long is not a refusal
     if ((SDL_GetWindowFlags(window_.get()) & SDL_WINDOW_HIDDEN) == 0) {
         SDL_SyncWindow(window_.get());
+    }
+
+    // the context bound to the window again, so that the driver reads the window's size before the next image: Mesa's
+    // software path under Wayland (llvmpipe, softpipe) resizes its buffer only then or after a swap, and a buffer drawn
+    // since the last swap was otherwise copied at its old size into the resized window, which crashed in Mesa
+    if (context_) {
+        // released first: SDL leaves a context that is already current as it is
+        SDL_GL_MakeCurrent(window_.get(), nullptr);
+
+        if (!SDL_GL_MakeCurrent(window_.get(), context_.get())) {
+            return false;
+        }
     }
 
     return applied;

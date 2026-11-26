@@ -1730,6 +1730,13 @@ void RE_Shutdown(bool destroyWindow, bool restarting)
         }
     }
 
+    // a restart of the video asks the client again what the display is like (InitOpenGL asks when vidWidth is 0): the
+    // library may stay loaded until the next start, keeping these, since glibc never unloads a library that holds GCC's
+    // unique symbols (a debug build's)
+    if (destroyWindow) {
+        memset(&glConfig, 0, sizeof(glConfig));
+    }
+
     tr.registered = false;
 }
 
