@@ -33,7 +33,7 @@ void CL_Init(void)
     cl_shownet = Cvar_Get("cl_shownet", "0", cvarFlags_t::CVAR_TEMP);
 }
 
-void CL_MouseEvent(int dx, int dy, int time) {}
+void CL_MouseEvent(float dx, float dy) {}
 
 void Key_WriteBindings(fileHandle_t f) {}
 
@@ -62,7 +62,7 @@ bool CL_GameCommand(void)
     return false;
 }
 
-void CL_KeyEvent(fakeAscii_t key, bool down, unsigned time) {}
+void CL_KeyEvent(fakeAscii_t key, bool down, int64_t time) {}
 
 bool UI_GameCommand(void)
 {

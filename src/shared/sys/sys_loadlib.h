@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#ifdef DEDICATED
+#if defined(DEDICATED) || defined(MODERNJK_PLATFORM)
 #ifdef _WIN32
 #include <windows.h>
 #define Sys_LoadLibrary(f) (void*)LoadLibrary(f)

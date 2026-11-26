@@ -69,7 +69,7 @@ typedef struct sysEvent_s {
     int evTime;
     sysEventType_t evType;
     int evValue, evValue2;
-    int evPtrLength; // bytes of data pointed to by evPtr, for journaling
+    int evPtrLength; // bytes of data pointed to by evPtr
     void* evPtr;     // this must be manually freed if not nullptr
 } sysEvent_t;
 
@@ -100,7 +100,7 @@ template <typename... T> NORETURN void Sys_Error(fmt::format_string<T...> error,
     Sys_VError(error.get(), Q_FormatArgs(args...));
 }
 void NORETURN Sys_Quit(void);
-char* Sys_GetClipboardData(void); // note that this isn't journaled...
+char* Sys_GetClipboardData(void);
 
 void Sys_Print(const char* msg);
 

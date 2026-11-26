@@ -43,8 +43,6 @@ extern refexport_t re;
 static fileHandle_t logfile;
 static fileHandle_t speedslog;
 static fileHandle_t camerafile;
-fileHandle_t com_journalFile;
-fileHandle_t com_journalDataFile; // config files are written here
 
 cvar_t* com_speeds;
 cvar_t* com_developer;
@@ -744,10 +742,7 @@ void Hunk_Clear(void)
 /*
 ===================================================================
 
-EVENTS AND JOURNALING
-
-In addition to these events, .cfg files are also copied to the
-journaled file
+EVENTS
 ===================================================================
 */
 
@@ -914,7 +909,7 @@ int Com_EventLoop(void)
 ================
 Com_Milliseconds
 
-Can be used for profiling, but will be journaled accurately
+The time of the system's last event, the events read on the way kept for the event loop
 ================
 */
 int Com_Milliseconds(void)
@@ -1588,11 +1583,6 @@ void Com_Shutdown(void)
     if (camerafile) {
         FS_FCloseFile(camerafile);
         camerafile = 0;
-    }
-
-    if (com_journalFile) {
-        FS_FCloseFile(com_journalFile);
-        com_journalFile = 0;
     }
 
 #ifdef JK2_MODE

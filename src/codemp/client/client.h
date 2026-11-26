@@ -158,7 +158,7 @@ typedef struct clientActive_s {
 
     int parseEntitiesNum; // index (not anded off) into cl_parse_entities[]
 
-    int mouseDx[2], mouseDy[2]; // added to by mouse events
+    float mouseDx[2], mouseDy[2]; // added to by mouse events
     int mouseIndex;
     EnumArray<int, joystickAxis_t, joystickAxis_t::MAX_JOYSTICK_AXIS> joystickAxis; // set by joystick events
 
@@ -377,7 +377,6 @@ typedef struct clientStatic_s {
 
     // Cursor
     bool cursorActive;
-    qhandle_t cursorShader;
     int cursorX;
     int cursorY;
 
@@ -471,10 +470,6 @@ extern cvar_t* cl_allowAltEnter;
 extern cvar_t* cl_conXOffset;
 extern cvar_t* cl_inGameVideo;
 
-extern cvar_t* cl_consoleKeys;
-extern cvar_t* cl_consoleUseScanCode;
-extern cvar_t* cl_consoleShiftRequirement;
-
 extern cvar_t* cl_drawRecording;
 
 extern cvar_t* cl_reconnectArgs;
@@ -522,18 +517,17 @@ int CL_ServerStatus(const char* serverAddress, char* serverStatusString, int max
 bool CL_CheckPaused(void);
 
 void CL_DrawEngineMenus(void);
-void CL_UpdateCursorPosition(int dx, int dy);
 void CL_CursorButton(fakeAscii_t key);
 
 //
 // cl_input
 //
 typedef struct kbutton_s {
-    int down[2];       // key nums holding it down
-    unsigned downtime; // msec timestamp
-    unsigned msec;     // msec down this frame if both a down and up happened
-    bool active;       // current state
-    bool wasPressed;   // set when down, not cleared when up
+    int down[2];      // key nums holding it down
+    int64_t downtime; // when it went down, in nanoseconds on the client's clock; 0 when not known
+    int64_t nsec;     // nanoseconds down since the keys were last read, when it went down and up in between
+    bool active;      // current state
+    bool wasPressed;  // set when down, not cleared when up
 } kbutton_t;
 
 void CL_InitInput(void);
@@ -543,7 +537,7 @@ void CL_ClearState(void);
 
 void CL_WritePacket(void);
 
-float CL_KeyState(kbutton_t* key, unsigned span);
+float CL_KeyState(kbutton_t* key, int64_t span);
 bool CL_PendingCmd(usercmd_t* cmd);
 const char* Key_KeynumToString(fakeAscii_t keynum /*, bool bTranslate */); // note: translate is only called for menu display not configs
 

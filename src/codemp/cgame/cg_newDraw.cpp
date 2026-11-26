@@ -766,17 +766,9 @@ void CG_MouseEvent(int x, int y)
     }
     */
 
-    cgs.cursorX += x;
-    if (cgs.cursorX < 0)
-        cgs.cursorX = 0;
-    else if (cgs.cursorX > 640)
-        cgs.cursorX = 640;
-
-    cgs.cursorY += y;
-    if (cgs.cursorY < 0)
-        cgs.cursorY = 0;
-    else if (cgs.cursorY > 480)
-        cgs.cursorY = 480;
+    // the place is in the window's pixels, the menus count in their 640 by 480
+    cgs.cursorX = Com_Clampi(0, 640, x * 640 / cgs.glconfig.vidWidth);
+    cgs.cursorY = Com_Clampi(0, 480, y * 480 / cgs.glconfig.vidHeight);
 
     n = Display_CursorType(cgs.cursorX, cgs.cursorY);
     cgs.activeCursor = 0;
@@ -788,7 +780,7 @@ void CG_MouseEvent(int x, int y)
     }
 
     if (cgs.capturedItem) {
-        Display_MouseMove(cgs.capturedItem, x, y);
+        Display_MouseMove(cgs.capturedItem, cgs.cursorX, cgs.cursorY);
     }
     else {
         Display_MouseMove(nullptr, cgs.cursorX, cgs.cursorY);
@@ -840,7 +832,13 @@ void CG_EventHandling(cgameEvent_t type)
     }
 }
 
-void CG_KeyEvent(int key, bool down)
+// A typed character, for a field of the cgame's menus being edited.
+void CG_CharEvent(int character)
+{
+    Menu_HandleChar(character);
+}
+
+void CG_KeyEvent(fakeAscii_t key, bool down)
 {
 
     if (!down) {
@@ -854,19 +852,19 @@ void CG_KeyEvent(int key, bool down)
         return;
     }
 
-    // if ((KeyEvent_Key( key ) && KeyEvent_Key( key ) == trap->Key_GetKey("teamMenu")) || !Display_CaptureItem(cgs.cursorX, cgs.cursorY)) {
+    // if ((key == trap->Key_GetKey("teamMenu")) || !Display_CaptureItem(cgs.cursorX, cgs.cursorY)) {
     //  if we see this then we should always be visible
     //   CG_EventHandling(cgameEvent_t::CGAME_EVENT_NONE);
     //   trap->Key_SetCatcher(keyCatchFlags_t::KEYCATCH_NONE);
     // }
 
-    Display_HandleKey(key, down, cgs.cursorX, cgs.cursorY);
+    Display_HandleKey(std::to_underlying(key), down, cgs.cursorX, cgs.cursorY);
 
     if (cgs.capturedItem) {
         cgs.capturedItem = nullptr;
     }
     else {
-        if (KeyEvent_Key(key) == fakeAscii_t::A_MOUSE2 && down) {
+        if (key == fakeAscii_t::A_MOUSE2 && down) {
             cgs.capturedItem = Display_CaptureItem(cgs.cursorX, cgs.cursorY);
         }
     }

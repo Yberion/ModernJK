@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <ghoul2/G2.h>
 
-inline constexpr int CGAME_API_VERSION = 5;
+inline constexpr int CGAME_API_VERSION = 6;
 
 enum class uiMenuCommand_t; // ui_public.h
 enum class fakeAscii_t;     // ui/keycodes.h
@@ -446,7 +446,10 @@ typedef struct cgameExport_s {
     void (*DrawActiveFrame)(int serverTime, stereoFrame_t stereoView, bool demoPlayback);
     int (*CrosshairPlayer)(void);
     int (*LastAttacker)(void);
-    void (*KeyEvent)(int key, bool down);
+    void (*KeyEvent)(fakeAscii_t key, bool down);
+    // a typed character, in the engine's one-byte set
+    void (*CharEvent)(int character);
+    // the pointer's place in the window, in pixels from its top left corner
     void (*MouseEvent)(int x, int y);
     void (*EventHandling)(cgameEvent_t type);
     contentsFlags_t (*PointContents)(void);

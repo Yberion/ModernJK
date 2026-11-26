@@ -58,3 +58,17 @@ if(TARGET modernjk_sound AND TARGET vendored::openal)
 	endif()
 	add_test(NAME modernjk.sound COMMAND modernjk_test_sound "${CMAKE_CURRENT_SOURCE_DIR}/sound/data" "${PROJECT_SOURCE_DIR}/assets")
 endif()
+
+# The tests of src/shared/platform and of SDL 3 as it is built for the client, on its dummy video driver (no screen
+# needed)
+if(TARGET modernjk_platform)
+	add_executable(modernjk_test_platform platform/main.cpp platform/input.cpp platform/real.cpp platform/sdl.cpp
+		platform/window.cpp)
+	target_include_directories(modernjk_test_platform PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src")
+	target_link_libraries(modernjk_test_platform PRIVATE modernjk_platform vendored::sdl modernjk_options modernjk_warnings
+		modernjk_defines vendored::fmt)
+	if(MINGW)
+		target_link_options(modernjk_test_platform PRIVATE -static)
+	endif()
+	add_test(NAME modernjk.platform COMMAND modernjk_test_platform)
+endif()

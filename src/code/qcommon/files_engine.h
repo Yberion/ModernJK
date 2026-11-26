@@ -40,9 +40,6 @@ static inline void FS_LabelFile(const void* buffer, const char* name)
 
 // What the multiplayer engine has and this one has not, as the file system uses it:
 
-// no journal of the configuration files read
-static cvar_t* const com_journal = nullptr;
-
 // no temporary memory on the hunk
 static inline void* Hunk_AllocateTempMemory(int size)
 {

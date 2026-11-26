@@ -3271,7 +3271,7 @@ void Leaving_EditField(itemDef_t* item)
 }
 
 #ifdef UI_BUILD
-bool Item_TextField_HandleKey(itemDef_t* item, int key);
+bool Item_TextField_HandleChar(itemDef_t* item, int ch);
 void Item_TextField_Paste(itemDef_t* item)
 {
     int pasteLen, i;
@@ -3286,18 +3286,18 @@ void Item_TextField_Paste(itemDef_t* item)
     // send as if typed, so insert / overstrike works properly
     pasteLen = strlen(buff);
     for (i = 0; i < pasteLen; i++) {
-        Item_TextField_HandleKey(item, buff[i] | K_CHAR_FLAG);
+        Item_TextField_HandleChar(item, buff[i]);
     }
 }
 #endif
 
-bool Item_TextField_HandleKey(itemDef_t* item, int event)
+// A character typed into the field being edited. False when the field refuses it and the editing ends (a letter in a
+// field of digits).
+bool Item_TextField_HandleChar(itemDef_t* item, int ch)
 {
     char buff[2048];
     int len;
-    itemDef_t* newItem = nullptr;
     editFieldDef_t* editPtr = item->typeData.edit;
-    const std::optional<fakeAscii_t> key = KeyEvent_Key(event); // none for a character
 
     if (item->cvar) {
 
@@ -3307,122 +3307,138 @@ bool Item_TextField_HandleKey(itemDef_t* item, int event)
         if (editPtr->maxChars && len > editPtr->maxChars) {
             len = editPtr->maxChars;
         }
-        if (event & K_CHAR_FLAG) {
-            const int ch = event & ~K_CHAR_FLAG;
 
 #ifdef UI_BUILD
-            if (ch == 'v' - 'a' + 1) { // ctrl-v is paste
-                Item_TextField_Paste(item);
-                return true;
-            }
+        if (ch == 'v' - 'a' + 1) { // ctrl-v is paste
+            Item_TextField_Paste(item);
+            return true;
+        }
 #endif
 
-            if (ch == 'h' - 'a' + 1) { // ctrl-h is backspace
-                if (item->cursorPos > 0) {
-                    memmove(&buff[item->cursorPos - 1], &buff[item->cursorPos], len + 1 - item->cursorPos);
-                    item->cursorPos--;
-                    if (item->cursorPos < editPtr->paintOffset) {
-                        editPtr->paintOffset--;
-                    }
-                }
-                DC->setCVar(item->cvar, buff);
-                return true;
-            }
-
-            //
-            // ignore any non printable chars
-            //
-            if (ch < 32 || !item->cvar) {
-                return true;
-            }
-
-            if (item->type == ITEM_TYPE_NUMERICFIELD) {
-                if (ch < '0' || ch > '9') {
-                    return false;
-                }
-            }
-
-            if (!DC->getOverstrikeMode()) {
-                if ((len == MAX_EDITFIELD - 1) || (editPtr->maxChars && len >= editPtr->maxChars)) {
-                    return true;
-                }
-                memmove(&buff[item->cursorPos + 1], &buff[item->cursorPos], len + 1 - item->cursorPos);
-            }
-            else {
-                if (editPtr->maxChars && item->cursorPos >= editPtr->maxChars) {
-                    return true;
-                }
-            }
-
-            buff[item->cursorPos] = ch;
-
-            // rww - nul-terminate!
-            if (item->cursorPos + 1 < 2048) {
-                buff[item->cursorPos + 1] = 0;
-            }
-            else {
-                buff[item->cursorPos] = 0;
-            }
-
-            DC->setCVar(item->cvar, buff);
-
-            if (item->cursorPos < len + 1) {
-                item->cursorPos++;
-                if (editPtr->maxPaintChars && item->cursorPos > editPtr->maxPaintChars) {
-                    editPtr->paintOffset++;
-                }
-            }
-        }
-        else {
-
-            if (key == fakeAscii_t::A_DELETE || key == fakeAscii_t::A_KP_PERIOD) {
-                if (item->cursorPos < len) {
-                    memmove(buff + item->cursorPos, buff + item->cursorPos + 1, len - item->cursorPos);
-                    DC->setCVar(item->cvar, buff);
-                }
-                return true;
-            }
-
-            if (key == fakeAscii_t::A_CURSOR_RIGHT || key == fakeAscii_t::A_KP_6) {
-                if (editPtr->maxPaintChars && item->cursorPos >= editPtr->maxPaintChars && item->cursorPos < len) {
-                    item->cursorPos++;
-                    editPtr->paintOffset++;
-                    return true;
-                }
-                if (item->cursorPos < len) {
-                    item->cursorPos++;
-                }
-                return true;
-            }
-
-            if (key == fakeAscii_t::A_CURSOR_LEFT || key == fakeAscii_t::A_KP_4) {
-                if (item->cursorPos > 0) {
-                    item->cursorPos--;
-                }
+        if (ch == 'h' - 'a' + 1) { // ctrl-h is backspace
+            if (item->cursorPos > 0) {
+                memmove(&buff[item->cursorPos - 1], &buff[item->cursorPos], len + 1 - item->cursorPos);
+                item->cursorPos--;
                 if (item->cursorPos < editPtr->paintOffset) {
                     editPtr->paintOffset--;
                 }
-                return true;
             }
+            DC->setCVar(item->cvar, buff);
+            return true;
+        }
 
-            if (key == fakeAscii_t::A_HOME || key == fakeAscii_t::A_KP_7) { // || ( tolower(key) == 'a' && trap->Key_IsDown( K_CTRL ) ) ) {
-                item->cursorPos = 0;
-                editPtr->paintOffset = 0;
-                return true;
-            }
+        //
+        // ignore any non printable chars
+        //
+        if (ch < 32 || !item->cvar) {
+            return true;
+        }
 
-            if (key == fakeAscii_t::A_END || key == fakeAscii_t::A_KP_1) { // ( tolower(key) == 'e' && trap->Key_IsDown( K_CTRL ) ) ) {
-                item->cursorPos = len;
-                if (item->cursorPos > editPtr->maxPaintChars) {
-                    editPtr->paintOffset = len - editPtr->maxPaintChars;
-                }
-                return true;
+        if (item->type == ITEM_TYPE_NUMERICFIELD) {
+            if (ch < '0' || ch > '9') {
+                return false;
             }
+        }
 
-            if (key == fakeAscii_t::A_INSERT || key == fakeAscii_t::A_KP_0) {
-                DC->setOverstrikeMode(!DC->getOverstrikeMode());
+        if (!DC->getOverstrikeMode()) {
+            if ((len == MAX_EDITFIELD - 1) || (editPtr->maxChars && len >= editPtr->maxChars)) {
                 return true;
             }
+            memmove(&buff[item->cursorPos + 1], &buff[item->cursorPos], len + 1 - item->cursorPos);
+        }
+        else {
+            if (editPtr->maxChars && item->cursorPos >= editPtr->maxChars) {
+                return true;
+            }
+        }
+
+        buff[item->cursorPos] = ch;
+
+        // rww - nul-terminate!
+        if (item->cursorPos + 1 < 2048) {
+            buff[item->cursorPos + 1] = 0;
+        }
+        else {
+            buff[item->cursorPos] = 0;
+        }
+
+        DC->setCVar(item->cvar, buff);
+
+        if (item->cursorPos < len + 1) {
+            item->cursorPos++;
+            if (editPtr->maxPaintChars && item->cursorPos > editPtr->maxPaintChars) {
+                editPtr->paintOffset++;
+            }
+        }
+
+        return true;
+    }
+    return false;
+}
+
+bool Item_TextField_HandleKey(itemDef_t* item, fakeAscii_t key)
+{
+    char buff[2048];
+    int len;
+    itemDef_t* newItem = nullptr;
+    editFieldDef_t* editPtr = item->typeData.edit;
+
+    if (item->cvar) {
+
+        buff[0] = 0;
+        DC->getCVarString(item->cvar, buff, sizeof(buff));
+        len = strlen(buff);
+        if (editPtr->maxChars && len > editPtr->maxChars) {
+            len = editPtr->maxChars;
+        }
+
+        if (key == fakeAscii_t::A_DELETE || key == fakeAscii_t::A_KP_PERIOD) {
+            if (item->cursorPos < len) {
+                memmove(buff + item->cursorPos, buff + item->cursorPos + 1, len - item->cursorPos);
+                DC->setCVar(item->cvar, buff);
+            }
+            return true;
+        }
+
+        if (key == fakeAscii_t::A_CURSOR_RIGHT || key == fakeAscii_t::A_KP_6) {
+            if (editPtr->maxPaintChars && item->cursorPos >= editPtr->maxPaintChars && item->cursorPos < len) {
+                item->cursorPos++;
+                editPtr->paintOffset++;
+                return true;
+            }
+            if (item->cursorPos < len) {
+                item->cursorPos++;
+            }
+            return true;
+        }
+
+        if (key == fakeAscii_t::A_CURSOR_LEFT || key == fakeAscii_t::A_KP_4) {
+            if (item->cursorPos > 0) {
+                item->cursorPos--;
+            }
+            if (item->cursorPos < editPtr->paintOffset) {
+                editPtr->paintOffset--;
+            }
+            return true;
+        }
+
+        if (key == fakeAscii_t::A_HOME || key == fakeAscii_t::A_KP_7) { // || ( tolower(key) == 'a' && trap->Key_IsDown( K_CTRL ) ) ) {
+            item->cursorPos = 0;
+            editPtr->paintOffset = 0;
+            return true;
+        }
+
+        if (key == fakeAscii_t::A_END || key == fakeAscii_t::A_KP_1) { // ( tolower(key) == 'e' && trap->Key_IsDown( K_CTRL ) ) ) {
+            item->cursorPos = len;
+            if (item->cursorPos > editPtr->maxPaintChars) {
+                editPtr->paintOffset = len - editPtr->maxPaintChars;
+            }
+            return true;
+        }
+
+        if (key == fakeAscii_t::A_INSERT || key == fakeAscii_t::A_KP_0) {
+            DC->setOverstrikeMode(!DC->getOverstrikeMode());
+            return true;
         }
 
         if (key == fakeAscii_t::A_TAB || key == fakeAscii_t::A_CURSOR_DOWN || key == fakeAscii_t::A_KP_2) {
@@ -4007,11 +4023,26 @@ void Menus_HandleOOBClick(menuDef_t* menu, int key, bool down)
     }
 }
 
+// Whether a row waits for the key to bind or a field is being edited: Escape then ends that, and closes no menu.
+bool Menu_TakesEscape(void)
+{
+    return g_waitingForKey || g_editingField;
+}
+
+// A typed character, for the field being edited.
+void Menu_HandleChar(int ch)
+{
+    if (g_editingField && g_editItem && !Item_TextField_HandleChar(g_editItem, ch)) {
+        g_editingField = false;
+        g_editItem = nullptr;
+    }
+}
+
 void Menu_HandleKey(menuDef_t* menu, int event, bool down)
 {
     int i;
     itemDef_t* item = nullptr;
-    const std::optional<fakeAscii_t> key = KeyEvent_Key(event);
+    const fakeAscii_t key = static_cast<fakeAscii_t>(event);
 
     if (g_waitingForKey && down) {
         Item_Bind_HandleKey(g_bindItem, key, down);
@@ -4019,7 +4050,7 @@ void Menu_HandleKey(menuDef_t* menu, int event, bool down)
     }
 
     if (g_editingField && down) {
-        if (!Item_TextField_HandleKey(g_editItem, event)) {
+        if (!Item_TextField_HandleKey(g_editItem, key)) {
             g_editingField = false;
             g_editItem = nullptr;
             return;
@@ -4072,12 +4103,12 @@ void Menu_HandleKey(menuDef_t* menu, int event, bool down)
         }
     }
 
-    if (!down || !key) {
+    if (!down) {
         return;
     }
 
     // default handling
-    switch (*key) {
+    switch (key) {
 
     case fakeAscii_t::A_F11:
         if (DC->getCVarValue("developer")) {

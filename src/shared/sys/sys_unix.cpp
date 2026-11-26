@@ -38,6 +38,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <qcommon/q_version.h>
 #include <qcommon/qcommon.h>
+#ifdef MODERNJK_PLATFORM
+#include <shared/platform/engine/engine.h>
+#endif
 #include <qcommon/q_shared.h>
 #include "sys_local.h"
 
@@ -98,6 +101,13 @@ every step of the system time (NTP, a date set by hand), which froze the server 
 ran up to 5 s of frames at once when it went forward.
 ================
 */
+#ifdef MODERNJK_PLATFORM
+int Sys_Milliseconds(void)
+{
+    // the client's one clock, the one its input is dated on
+    return Platform_Milliseconds();
+}
+#else
 static int64_t Sys_MonotonicMilliseconds(void)
 {
     struct timespec now;
@@ -112,6 +122,7 @@ int Sys_Milliseconds(void)
 
     return (int)(Sys_MonotonicMilliseconds() - base);
 }
+#endif
 
 int Sys_Milliseconds2(void)
 {

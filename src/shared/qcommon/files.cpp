@@ -630,11 +630,6 @@ void FS_CopyFile(char* fromOSPath, char* toOSPath)
 
     Q_Println("copy {} to {}", fromOSPath, toOSPath);
 
-    if (strstr(fromOSPath, "journal.dat") || strstr(fromOSPath, "journaldata.dat")) {
-        Q_Println("Ignoring journal files");
-        return;
-    }
-
     f = fopen(fromOSPath, "rb");
     if (!f) {
         return;
@@ -1514,7 +1509,7 @@ long FS_FOpenFileRead(const char* filename, fileHandle_t* file, bool uniqueFILE)
                         !FS_IsExt(filename, ".fcf", l) &&  // force configuration files
                         !FS_IsExt(filename, ".menu", l) && // menu files
                         !FS_IsExt(filename, ".game", l) && // menu files
-                        !FS_IsExt(filename, ".dat", l) &&  // for journal files
+                        !FS_IsExt(filename, ".dat", l) &&  // data files
                         !FS_IsDemoExt(filename, l)) {      // demos
                         continue;
                     }
@@ -1532,7 +1527,7 @@ long FS_FOpenFileRead(const char* filename, fileHandle_t* file, bool uniqueFILE)
                     !FS_IsExt(filename, ".fcf", l) &&  // force configuration files
                     !FS_IsExt(filename, ".menu", l) && // menu files
                     !FS_IsExt(filename, ".game", l) && // menu files
-                    !FS_IsExt(filename, ".dat", l) &&  // for journal files
+                    !FS_IsExt(filename, ".dat", l) &&  // data files
                     !FS_IsDemoExt(filename, l)) {      // demos
                     fs_fakeChkSum = Q_flrand(0.0f, 1.0f);
                 }
@@ -1877,7 +1872,6 @@ long FS_ReadFile(const char* qpath, void** buffer)
 {
     fileHandle_t h;
     byte* buf;
-    bool isConfig;
     long len;
 
     FS_AssertInitialised();
@@ -1886,74 +1880,16 @@ long FS_ReadFile(const char* qpath, void** buffer)
         Q_Error(errorParm_t::ERR_FATAL, "FS_ReadFile with empty name");
     }
 
-    buf = nullptr; // quiet compiler warning
-
-    // if this is a .cfg file and we are playing back a journal, read
-    // it from the journal file
-    if (strstr(qpath, ".cfg")) {
-        isConfig = true;
-        if (com_journal && com_journal->integer == 2) {
-            int r;
-
-            Q_DPrintln("Loading {} from journal file.", qpath);
-            r = FS_Read(&len, sizeof(len), com_journalDataFile);
-            if (r != sizeof(len)) {
-                if (buffer != nullptr)
-                    *buffer = nullptr;
-                return -1;
-            }
-            // if the file didn't exist when the journal was created
-            if (!len) {
-                if (buffer == nullptr) {
-                    return 1; // hack for old journal files
-                }
-                *buffer = nullptr;
-                return -1;
-            }
-            if (buffer == nullptr) {
-                return len;
-            }
-
-            buf = (unsigned char*)Hunk_AllocateTempMemory(len + 1);
-            *buffer = buf;
-
-            r = FS_Read(buf, len, com_journalDataFile);
-            if (r != len) {
-                Q_Error(errorParm_t::ERR_FATAL, "Read from journalDataFile failed");
-            }
-
-            // guarantee that it will have a trailing 0 for string operations
-            buf[len] = 0;
-
-            return len;
-        }
-    }
-    else {
-        isConfig = false;
-    }
-
     // look for it in the filesystem or pack files
     len = FS_FOpenFileRead(qpath, &h, false);
     if (h == 0) {
         if (buffer) {
             *buffer = nullptr;
         }
-        // if we are journalling and it is a config file, write a zero to the journal file
-        if (isConfig && com_journal && com_journal->integer == 1) {
-            Q_DPrintln("Writing zero for {} to journal file.", qpath);
-            len = 0;
-            FS_Write(&len, sizeof(len), com_journalDataFile);
-            FS_Flush(com_journalDataFile);
-        }
         return -1;
     }
 
     if (!buffer) {
-        if (isConfig && com_journal && com_journal->integer == 1) {
-            Q_DPrintln("Writing len for {} to journal file.", qpath);
-            FS_Write(&len, sizeof(len), com_journalDataFile);
-            FS_Flush(com_journalDataFile);
-        }
         FS_FCloseFile(h);
         return len;
     }
@@ -1975,14 +1911,6 @@ long FS_ReadFile(const char* qpath, void** buffer)
     // guarantee that it will have a trailing 0 for string operations
     buf[len] = 0;
     FS_FCloseFile(h);
-
-    // if we are journalling and it is a config file, write it to the journal file
-    if (isConfig && com_journal && com_journal->integer == 1) {
-        Q_DPrintln("Writing {} to journal file.", qpath);
-        FS_Write(&len, sizeof(len), com_journalDataFile);
-        FS_Write(buf, len, com_journalDataFile);
-        FS_Flush(com_journalDataFile);
-    }
     return len;
 }
 

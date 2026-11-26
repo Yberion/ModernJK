@@ -30,6 +30,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game_version.h"
 #include <server/NPCNav/navigator.h>
 #include <shared/sys/sys_local.h>
+#ifndef DEDICATED
+#include <shared/platform/engine/engine.h>
+#endif
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -37,8 +40,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 FILE* debuglogfile;
 fileHandle_t logfile;
-fileHandle_t com_journalFile;     // events are written here
-fileHandle_t com_journalDataFile; // config files are written here
 
 cvar_t* com_speeds;
 cvar_t* com_developer;
@@ -46,7 +47,6 @@ cvar_t* com_dedicated;
 cvar_t* com_timescale;
 cvar_t* com_fixedtime;
 cvar_t* com_debugSeed;
-cvar_t* com_journal;
 cvar_t* com_timedemo;
 cvar_t* com_sv_running;
 cvar_t* com_cl_running;
@@ -707,10 +707,7 @@ int Com_RealTime(qtime_t* qtime)
 /*
 ===================================================================
 
-EVENTS AND JOURNALING
-
-In addition to these events, .cfg files are also copied to the
-journaled file
+EVENTS
 ===================================================================
 */
 
@@ -721,79 +718,12 @@ static sysEvent_t com_pushedEvents[MAX_PUSHED_EVENTS];
 
 /*
 =================
-Com_InitJournaling
-=================
-*/
-void Com_InitJournaling(void)
-{
-    Com_StartupVariable("journal");
-    com_journal = Cvar_Get("journal", "0", cvarFlags_t::CVAR_INIT);
-    if (!com_journal->integer) {
-        return;
-    }
-
-    if (com_journal->integer == 1) {
-        Q_Println("Journaling events");
-        com_journalFile = FS_FOpenFileWrite("journal.dat");
-        com_journalDataFile = FS_FOpenFileWrite("journaldata.dat");
-    }
-    else if (com_journal->integer == 2) {
-        Q_Println("Replaying journaled events");
-        FS_FOpenFileRead("journal.dat", &com_journalFile, true);
-        FS_FOpenFileRead("journaldata.dat", &com_journalDataFile, true);
-    }
-
-    if (!com_journalFile || !com_journalDataFile) {
-        Cvar_Set("com_journal", "0");
-        com_journalFile = 0;
-        com_journalDataFile = 0;
-        Q_Println("Couldn't open journal files");
-    }
-}
-
-/*
-=================
 Com_GetRealEvent
 =================
 */
 sysEvent_t Com_GetRealEvent(void)
 {
-    int r;
-    sysEvent_t ev;
-
-    // either get an event from the system or the journal file
-    if (com_journal->integer == 2) {
-        r = FS_Read(&ev, sizeof(ev), com_journalFile);
-        if (r != sizeof(ev)) {
-            Q_Error(errorParm_t::ERR_FATAL, "Error reading from journal file");
-        }
-        if (ev.evPtrLength) {
-            ev.evPtr = Z_Malloc(ev.evPtrLength, memtag::TAG_EVENT, true);
-            r = FS_Read(ev.evPtr, ev.evPtrLength, com_journalFile);
-            if (r != ev.evPtrLength) {
-                Q_Error(errorParm_t::ERR_FATAL, "Error reading from journal file");
-            }
-        }
-    }
-    else {
-        ev = Sys_GetEvent();
-
-        // write the journal value out if needed
-        if (com_journal->integer == 1) {
-            r = FS_Write(&ev, sizeof(ev), com_journalFile);
-            if (r != sizeof(ev)) {
-                Q_Error(errorParm_t::ERR_FATAL, "Error writing to journal file");
-            }
-            if (ev.evPtrLength) {
-                r = FS_Write(ev.evPtr, ev.evPtrLength, com_journalFile);
-                if (r != ev.evPtrLength) {
-                    Q_Error(errorParm_t::ERR_FATAL, "Error writing to journal file");
-                }
-            }
-        }
-    }
-
-    return ev;
+    return Sys_GetEvent();
 }
 
 /*
@@ -927,18 +857,6 @@ int Com_EventLoop(void)
             break;
         case sysEventType_t::SE_NONE:
             break;
-        case sysEventType_t::SE_KEY:
-            CL_KeyEvent(static_cast<fakeAscii_t>(ev.evValue), ev.evValue2, ev.evTime);
-            break;
-        case sysEventType_t::SE_CHAR:
-            CL_CharEvent(ev.evValue);
-            break;
-        case sysEventType_t::SE_MOUSE:
-            CL_MouseEvent(ev.evValue, ev.evValue2, ev.evTime);
-            break;
-        case sysEventType_t::SE_JOYSTICK_AXIS:
-            CL_JoystickEvent(ev.evValue, ev.evValue2, ev.evTime);
-            break;
         case sysEventType_t::SE_CONSOLE:
             if (((char*)ev.evPtr)[0] == '\\' || ((char*)ev.evPtr)[0] == '/') {
                 Cbuf_AddText((char*)ev.evPtr + 1);
@@ -963,7 +881,7 @@ int Com_EventLoop(void)
 ================
 Com_Milliseconds
 
-Can be used for profiling, but will be journaled accurately
+The time of the system's last event, the events read on the way kept for the event loop
 ================
 */
 int Com_Milliseconds(void)
@@ -1178,8 +1096,6 @@ void Com_Init(char* commandLine)
         NET_Init();
 
         FS_InitFilesystem();
-
-        Com_InitJournaling();
 
         // Add some commands here already so users can use them from config files
         if (com_developer && com_developer->integer) {
@@ -1542,7 +1458,9 @@ void Com_Frame(void)
                 int wait = timeVal;
 
                 if (cmdDue == 0 && timeVal > 0) {
-                    IN_Frame();
+#ifndef DEDICATED
+                    Platform_Frame();
+#endif
                     if (!CL_InputTick()) {
                         inputTick = false; // it made none (the state changed): left to the frame
                     }
@@ -1564,7 +1482,9 @@ void Com_Frame(void)
                     NET_Sleep((wait - 1) * 1000);
             } while ((timeVal = Com_TimeVal(minMsec)) != 0);
         }
-        IN_Frame();
+#ifndef DEDICATED
+        Platform_Frame();
+#endif
 
         lastTime = com_frameTime;
         com_frameTime = Com_EventLoop();
@@ -1705,11 +1625,6 @@ void Com_Shutdown(void)
         FS_FCloseFile(logfile);
         logfile = 0;
         com_logfile->integer = 0; // don't open up the log file again!!
-    }
-
-    if (com_journalFile) {
-        FS_FCloseFile(com_journalFile);
-        com_journalFile = 0;
     }
 
     MSG_shutdownHuffman();

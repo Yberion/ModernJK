@@ -1021,7 +1021,6 @@ extern trGlobals_t tr;
 extern glconfig_t glConfig; // outside of TR since it shouldn't be cleared during ref re-init
 extern glconfigExt_t glConfigExt;
 extern glstate_t glState; // outside of TR since it shouldn't be cleared during ref re-init
-extern window_t window;
 
 //
 // cvars
@@ -1031,10 +1030,6 @@ extern cvar_t* r_verbose; // used for verbose debug spew
 
 extern cvar_t* r_znear; // near Z clip plane
 
-extern cvar_t* r_stencilbits;   // number of desired stencil bits
-extern cvar_t* r_depthbits;     // number of desired depth bits
-extern cvar_t* r_colorbits;     // number of desired color bits, only relevant for fullscreen
-extern cvar_t* r_stereo;        // desired pixelformat stereo flag
 extern cvar_t* r_texturebits;   // number of desired texture bits
                                 // 0 = use framebuffer depth
                                 // 16 = use 16-bit textures
@@ -1090,13 +1085,7 @@ extern cvar_t* r_windPointForce;
 extern cvar_t* r_windPointX;
 extern cvar_t* r_windPointY;
 
-extern cvar_t* r_mode; // video mode
-extern cvar_t* r_fullscreen;
-extern cvar_t* r_noborder;     // disable border in windowed mode
-extern cvar_t* r_centerWindow; // override vid_x/ypos and center the window
 extern cvar_t* r_gamma;
-extern cvar_t* r_displayRefresh; // optional display refresh option
-extern cvar_t* r_ignorehwgamma;  // overrides hardware gamma capabilities
 
 extern cvar_t* r_allowExtensions;          // global enable/disable of OpenGL extensions
 extern cvar_t* r_ext_compressed_textures;  // these control use of specific extensions
@@ -1257,8 +1246,6 @@ image_t* R_FindImageFile(const char* name, bool mipmap, bool allowPicmip, bool a
 
 image_t* R_CreateImage(const char* name, const byte* pic, int width, int height, GLenum format, bool mipmap, bool allowPicmip, bool allowTC, int wrapClampMode,
                        bool bRectangle = false);
-
-bool R_GetModeInfo(int* width, int* height, int mode);
 
 void R_SetColorMappings(void);
 void R_SetGammaCorrectionLUT();

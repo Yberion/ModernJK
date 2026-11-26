@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 void UIVM_Init(bool inGameLoad);
 void UIVM_Shutdown(void);
-void UIVM_KeyEvent(int key, bool down);
+void UIVM_CharEvent(int character);
 enum class fakeAscii_t; // ui/keycodes.h
 void UIVM_KeyEvent(fakeAscii_t key, bool down);
 void UIVM_MouseEvent(int dx, int dy);

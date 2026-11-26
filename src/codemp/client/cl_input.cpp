@@ -27,6 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 #include "cl_cgameapi.h"
 #include "cl_uiapi.h"
+#include <shared/platform/engine/engine.h>
+#include <cstdlib>
 #ifndef _WIN32
 #include <cmath>
 #endif
@@ -34,11 +36,21 @@ unsigned frame_msec; // the frame's length: the view turns every frame
 int old_com_frameTime;
 // One user command per tick: the key states are measured over the time since the last command, and the
 // movement the mouse gives while strafing or without mouse look is gathered over the frames until the next command.
-static unsigned s_cmdMsec; // the input's time since the last command was made
-static int s_lastCmdFrameTime;
-// The input's time, on the clock of com_frameTime and of the key events: the frame's time when a frame reads the input,
-// the present time when a tick's command is made between two frames (CL_InputTick)
+// The input's time, on the clock of com_frameTime: the frame's time when a frame reads the input, the present time when
+// a tick's command is made between two frames (CL_InputTick)
 static int s_inputTime;
+// The keys' own times are in nanoseconds on the client's clock, as the platform layer dates them: the time the input was
+// last read at on that clock, the time between the two last reads (the view's keys) and the time since the last command
+// (the movement's keys). The share of these times a key was held is exact, whatever the frame rate.
+static int64_t s_inputNsec;
+static int64_t s_lastInputNsec;
+static int64_t s_frameNsec = 1'000'000;
+static int64_t s_cmdNsec = 1'000'000;
+static int64_t s_lastCmdNsec;
+// the shortest and the longest of these times: over 1,000 frames per second each frame counts as a millisecond, and
+// after a hitch the extra time is cut, so that it gives no unexpected move
+constexpr int64_t MIN_INPUT_NSEC = 1'000'000;
+constexpr int64_t MAX_INPUT_NSEC = 200'000'000;
 static float s_mouseSide, s_mouseForward;
 
 float cl_mPitchOverride = 0.0f;
@@ -433,7 +445,7 @@ void IN_KeyDown(kbutton_t* b)
 
     // save timestamp for partial frame summing
     c = Cmd_Argv(2);
-    b->downtime = atoi(c);
+    b->downtime = strtoll(c, nullptr, 10);
 
     b->active = true;
     b->wasPressed = true;
@@ -443,7 +455,7 @@ void IN_KeyUp(kbutton_t* b)
 {
     int k;
     const char* c;
-    unsigned uptime;
+    int64_t uptime;
 
     c = Cmd_Argv(1);
     if (c[0]) {
@@ -473,12 +485,12 @@ void IN_KeyUp(kbutton_t* b)
 
     // save timestamp for partial frame summing
     c = Cmd_Argv(2);
-    uptime = atoi(c);
+    uptime = strtoll(c, nullptr, 10);
     if (uptime) {
-        b->msec += uptime - b->downtime;
+        b->nsec += uptime - b->downtime;
     }
     else {
-        b->msec += frame_msec / 2;
+        b->nsec += s_frameNsec / 2;
     }
 
     b->active = false;
@@ -492,32 +504,32 @@ Returns the fraction of the span (the frame for the view angles, the time since 
 command for the movement) that the key was down
 ===============
 */
-float CL_KeyState(kbutton_t* key, unsigned span)
+float CL_KeyState(kbutton_t* key, int64_t span)
 {
     float val;
-    int msec;
+    int64_t nsec;
 
-    msec = key->msec;
-    key->msec = 0;
+    nsec = key->nsec;
+    key->nsec = 0;
 
     if (key->active) {
         // still down
         if (!key->downtime) {
-            msec = s_inputTime;
+            nsec = span;
         }
         else {
-            msec += s_inputTime - key->downtime;
+            nsec += s_inputNsec - key->downtime;
         }
-        key->downtime = s_inputTime;
+        key->downtime = s_inputNsec;
     }
 
 #if 0
-	if (msec) {
-		Q_Print("{} ", msec);
+	if (nsec) {
+		Q_Print("{} ", nsec);
 	}
 #endif
 
-    val = (float)msec / span;
+    val = static_cast<float>(static_cast<double>(nsec) / static_cast<double>(span));
     if (val < 0) {
         val = 0;
     }
@@ -940,33 +952,33 @@ void CL_AdjustAngles(void)
     if (!in_strafe.active) {
         if (cl_mYawOverride) {
             if (cl_mSensitivityOverride) {
-                cl.viewangles[YAW] -= cl_mYawOverride * cl_mSensitivityOverride * speed * cl_yawspeed->value * CL_KeyState(&in_right, frame_msec);
-                cl.viewangles[YAW] += cl_mYawOverride * cl_mSensitivityOverride * speed * cl_yawspeed->value * CL_KeyState(&in_left, frame_msec);
+                cl.viewangles[YAW] -= cl_mYawOverride * cl_mSensitivityOverride * speed * cl_yawspeed->value * CL_KeyState(&in_right, s_frameNsec);
+                cl.viewangles[YAW] += cl_mYawOverride * cl_mSensitivityOverride * speed * cl_yawspeed->value * CL_KeyState(&in_left, s_frameNsec);
             }
             else {
-                cl.viewangles[YAW] -= cl_mYawOverride * OVERRIDE_MOUSE_SENSITIVITY * speed * cl_yawspeed->value * CL_KeyState(&in_right, frame_msec);
-                cl.viewangles[YAW] += cl_mYawOverride * OVERRIDE_MOUSE_SENSITIVITY * speed * cl_yawspeed->value * CL_KeyState(&in_left, frame_msec);
+                cl.viewangles[YAW] -= cl_mYawOverride * OVERRIDE_MOUSE_SENSITIVITY * speed * cl_yawspeed->value * CL_KeyState(&in_right, s_frameNsec);
+                cl.viewangles[YAW] += cl_mYawOverride * OVERRIDE_MOUSE_SENSITIVITY * speed * cl_yawspeed->value * CL_KeyState(&in_left, s_frameNsec);
             }
         }
         else {
-            cl.viewangles[YAW] -= speed * cl_yawspeed->value * CL_KeyState(&in_right, frame_msec);
-            cl.viewangles[YAW] += speed * cl_yawspeed->value * CL_KeyState(&in_left, frame_msec);
+            cl.viewangles[YAW] -= speed * cl_yawspeed->value * CL_KeyState(&in_right, s_frameNsec);
+            cl.viewangles[YAW] += speed * cl_yawspeed->value * CL_KeyState(&in_left, s_frameNsec);
         }
     }
 
     if (cl_mPitchOverride) {
         if (cl_mSensitivityOverride) {
-            cl.viewangles[PITCH] -= cl_mPitchOverride * cl_mSensitivityOverride * speed * cl_pitchspeed->value * CL_KeyState(&in_lookup, frame_msec);
-            cl.viewangles[PITCH] += cl_mPitchOverride * cl_mSensitivityOverride * speed * cl_pitchspeed->value * CL_KeyState(&in_lookdown, frame_msec);
+            cl.viewangles[PITCH] -= cl_mPitchOverride * cl_mSensitivityOverride * speed * cl_pitchspeed->value * CL_KeyState(&in_lookup, s_frameNsec);
+            cl.viewangles[PITCH] += cl_mPitchOverride * cl_mSensitivityOverride * speed * cl_pitchspeed->value * CL_KeyState(&in_lookdown, s_frameNsec);
         }
         else {
-            cl.viewangles[PITCH] -= cl_mPitchOverride * OVERRIDE_MOUSE_SENSITIVITY * speed * cl_pitchspeed->value * CL_KeyState(&in_lookup, frame_msec);
-            cl.viewangles[PITCH] += cl_mPitchOverride * OVERRIDE_MOUSE_SENSITIVITY * speed * cl_pitchspeed->value * CL_KeyState(&in_lookdown, frame_msec);
+            cl.viewangles[PITCH] -= cl_mPitchOverride * OVERRIDE_MOUSE_SENSITIVITY * speed * cl_pitchspeed->value * CL_KeyState(&in_lookup, s_frameNsec);
+            cl.viewangles[PITCH] += cl_mPitchOverride * OVERRIDE_MOUSE_SENSITIVITY * speed * cl_pitchspeed->value * CL_KeyState(&in_lookdown, s_frameNsec);
         }
     }
     else {
-        cl.viewangles[PITCH] -= speed * cl_pitchspeed->value * CL_KeyState(&in_lookup, frame_msec);
-        cl.viewangles[PITCH] += speed * cl_pitchspeed->value * CL_KeyState(&in_lookdown, frame_msec);
+        cl.viewangles[PITCH] -= speed * cl_pitchspeed->value * CL_KeyState(&in_lookup, s_frameNsec);
+        cl.viewangles[PITCH] += speed * cl_pitchspeed->value * CL_KeyState(&in_lookdown, s_frameNsec);
     }
 }
 
@@ -1000,18 +1012,18 @@ void CL_KeyMove(usercmd_t* cmd)
     side = 0;
     up = 0;
     if (in_strafe.active) {
-        side += movespeed * CL_KeyState(&in_right, s_cmdMsec);
-        side -= movespeed * CL_KeyState(&in_left, s_cmdMsec);
+        side += movespeed * CL_KeyState(&in_right, s_cmdNsec);
+        side -= movespeed * CL_KeyState(&in_left, s_cmdNsec);
     }
 
-    side += movespeed * CL_KeyState(&in_moveright, s_cmdMsec);
-    side -= movespeed * CL_KeyState(&in_moveleft, s_cmdMsec);
+    side += movespeed * CL_KeyState(&in_moveright, s_cmdNsec);
+    side -= movespeed * CL_KeyState(&in_moveleft, s_cmdNsec);
 
-    up += movespeed * CL_KeyState(&in_up, s_cmdMsec);
-    up -= movespeed * CL_KeyState(&in_down, s_cmdMsec);
+    up += movespeed * CL_KeyState(&in_up, s_cmdNsec);
+    up -= movespeed * CL_KeyState(&in_down, s_cmdNsec);
 
-    forward += movespeed * CL_KeyState(&in_forward, s_cmdMsec);
-    forward -= movespeed * CL_KeyState(&in_back, s_cmdMsec);
+    forward += movespeed * CL_KeyState(&in_forward, s_cmdNsec);
+    forward -= movespeed * CL_KeyState(&in_back, s_cmdNsec);
 
     cmd->forwardmove = ClampChar(forward);
     cmd->rightmove = ClampChar(side);
@@ -1023,12 +1035,9 @@ void CL_KeyMove(usercmd_t* cmd)
 CL_MouseEvent
 =================
 */
-void CL_MouseEvent(int dx, int dy, int time)
+void CL_MouseEvent(float dx, float dy)
 {
-    if (cls.cursorActive) {
-        CL_UpdateCursorPosition(dx, dy);
-    }
-    else if (g_clAutoMapMode && cls.cgameStarted) { // automap input
+    if (g_clAutoMapMode && cls.cgameStarted) { // automap input
         autoMapInput_t* data = (autoMapInput_t*)cl.mSharedMemory;
 
         g_clAutoMapInput.yaw = dx;
@@ -1039,15 +1048,30 @@ void CL_MouseEvent(int dx, int dy, int time)
         g_clAutoMapInput.yaw = 0.0f;
         g_clAutoMapInput.pitch = 0.0f;
     }
-    else if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI)) {
-        UIVM_MouseEvent(dx, dy);
-    }
-    else if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_CGAME)) {
-        CGVM_MouseEvent(dx, dy);
-    }
     else {
         cl.mouseDx[cl.mouseIndex] += dx;
         cl.mouseDy[cl.mouseIndex] += dy;
+    }
+}
+
+/*
+=================
+CL_PointerEvent
+
+The system's pointer moved over the window while a menu takes it: the client's own menu, the UI's, the cgame's
+=================
+*/
+void CL_PointerEvent(float x, float y)
+{
+    if (cls.cursorActive) {
+        cls.cursorX = Com_Clampi(0, SCREEN_WIDTH, static_cast<int>(x * SCREEN_WIDTH / cls.glconfig.vidWidth));
+        cls.cursorY = Com_Clampi(0, SCREEN_HEIGHT, static_cast<int>(y * SCREEN_HEIGHT / cls.glconfig.vidHeight));
+    }
+    else if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI)) {
+        UIVM_MouseEvent(static_cast<int>(x), static_cast<int>(y));
+    }
+    else if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_CGAME)) {
+        CGVM_MouseEvent(static_cast<int>(x), static_cast<int>(y));
     }
 }
 
@@ -1073,7 +1097,8 @@ CL_JoystickAngles
 The view angles the joystick gives, every frame
 =================
 */
-extern cvar_t* in_joystick;
+// the joystick's setting, kept with its menu's row: no device is read
+static cvar_t* in_joystick;
 static void CL_JoystickAngles(void)
 {
     float anglespeed;
@@ -1519,14 +1544,16 @@ void CL_CreateNewCommands(void)
         frame_msec = 200;
 
     old_com_frameTime = s_inputTime;
+    s_frameNsec = Q_min(Q_max(s_inputNsec - s_lastInputNsec, MIN_INPUT_NSEC), MAX_INPUT_NSEC);
+    s_lastInputNsec = s_inputNsec;
 
     CL_UpdateViewAngles();
 
     // until the first snapshot the client's clock does not run: a command every frame, as before, so that the packets
     // whose commands make the server put the client in the world keep coming
     if (cls.state != connstate_t::CA_ACTIVE) {
-        s_cmdMsec = frame_msec;
-        s_lastCmdFrameTime = s_inputTime;
+        s_cmdNsec = s_frameNsec;
+        s_lastCmdNsec = s_inputNsec;
         cl.cmdNumber++;
         cl.cmds[cl.cmdNumber & CMD_MASK] = CL_CreateCmd();
         return;
@@ -1544,8 +1571,8 @@ void CL_CreateNewCommands(void)
         return; // the gathered input waits for the next tick
     }
 
-    s_cmdMsec = Q_min(Q_max(s_inputTime - s_lastCmdFrameTime, 1), 200);
-    s_lastCmdFrameTime = s_inputTime;
+    s_cmdNsec = Q_min(Q_max(s_inputNsec - s_lastCmdNsec, MIN_INPUT_NSEC), MAX_INPUT_NSEC);
+    s_lastCmdNsec = s_inputNsec;
     usercmd_t cmd = CL_CreateCmd();
     for (int t = last + TICK_MSEC; t <= tick; t += TICK_MSEC) {
         cmd.serverTime = t;
@@ -1744,6 +1771,7 @@ void CL_SendCmd(void)
     }
 
     s_inputTime = com_frameTime;
+    s_inputNsec = Platform_InputNanoseconds();
     CL_MakeAndSend();
 }
 
@@ -1789,7 +1817,8 @@ bool CL_InputTick(void)
     const int cmdNumber = cl.cmdNumber;
     const int realtime = cls.realtime;
 
-    s_inputTime = Com_EventLoop(); // Com_Frame has just polled the input (IN_Frame)
+    s_inputTime = Com_EventLoop(); // Com_Frame has just read the input (Platform_Frame)
+    s_inputNsec = Platform_InputNanoseconds();
     // the key binds go through the command buffer; not while a wait command counts frames (this is not one)
     if (!Cbuf_Waiting()) {
         Cbuf_Execute();
@@ -1928,6 +1957,7 @@ void CL_InitInput(void)
 
     cl_nodelta = Cvar_Get("cl_nodelta", "0", cvarFlags_t::CVAR_NONE);
     cl_debugMove = Cvar_Get("cl_debugMove", "0", cvarFlags_t::CVAR_NONE);
+    in_joystick = Cvar_Get("in_joystick", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH);
 }
 
 /*

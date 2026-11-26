@@ -70,6 +70,8 @@ void Key_SetBinding(fakeAscii_t keynum, const char* binding);
 const char* Key_GetBinding(fakeAscii_t keynum);
 bool Key_IsDown(fakeAscii_t keynum);
 std::optional<fakeAscii_t> Key_StringToKeynum(const char* str);
+// the code of a key the key table has none for, by the name such a key is written with in a bind
+std::optional<fakeAscii_t> Key_DynamicKey(const char* name);
 bool Key_GetOverstrikeMode(void);
 void Key_SetOverstrikeMode(bool state);
 void Key_ClearStates(void);

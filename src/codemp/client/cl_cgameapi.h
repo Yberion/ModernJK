@@ -27,7 +27,7 @@ bool CGVM_ConsoleCommand(void);
 void CGVM_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayback);
 int CGVM_CrosshairPlayer(void);
 int CGVM_LastAttacker(void);
-void CGVM_KeyEvent(int key, bool down);
+void CGVM_CharEvent(int character);
 enum class fakeAscii_t; // ui/keycodes.h
 void CGVM_KeyEvent(fakeAscii_t key, bool down);
 void CGVM_MouseEvent(int x, int y);

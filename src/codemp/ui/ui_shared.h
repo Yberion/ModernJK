@@ -492,6 +492,8 @@ void Item_Init(itemDef_t* item);
 void Menu_PostParse(menuDef_t* menu);
 menuDef_t* Menu_GetFocused();
 void Menu_HandleKey(menuDef_t* menu, int key, bool down);
+void Menu_HandleChar(int ch);
+bool Menu_TakesEscape(void);
 void Menu_HandleMouseMove(menuDef_t* menu, float x, float y);
 void Menu_ScrollFeeder(menuDef_t* menu, int feeder, bool down);
 bool Float_Parse(char** p, float* f);

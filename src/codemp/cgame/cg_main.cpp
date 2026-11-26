@@ -2903,6 +2903,7 @@ extern "C" Q_EXPORT cgameExport_t* QDECL GetModuleAPI(int apiVersion, cgameImpor
     cge.CrosshairPlayer = CG_CrosshairPlayer;
     cge.LastAttacker = CG_LastAttacker;
     cge.KeyEvent = CG_KeyEvent;
+    cge.CharEvent = CG_CharEvent;
     cge.MouseEvent = _CG_MouseEvent;
     cge.EventHandling = CG_EventHandling;
     cge.PointContents = C_PointContents;

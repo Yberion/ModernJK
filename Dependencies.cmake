@@ -190,6 +190,73 @@ function(modernjk_setup_dependencies)
 
 	# the engines that open a window
 	if(modernjk_BUILD_MP_CLIENT OR modernjk_BUILD_SP OR modernjk_BUILD_JK2)
+		# SDL 3 (the window, the OpenGL context, the keyboard, the mouse, the gamepads), a static library built by its
+		# own CMake file: nothing to ship beside an engine. Without the subsystems the client does not use (OpenAL
+		# Soft plays the sound, the renderer draws with OpenGL), OpenGL ES, its test library, tests, examples and
+		# install.
+		set(SDL_SHARED OFF)
+		set(SDL_STATIC ON)
+		foreach(off AUDIO GPU RENDER CAMERA SENSOR HAPTIC DIALOG TRAY POWER OPENGLES TEST_LIBRARY TESTS EXAMPLES INSTALL)
+			set(SDL_${off} OFF)
+		endforeach()
+		if(NOT WIN32)
+			# Off, having no use here or depending on what the build machine has: the input methods through IBus (the
+			# game's font cannot draw their languages), XTest, the X screen saver and shape extensions, FriBidi and
+			# libthai (right-to-left and Thai text in X11's own dialogs), the video driver without a desktop
+			# (KMS/DRM), liburing (asynchronous files), libusb (the gamepads go through hidraw), PipeWire (the camera's
+			# and the sound's), and the Raspberry Pi's and Rockchip's own video drivers
+			foreach(off IBUS X11_XTEST X11_XSCRNSAVER X11_XSHAPE FRIBIDI LIBTHAI KMSDRM LIBURING HIDAPI_LIBUSB PIPEWIRE RPI
+					ROCKCHIP)
+				set(SDL_${off} OFF)
+			endforeach()
+		endif()
+		add_subdirectory("${libs}/SDL3" "${PROJECT_BINARY_DIR}/libs/SDL3" EXCLUDE_FROM_ALL SYSTEM)
+		add_library(vendored::sdl ALIAS SDL3-static)
+		# the warning its own code gives with its own flags, seen on 25 November 2026, switched off with its reason
+		if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+			# src/events/SDL_events.c:119 counts the events in a variable that only its debugging code reads
+			target_compile_options(SDL3-static PRIVATE -Wno-unused-but-set-global)
+		endif()
+		if(MSVC)
+			# SDL compiles src/stdlib/SDL_mslibc.c, its memcpy and memset, with /GL- (the compiler must not replace
+			# them at the link), which the Release presets' /GL contradicts (D9025, and C4652 against its precompiled
+			# header): no link-time optimization of SDL with MSVC. Its functions are called through its own jump
+			# table, so nothing of the engines was inlined across it.
+			set_property(TARGET SDL3-static PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE OFF)
+		endif()
+		if(NOT WIN32)
+			# SDL leaves out, without an error, what the build machine lacks the development files of: each piece the
+			# client needs is required here, so that a binary never lacks Wayland or the raw mouse silently. X11 and
+			# Wayland are both needed, a player having one or the other; their libraries are the player's own, opened
+			# at run time (the names ending in _SHARED).
+			set(sdl_required
+				"HAVE_X11|an X11 window (libx11-dev, libxext-dev)"
+				"HAVE_X11_SHARED|X11's libraries opened at run time"
+				"HAVE_X11_XCURSOR|the X11 cursor (libxcursor-dev)"
+				"HAVE_X11_XDBE|X11's double buffer (libxext-dev)"
+				"HAVE_X11_XFIXES|the mouse kept in an X11 window (libxfixes-dev)"
+				"HAVE_X11_XINPUT|the raw mouse motion under X11 (libxi-dev)"
+				"HAVE_X11_XRANDR|the screens and their modes under X11 (libxrandr-dev)"
+				"HAVE_X11_XSYNC|an X11 window's resizing in step with the compositor (libxext-dev)"
+				"HAVE_WAYLAND|a Wayland window (libwayland-dev, libxkbcommon-dev, libegl1-mesa-dev)"
+				"HAVE_WAYLAND_SHARED|Wayland's libraries opened at run time"
+				"HAVE_WAYLAND_LIBDECOR|the title bar under GNOME's Wayland (libdecor-0-dev)"
+				"HAVE_WAYLAND_LIBDECOR_SHARED|libdecor opened at run time"
+				"HAVE_OPENGL|OpenGL's headers (libgl1-mesa-dev)"
+				"HAVE_OPENGL_EGL|the OpenGL context under Wayland (libegl1-mesa-dev)"
+				"HAVE_LIBUDEV|a gamepad plugged while playing (libudev-dev)"
+				"HAVE_DBUS_DBUS_H|the desktop's settings through D-Bus (libdbus-1-dev, pkg-config)")
+			foreach(entry IN LISTS sdl_required)
+				string(REPLACE "|" ";" entry "${entry}")
+				list(GET entry 0 variable)
+				list(GET entry 1 what)
+				get_directory_property(found DIRECTORY "${libs}/SDL3" DEFINITION ${variable})
+				if(NOT found)
+					message(FATAL_ERROR "SDL 3 was configured without ${what}: ${variable} is not set")
+				endif()
+			endforeach()
+		endif()
+
 		find_package(OpenGL REQUIRED)
 		if(WIN32)
 			# SDL2 for Windows, built by its authors (libs/SDL2): the DLL beside the engines, SDL2main for WinMain

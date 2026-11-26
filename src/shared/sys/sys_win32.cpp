@@ -26,6 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <io.h>
 #include <shlobj.h>
 #include <windows.h>
+#ifdef MODERNJK_PLATFORM
+#include <shared/platform/engine/engine.h>
+#endif
 
 constexpr int MEM_THRESHOLD = 128 * 1024 * 1024;
 
@@ -94,6 +97,10 @@ Sys_Milliseconds
 */
 int Sys_Milliseconds(void)
 {
+#ifdef MODERNJK_PLATFORM
+    // the client's one clock, the one its input is dated on
+    return Platform_Milliseconds();
+#else
     static int sys_timeBase = timeGetTime();
     int sys_curtime;
 
@@ -101,6 +108,7 @@ int Sys_Milliseconds(void)
     sys_curtime -= sys_timeBase;
 
     return sys_curtime;
+#endif
 }
 
 int Sys_Milliseconds2(void)

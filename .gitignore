@@ -196,6 +196,9 @@ compile_commands.json
 #############
 [Bb]uild*/
 cmake-build-*
+# SDL 3's sources (libs/SDL3), two folders of which have a name ignored above
+!/libs/SDL3/include/build_config/
+!/libs/SDL3/src/hidapi/dist/
 
 *.dm_26
 # client packets recorded by the server (sv_recordClientPackets): player names and chat

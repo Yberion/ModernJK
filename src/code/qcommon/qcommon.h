@@ -455,7 +455,7 @@ void Com_BeginRedirect(char* buffer, int buffersize, void (*flush)(char*));
 void Com_EndRedirect(void);
 void NORETURN Com_Quit_f(void);
 int Com_EventLoop(void);
-int Com_Milliseconds(void); // will be journaled properly
+int Com_Milliseconds(void);
 uint32_t Com_BlockChecksum(const void* buffer, int length);
 int Com_Filter(const char* filter, const char* name, int casesensitive);
 int Com_FilterPath(const char* filter, const char* name, int casesensitive);
@@ -498,9 +498,6 @@ extern int numTraces;
 extern int com_frameTime;
 
 extern bool com_errorEntered;
-
-extern fileHandle_t com_journalFile;
-extern fileHandle_t com_journalDataFile;
 
 /*
 

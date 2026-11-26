@@ -82,17 +82,18 @@ int CGVM_LastAttacker(void)
     return cge->LastAttacker();
 }
 
-void CGVM_KeyEvent(int key, bool down)
+void CGVM_KeyEvent(fakeAscii_t key, bool down)
 {
     VMSwap v(cgvm);
 
     cge->KeyEvent(key, down);
 }
 
-// a key's event: the module's KeyEvent takes a key, or a character with K_CHAR_FLAG, in one int
-void CGVM_KeyEvent(fakeAscii_t key, bool down)
+void CGVM_CharEvent(int character)
 {
-    CGVM_KeyEvent(std::to_underlying(key), down);
+    VMSwap v(cgvm);
+
+    cge->CharEvent(character);
 }
 
 void CGVM_MouseEvent(int x, int y)

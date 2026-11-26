@@ -96,6 +96,28 @@ if(TARGET vendored::flac)
 	add_subdirectory(sound)
 endif()
 
+# The platform layer of the engines that open a window, on SDL 3
+if(TARGET vendored::sdl)
+	add_subdirectory(platform)
+endif()
+
+# The system layer of the engines on the platform layer: what each compiles itself against its own headers, the
+# layer's engine part (platform/engine) with it; MODERNJK_PLATFORM tells the files shared with the engines still on
+# SDL2 which of the two they call
+if(TARGET modernjk_platform)
+	add_library(modernjk_sys_platform INTERFACE)
+	target_sources(modernjk_sys_platform INTERFACE sys/sys_main.cpp sys/sys_event.cpp sys/sys_charset.cpp sys/con_log.cpp
+		platform/engine/engine.cpp)
+	target_compile_definitions(modernjk_sys_platform INTERFACE MODERNJK_PLATFORM)
+	if(WIN32)
+		target_sources(modernjk_sys_platform INTERFACE sys/sys_win32.cpp sys/con_passive.cpp sys/win_manifest.manifest)
+		target_link_libraries(modernjk_sys_platform INTERFACE modernjk_platform winmm)
+	else()
+		target_sources(modernjk_sys_platform INTERFACE sys/sys_unix.cpp sys/con_tty.cpp)
+		target_link_libraries(modernjk_sys_platform INTERFACE modernjk_platform OpenGL::GL ${CMAKE_DL_LIBS})
+	endif()
+endif()
+
 # The system layer of the engines that open a window (on SDL2), and of the dedicated server
 if(modernjk_BUILD_MP_CLIENT OR modernjk_BUILD_SP OR modernjk_BUILD_JK2)
 	add_library(modernjk_sys_client INTERFACE)

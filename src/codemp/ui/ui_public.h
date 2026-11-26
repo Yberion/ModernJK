@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <shared/sound/sound.h>
 
-inline constexpr int UI_API_VERSION = 6;
+inline constexpr int UI_API_VERSION = 7;
 
 enum class fakeAscii_t; // keycodes.h
 
@@ -230,8 +230,11 @@ typedef struct uiImport_s {
 typedef struct uiExport_s {
     void (*Init)(bool inGameLoad);
     void (*Shutdown)(void);
-    void (*KeyEvent)(int key, bool down);
-    void (*MouseEvent)(int dx, int dy);
+    void (*KeyEvent)(fakeAscii_t key, bool down);
+    // a typed character, in the engine's one-byte set
+    void (*CharEvent)(int character);
+    // the pointer's place in the window, in pixels from its top left corner
+    void (*MouseEvent)(int x, int y);
     void (*Refresh)(int realtime);
     bool (*IsFullscreen)(void);
     void (*SetActiveMenu)(uiMenuCommand_t menu);

@@ -590,7 +590,7 @@ void Com_BeginRedirect(char* buffer, int buffersize, void (*flush)(char*));
 void Com_EndRedirect(void);
 void NORETURN Com_Quit_f(void);
 int Com_EventLoop(void);
-int Com_Milliseconds(void); // will be journaled properly
+int Com_Milliseconds(void);
 uint32_t Com_BlockChecksum(const void* buffer, int length);
 char* Com_MD5File(const char* filename, int length, const char* prefix, int prefix_len);
 int Com_HashKey(char* string, int maxlen);
@@ -614,7 +614,6 @@ extern cvar_t* com_sv_running;
 extern cvar_t* com_cl_running;
 extern cvar_t* com_version;
 extern cvar_t* com_buildScript; // for building release pak files
-extern cvar_t* com_journal;
 extern cvar_t* com_cameraMode;
 extern cvar_t* com_homepath;
 #ifndef _WIN32
@@ -644,8 +643,6 @@ extern int com_frameTime;
 extern bool com_errorEntered;
 
 extern fileHandle_t logfile;
-extern fileHandle_t com_journalFile;
-extern fileHandle_t com_journalDataFile;
 
 /*
 typedef enum {
@@ -764,12 +761,16 @@ int CL_NextCommandMsec(void);
 bool CL_InputTick(void);
 bool CL_GameCommand(void);
 enum class fakeAscii_t;
-void CL_KeyEvent(fakeAscii_t key, bool down, unsigned time);
+// time: when the key moved, in nanoseconds on the client's clock
+void CL_KeyEvent(fakeAscii_t key, bool down, int64_t time);
 
 void CL_CharEvent(int key);
 // char events are for field typing, not game control
 
-void CL_MouseEvent(int dx, int dy, int time);
+// the mouse's motion while it turns the view, in the device's counts and their fractions
+void CL_MouseEvent(float dx, float dy);
+// the system's pointer's place in the window, in pixels from its top left corner, while a menu takes it
+void CL_PointerEvent(float x, float y);
 
 void CL_JoystickEvent(int axis, int value, int time);
 

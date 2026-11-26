@@ -37,6 +37,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cl_uiapi.h"
 #include "cl_lan.h"
 #include <shared/sys/sys_loadlib.h>
+#include <shared/platform/engine/engine.h>
 
 cvar_t* cl_renderer;
 
@@ -92,10 +93,6 @@ cvar_t* cl_enableGuid;
 cvar_t* cl_guidServerUniq;
 
 cvar_t* cl_autolodscale;
-
-cvar_t* cl_consoleKeys;
-cvar_t* cl_consoleUseScanCode;
-cvar_t* cl_consoleShiftRequirement;
 
 cvar_t* cl_drawRecording;
 
@@ -2154,6 +2151,35 @@ static void CL_ShutdownRef(bool restarting)
 
 /*
 ============
+CL_SetPointerImage
+
+The menus' pointer is the system's own, with the game's image at the size the menus drew it: 40 of their 640 by 480,
+whatever the window's size
+============
+*/
+static void CL_SetPointerImage(void)
+{
+    constexpr int POINTER_SIZE = 40;
+    byte* pic = nullptr;
+    int width = 0;
+    int height = 0;
+
+    // the image of the shader "cursor", which the menus name as their pointer
+    re->ext.LoadImagePixels("gfx/menus/cursor1", &pic, &width, &height);
+    if (!pic) {
+        Q_PrintlnWarning("the menus' pointer image gfx/menus/cursor1 was not found");
+        return;
+    }
+
+    if (!Platform_SetPointerImage({pic, static_cast<size_t>(width) * height * 4}, width, height, POINTER_SIZE * cls.glconfig.vidWidth / SCREEN_WIDTH,
+                                  POINTER_SIZE * cls.glconfig.vidHeight / SCREEN_HEIGHT)) {
+        Q_PrintlnWarning("the menus' pointer image could not be given to the system");
+    }
+    Z_Free(pic);
+}
+
+/*
+============
 CL_InitRenderer
 ============
 */
@@ -2171,8 +2197,8 @@ void CL_InitRenderer(void)
     g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
     g_consoleField.widthInChars = g_console_field_width;
 
-    cls.cursorShader = re->RegisterShaderNoMip("cursor");
     cls.menuFont = re->RegisterFont("ocr_a");
+    CL_SetPointerImage();
 }
 
 /*
@@ -2268,6 +2294,9 @@ void CL_InitRef(void)
     GetRefAPI_t GetRefAPI;
     char dllName[MAX_OSPATH];
 
+    // the client's window, opened once and kept: the renderer draws in it and a restart of the renderer leaves it
+    Platform_OpenWindow();
+
     Q_Println("----- Initializing Renderer ----");
 
     cl_renderer = Cvar_Get("cl_renderer", DEFAULT_RENDER_LIBRARY, cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH, "Which renderer library to use");
@@ -2354,12 +2383,10 @@ void CL_InitRef(void)
     ri.CGVMLoaded = CGVMLoaded;
     ri.CGVM_RagCallback = CGVM_RagCallback;
 
-    ri.WIN_Init = WIN_Init;
-    ri.WIN_SetGamma = WIN_SetGamma;
-    ri.WIN_Shutdown = WIN_Shutdown;
-    ri.WIN_Present = WIN_Present;
-    ri.GL_GetProcAddress = WIN_GL_GetProcAddress;
-    ri.GL_ExtensionSupported = WIN_GL_ExtensionSupported;
+    ri.Platform_Display = Platform_Display;
+    ri.Platform_Present = Platform_Present;
+    ri.GL_GetProcAddress = Platform_GlProcAddress;
+    ri.GL_ExtensionSupported = Platform_GlExtensionSupported;
 
     ri.CM_GetCachedMapDiskImage = CM_GetCachedMapDiskImage;
     ri.CM_SetCachedMapDiskImage = CM_SetCachedMapDiskImage;
@@ -2596,10 +2623,6 @@ void CL_Init(void)
     cl_guidServerUniq = Cvar_Get("cl_guidServerUniq", "1", cvarFlags_t::CVAR_ARCHIVE_ND, "Use a unique guid value per server");
 
     // ~ and `, as keys and characters
-    cl_consoleKeys = Cvar_Get("cl_consoleKeys", "~ ` 0x7e 0x60 0xb2", cvarFlags_t::CVAR_ARCHIVE, "Which keys are used to toggle the console");
-    cl_consoleUseScanCode = Cvar_Get("cl_consoleUseScanCode", "1", cvarFlags_t::CVAR_ARCHIVE, "Use native console key detection");
-    cl_consoleShiftRequirement =
-        Cvar_Get("cl_consoleShiftRequirement", "0", cvarFlags_t::CVAR_ARCHIVE, "Require shift key to be pressed for native console key detection");
 
     cl_filterGames = Cvar_Get("cl_filterGames", "MBII MBIIOpenBeta", cvarFlags_t::CVAR_ARCHIVE_ND, "List of fs_game to filter (space separated)");
 
@@ -3863,19 +3886,7 @@ void CL_DrawEngineMenus(void)
                 CL_DrawMenuButton(&menuButtons[i], buttonHoverBackground, buttonHoverFrame);
             }
         }
-
-        // Draw the actual cursor
-        re->DrawStretchPic(cls.cursorX, cls.cursorY, 48, 48, 0, 0, 1, 1, cls.cursorShader);
     }
-}
-
-void CL_UpdateCursorPosition(int dx, int dy)
-{
-    if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_CONSOLE))
-        return;
-
-    cls.cursorX = Com_Clampi(0, SCREEN_WIDTH, cls.cursorX + dx);
-    cls.cursorY = Com_Clampi(0, SCREEN_HEIGHT, cls.cursorY + dy);
 }
 
 void CL_CursorButton(fakeAscii_t key)

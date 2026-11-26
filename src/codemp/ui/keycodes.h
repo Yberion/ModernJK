@@ -364,16 +364,3 @@ enum class fakeAscii_t {
     MAX_KEYS
 };
 template <> inline constexpr bool enableEnumArithmetic<fakeAscii_t> = true;
-
-// The menu code needs to get both key and char events, but
-// to avoid duplicating the paths, the char events are just
-// distinguished by or'ing in K_CHAR_FLAG (ugly)
-
-// the key of such an event, none for a character
-[[nodiscard]] inline std::optional<fakeAscii_t> KeyEvent_Key(int event)
-{
-    if (event & K_CHAR_FLAG) {
-        return std::nullopt;
-    }
-    return static_cast<fakeAscii_t>(event);
-}

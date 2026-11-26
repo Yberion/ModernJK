@@ -55,24 +55,25 @@ void UIVM_Shutdown(void)
     uie->MenuReset();
 }
 
-void UIVM_KeyEvent(int key, bool down)
+void UIVM_KeyEvent(fakeAscii_t key, bool down)
 {
     VMSwap v(uivm);
 
     uie->KeyEvent(key, down);
 }
 
-// a key's event: the module's KeyEvent takes a key, or a character with K_CHAR_FLAG, in one int
-void UIVM_KeyEvent(fakeAscii_t key, bool down)
-{
-    UIVM_KeyEvent(std::to_underlying(key), down);
-}
-
-void UIVM_MouseEvent(int dx, int dy)
+void UIVM_CharEvent(int character)
 {
     VMSwap v(uivm);
 
-    uie->MouseEvent(dx, dy);
+    uie->CharEvent(character);
+}
+
+void UIVM_MouseEvent(int x, int y)
+{
+    VMSwap v(uivm);
+
+    uie->MouseEvent(x, y);
 }
 
 void UIVM_Refresh(int realtime)

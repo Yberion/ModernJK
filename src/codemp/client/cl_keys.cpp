@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "client.h"
+#include <shared/platform/engine/engine.h>
 #include "cl_cgameapi.h"
 #include "cl_uiapi.h"
 #include <qcommon/stringed_ingame.h>
@@ -873,6 +874,54 @@ bool Key_IsDown(fakeAscii_t keynum)
 
 /*
 ===================
+Key_DynamicKey
+
+The keys the table above has no code for (a function key beyond F12, a key of a layout whose character is not in the
+game's character set) share the sixteen codes it leaves free: a key takes one when it is first pressed or named in
+a bind, with its name, which a bind is written and read back by. The code already given to that name; else one
+never given; else the one of such a key that has no bind and is not held, which loses it. None when all sixteen are
+bound.
+===================
+*/
+constexpr int MAX_DYNAMIC_KEYS = std::to_underlying(fakeAscii_t::A_UNDEFINED_22) - std::to_underlying(fakeAscii_t::A_UNDEFINED_7) + 1;
+static char s_dynamicKeyNames[MAX_DYNAMIC_KEYS][32];
+
+std::optional<fakeAscii_t> Key_DynamicKey(const char* name)
+{
+    int unused = -1;
+    int unbound = -1;
+
+    for (int i = 0; i < MAX_DYNAMIC_KEYS; i++) {
+        const fakeAscii_t key = fakeAscii_t::A_UNDEFINED_7 + i;
+
+        if (!Q_stricmp(s_dynamicKeyNames[i], name)) {
+            return key;
+        }
+
+        if (!s_dynamicKeyNames[i][0]) {
+            if (unused < 0) {
+                unused = i;
+            }
+        }
+        else if (unbound < 0 && !kg.keys[key].down && !(kg.keys[key].binding && kg.keys[key].binding[0])) {
+            unbound = i;
+        }
+    }
+
+    const int slot = unused >= 0 ? unused : unbound;
+    if (slot < 0) {
+        Q_PrintlnWarning("no key code left for {}: {} keys of its kind are bound, unbind one", name, MAX_DYNAMIC_KEYS);
+        return std::nullopt;
+    }
+
+    const fakeAscii_t key = fakeAscii_t::A_UNDEFINED_7 + slot;
+    Q_strncpyz(s_dynamicKeyNames[slot], name, sizeof(s_dynamicKeyNames[slot]));
+    keynames[key].name = s_dynamicKeyNames[slot];
+    return key;
+}
+
+/*
+===================
 Key_StringToKeynum
 
 Returns a key number to be used to index keys[] by looking at
@@ -905,6 +954,10 @@ std::optional<fakeAscii_t> Key_StringToKeynum(const char* str)
         if (n >= 0)
             return static_cast<fakeAscii_t>(n);
     }
+
+    // a key the table has no code for, written by its name
+    if (Platform_IsKeyName(str))
+        return Key_DynamicKey(str);
 
     return std::nullopt;
 }
@@ -1260,7 +1313,7 @@ CL_ParseBinding
 Execute the commands in the bind string
 ===================
 */
-void CL_ParseBinding(fakeAscii_t key, bool down, unsigned time)
+void CL_ParseBinding(fakeAscii_t key, bool down, int64_t time)
 {
     char buf[MAX_STRING_CHARS], *p = buf, *end;
     bool allCommands, allowUpCmds;
@@ -1289,7 +1342,7 @@ void CL_ParseBinding(fakeAscii_t key, bool down, unsigned time)
             // subframe corrected
             if (allCommands || (allowUpCmds && !down)) {
                 char cmd[1024];
-                Q_FormatTo(cmd, "{}{} {} {}\n", (down) ? '+' : '-', p + 1, key, static_cast<int>(time));
+                Q_FormatTo(cmd, "{}{} {} {}\n", (down) ? '+' : '-', p + 1, key, time);
                 Cbuf_AddText(cmd);
             }
         }
@@ -1334,7 +1387,7 @@ CL_KeyDownEvent
 Called by CL_KeyEvent to handle a keypress
 ===================
 */
-void CL_KeyDownEvent(fakeAscii_t key, unsigned time)
+void CL_KeyDownEvent(fakeAscii_t key, int64_t time)
 {
     kg.keys[Key_Upper(key)].down = true;
     kg.keys[Key_Upper(key)].repeats++;
@@ -1344,7 +1397,10 @@ void CL_KeyDownEvent(fakeAscii_t key, unsigned time)
     }
 
     if (cl_allowAltEnter->integer && Key_AltDown() && key == fakeAscii_t::A_ENTER) {
-        Cvar_SetValue("r_fullscreen", !Cvar_VariableIntegerValue("r_fullscreen"));
+        // between a window and borderless fullscreen; the window stays the same one, the renderer starts again at
+        // the new size
+        Cvar_SetValue("r_displayState", Cvar_VariableIntegerValue("r_displayState") == 0 ? 1 : 0);
+        Cbuf_AddText("vid_restart\n");
         return;
     }
 
@@ -1436,7 +1492,7 @@ CL_KeyUpEvent
 Called by CL_KeyEvent to handle a keyrelease
 ===================
 */
-void CL_KeyUpEvent(fakeAscii_t key, unsigned time)
+void CL_KeyUpEvent(fakeAscii_t key, int64_t time)
 {
     kg.keys[Key_Upper(key)].repeats = 0;
     kg.keys[Key_Upper(key)].down = false;
@@ -1472,7 +1528,7 @@ CL_KeyEvent
 Called by the system for both key up and key down events
 ===================
 */
-void CL_KeyEvent(fakeAscii_t key, bool down, unsigned time)
+void CL_KeyEvent(fakeAscii_t key, bool down, int64_t time)
 {
     if (down)
         CL_KeyDownEvent(key, time);
@@ -1497,9 +1553,9 @@ void CL_CharEvent(int key)
     if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_CONSOLE))
         Field_CharEvent(&g_consoleField, key);
     else if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI))
-        UIVM_KeyEvent(key | K_CHAR_FLAG, true);
+        UIVM_CharEvent(key);
     else if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_CGAME))
-        CGVM_KeyEvent(key | K_CHAR_FLAG, true);
+        CGVM_CharEvent(key);
     else if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_MESSAGE))
         Field_CharEvent(&chatField, key);
     else if (cls.state == connstate_t::CA_DISCONNECTED)

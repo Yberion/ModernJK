@@ -1838,7 +1838,7 @@ const void* RB_SwapBuffers(const void* data)
 
     GLimp_LogComment("***************** RB_SwapBuffers *****************\n\n\n");
 
-    ri.WIN_Present(&window);
+    ri.Platform_Present();
 
     backEnd.projection2D = false;
 

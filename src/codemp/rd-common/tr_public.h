@@ -260,6 +260,9 @@ typedef struct refexport_s {
 
     struct {
         float (*Font_StrLenPixels)(const char* text, const int iFontIndex, const float scale);
+        // an image's pixels by its name, without or with its extension: width times height times four bytes (red,
+        // green, blue, alpha), rows from the top, for its caller to Z_Free; nullptr when there is no such image
+        void (*LoadImagePixels)(const char* name, byte** pic, int* width, int* height);
     } ext;
 
 } refexport_t;
@@ -338,14 +341,14 @@ typedef struct refimport_s {
     bool (*CGVMLoaded)(void);
     int (*CGVM_RagCallback)(ragCallbackType_t callType);
 
-    // window handling
-    window_t (*WIN_Init)(const windowDesc_t* desc, glconfig_t* glConfig);
-    void (*WIN_SetGamma)(glconfig_t* glConfig, byte red[256], byte green[256], byte blue[256]);
-    void (*WIN_Present)(window_t* window);
-    void (*WIN_Shutdown)(void);
+    // the client's window, which the renderer draws in and never creates nor destroys: the display as it is (the
+    // size in pixels, the bits, whether it fills the screen), and the image shown
+    void (*Platform_Display)(glconfig_t* glConfig);
+    void (*Platform_Present)(void);
 
     // OpenGL-specific
-    void* (*GL_GetProcAddress)(const char* name);
+    // a function of the OpenGL library, to cast to its own type
+    void (*(*GL_GetProcAddress)(const char* name))(void);
     bool (*GL_ExtensionSupported)(const char* extension);
 
     // gpvCachedMapDiskImage

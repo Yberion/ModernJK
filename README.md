@@ -18,7 +18,7 @@ The single-player game is `modernjk_sp.x86_64` (`modernjk_sp.x86_64.exe` on Wind
 
 ## Building
 
-CMake presets, one per system, compiler and build type. The libraries are in `libs/` and built with the project; on Linux, SDL2 and OpenGL come from the system, and the sound servers' development files too, whose libraries OpenAL Soft opens at run time. Run the commands from the repository's folder; the programs and modules go to `build/<preset>/bin`.
+CMake presets, one per system, compiler and build type. The libraries are in `libs/` and built with the project; on Linux, SDL2 and OpenGL come from the system, and the development files of X11, Wayland and the sound servers too, whose libraries SDL 3 and OpenAL Soft open at run time. Run the commands from the repository's folder; the programs and modules go to `build/<preset>/bin`.
 
 ### Prerequisites
 
@@ -53,11 +53,13 @@ Linux:
 | SDL2, development files (the client only) | 2.0 (2.0.20 tested) |
 | OpenGL, development files (the client only) | the system's |
 | PipeWire, PulseAudio, ALSA and D-Bus, development files, and pkg-config (the client only: OpenAL Soft's backends, required) | the system's (PipeWire 0.3.23 or later) |
+| X11 (with Xext, Xcursor, Xfixes, Xi, Xrandr), Wayland, libdecor, xkbcommon, EGL and udev, development files (the client only: SDL 3's video drivers and gamepads, required) | the system's (Wayland 1.18 or later) |
 
-On Debian or Ubuntu, SDL2, OpenGL and the sound servers:
+On Debian or Ubuntu, SDL2, OpenGL, the sound servers, then X11 and Wayland:
 
 ```
 sudo apt install libsdl2-dev libgl1-mesa-dev libpipewire-0.3-dev libpulse-dev libasound2-dev libdbus-1-dev pkg-config
+sudo apt install libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxkbcommon-dev libwayland-dev libdecor-0-dev libegl1-mesa-dev libudev-dev
 ```
 
 ### Commands

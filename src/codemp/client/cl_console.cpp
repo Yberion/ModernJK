@@ -26,6 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // console.c
 
 #include "client.h"
+#include <shared/platform/engine/engine.h>
 #include "cl_cgameapi.h"
 #include <qcommon/stringed_ingame.h>
 #include <qcommon/game_version.h>
@@ -83,8 +84,9 @@ Con_ToggleMenu_f
 */
 void Con_ToggleMenu_f(void)
 {
-    CL_KeyEvent(fakeAscii_t::A_ESCAPE, true, Sys_Milliseconds());
-    CL_KeyEvent(fakeAscii_t::A_ESCAPE, false, Sys_Milliseconds());
+    const int64_t now = Platform_Nanoseconds();
+    CL_KeyEvent(fakeAscii_t::A_ESCAPE, true, now);
+    CL_KeyEvent(fakeAscii_t::A_ESCAPE, false, now);
 }
 
 /*

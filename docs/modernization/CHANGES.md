@@ -184,6 +184,12 @@ Each line links to its section.
 |---|---|---|
 | [38. The sound audited](#38-the-sound-audited) | a wall heard twice behind loops of one sound, a fixed zone with the reverb off, three levels' fans and beams silent or wrong, the lips behind the voices in slow motion, no sound for a game started without a device | each of 40 defects found by an audit and checked in the code, fixed and tested |
 
+**The platform layer**
+
+| change | before | now |
+|---|---|---|
+| [39. The multiplayer's window and input on a new platform layer](#39-the-multiplayers-window-and-input-on-a-new-platform-layer) | SDL 2 behind a layer of 2005: keys dated by the frame and rounded to the millisecond, the mouse rounded to whole counts and held in the menus, a window created again at each restart of the video, thirteen fixed video modes | a layer written from zero on SDL 3.4.20, linked into the client: keys dated in nanoseconds when they move, the mouse in floats, the system's pointer in the menus, one window kept, borderless fullscreen by default and the screen's own modes |
+
 **Reference**: [27. Settings and commands](#27-settings-and-commands), [28. Build, tests and repository](#28-build-tests-and-repository), [29. Name: ModernJK](#29-name-modernjk), [30. Compatibility](#30-compatibility), [31. C++20, 64-bit Windows, Linux and macOS](#31-c20-64-bit-windows-linux-and-macos), [32. Not changed yet](#32-not-changed-yet).
 
 ## A. Responsiveness and equality
@@ -1543,5 +1549,56 @@ Costs: none to measure. The listener and the streams' gains are now sent only wh
 Not changed, with the reason (each in the work's document): decisions documented as they are (a missing sound never looked for again, the best format looked for first), defects that need a run to show and were not reproduced (a reopen retried every frame, races of a few microseconds, the output modes' boost), a delayed effect's sound losing its shooter (no effect of the games' data has one on a shot).
 
 The work: [progress/step-21-sound.md](progress/step-21-sound.md) section 16.
+
+</details>
+
+## I. The platform layer
+
+### 39. The multiplayer's window and input on a new platform layer
+
+**Before.** The client's window, keyboard and mouse went through SDL 2.0.12 (2020) and a layer inherited from ioquake3: the window created again at every restart of the video, a table of thirteen video modes, every key and mouse event dated when the frame read it and rounded to a millisecond, the mouse's motion rounded to whole counts, the mouse held by the game in its menus, and keys the engine's table did not know left without any way to bind them.
+
+**Now.** A layer written from zero on SDL 3.4.20 (`src/shared/platform`), linked into the client: no `SDL2.dll` beside it. The multiplayer's client is on it; the single player's two games follow.
+
+**Why.** The most responsive possible, the same for every player whatever the frame rate, and no setting for hardware that no longer exists.
+
+**Gain.**
+
+| fix | before | now |
+|---|---|---|
+| The share of a tick a movement key is held | from times rounded to the millisecond at which the frame read the key: a tap of 3.2 ms in a tick of 10 ms counted 0.3 or 0.4 | from the time the key moved at, in nanoseconds, the keyboard read raw on Windows: 0.32, whatever the frame rate |
+| The mouse's motion | rounded to whole counts when read | in floats up to the view angles |
+| The mouse in the menus, the console, a level loading | held by the game; in a window, alt-tab or the Windows key to get it back | the system's pointer with the game's image at the size it had: free to leave the window, moving at the desktop's speed also at a low frame rate. Taken only in game |
+| The pointer on a second screen | never (the mouse was held) | free in a window and in borderless fullscreen, kept on the game's screen in exclusive fullscreen (a click elsewhere would minimize the game) |
+| The window at a restart of the video (`vid_restart`, Alt+Enter) | destroyed and created again | the same window, changed where it stands |
+| The display | `r_mode` (thirteen sizes), `r_fullscreen`, `r_noborder`, `r_customwidth`, `r_customheight`, `r_displayRefresh`, `r_centerWindow` | `r_displayState` (0 a window, 1 borderless fullscreen, the default, 2 exclusive fullscreen), `r_screen`, `r_windowWidth` and `r_windowHeight` (1280 by 720), `r_exclusiveMode` (`1920x1080@144`, one of the screen's own modes; empty for its present mode) |
+| The OpenGL context | sixteen attempts lowering the colour, the depth and the stencil | one request (24, 24, 8 and the samples), one more without multisampling, then an error saying what failed |
+| `modelist` | the thirteen fixed sizes | each screen with its number, its desktop's mode and its own modes, written as `r_exclusiveMode` takes them |
+| The console key | `cl_consoleKeys`, `cl_consoleUseScanCode`, `cl_consoleShiftRequirement` | the key under Escape on every layout; with Shift it is the key its layout marks |
+| A key the engine's table has no code for (`§`, `°`, `´`, F13...) | cannot be bound | bound by a name (`U+00A7`, `F13`), up to sixteen such keys at once |
+| A character typed in a menu | sent to the UI and the cgame as a key with a flag (`K_CHAR_FLAG`) | its own event (`CharEvent`), beside `KeyEvent` |
+| Escape in a menu over the game, while a row waits for the key to bind or a field is edited | the menu closes (the original game's) | the bind is cancelled or the editing ends; the menu stays |
+| The screen's brightness table | set by the game for the whole screen, put back at each loss of the focus | never touched: `r_gamma` acts on the textures as they are loaded (after a `vid_restart`) until the renderers' output stage |
+| The journal (`journal 1` and `2`, `journal.dat`, `journaldata.dat`) | recorded and replayed the system's events, never the network's packets | removed, in the three games: demos, `com_debugSeed` with `fixedtime` and the scripted scenarios replay a session |
+
+Costs: about 2.8 MB more in the client's executable (SDL 3 linked statically, measured: 5.8 to 8.6 MB with clang), and one DLL of 1.5 MB less beside it; nothing measured yet on the frame's time, the input margin and the presentation, which are measured before and after at the end of the work.
+
+Not there yet in the multiplayer: the video rows of the setup menus still write the old settings and do nothing; no joystick nor gamepad; `r_ext_multisample` is read when the program starts; in borderless fullscreen the screen goes black for a moment at alt-tab (not diagnosed).
+
+<details>
+<summary>Technical details</summary>
+
+| | before | now |
+|---|---|---|
+| The library | SDL 2.0.12, a prebuilt DLL on Windows, the system's on Linux | SDL 3.4.20 in `libs/SDL3`, built with the project as a static library, its unused subsystems off; on Linux X11 and Wayland required at build and opened at run time |
+| The layer | `src/shared/sdl/sdl_window.cpp`, `sdl_input.cpp` | `src/shared/platform`: `platform.h` (the clock, the start), `window/`, `input/`, and `engine/`, which each engine compiles; the C++ Core Guidelines throughout, every finding of clang-tidy an error |
+| The engine's side | `WIN_Init`, `WIN_Present`, `WIN_SetGamma`, `WIN_Shutdown`, `IN_Frame`, `Sys_QueEvent` | `Platform_OpenWindow` (once), `Platform_Frame`, `Platform_Display`, `Platform_Present`; the events given straight to `CL_KeyEvent`, `CL_CharEvent`, `CL_MouseEvent`, `CL_PointerEvent` |
+| The client's clock | `timeGetTime`, `CLOCK_MONOTONIC` | the layer's, SDL's (`SDL_GetTicksNS`), the one the events are dated on; the dedicated server keeps its own |
+| A key's time | an `unsigned` of milliseconds, in the bind's command | an `int64_t` of nanoseconds, in the bind's command, in `kbutton_t`, up to `CL_KeyState` |
+| The modules' interfaces | `KeyEvent(int)`, `MouseEvent(dx, dy)` | `KeyEvent(fakeAscii_t)`, `CharEvent(int)`, `MouseEvent(x, y)` the pointer's place in pixels; `UI_API_VERSION` 7, `CGAME_API_VERSION` 6 |
+| The renderer's interface | a window created and destroyed through its imports | the display asked as it is; a new export `ext.LoadImagePixels` for the pointer's image |
+| The tests | none | `modernjk.platform` on SDL's dummy video driver; `modernjk_test_platform real` by hand for a window with a context |
+
+The work: [progress/step-15-platform.md](progress/step-15-platform.md) section 14.
 
 </details>
