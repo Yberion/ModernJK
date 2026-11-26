@@ -41,10 +41,12 @@ void Platform_OpenWindow();
 // Closes the window and the layer, at the program's end.
 void Platform_Shutdown();
 
-// Reads the input: gives the mouse to the view in game and to the system's pointer everywhere else (a menu, the
-// console, a level loading, no focus), turns the text input on while something takes characters, then hands every
-// event since the call before to the client (CL_KeyEvent, CL_CharEvent, CL_MouseEvent, CL_PointerEvent), each key with the time it moved at and the mouse's
-// motion with its fractions, and the window's own (the focus, minimized, quit). Nothing before the window is open.
+// Reads the input: gives the mouse to the view when the client says it turns the view (CL_MouseTurnsView) and the
+// window has the focus, and to the system's pointer everywhere else (a menu, the console, a level loading, no
+// focus), turns the text input on while something takes characters, then hands every event since the call before to
+// the client (CL_KeyEvent, CL_CharEvent, CL_MouseEvent, CL_PointerEvent), each key with the time it moved at and the
+// mouse's motion with its fractions, and the window's own (the focus, minimized, quit). Nothing before the window is
+// open.
 void Platform_Frame();
 
 // Whether a text is the name of a key the engine has no code of its own for, as the engine writes such a key in a

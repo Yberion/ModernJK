@@ -89,7 +89,7 @@ typedef struct {
 
     int parseEntitiesNum; // index (not anded off) into cl_parse_entities[]
 
-    int mouseDx[2], mouseDy[2]; // added to by mouse events
+    float mouseDx[2], mouseDy[2]; // added to by mouse events
     int mouseIndex;
     EnumArray<int, joystickAxis_t, joystickAxis_t::MAX_JOYSTICK_AXIS> joystickAxis; // set by joystick events
 
@@ -209,7 +209,6 @@ typedef struct {
 
     // Cursor
     bool cursorActive;
-    qhandle_t cursorShader;
     int cursorX;
     int cursorY;
 
@@ -297,10 +296,6 @@ extern cvar_t* m_filter;
 
 extern cvar_t* cl_activeAction;
 
-extern cvar_t* cl_consoleKeys;
-extern cvar_t* cl_consoleUseScanCode;
-extern cvar_t* cl_consoleShiftRequirement;
-
 //=================================================
 
 //
@@ -323,11 +318,11 @@ bool CL_CheckPaused(void);
 // cl_input
 //
 typedef struct {
-    int down[2];       // key nums holding it down
-    unsigned downtime; // msec timestamp
-    unsigned msec;     // msec down this frame if both a down and up happened
-    bool active;       // current state
-    bool wasPressed;   // set when down, not cleared when up
+    int down[2];      // key nums holding it down
+    int64_t downtime; // when it went down, in nanoseconds on the client's clock; 0 when not known
+    int64_t nsec;     // nanoseconds down since the keys were last read, when it went down and up in between
+    bool active;      // current state
+    bool wasPressed;  // set when down, not cleared when up
 } kbutton_t;
 
 extern kbutton_t in_mlook, in_klook;

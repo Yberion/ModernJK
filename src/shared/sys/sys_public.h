@@ -56,12 +56,8 @@ template <> inline constexpr bool enableEnumArithmetic<joystickAxis_t> = true;
 
 enum class sysEventType_t {
     // bk001129 - make sure SE_NONE is zero
-    SE_NONE = 0,      // evTime is still valid
-    SE_KEY,           // evValue is a key code, evValue2 is the down flag
-    SE_CHAR,          // evValue is an ascii char
-    SE_MOUSE,         // evValue and evValue2 are reletive signed x / y moves
-    SE_JOYSTICK_AXIS, // evValue is an axis number and evValue2 is the current state (-127 to 127)
-    SE_CONSOLE,       // evPtr is a char*
+    SE_NONE = 0, // evTime is still valid
+    SE_CONSOLE,  // evPtr is a char*
     SE_MAX
 };
 
@@ -151,50 +147,5 @@ time_t Sys_FileTime(const char* path);
 bool Sys_LowPhysicalMemory();
 
 void Sys_SetProcessorAffinity(void);
-
-enum class graphicsApi_t {
-    GRAPHICS_API_GENERIC,
-
-    // Only OpenGL needs special treatment..
-    GRAPHICS_API_OPENGL,
-};
-
-// Graphics API
-typedef struct window_s {
-    void* handle; // OS-dependent window handle
-    graphicsApi_t api;
-} window_t;
-
-enum class glProfile_t {
-    GLPROFILE_COMPATIBILITY,
-    GLPROFILE_CORE,
-    GLPROFILE_ES,
-};
-
-enum class glContextFlags_t {
-    GLCONTEXT_NONE = 0,
-    GLCONTEXT_DEBUG = (1 << 1),
-};
-template <> inline constexpr bool enableEnumFlags<glContextFlags_t> = true;
-
-typedef struct windowDesc_s {
-    graphicsApi_t api;
-
-    // Only used if api == GRAPHICS_API_OPENGL
-    struct gl_ {
-        int majorVersion;
-        int minorVersion;
-        glProfile_t profile;
-        glContextFlags_t contextFlags;
-    } gl;
-} windowDesc_t;
-
-typedef struct glconfig_s glconfig_t;
-window_t WIN_Init(const windowDesc_t* desc, glconfig_t* glConfig);
-void WIN_Present(window_t* window);
-void WIN_SetGamma(glconfig_t* glConfig, byte red[256], byte green[256], byte blue[256]);
-void WIN_Shutdown(void);
-void* WIN_GL_GetProcAddress(const char* proc);
-bool WIN_GL_ExtensionSupported(const char* extension);
 
 uint8_t ConvertUTF32ToExpectedCharset(uint32_t utf32);

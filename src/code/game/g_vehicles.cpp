@@ -76,7 +76,6 @@ extern vmCvar_t cg_thirdPersonAlpha;
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 extern cvar_t* g_speederControlScheme;
-extern cvar_t* in_joystick;
 extern void PM_SetAnim(pmove_t* pm, setAnimParts_t setAnimParts, animNumber_t anim, setAnimFlags_t setAnimFlags, int blendTime);
 extern int PM_AnimLength(int index, animNumber_t anim);
 extern void NPC_SetAnim(gentity_t* ent, setAnimParts_t setAnimParts, animNumber_t anim, setAnimFlags_t setAnimFlags, int iBlend);

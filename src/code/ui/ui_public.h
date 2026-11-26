@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __UI_PUBLIC_H__
 #define __UI_PUBLIC_H__
 
-#include <client/keycodes.h>
+#include <shared/qcommon/q_keycodes.h>
 
 inline constexpr int UI_API_VERSION = 4;
 

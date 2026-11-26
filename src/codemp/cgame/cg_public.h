@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 inline constexpr int CGAME_API_VERSION = 6;
 
 enum class uiMenuCommand_t; // ui_public.h
-enum class fakeAscii_t;     // ui/keycodes.h
+enum class fakeAscii_t;     // shared/qcommon/q_keycodes.h
 
 inline constexpr int CMD_BACKUP = 256; // 2.56 s of commands at one per tick
 inline constexpr int CMD_MASK = CMD_BACKUP - 1;

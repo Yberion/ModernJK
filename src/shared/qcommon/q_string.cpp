@@ -89,6 +89,8 @@ bool Q_isanumber(const char* s)
     if (*s == '\0')
         return false;
 
+    // the conversion sets errno when it fails and never clears it: an error left by an earlier call is not this text's
+    errno = 0;
     ret = Q_strtod(s, &p);
 
     if (ret == HUGE_VAL || errno == ERANGE)

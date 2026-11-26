@@ -27,6 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "client.h"
 #include "client_ui.h"
+#include <shared/platform/engine/engine.h>
 
 /*
 
@@ -41,6 +42,20 @@ int historyLine;     // the line being displayed from history buffer will be <= 
 field_t historyEditLines[COMMAND_HISTORY];
 
 keyGlobals_t kg;
+
+// either side's modifier: the right ones are keys of their own (RSHIFT, RCTRL, RALT), bindable apart
+static bool Key_ShiftDown(void)
+{
+    return (kg.keys[fakeAscii_t::A_SHIFT].down || kg.keys[fakeAscii_t::A_SHIFT2].down);
+}
+static bool Key_CtrlDown(void)
+{
+    return (kg.keys[fakeAscii_t::A_CTRL].down || kg.keys[fakeAscii_t::A_CTRL2].down);
+}
+static bool Key_AltDown(void)
+{
+    return (kg.keys[fakeAscii_t::A_ALT].down || kg.keys[fakeAscii_t::A_ALT2].down);
+}
 
 // do NOT blithely change any of the key names (3rd field) here, since they have to match the key binds
 //	in the CFG files, they're also prepended with "KEYNAME_" when looking up StripEd references
@@ -524,7 +539,7 @@ void Field_KeyDownEvent(field_t* edit, fakeAscii_t key)
     int len;
 
     // shift-insert is paste
-    if ((key == fakeAscii_t::A_INSERT) && kg.keys[fakeAscii_t::A_SHIFT].down) {
+    if ((key == fakeAscii_t::A_INSERT) && Key_ShiftDown()) {
         Field_Paste(edit);
         return;
     }
@@ -558,12 +573,12 @@ void Field_KeyDownEvent(field_t* edit, fakeAscii_t key)
         return;
     }
 
-    if (key == fakeAscii_t::A_HOME || (keynames[key].lower == 'a' && kg.keys[fakeAscii_t::A_CTRL].down)) {
+    if (key == fakeAscii_t::A_HOME || (keynames[key].lower == 'a' && Key_CtrlDown())) {
         edit->cursor = 0;
         return;
     }
 
-    if (key == fakeAscii_t::A_END || (keynames[key].lower == 'e' && kg.keys[fakeAscii_t::A_CTRL].down)) {
+    if (key == fakeAscii_t::A_END || (keynames[key].lower == 'e' && Key_CtrlDown())) {
         edit->cursor = len;
         return;
     }
@@ -661,7 +676,7 @@ Handles history and console scrollback
 void Console_Key(fakeAscii_t key)
 {
     // ctrl-L clears screen
-    if (keynames[key].lower == 'l' && kg.keys[fakeAscii_t::A_CTRL].down) {
+    if (keynames[key].lower == 'l' && Key_CtrlDown()) {
         Cbuf_AddText("clear\n");
         return;
     }
@@ -712,8 +727,8 @@ void Console_Key(fakeAscii_t key)
     }
 
     // history scrolling
-    if (key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_KP_8 || (kg.keys[fakeAscii_t::A_SHIFT].down && key == fakeAscii_t::A_MWHEELUP) ||
-        (kg.keys[fakeAscii_t::A_CTRL].down && keynames[key].lower == 'p')) { // scroll up: arrow-up, numpad-up, shift + mwheelup, ctrl + p
+    if (key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_KP_8 || (Key_ShiftDown() && key == fakeAscii_t::A_MWHEELUP) ||
+        (Key_CtrlDown() && keynames[key].lower == 'p')) { // scroll up: arrow-up, numpad-up, shift + mwheelup, ctrl + p
         if (nextHistoryLine - historyLine < COMMAND_HISTORY && historyLine > 0)
             historyLine--;
         g_consoleField = historyEditLines[historyLine % COMMAND_HISTORY];
@@ -721,8 +736,8 @@ void Console_Key(fakeAscii_t key)
         return;
     }
 
-    if (key == fakeAscii_t::A_CURSOR_DOWN || key == fakeAscii_t::A_KP_2 || (kg.keys[fakeAscii_t::A_SHIFT].down && key == fakeAscii_t::A_MWHEELDOWN) ||
-        (kg.keys[fakeAscii_t::A_CTRL].down && keynames[key].lower == 'n')) { // scroll down: arrow-down, numpad-down, shift + mwheeldown, ctrl + n
+    if (key == fakeAscii_t::A_CURSOR_DOWN || key == fakeAscii_t::A_KP_2 || (Key_ShiftDown() && key == fakeAscii_t::A_MWHEELDOWN) ||
+        (Key_CtrlDown() && keynames[key].lower == 'n')) { // scroll down: arrow-down, numpad-down, shift + mwheeldown, ctrl + n
         historyLine++;
         if (historyLine >= nextHistoryLine) {
             historyLine = nextHistoryLine;
@@ -736,27 +751,27 @@ void Console_Key(fakeAscii_t key)
 
     // console scrolling (ctrl to scroll fast)
     if (key == fakeAscii_t::A_PAGE_UP || key == fakeAscii_t::A_MWHEELUP) {
-        int count = kg.keys[fakeAscii_t::A_CTRL].down ? 5 : 1;
+        int count = Key_CtrlDown() ? 5 : 1;
         for (int i = 0; i < count; i++)
             Con_PageUp();
         return;
     }
 
     if (key == fakeAscii_t::A_PAGE_DOWN || key == fakeAscii_t::A_MWHEELDOWN) {
-        int count = kg.keys[fakeAscii_t::A_CTRL].down ? 5 : 1;
+        int count = Key_CtrlDown() ? 5 : 1;
         for (int i = 0; i < count; i++)
             Con_PageDown();
         return;
     }
 
     // ctrl-home = top of console
-    if (key == fakeAscii_t::A_HOME && kg.keys[fakeAscii_t::A_CTRL].down) {
+    if (key == fakeAscii_t::A_HOME && Key_CtrlDown()) {
         Con_Top();
         return;
     }
 
     // ctrl-end = bottom of console
-    if (key == fakeAscii_t::A_END && kg.keys[fakeAscii_t::A_CTRL].down) {
+    if (key == fakeAscii_t::A_END && Key_CtrlDown()) {
         Con_Bottom();
         return;
     }
@@ -788,6 +803,54 @@ bool Key_IsDown(fakeAscii_t keynum)
         return false;
 
     return kg.keys[Key_Upper(keynum)].down;
+}
+
+/*
+===================
+Key_DynamicKey
+
+The keys the table above has no code for (a function key beyond F12, a key of a layout whose character is not in the
+game's character set) share the sixteen codes it leaves free: a key takes one when it is first pressed or named in
+a bind, with its name, which a bind is written and read back by. The code already given to that name; else one
+never given; else the one of such a key that has no bind and is not held, which loses it. None when all sixteen are
+bound.
+===================
+*/
+constexpr int MAX_DYNAMIC_KEYS = std::to_underlying(fakeAscii_t::A_UNDEFINED_22) - std::to_underlying(fakeAscii_t::A_UNDEFINED_7) + 1;
+static char s_dynamicKeyNames[MAX_DYNAMIC_KEYS][32];
+
+std::optional<fakeAscii_t> Key_DynamicKey(const char* name)
+{
+    int unused = -1;
+    int unbound = -1;
+
+    for (int i = 0; i < MAX_DYNAMIC_KEYS; i++) {
+        const fakeAscii_t key = fakeAscii_t::A_UNDEFINED_7 + i;
+
+        if (!Q_stricmp(s_dynamicKeyNames[i], name)) {
+            return key;
+        }
+
+        if (!s_dynamicKeyNames[i][0]) {
+            if (unused < 0) {
+                unused = i;
+            }
+        }
+        else if (unbound < 0 && !kg.keys[key].down && !(kg.keys[key].binding && kg.keys[key].binding[0])) {
+            unbound = i;
+        }
+    }
+
+    const int slot = unused >= 0 ? unused : unbound;
+    if (slot < 0) {
+        Q_PrintlnWarning("no key code left for {}: {} keys of its kind are bound, unbind one", name, MAX_DYNAMIC_KEYS);
+        return std::nullopt;
+    }
+
+    const fakeAscii_t key = fakeAscii_t::A_UNDEFINED_7 + slot;
+    Q_strncpyz(s_dynamicKeyNames[slot], name, sizeof(s_dynamicKeyNames[slot]));
+    keynames[key].name = s_dynamicKeyNames[slot];
+    return key;
 }
 
 /*
@@ -824,6 +887,10 @@ std::optional<fakeAscii_t> Key_StringToKeynum(const char* str)
         if (n >= 0)
             return static_cast<fakeAscii_t>(n);
     }
+
+    // a key the table has no code for, written by its name
+    if (Platform_IsKeyName(str))
+        return Key_DynamicKey(str);
 
     return std::nullopt;
 }
@@ -1179,7 +1246,7 @@ CL_ParseBinding
 Execute the commands in the bind string
 ===================
 */
-void CL_ParseBinding(fakeAscii_t key, bool down, unsigned time)
+void CL_ParseBinding(fakeAscii_t key, bool down, int64_t time)
 {
     char buf[MAX_STRING_CHARS], *p = buf, *end;
     bool allCommands, allowUpCmds;
@@ -1208,7 +1275,7 @@ void CL_ParseBinding(fakeAscii_t key, bool down, unsigned time)
             // subframe corrected
             if (allCommands || (allowUpCmds && !down)) {
                 char cmd[1024];
-                Q_FormatTo(cmd, "{}{} {} {}\n", (down) ? '+' : '-', p + 1, key, static_cast<int>(time));
+                Q_FormatTo(cmd, "{}{} {} {}\n", (down) ? '+' : '-', p + 1, key, time);
                 Cbuf_AddText(cmd);
             }
         }
@@ -1232,7 +1299,7 @@ CL_KeyDownEvent
 Called by CL_KeyEvent to handle a keypress
 ===================
 */
-void CL_KeyDownEvent(fakeAscii_t key, unsigned time)
+void CL_KeyDownEvent(fakeAscii_t key, int64_t time)
 {
     kg.keys[Key_Upper(key)].down = true;
     kg.keys[Key_Upper(key)].repeats++;
@@ -1241,13 +1308,16 @@ void CL_KeyDownEvent(fakeAscii_t key, unsigned time)
         kg.anykeydown = true;
     }
 
-    if (cl_allowAltEnter->integer && kg.keys[fakeAscii_t::A_ALT].down && key == fakeAscii_t::A_ENTER) {
-        Cvar_SetValue("r_fullscreen", !Cvar_VariableIntegerValue("r_fullscreen"));
+    if (cl_allowAltEnter->integer && Key_AltDown() && key == fakeAscii_t::A_ENTER) {
+        // between a window and borderless fullscreen; the window stays the same one, the renderer starts again at
+        // the new size
+        Cvar_SetValue("r_displayState", Cvar_VariableIntegerValue("r_displayState") == 0 ? 1 : 0);
+        Cbuf_AddText("vid_restart\n");
         return;
     }
 
     // console key is hardcoded, so the user can never unbind it
-    if (key == fakeAscii_t::A_CONSOLE || (kg.keys[fakeAscii_t::A_SHIFT].down && key == fakeAscii_t::A_ESCAPE)) {
+    if (key == fakeAscii_t::A_CONSOLE || (Key_ShiftDown() && key == fakeAscii_t::A_ESCAPE)) {
         Con_ToggleConsole_f();
         Key_ClearStates();
         return;
@@ -1262,7 +1332,7 @@ void CL_KeyDownEvent(fakeAscii_t key, unsigned time)
 
     // escape is always handled special
     if (key == fakeAscii_t::A_ESCAPE) {
-        if (!kg.keys[fakeAscii_t::A_SHIFT].down && Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_CONSOLE)) {
+        if (!Key_ShiftDown() && Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_CONSOLE)) {
             Con_ToggleConsole_f();
             Key_ClearStates();
             return;
@@ -1304,7 +1374,7 @@ CL_KeyUpEvent
 Called by CL_KeyEvent to handle a keyrelease
 ===================
 */
-void CL_KeyUpEvent(fakeAscii_t key, unsigned time)
+void CL_KeyUpEvent(fakeAscii_t key, int64_t time)
 {
     kg.keys[Key_Upper(key)].repeats = 0;
     kg.keys[Key_Upper(key)].down = false;
@@ -1316,7 +1386,7 @@ void CL_KeyUpEvent(fakeAscii_t key, unsigned time)
     }
 
     // don't process key-up events for the console key
-    if (key == fakeAscii_t::A_CONSOLE || (key == fakeAscii_t::A_ESCAPE && kg.keys[fakeAscii_t::A_SHIFT].down))
+    if (key == fakeAscii_t::A_CONSOLE || (key == fakeAscii_t::A_ESCAPE && Key_ShiftDown()))
         return;
 
     //
@@ -1338,7 +1408,7 @@ CL_KeyEvent
 Called by the system for both key up and key down events
 ===================
 */
-void CL_KeyEvent(fakeAscii_t key, bool down, unsigned time)
+void CL_KeyEvent(fakeAscii_t key, bool down, int64_t time)
 {
     if (down)
         CL_KeyDownEvent(key, time);
@@ -1363,7 +1433,7 @@ void CL_CharEvent(int key)
     if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_CONSOLE))
         Field_CharEvent(&g_consoleField, key);
     else if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI))
-        _UI_KeyEvent(key | K_CHAR_FLAG, true);
+        _UI_CharEvent(key);
     else if (cls.state == connstate_t::CA_DISCONNECTED)
         Field_CharEvent(&g_consoleField, key);
 }

@@ -5,7 +5,7 @@ Rework was made by SomaZ, no change of the license.
 
 modernjkcmd.ico was contributed by SirYodaJedi
 
-src/code*/macosx/ModernJK.icns and src/shared/sdl/sdl_icon.h are derived works
+src/code*/macosx/ModernJK.icns and src/shared/platform/engine/window_icon.h are derived works
 under the same terms.
 
 ----

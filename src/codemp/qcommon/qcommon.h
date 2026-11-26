@@ -771,6 +771,8 @@ void CL_CharEvent(int key);
 void CL_MouseEvent(float dx, float dy);
 // the system's pointer's place in the window, in pixels from its top left corner, while a menu takes it
 void CL_PointerEvent(float x, float y);
+// whether the mouse turns the view; false while the system's pointer is free, for a menu or the console
+bool CL_MouseTurnsView(void);
 
 void CL_JoystickEvent(int axis, int value, int time);
 

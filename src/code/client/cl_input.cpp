@@ -28,13 +28,25 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "client.h"
 #include "client_ui.h"
+#include <shared/platform/engine/engine.h>
 
+#include <cstdlib>
 #ifndef _WIN32
 #include <cmath>
 #endif
 
 unsigned frame_msec;
 int old_com_frameTime;
+// The keys' own times are in nanoseconds on the client's clock, as the platform layer dates them: the time the input was
+// last read at on that clock, and the time between the two last reads, the frame's. The share of a frame a key was held
+// is exact, whatever the frame rate.
+static int64_t s_inputNsec;
+static int64_t s_lastInputNsec;
+static int64_t s_frameNsec = 1'000'000;
+// the shortest and the longest of a frame's time: over 1,000 frames per second each frame counts as a millisecond, and
+// after a hitch the extra time is cut, so that it gives no unexpected move
+constexpr int64_t MIN_INPUT_NSEC = 1'000'000;
+constexpr int64_t MAX_INPUT_NSEC = 200'000'000;
 float cl_mPitchOverride = 0.0f;
 float cl_mYawOverride = 0.0f;
 
@@ -67,7 +79,8 @@ kbutton_t in_buttons[32];
 
 bool in_mlooking;
 
-extern cvar_t* in_joystick;
+// the joystick's setting, kept with its menu's row: no device is read
+static cvar_t* in_joystick;
 
 static void IN_UseGivenForce(void)
 {
@@ -185,7 +198,7 @@ void IN_KeyDown(kbutton_t* b)
 
     // save timestamp for partial frame summing
     c = Cmd_Argv(2);
-    b->downtime = atoi(c);
+    b->downtime = strtoll(c, nullptr, 10);
 
     b->active = true;
     b->wasPressed = true;
@@ -195,7 +208,7 @@ void IN_KeyUp(kbutton_t* b)
 {
     int k;
     const char* c;
-    unsigned uptime;
+    int64_t uptime;
 
     c = Cmd_Argv(1);
     if (c[0]) {
@@ -225,12 +238,12 @@ void IN_KeyUp(kbutton_t* b)
 
     // save timestamp for partial frame summing
     c = Cmd_Argv(2);
-    uptime = atoi(c);
+    uptime = strtoll(c, nullptr, 10);
     if (uptime) {
-        b->msec += uptime - b->downtime;
+        b->nsec += uptime - b->downtime;
     }
     else {
-        b->msec += frame_msec / 2;
+        b->nsec += s_frameNsec / 2;
     }
 
     b->active = false;
@@ -246,29 +259,29 @@ Returns the fraction of the frame that the key was down
 float CL_KeyState(kbutton_t* key)
 {
     float val;
-    int msec;
+    int64_t nsec;
 
-    msec = key->msec;
-    key->msec = 0;
+    nsec = key->nsec;
+    key->nsec = 0;
 
     if (key->active) {
         // still down
         if (!key->downtime) {
-            msec = com_frameTime;
+            nsec = s_frameNsec;
         }
         else {
-            msec += com_frameTime - key->downtime;
+            nsec += s_inputNsec - key->downtime;
         }
-        key->downtime = com_frameTime;
+        key->downtime = s_inputNsec;
     }
 
 #if 0
-	if (msec) {
-		Q_Print("{} ", msec);
+	if (nsec) {
+		Q_Print("{} ", nsec);
 	}
 #endif
 
-    val = (float)msec / frame_msec;
+    val = static_cast<float>(static_cast<double>(nsec) / static_cast<double>(s_frameNsec));
     if (val < 0) {
         val = 0;
     }
@@ -611,22 +624,50 @@ void CL_KeyMove(usercmd_t* cmd)
     cmd->upmove = ClampChar(up);
 }
 
-void _UI_MouseEvent(int dx, int dy);
-
 /*
 =================
 CL_MouseEvent
 =================
 */
-void CL_MouseEvent(int dx, int dy, int time)
+void CL_MouseEvent(float dx, float dy)
+{
+    cl.mouseDx[cl.mouseIndex] += dx;
+    cl.mouseDy[cl.mouseIndex] += dy;
+}
+
+/*
+=================
+CL_PointerEvent
+
+The system's pointer moved over the window while the menus take it
+=================
+*/
+void CL_PointerEvent(float x, float y)
 {
     if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI)) {
-        _UI_MouseEvent(dx, dy);
+        _UI_MouseEvent(static_cast<int>(x), static_cast<int>(y));
     }
-    else {
-        cl.mouseDx[cl.mouseIndex] += dx;
-        cl.mouseDy[cl.mouseIndex] += dy;
+}
+
+/*
+=================
+CL_MouseTurnsView
+
+In game while neither the menus nor the console take the pointer, and while a video plays: no pointer is shown over a
+video, whether the menus it was started from still take the keys or not
+=================
+*/
+bool CL_MouseTurnsView(void)
+{
+    if (Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_CONSOLE)) {
+        return false;
     }
+
+    if (cls.state == connstate_t::CA_CINEMATIC || CL_IsRunningInGameCinematic()) {
+        return true;
+    }
+
+    return cls.state == connstate_t::CA_ACTIVE && !Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI);
 }
 
 /*
@@ -721,6 +762,12 @@ void CL_MouseMove(usercmd_t* cmd)
     cl.mouseIndex ^= 1;
     cl.mouseDx[cl.mouseIndex] = 0;
     cl.mouseDy[cl.mouseIndex] = 0;
+
+    // no motion, nothing to add; the rate below would be 0 times the inverse root of 0, which is not a number, and
+    // the view angles would never be numbers again
+    if (mx == 0.0f && my == 0.0f) {
+        return;
+    }
 
     rate = SQRTFAST(mx * mx + my * my) / speed;
     accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
@@ -921,6 +968,10 @@ void CL_CreateNewCommands(void)
         frame_msec = 200;
 
     old_com_frameTime = com_frameTime;
+    // Com_Frame has just read the input (Platform_Frame)
+    s_inputNsec = Platform_InputNanoseconds();
+    s_frameNsec = Q_min(Q_max(s_inputNsec - s_lastInputNsec, MIN_INPUT_NSEC), MAX_INPUT_NSEC);
+    s_lastInputNsec = s_inputNsec;
 
     // generate a command for this frame
     cl.cmdNumber++;
@@ -1206,4 +1257,5 @@ void CL_InitInput(void)
 
     cl_nodelta = Cvar_Get("cl_nodelta", "0", cvarFlags_t::CVAR_NONE);
     cl_debugMove = Cvar_Get("cl_debugMove", "0", cvarFlags_t::CVAR_NONE);
+    in_joystick = Cvar_Get("in_joystick", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH);
 }

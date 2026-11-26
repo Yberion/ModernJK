@@ -1077,6 +1077,22 @@ void CL_PointerEvent(float x, float y)
 
 /*
 =================
+CL_MouseTurnsView
+
+In game, while nothing takes the pointer: a menu of the UI or of the cgame, the console, the client's own menu
+=================
+*/
+bool CL_MouseTurnsView(void)
+{
+    if (cls.state != connstate_t::CA_ACTIVE || cls.cursorActive) {
+        return false;
+    }
+
+    return !Any(Key_GetCatcher() & (keyCatchFlags_t::KEYCATCH_CONSOLE | keyCatchFlags_t::KEYCATCH_UI | keyCatchFlags_t::KEYCATCH_CGAME));
+}
+
+/*
+=================
 CL_JoystickEvent
 
 Joystick values stay set until changed

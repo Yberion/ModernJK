@@ -33,9 +33,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "sys_loadlib.h"
 #include "sys_public.h"
 #include "con_local.h"
-#ifdef MODERNJK_PLATFORM
-// the engines on the platform layer: its message box and clipboard, and SDL's entry point of the program (WinMain on
-// Windows), which this file's main becomes
+#ifndef DEDICATED
+// the engines that open a window, on the platform layer: its message box and clipboard, and SDL's entry point of the
+// program (WinMain on Windows), which this file's main becomes
 #include <shared/platform/engine/engine.h>
 #include <shared/platform/main.h>
 #include <shared/platform/platform.h>
@@ -115,7 +115,7 @@ char* Sys_GetClipboardData(void)
 {
 #ifdef DEDICATED
     return nullptr;
-#elif defined(MODERNJK_PLATFORM)
+#else
     const std::string text = platform::ClipboardText();
 
     if (text.empty() || text.size() >= static_cast<size_t>(INT_MAX)) { // Z_Malloc takes an int: a text that long is not pasted
@@ -124,22 +124,6 @@ char* Sys_GetClipboardData(void)
 
     char* buf = (char*)Z_Malloc(static_cast<int>(text.size() + 1), memtag::TAG_CLIPBOARD);
     memcpy(buf, text.c_str(), text.size() + 1); // the text and its terminating zero
-    return buf;
-#else
-    if (!SDL_HasClipboardText())
-        return nullptr;
-
-    char* cbText = SDL_GetClipboardText();
-    const size_t len = strlen(cbText) + 1;
-    if (len > static_cast<size_t>(INT_MAX)) { // Z_Malloc takes an int: a text that long is not pasted
-        SDL_free(cbText);
-        return nullptr;
-    }
-
-    char* buf = (char*)Z_Malloc(static_cast<int>(len), memtag::TAG_CLIPBOARD);
-    memcpy(buf, cbText, len); // the text and its terminating zero
-
-    SDL_free(cbText);
     return buf;
 #endif
 }
@@ -180,9 +164,6 @@ are initialized
 */
 void Sys_Init(void)
 {
-#ifndef MODERNJK_PLATFORM
-    Cmd_AddCommand("in_restart", IN_Restart);
-#endif
     Cvar_Get("arch", OS_STRING " " ARCH_STRING, cvarFlags_t::CVAR_ROM);
     Cvar_Get("username", Sys_GetCurrentUser(), cvarFlags_t::CVAR_ROM);
 
@@ -252,13 +233,8 @@ void Com_RandomBytes(byte* string, int len)
 
 static void NORETURN Sys_Exit(int ex)
 {
-#ifdef MODERNJK_PLATFORM
-    Platform_Shutdown();
-#else
-    IN_Shutdown();
 #ifndef DEDICATED
-    SDL_Quit();
-#endif
+    Platform_Shutdown();
 #endif
 
     NET_Shutdown();
@@ -296,13 +272,7 @@ static void Sys_ErrorDialog(const char* error)
         const formatText_t errorMessageText = Q_Format("{}\n\nThe crash log was written to {}", error, crashLogPath);
         const char* errorMessage = errorMessageText.c_str();
 
-#ifdef MODERNJK_PLATFORM
         platform::ShowError("Error", errorMessage);
-#else
-        if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", errorMessage, nullptr) < 0) {
-            Q_FilePrint(stderr, "{}", errorMessage);
-        }
-#endif
     }
     else {
         // Getting pretty desperate now
@@ -312,14 +282,7 @@ static void Sys_ErrorDialog(const char* error)
         const formatText_t errorMessageText =
             Q_Format("{}\nCould not write the crash log file, but we printed it to stderr.\nTry running the game using a command line interface.", error);
         const char* errorMessage = errorMessageText.c_str();
-#ifdef MODERNJK_PLATFORM
         platform::ShowError("Error", errorMessage);
-#else
-        if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", errorMessage, nullptr) < 0) {
-            // We really have hit rock bottom here :(
-            Q_FilePrint(stderr, "{}", errorMessage);
-        }
-#endif
     }
 }
 #endif
@@ -770,17 +733,6 @@ int main(int argc, char* argv[])
     }
 
     Com_Init(commandLine);
-
-#if !defined(DEDICATED) && !defined(MODERNJK_PLATFORM)
-    SDL_version compiled;
-    SDL_version linked;
-
-    SDL_VERSION(&compiled);
-    SDL_GetVersion(&linked);
-
-    Q_Println("SDL Version Compiled: {}.{}.{}", compiled.major, compiled.minor, compiled.patch);
-    Q_Println("SDL Version Linked: {}.{}.{}", linked.major, linked.minor, linked.patch);
-#endif
 
     // main game loop
     while (1) {

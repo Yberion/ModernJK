@@ -33,6 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <ghoul2/G2.h>
 #include <qcommon/stringed_ingame.h>
 #include <shared/sys/sys_loadlib.h>
+#include <shared/platform/engine/engine.h>
 #include <qcommon/ojk_saved_game.h>
 
 constexpr int RETRANSMIT_TIMEOUT = 3000; // time between connection packet retransmits
@@ -75,10 +76,6 @@ cvar_t* cl_activeAction;
 cvar_t* cl_allowAltEnter;
 
 cvar_t* cl_inGameVideo;
-
-cvar_t* cl_consoleKeys;
-cvar_t* cl_consoleUseScanCode;
-cvar_t* cl_consoleShiftRequirement;
 
 clientActive_t cl;
 clientConnection_t clc;
@@ -944,6 +941,35 @@ void CL_StartSound(void)
 
 /*
 ============
+CL_SetPointerImage
+
+The menus' pointer is the system's own, with the game's image at the size the menus drew it: 48 of their 640 by 480,
+whatever the window's size
+============
+*/
+static void CL_SetPointerImage(void)
+{
+    constexpr int POINTER_SIZE = 48;
+    byte* pic = nullptr;
+    int width = 0;
+    int height = 0;
+
+    // the image of the shader "cursor", which the menus of both games name as their pointer
+    re.R_LoadImage("gfx/menus/cursor1", &pic, &width, &height);
+    if (!pic) {
+        Q_PrintlnWarning("the menus' pointer image gfx/menus/cursor1 was not found");
+        return;
+    }
+
+    if (!Platform_SetPointerImage({pic, static_cast<size_t>(width) * height * 4}, width, height, POINTER_SIZE * cls.glconfig.vidWidth / SCREEN_WIDTH,
+                                  POINTER_SIZE * cls.glconfig.vidHeight / SCREEN_HEIGHT)) {
+        Q_PrintlnWarning("the menus' pointer image could not be given to the system");
+    }
+    Z_Free(pic);
+}
+
+/*
+============
 CL_InitRenderer
 ============
 */
@@ -959,6 +985,7 @@ void CL_InitRenderer(void)
     cls.consoleShader = re.RegisterShader("console");
     g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
     g_consoleField.widthInChars = g_console_field_width;
+    CL_SetPointerImage();
 }
 
 /*
@@ -1101,6 +1128,9 @@ void CL_InitRef(void)
     char dllName[MAX_OSPATH];
     GetRefAPI_t GetRefAPI;
 
+    // the client's window, opened once and kept: the renderer draws in it and a restart of the renderer leaves it
+    Platform_OpenWindow();
+
     Q_Println("----- Initializing Renderer ----");
     cl_renderer = Cvar_Get("cl_renderer", DEFAULT_RENDER_LIBRARY, cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH);
 
@@ -1170,12 +1200,10 @@ void CL_InitRef(void)
 
     RIT(Hunk_ClearToMark);
 
-    rit.WIN_Init = WIN_Init;
-    rit.WIN_SetGamma = WIN_SetGamma;
-    rit.WIN_Shutdown = WIN_Shutdown;
-    rit.WIN_Present = WIN_Present;
-    rit.GL_GetProcAddress = WIN_GL_GetProcAddress;
-    rit.GL_ExtensionSupported = WIN_GL_ExtensionSupported;
+    rit.Platform_Display = Platform_Display;
+    rit.Platform_Present = Platform_Present;
+    rit.GL_GetProcAddress = Platform_GlProcAddress;
+    rit.GL_ExtensionSupported = Platform_GlExtensionSupported;
 
     rit.PD_Load = PD_Load;
     rit.PD_Store = PD_Store;
@@ -1287,11 +1315,6 @@ void CL_Init(void)
     m_forward = Cvar_Get("m_forward", "0.25", cvarFlags_t::CVAR_ARCHIVE_ND);
     m_side = Cvar_Get("m_side", "0.25", cvarFlags_t::CVAR_ARCHIVE_ND);
     m_filter = Cvar_Get("m_filter", "0", cvarFlags_t::CVAR_ARCHIVE_ND);
-
-    // ~ and `, as keys and characters
-    cl_consoleKeys = Cvar_Get("cl_consoleKeys", "~ ` 0x7e 0x60 0xb2", cvarFlags_t::CVAR_ARCHIVE);
-    cl_consoleUseScanCode = Cvar_Get("cl_consoleUseScanCode", "1", cvarFlags_t::CVAR_ARCHIVE);
-    cl_consoleShiftRequirement = Cvar_Get("cl_consoleShiftRequirement", "0", cvarFlags_t::CVAR_ARCHIVE);
 
     // userinfo
 #ifdef JK2_MODE

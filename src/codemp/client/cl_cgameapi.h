@@ -28,7 +28,7 @@ void CGVM_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPla
 int CGVM_CrosshairPlayer(void);
 int CGVM_LastAttacker(void);
 void CGVM_CharEvent(int character);
-enum class fakeAscii_t; // ui/keycodes.h
+enum class fakeAscii_t; // shared/qcommon/q_keycodes.h
 void CGVM_KeyEvent(fakeAscii_t key, bool down);
 void CGVM_MouseEvent(int x, int y);
 enum class cgameEvent_t; // cg_public.h

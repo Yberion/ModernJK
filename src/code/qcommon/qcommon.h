@@ -583,12 +583,18 @@ void CL_Shutdown(void);
 void CL_Frame(int msec, float fractionMsec);
 bool CL_GameCommand(void);
 enum class fakeAscii_t;
-void CL_KeyEvent(fakeAscii_t key, bool down, unsigned time);
+// time: when the key moved, in nanoseconds on the client's clock
+void CL_KeyEvent(fakeAscii_t key, bool down, int64_t time);
 
 void CL_CharEvent(int key);
 // char events are for field typing, not game control
 
-void CL_MouseEvent(int dx, int dy, int time);
+// the mouse's motion while it turns the view, in the device's counts and their fractions
+void CL_MouseEvent(float dx, float dy);
+// the system's pointer's place in the window, in pixels from its top left corner, while a menu takes it
+void CL_PointerEvent(float x, float y);
+// whether the mouse turns the view; false while the system's pointer is free, for a menu or the console
+bool CL_MouseTurnsView(void);
 
 void CL_JoystickEvent(int axis, int value, int time);
 

@@ -895,7 +895,8 @@ static void SG_WriteScreenshot(bool qbAutosave, const char* psMapName)
     size_t bufSize = SG_SCR_WIDTH * SG_SCR_HEIGHT * 3;
     byte* pJPGData = (byte*)Z_Malloc(static_cast<int>(bufSize), memtag::TAG_TEMP_WORKSPACE, false, 4);
 
-    iJPGDataSize = re.SaveJPGToBuffer(pJPGData, bufSize, JPEG_IMAGE_QUALITY, SG_SCR_WIDTH, SG_SCR_HEIGHT, pbRawScreenShot, 0, false);
+    // both pictures have their rows from the top: the screen's copy (RE_GetScreenShot) and the level's picture as read
+    iJPGDataSize = re.SaveJPGToBuffer(pJPGData, bufSize, JPEG_IMAGE_QUALITY, SG_SCR_WIDTH, SG_SCR_HEIGHT, pbRawScreenShot, 0, true);
     delete[] byBlank;
 
     saved_game.write_chunk<uint32_t>(INT_ID('S', 'H', 'L', 'N'), iJPGDataSize);

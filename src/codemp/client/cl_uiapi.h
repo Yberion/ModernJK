@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 void UIVM_Init(bool inGameLoad);
 void UIVM_Shutdown(void);
 void UIVM_CharEvent(int character);
-enum class fakeAscii_t; // ui/keycodes.h
+enum class fakeAscii_t; // shared/qcommon/q_keycodes.h
 void UIVM_KeyEvent(fakeAscii_t key, bool down);
 void UIVM_MouseEvent(int dx, int dy);
 void UIVM_Refresh(int realtime);

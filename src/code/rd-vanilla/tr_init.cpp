@@ -35,7 +35,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 glconfig_t glConfig;
 glstate_t glState;
-window_t window;
 
 static void GfxInfo_f(void);
 
@@ -271,7 +270,7 @@ void R_Splash()
         qglEnd();
     }
 
-    ri.WIN_Present(&window);
+    ri.Platform_Present();
 }
 
 /*
@@ -638,21 +637,13 @@ static void GLimp_InitExtensions(void)
 static void InitOpenGL(void)
 {
     //
-    // initialize OS specific portions of the renderer
-    //
-    // GLimp_Init directly or indirectly references the following cvars:
-    //		- r_fullscreen
-    //		- r_mode
-    //		- r_(color|depth|stencil)bits
-    //		- r_ignorehwgamma
-    //		- r_gamma
+    // the client's window is open: the renderer asks what it is like and draws in it
     //
 
     if (glConfig.vidWidth == 0) {
-        windowDesc_t windowDesc = {graphicsApi_t::GRAPHICS_API_OPENGL};
         memset(&glConfig, 0, sizeof(glConfig));
 
-        window = ri.WIN_Init(&windowDesc, &glConfig);
+        ri.Platform_Display(&glConfig);
 
         // get our config strings
         glConfig.vendor_string = (const char*)qglGetString(GL_VENDOR);
@@ -1175,16 +1166,11 @@ void GfxInfo_f(void)
 {
     const char* enablestrings[] = {"disabled", "enabled"};
     const char* fsstrings[] = {"windowed", "fullscreen"};
-    const char* noborderstrings[] = {"", "noborder "};
-
     const EnumArray<const char*, textureCompression_t, std::to_underlying(textureCompression_t::TC_S3TC_DXT) + 1> tc_table = {
         "None",
         "GL_S3_s3tc",
         "GL_EXT_texture_compression_s3tc",
     };
-
-    int fullscreen = ri.Cvar_VariableIntegerValue("r_fullscreen");
-    int noborder = ri.Cvar_VariableIntegerValue("r_noborder");
 
     Q_Println("\nGL_VENDOR: {}", glConfig.vendor_string);
     Q_Println("GL_RENDERER: {}", glConfig.renderer_string);
@@ -1194,8 +1180,7 @@ void GfxInfo_f(void)
     Q_Println("GL_MAX_TEXTURE_SIZE: {}", glConfig.maxTextureSize);
     Q_Println("GL_MAX_ACTIVE_TEXTURES_ARB: {}", glConfig.maxActiveTextures);
     Q_Println("\nPIXELFORMAT: color({}-bits) Z({}-bit) stencil({}-bits)", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits);
-    Q_Print("MODE: {}, {} x {} {}{} hz:", ri.Cvar_VariableIntegerValue("r_mode"), glConfig.vidWidth, glConfig.vidHeight,
-            fullscreen == 0 ? noborderstrings[noborder == 1] : noborderstrings[0], fsstrings[fullscreen == 1]);
+    Q_Print("MODE: {} x {} {} hz:", glConfig.vidWidth, glConfig.vidHeight, fsstrings[glConfig.isFullscreen]);
     if (glConfig.displayFrequency) {
         Q_Println("{}", glConfig.displayFrequency);
     }
@@ -1745,10 +1730,6 @@ void RE_Shutdown(bool destroyWindow, bool restarting)
         }
     }
 
-    // shut down platform specific OpenGL stuff
-    if (destroyWindow) {
-        ri.WIN_Shutdown();
-    }
     tr.registered = false;
 }
 

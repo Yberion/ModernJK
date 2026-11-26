@@ -27,11 +27,9 @@ function(modernjk_enable_clang_tidy)
 		message(WARNING "clang-tidy requested but not found")
 		return()
 	endif()
-	# the compiler's flags that clang-tidy's own clang does not know are not errors; SDL2's headers replace its
-	# functions by the C library's under the static analyzer, without including the C library's headers
+	# the compiler's flags that clang-tidy's own clang does not know are not errors
 	set(CMAKE_CXX_CLANG_TIDY "${modernjk_CLANG_TIDY}" -extra-arg=-Wno-unknown-warning-option
-		-extra-arg=-Wno-ignored-optimization-argument -extra-arg=-Wno-unused-command-line-argument
-		-extra-arg=-DSDL_DISABLE_ANALYZE_MACROS PARENT_SCOPE)
+		-extra-arg=-Wno-ignored-optimization-argument -extra-arg=-Wno-unused-command-line-argument PARENT_SCOPE)
 endfunction()
 
 # clang-tidy's findings as errors on one target (netcodec's)

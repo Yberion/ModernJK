@@ -17,8 +17,7 @@
 #============================================================================
 
 # The libraries the project uses, in place of the template's CPM (which downloads them while configuring): each is
-# vendored in libs/ at a version its README names, and built with the project. The one exception, until SDL 3 is
-# vendored: SDL2 on Linux comes from the system (libsdl2-dev), as OpenGL does (the graphics driver's). The system's
+# vendored in libs/ at a version its README names, and built with the project. The system's
 # drivers are not libraries of the project: on Linux the headers of OpenGL and of the sound servers that OpenAL Soft's
 # backends need (PipeWire, PulseAudio, ALSA, and D-Bus for RTKit) come from the distribution's development packages, the
 # libraries themselves being the player's own.
@@ -258,23 +257,5 @@ function(modernjk_setup_dependencies)
 		endif()
 
 		find_package(OpenGL REQUIRED)
-		if(WIN32)
-			# SDL2 for Windows, built by its authors (libs/SDL2): the DLL beside the engines, SDL2main for WinMain
-			add_library(SDL2::SDL2 SHARED IMPORTED GLOBAL)
-			set_target_properties(SDL2::SDL2 PROPERTIES
-				IMPORTED_LOCATION "${libs}/SDL2/bin/x64/SDL2.dll"
-				IMPORTED_IMPLIB "${libs}/SDL2/lib/x64/SDL2.lib"
-				INTERFACE_INCLUDE_DIRECTORIES "${libs}/SDL2/include")
-			add_library(SDL2::SDL2main STATIC IMPORTED GLOBAL)
-			set_target_properties(SDL2::SDL2main PROPERTIES IMPORTED_LOCATION "${libs}/SDL2/lib/x64/SDL2main.lib")
-		else()
-			find_package(SDL2 REQUIRED CONFIG)
-			if(NOT TARGET SDL2::SDL2)   # a configuration file that gives only variables
-				add_library(SDL2::SDL2 INTERFACE IMPORTED GLOBAL)
-				string(STRIP "${SDL2_LIBRARIES}" sdl2_libraries)
-				set_target_properties(SDL2::SDL2 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${SDL2_INCLUDE_DIRS}"
-					INTERFACE_LINK_LIBRARIES "${sdl2_libraries}")
-			endif()
-		endif()
 	endif()
 endfunction()

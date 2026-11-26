@@ -31,6 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "stringed_ingame.h"
 #include "game_version.h"
 #include <shared/sys/sys_local.h>
+#include <shared/platform/engine/engine.h>
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -880,18 +881,6 @@ int Com_EventLoop(void)
             break;
         case sysEventType_t::SE_NONE:
             break;
-        case sysEventType_t::SE_KEY:
-            CL_KeyEvent(static_cast<fakeAscii_t>(ev.evValue), ev.evValue2, ev.evTime);
-            break;
-        case sysEventType_t::SE_CHAR:
-            CL_CharEvent(ev.evValue);
-            break;
-        case sysEventType_t::SE_MOUSE:
-            CL_MouseEvent(ev.evValue, ev.evValue2, ev.evTime);
-            break;
-        case sysEventType_t::SE_JOYSTICK_AXIS:
-            CL_JoystickEvent(ev.evValue, ev.evValue2, ev.evTime);
-            break;
         case sysEventType_t::SE_CONSOLE:
             Cbuf_AddText((char*)ev.evPtr);
             Cbuf_AddText("\n");
@@ -1419,7 +1408,7 @@ void Com_Frame(void)
             else
                 Sys_Sleep(timeVal - 1);
         } while ((timeVal = Com_TimeVal(minMsec)) != 0);
-        IN_Frame();
+        Platform_Frame();
 
         lastTime = com_frameTime;
         com_frameTime = Com_EventLoop();

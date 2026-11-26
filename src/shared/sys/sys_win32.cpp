@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <io.h>
 #include <shlobj.h>
 #include <windows.h>
-#ifdef MODERNJK_PLATFORM
+#ifndef DEDICATED
 #include <shared/platform/engine/engine.h>
 #endif
 
@@ -97,7 +97,7 @@ Sys_Milliseconds
 */
 int Sys_Milliseconds(void)
 {
-#ifdef MODERNJK_PLATFORM
+#ifndef DEDICATED
     // the client's one clock, the one its input is dated on
     return Platform_Milliseconds();
 #else

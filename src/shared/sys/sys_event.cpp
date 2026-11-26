@@ -39,14 +39,12 @@ constexpr int MAX_QUED_EVENTS = 256;
 constexpr int MASK_QUED_EVENTS = MAX_QUED_EVENTS - 1;
 
 static sysEvent_t eventQue[MAX_QUED_EVENTS] = {};
-static sysEvent_t* lastEvent = nullptr;
 static uint32_t eventHead = 0, eventTail = 0;
 
 static const char* Sys_EventName(sysEventType_t evType)
 {
 
-    static const EnumArray<const char*, sysEventType_t, sysEventType_t::SE_MAX> evNames = {"SE_NONE",  "SE_KEY",           "SE_CHAR",
-                                                                                           "SE_MOUSE", "SE_JOYSTICK_AXIS", "SE_CONSOLE"};
+    static const EnumArray<const char*, sysEventType_t, sysEventType_t::SE_MAX> evNames = {"SE_NONE", "SE_CONSOLE"};
 
     if (evType >= sysEventType_t::SE_MAX) {
         return "SE_UNKNOWN";
@@ -110,22 +108,6 @@ void Sys_QueEvent(int evTime, sysEventType_t evType, int value, int value2, int 
         evTime = Sys_Milliseconds();
     }
 
-    // try to combine all sequential mouse moves in one event
-    if (evType == sysEventType_t::SE_MOUSE && lastEvent && lastEvent->evType == sysEventType_t::SE_MOUSE) {
-        // try to reuse already processed item
-        if (eventTail == eventHead) {
-            lastEvent->evValue = value;
-            lastEvent->evValue2 = value2;
-            eventTail--;
-        }
-        else {
-            lastEvent->evValue += value;
-            lastEvent->evValue2 += value2;
-        }
-        lastEvent->evTime = evTime;
-        return;
-    }
-
     ev = &eventQue[eventHead & MASK_QUED_EVENTS];
 
     if (eventHead - eventTail >= MAX_QUED_EVENTS) {
@@ -145,6 +127,4 @@ void Sys_QueEvent(int evTime, sysEventType_t evType, int value, int value2, int 
     ev->evValue2 = value2;
     ev->evPtrLength = ptrLength;
     ev->evPtr = ptr;
-
-    lastEvent = ev;
 }

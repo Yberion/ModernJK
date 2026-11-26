@@ -493,13 +493,8 @@ void _UI_Refresh(int realtime)
         //		UI_BuildFindPlayerList(false);
     }
 
-    // draw cursor
+    // the pointer is the system's own, with the game's image: nothing to draw
     UI_SetColor(nullptr);
-    if (Menu_Count() > 0) {
-        if (uiInfo.uiDC.cursorShow == true) {
-            UI_DrawHandlePic(uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
-        }
-    }
 }
 
 constexpr int MODSBUFSIZE = MAX_MODS * MAX_QPATH;
@@ -3586,25 +3581,11 @@ int Text_Height(const char* text, float scale, int iFontIndex)
 UI_MouseEvent
 =================
 */
-// JLFMOUSE  CALLED EACH FRAME IN UI
-void _UI_MouseEvent(int dx, int dy)
+void _UI_MouseEvent(int x, int y)
 {
-    // update mouse screen position
-    uiInfo.uiDC.cursorx += dx;
-    if (uiInfo.uiDC.cursorx < 0) {
-        uiInfo.uiDC.cursorx = 0;
-    }
-    else if (uiInfo.uiDC.cursorx > SCREEN_WIDTH) {
-        uiInfo.uiDC.cursorx = SCREEN_WIDTH;
-    }
-
-    uiInfo.uiDC.cursory += dy;
-    if (uiInfo.uiDC.cursory < 0) {
-        uiInfo.uiDC.cursory = 0;
-    }
-    else if (uiInfo.uiDC.cursory > SCREEN_HEIGHT) {
-        uiInfo.uiDC.cursory = SCREEN_HEIGHT;
-    }
+    // the place is in the window's pixels, the menus count in their 640 by 480
+    uiInfo.uiDC.cursorx = Com_Clampi(0, SCREEN_WIDTH, static_cast<int>(x / uiInfo.uiDC.xscale));
+    uiInfo.uiDC.cursory = Com_Clampi(0, SCREEN_HEIGHT, static_cast<int>(y / uiInfo.uiDC.yscale));
 
     if (Menu_Count() > 0) {
         // menuDef_t *menu = Menu_GetFocused();
@@ -3618,7 +3599,7 @@ void _UI_MouseEvent(int dx, int dy)
 UI_KeyEvent
 =================
 */
-void _UI_KeyEvent(int key, bool down)
+void _UI_KeyEvent(fakeAscii_t key, bool down)
 {
     /*	extern bool SwallowBadNumLockedKPKey( int iKey );
         if (SwallowBadNumLockedKPKey(key)){
@@ -3630,12 +3611,14 @@ void _UI_KeyEvent(int key, bool down)
         menuDef_t* menu = Menu_GetFocused();
         if (menu) {
             // DemoEnd();
-            if (KeyEvent_Key(key) == fakeAscii_t::A_ESCAPE && down && !Menus_AnyFullScreenVisible() &&
-                !Any(menu->window.flags & windowFlags_t::WINDOW_IGNORE_ESCAPE)) {
+            // Escape closes the menus opened over the game; but a row waiting for the key to bind, or a field being
+            // edited, takes it first: the bind is cancelled or the editing ends, and the menu stays
+            if (key == fakeAscii_t::A_ESCAPE && down && !Menus_AnyFullScreenVisible() && !Any(menu->window.flags & windowFlags_t::WINDOW_IGNORE_ESCAPE) &&
+                !Menu_TakesEscape()) {
                 Menus_CloseAll();
             }
             else {
-                Menu_HandleKey(menu, key, down);
+                Menu_HandleKey(menu, std::to_underlying(key), down);
             }
         }
         else {
@@ -3646,10 +3629,18 @@ void _UI_KeyEvent(int key, bool down)
     }
 }
 
-// a key's event: _UI_KeyEvent takes a key, or a character with K_CHAR_FLAG, in one int
-void _UI_KeyEvent(fakeAscii_t key, bool down)
+/*
+=================
+UI_CharEvent
+
+A typed character, for the field being edited
+=================
+*/
+void _UI_CharEvent(int character)
 {
-    _UI_KeyEvent(std::to_underlying(key), down);
+    if (Menu_Count() > 0 && Menu_GetFocused()) {
+        Menu_HandleChar(character);
+    }
 }
 
 /*

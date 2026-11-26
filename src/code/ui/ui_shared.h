@@ -471,6 +471,8 @@ int Menu_ItemsMatchingGroup(menuDef_t* menu, const char* name);
 itemDef_t* Menu_GetMatchingItemByNumber(menuDef_t* menu, int index, const char* name);
 
 void Menu_HandleKey(menuDef_t* menu, int key, bool down);
+void Menu_HandleChar(int ch);
+bool Menu_TakesEscape(void);
 void Menu_New(char* buffer);
 void Menus_OpenByName(const char* p);
 void Menu_PaintAll(void);

@@ -150,8 +150,6 @@ build64
 eggs
 parts
 bin
-# the prebuilt SDL2 for Windows, part of the repository
-!/libs/SDL2/bin/
 var
 sdist
 develop-eggs

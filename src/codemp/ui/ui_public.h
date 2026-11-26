@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 inline constexpr int UI_API_VERSION = 7;
 
-enum class fakeAscii_t; // keycodes.h
+enum class fakeAscii_t; // shared/qcommon/q_keycodes.h
 
 typedef struct uiClientState_s {
     connstate_t connState;

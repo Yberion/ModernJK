@@ -1509,7 +1509,6 @@ long FS_FOpenFileRead(const char* filename, fileHandle_t* file, bool uniqueFILE)
                         !FS_IsExt(filename, ".fcf", l) &&  // force configuration files
                         !FS_IsExt(filename, ".menu", l) && // menu files
                         !FS_IsExt(filename, ".game", l) && // menu files
-                        !FS_IsExt(filename, ".dat", l) &&  // data files
                         !FS_IsDemoExt(filename, l)) {      // demos
                         continue;
                     }
@@ -1527,7 +1526,6 @@ long FS_FOpenFileRead(const char* filename, fileHandle_t* file, bool uniqueFILE)
                     !FS_IsExt(filename, ".fcf", l) &&  // force configuration files
                     !FS_IsExt(filename, ".menu", l) && // menu files
                     !FS_IsExt(filename, ".game", l) && // menu files
-                    !FS_IsExt(filename, ".dat", l) &&  // data files
                     !FS_IsDemoExt(filename, l)) {      // demos
                     fs_fakeChkSum = Q_flrand(0.0f, 1.0f);
                 }
@@ -3771,7 +3769,7 @@ FS_PureServerSetLoadedPaks
 If the string is empty, all data sources will be allowed.
 If not empty, only pk3 files that match one of the space
 separated checksums will be checked for files, with the
-exception of .cfg and .dat files.
+exception of .cfg, .fcf, .menu and .game files and of demos.
 =====================
 */
 void FS_PureServerSetLoadedPaks(const char* pakSums, const char* pakNames)

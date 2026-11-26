@@ -24,11 +24,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <qcommon/qcommon.h>
 
-void IN_Init(void* windowData);
-void IN_Frame(void);
-void IN_Shutdown(void);
-void IN_Restart(void);
-
 void Sys_PlatformInit(int argc, char* argv[]);
 void Sys_PlatformExit(void);
 bool Sys_GetPacket(netadr_t* net_from, msg_t* net_message);

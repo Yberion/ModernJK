@@ -211,8 +211,9 @@ extern uiInfo_t uiInfo;
 //
 void _UI_Init(bool inGameLoad);
 void _UI_DrawRect(float x, float y, float width, float height, float size, const float* color);
-void _UI_MouseEvent(int dx, int dy);
-void _UI_KeyEvent(int key, bool down);
+void _UI_MouseEvent(int x, int y);
+void _UI_KeyEvent(fakeAscii_t key, bool down);
+void _UI_CharEvent(int character);
 void UI_Report(void);
 
 extern char GoToMenu[];

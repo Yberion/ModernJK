@@ -31,8 +31,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 inline constexpr int NUM_CON_TIMES = 4;
 
-inline constexpr int K_CHAR_FLAG = 1024;
-
 inline constexpr int MAX_STRING_CHARS = 1024;  // max length of a string passed to Cmd_TokenizeString
 inline constexpr int MAX_STRING_TOKENS = 1024; // max tokens resulting from Cmd_TokenizeString
 inline constexpr int MAX_TOKEN_CHARS = 1024;   // max length of an individual token

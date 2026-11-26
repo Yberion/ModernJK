@@ -1,6 +1,6 @@
 # What this branch changes compared with OpenJK
 
-Last update: 25 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (sections 33 to 36 and 38) and the seed of the random numbers (section 37), which concern the single-player games of Jedi Academy and Jedi Outcast too.
+Last update: 26 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`src/codemp/` and the shared code it uses), but for the sound (sections 33 to 36 and 38), the seed of the random numbers (section 37) and the platform layer (section 40), which concern the single-player games of Jedi Academy and Jedi Outcast too.
 
 This page lists every change of the branch, with its reason and what it gives. The work follows the goals stated in the [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, a netcode other JKA forks can reuse, Windows and Linux. The measurements in full, and the history of each change, are in the step documents of [progress/](progress/README.md).
 
@@ -189,6 +189,7 @@ Each line links to its section.
 | change | before | now |
 |---|---|---|
 | [39. The multiplayer's window and input on a new platform layer](#39-the-multiplayers-window-and-input-on-a-new-platform-layer) | SDL 2 behind a layer of 2005: keys dated by the frame and rounded to the millisecond, the mouse rounded to whole counts and held in the menus, a window created again at each restart of the video, thirteen fixed video modes | a layer written from zero on SDL 3.4.20, linked into the client: keys dated in nanoseconds when they move, the mouse in floats, the system's pointer in the menus, one window kept, borderless fullscreen by default and the screen's own modes |
+| [40. The single player's two games on the platform layer](#40-the-single-players-two-games-on-the-platform-layer) | Jedi Academy's and Jedi Outcast's single player still on SDL 2, with `SDL2.dll` beside them; on this branch their view turned neither with the mouse nor with the keys | both on the same layer as the multiplayer, with what section 39 lists; the view turns again |
 
 **Reference**: [27. Settings and commands](#27-settings-and-commands), [28. Build, tests and repository](#28-build-tests-and-repository), [29. Name: ModernJK](#29-name-modernjk), [30. Compatibility](#30-compatibility), [31. C++20, 64-bit Windows, Linux and macOS](#31-c20-64-bit-windows-linux-and-macos), [32. Not changed yet](#32-not-changed-yet).
 
@@ -1579,6 +1580,7 @@ The work: [progress/step-21-sound.md](progress/step-21-sound.md) section 16.
 | A character typed in a menu | sent to the UI and the cgame as a key with a flag (`K_CHAR_FLAG`) | its own event (`CharEvent`), beside `KeyEvent` |
 | Escape in a menu over the game, while a row waits for the key to bind or a field is edited | the menu closes (the original game's) | the bind is cancelled or the editing ends; the menu stays |
 | The screen's brightness table | set by the game for the whole screen, put back at each loss of the focus | never touched: `r_gamma` acts on the textures as they are loaded (after a `vid_restart`) until the renderers' output stage |
+| A `.dat` file outside the archives, on a server that checks its clients' archives (`sv_pure 1`) | read in place of the archives' own (an exception made for the journal's files): a changed `base/ext_data/dms.dat` was taken | ignored, as the other data outside the archives |
 | The journal (`journal 1` and `2`, `journal.dat`, `journaldata.dat`) | recorded and replayed the system's events, never the network's packets | removed, in the three games: demos, `com_debugSeed` with `fixedtime` and the scripted scenarios replay a session |
 
 Costs: about 2.8 MB more in the client's executable (SDL 3 linked statically, measured: 5.8 to 8.6 MB with clang), and one DLL of 1.5 MB less beside it; nothing measured yet on the frame's time, the input margin and the presentation, which are measured before and after at the end of the work.
@@ -1600,5 +1602,49 @@ Not there yet in the multiplayer: the video rows of the setup menus still write 
 | The tests | none | `modernjk.platform` on SDL's dummy video driver; `modernjk_test_platform real` by hand for a window with a context |
 
 The work: [progress/step-15-platform.md](progress/step-15-platform.md) section 14.
+
+</details>
+
+### 40. The single player's two games on the platform layer
+
+**Before.** The single player's engine, which builds Jedi Academy and Jedi Outcast, still opened its window and read its keys and its mouse through SDL 2 and the old layer, with `SDL2.dll` beside each executable. On this branch the view did not turn in either game, with the mouse or with the keys, while the menus worked.
+
+**Now.** Both games run on the layer of section 39, through the same engine part as the multiplayer: what that section lists holds for them too. SDL 2 and the old layer are gone from the repository.
+
+**Why.** One system for the three games: a change of the window or of the input is made once.
+
+**Gain.**
+
+| fix | before | now |
+|---|---|---|
+| The view in game (this branch's own defect) | never turns: in a level, moving the mouse or holding the key bound to `+left` leaves the view where the level started it | turns as in the original game |
+| The share of a frame a key is held | from times rounded to the millisecond at which the frame read the key | from the time the key moved at, in nanoseconds |
+| The mouse's motion | rounded to whole counts when read | in floats up to the view angles |
+| The mouse in the menus and the console | held by the game, the pointer drawn by the game and moved by the mouse's own counts (three times the desktop's speed in a window 1,920 wide) | the system's pointer with the game's image at the size it had (48 of the menus' 640 by 480), at the desktop's speed, free to leave the window |
+| The mouse while a video plays | held | held, and no pointer over the video |
+| The window, the display's settings, `modelist`, `minimize`, Alt+Enter, the console key, the keys without a code, the brightness table | as section 39's "before" | as section 39's "now" |
+| Escape in a menu over the game, while a row waits for the key to bind or a field is edited | the menu closes (the original games') | the bind is cancelled or the editing ends; the menu stays |
+| The right Shift, Ctrl and Alt in the engine's shortcuts (this branch's own defect, since they are keys of their own) | ignored: the right Alt with Enter does nothing, the right Ctrl with Page Up scrolls the console by one line | as the left ones: Alt+Enter, Shift+Escape, the console's and the fields' shortcuts take either side |
+| Jedi Outcast, the picture stored in a saved game (OpenJK's since March 2025) | upside down: on the loading screen when the save is loaded, and beside the save in the load menu | upright, for a save made from now on |
+| `SDL2.dll` beside the two executables | needed | gone |
+| A setting with a range, after a number out of range was read (the three games; OpenJK's) | refused whatever its value and put back to its default: in the console, `r_primitives 1e999` then `r_primitives 1` gives `cvar 'r_primitives' must be numeric, setting to 0`, and so does every such setting after it | checked on its own value: `r_primitives 1` is taken |
+
+Not there yet: the video rows of the setup menus still write the old settings and do nothing; no joystick nor gamepad.
+
+<details>
+<summary>Technical details</summary>
+
+| | before | now |
+|---|---|---|
+| The view that did not turn | `CL_MouseMove` (`src/code/client/cl_input.cpp`) computed the mouse's rate as `SQRTFAST(mx * mx + my * my)`, which is `x * Q_rsqrtf(x)`: with no motion, 0 times the inverse root of 0. The old approximation of the inverse root gave a large number and the product was 0; since the inverse root is exact (section 11) it is infinite and the product is not a number, which the test for "no motion" after it let through into the view angles for the rest of the level | the function returns before the rate when the mouse did not move, as the multiplayer's does |
+| The engine's side | `WIN_Init`, `IN_Frame`, the system's event queue | `Platform_OpenWindow`, `Platform_Frame`, the events given straight to `CL_KeyEvent`, `CL_CharEvent`, `CL_MouseEvent`, `CL_PointerEvent` |
+| Who has the mouse | decided in the old layer | each client's `CL_MouseTurnsView`, which the engine part asks: the multiplayer's in game while no menu, console nor cgame menu takes the pointer; the single player's the same, and while a video plays |
+| The UI (in the engine) | `_UI_KeyEvent(int)` with `K_CHAR_FLAG`, `_UI_MouseEvent(dx, dy)`, the pointer drawn | `_UI_KeyEvent(fakeAscii_t)`, `_UI_CharEvent(int)`, `_UI_MouseEvent(x, y)` the pointer's place in pixels; `K_CHAR_FLAG` gone from the three games |
+| The renderer's interface | a window created and destroyed through its imports | the display asked as it is; the pointer's image read through `R_LoadImage`, which it already exported |
+| SDL 2 | `libs/SDL2` (a prebuilt DLL for Windows), the system's on Linux, `src/shared/sdl/` | removed; the build asks for no SDL 2 package |
+| The key codes (`fakeAscii_t`) | defined twice, `src/codemp/ui/keycodes.h` and `src/code/client/keycodes.h` | once, `src/shared/qcommon/q_keycodes.h` |
+| A number's check (`Q_isanumber`, `src/shared/qcommon/q_string.cpp`) | `errno` read after the conversion, which sets it only when it fails: an error left by an earlier call made every number "not numeric" | `errno` cleared before the conversion |
+
+The work: [progress/step-15-platform.md](progress/step-15-platform.md) section 14.14.
 
 </details>

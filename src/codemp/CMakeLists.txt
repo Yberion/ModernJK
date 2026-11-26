@@ -135,7 +135,6 @@ if(modernjk_BUILD_MP_SERVER)
 	target_sources(modernjkded PRIVATE
 		ghoul2/G2_gore.cpp
 		null/null_client.cpp
-		null/null_input.cpp
 		null/null_renderer.cpp
 		rd-dedicated/G2_API.cpp
 		rd-dedicated/G2_bolts.cpp

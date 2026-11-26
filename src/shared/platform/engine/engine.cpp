@@ -35,8 +35,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <shared/platform/input/input.h>
 #include <shared/platform/platform.h>
 #include <shared/platform/window/window.h>
-#include <shared/sdl/sdl_icon.h>
 #include <shared/sys/sys_public.h>
+
+#include "window_icon.h"
 
 #include <fmt/format.h>
 
@@ -614,18 +615,6 @@ void Minimize_f()
     }
 }
 
-// Whether the mouse turns the view: in game, with the focus, while nothing takes the pointer (a menu of the UI or of
-// the cgame, the console, the client's own menu). Everywhere else the system's pointer is free, in and out of the
-// window.
-bool MouseTurnsView()
-{
-    if (com_unfocused->integer != 0 || cls.state != connstate_t::CA_ACTIVE || cls.cursorActive) {
-        return false;
-    }
-
-    return !Any(Key_GetCatcher() & (keyCatchFlags_t::KEYCATCH_CONSOLE | keyCatchFlags_t::KEYCATCH_UI | keyCatchFlags_t::KEYCATCH_CGAME));
-}
-
 } // namespace
 
 void Platform_OpenWindow()
@@ -677,7 +666,10 @@ void Platform_Frame()
     }
 
     Layer& layer = *running;
-    const platform::MouseMode mode = MouseTurnsView() ? platform::MouseMode::Game : platform::MouseMode::Pointer;
+    // the mouse turns the view with the focus and when the client says so (in game, while nothing takes the pointer);
+    // everywhere else the system's pointer is free, in and out of the window
+    const bool view = com_unfocused->integer == 0 && CL_MouseTurnsView();
+    const platform::MouseMode mode = view ? platform::MouseMode::Game : platform::MouseMode::Pointer;
     Report(layer.input.SetMouseMode(mode), layer.mouseRefused, "the mouse could not be given to the view or released");
     // in exclusive fullscreen the pointer stays on the game's screen: a click on another screen would take the focus,
     // and the system then minimizes the game. In a window and in borderless fullscreen it is free to leave.

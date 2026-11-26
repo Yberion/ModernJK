@@ -90,14 +90,14 @@ typedef struct {
     int (*CIN_PlayCinematic)(const char* arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits, const char* psAudioFile /* = nullptr */);
     void (*CIN_UploadCinematic)(int handle);
 
-    // window handling
-    window_t (*WIN_Init)(const windowDesc_t* desc, glconfig_t* glConfig);
-    void (*WIN_SetGamma)(glconfig_t* glConfig, byte red[256], byte green[256], byte blue[256]);
-    void (*WIN_Present)(window_t* window);
-    void (*WIN_Shutdown)(void);
+    // the client's window, which the renderer draws in and never creates nor destroys: the display as it is (the
+    // size in pixels, the bits, whether it fills the screen), and the image shown
+    void (*Platform_Display)(glconfig_t* glConfig);
+    void (*Platform_Present)(void);
 
     // OpenGL-specific
-    void* (*GL_GetProcAddress)(const char* name);
+    // a function of the OpenGL library, to cast to its own type
+    void (*(*GL_GetProcAddress)(const char* name))(void);
     bool (*GL_ExtensionSupported)(const char* extension);
 
     CMiniHeap* (*GetG2VertSpaceServer)(void);

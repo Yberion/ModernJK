@@ -1355,10 +1355,6 @@ void R_SetColorMappings(void)
         }
         s_intensitytable[i] = j;
     }
-
-    if (glConfig.deviceSupportsGamma) {
-        ri.WIN_SetGamma(&glConfig, s_gammatable, s_gammatable, s_gammatable);
-    }
 }
 
 /*

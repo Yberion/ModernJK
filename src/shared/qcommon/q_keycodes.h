@@ -22,14 +22,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#ifndef __KEYCODES_H__
-#define __KEYCODES_H__
+#pragma once
+
+// q_keycodes.h -- the engine's key codes, which the clients' key events, the binds and the menus are given: one
+// definition for the trees that share them (multiplayer, and Jedi Academy's and Jedi Outcast's single player).
 
 #include <optional>
 
-#include <shared/qcommon/q_enum.h>
-
-// these are the key numbers that should be passed to KeyEvent
+#include "q_enum.h"
 
 enum class fakeAscii_t {
     A_NULL = 0,
@@ -365,19 +365,3 @@ enum class fakeAscii_t {
     MAX_KEYS
 };
 template <> inline constexpr bool enableEnumArithmetic<fakeAscii_t> = true;
-
-// The menu code needs to get both key and char events, but
-// to avoid duplicating the paths, the char events are just
-// distinguished by or'ing in K_CHAR_FLAG (ugly)
-#include <shared/qcommon/q_limits.h>
-
-// the key of such an event, none for a character
-[[nodiscard]] inline std::optional<fakeAscii_t> KeyEvent_Key(int event)
-{
-    if (event & K_CHAR_FLAG) {
-        return std::nullopt;
-    }
-    return static_cast<fakeAscii_t>(event);
-}
-
-#endif

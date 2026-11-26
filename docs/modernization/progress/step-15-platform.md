@@ -1,6 +1,6 @@
 # Step 15: a new platform layer on SDL 3
 
-Plan step 15 ([../PLAN.md](../PLAN.md)). The survey and the decisions P1 to P9 of 15 November 2026 are in [../surveys/platform-layer.md](../surveys/platform-layer.md). This page holds what was read and decided when the step started, on 25 November 2026, the code of parts 1 and 2 as it was written from that day on (section 14), and where to resume (section 15, 26 November 2026: the multiplayer's client is on the layer, nothing is committed).
+Plan step 15 ([../PLAN.md](../PLAN.md)). The survey and the decisions P1 to P9 of 15 November 2026 are in [../surveys/platform-layer.md](../surveys/platform-layer.md). This page holds what was read and decided when the step started, on 25 November 2026, the code of parts 1 and 2 as it was written from that day on (section 14), and where to resume (section 15, 26 November 2026: the multiplayer's client is on the layer, committed the same day; the single player's engines written the same day, section 14.14, not yet built on the VMs nor committed).
 
 The step is not a migration: the layer is designed from SDL 3's own documentation, as a new SDL 3 program is written today, and the present code (`src/shared/sdl/`) only tells which features a player has. Three criteria hold for every choice (25 November 2026): the most responsive possible (the picture, the keys, the feedback), one system for the multiplayer and both single-player games, and the same on every platform.
 
@@ -441,7 +441,7 @@ Then decision 1 of section 14.3: the journal is gone from the three games.
 - The file system (`src/shared/qcommon/files.cpp`): `FS_ReadFile` no longer writes each configuration file read into the journal nor reads it back from there; the copy of a file no longer skips the journal's two files.
 - The single player's engine (`src/code/qcommon/`), which had no such setting: its two unused file handles and the stand-in the file system needed for it.
 
-Kept as it was: on a server that checks its clients' archives, a `.dat` file is still read from a folder (it was allowed "for journal files"); whether that exception should go with the journal is not decided.
+Kept as it was that day: on a server that checks its clients' archives, a `.dat` file was still read from a folder (it was allowed "for journal files"). Decided on 26 November 2026: the exception goes with the journal (`FS_FOpenFileRead`, `src/shared/qcommon/files.cpp`). On such a server a `.dat` file outside the archives (`ext_data/dms.dat`, the list of the dynamic music; the Thai font's two tables) is no longer read in place of the archives' own, and reading one elsewhere marks the client as the other loose data do; the client's own `servercache.dat` is read by another function and is not concerned.
 
 Checked on the development machine (llvm-mingw's clang): the presets Release, Debug and AddressSanitizer build every target without a warning, the five `modernjk` tests pass, the scripted session of section 14.5 again (the configuration files read, a map, a bot, the size changed by `vid_restart`, a clean quit). Not checked: GCC 15, Clang 23 on Linux and MSVC; the scripted scenarios, run with the part's validations.
 
@@ -557,12 +557,90 @@ Not checked: such a key pressed by hand and bound from the controls menu (left o
 
 Not checked yet: the Wayland driver itself (`SDL_VIDEO_DRIVER=wayland`). Left open, for the checks under Wayland: `SDL_HINT_VIDEO_DOUBLE_BUFFER` (two buffers instead of three under Wayland, "a whole frame of latency" less by SDL's documentation, at the cost of waiting for the vertical sync after each swap): not set, to measure before it is.
 
+### 14.14 The single player's engines on the layer (26 November 2026)
+
+Point 4 of section 11. The reference for the measures first: the worktree `E:\Git\jka\ModernJK_sdl2ref`, at the commit before the multiplayer's part (`fix(sound): step 21, part 7`), built with the clang Release preset.
+
+Not in sub-steps as the multiplayer was: the engine part (`src/shared/platform/engine/engine.cpp`) is compiled against each engine's headers and asks for the whole of the client's side at once (a key's time in nanoseconds, the mouse in floats, the pointer's place, the keys without a code), so the single player's engine, which builds Jedi Academy and Jedi Outcast, was moved in one piece.
+
+Written, in `src/code/` as sections 14.4 to 14.13 did in `src/codemp/`:
+
+- The build: `sp_engine_common` links `modernjk_sys_platform` in place of `modernjk_sys_client`; no `SDL2.dll` is copied nor installed beside the two executables.
+- The engine: `Com_Frame` calls `Platform_Frame` where it called `IN_Frame`, and `Com_EventLoop` no longer has cases for the keys, the characters, the mouse and the joystick's axes.
+- The client: `CL_KeyEvent(key, down, int64_t)` with the time carried by the bind's command, `kbutton_t` in nanoseconds and `CL_KeyState` dividing by the frame's time in nanoseconds (the single player makes one command per frame, so one span serves the view and the movement); `CL_MouseEvent(float, float)` and the sums of motion in floats; `CL_PointerEvent`; `Key_DynamicKey` and the names of the keys without a code in `Key_StringToKeynum`; Alt+Enter between a window and borderless fullscreen; the console key's three settings gone; the joystick's setting the client's own; the window opened in `CL_InitRef` and the renderer's four imports; the pointer's image set when the renderer starts.
+- The pointer: both games' menus name the shader `cursor`, whose image is `gfx/menus/cursor1` in each game's archives (read there, as section 14.9 did); the single player's UI drew it 48 by 48 of its 640 by 480 (the multiplayer's 40), which is the size given to the system. The UI no longer draws it, and `_UI_MouseEvent` takes the pointer's place in pixels.
+- The UI, which is in the engine: `_UI_KeyEvent(fakeAscii_t, bool)` and a new `_UI_CharEvent(int)`; the field's handler cut into `Item_TextField_HandleChar` and `Item_TextField_HandleKey`, `Menu_HandleChar`, as section 14.11; `K_CHAR_FLAG` and `KeyEvent_Key` removed, no game using them any more.
+- Escape while a row waits for a key or a field is edited (section 14.12): the same code was there, so the same fix, `Menu_TakesEscape`.
+- The renderer (`src/code/rd-vanilla`, `src/code/rd-common/tr_public.h`): `Platform_Display` and `Platform_Present` in place of `WIN_Init`, `WIN_SetGamma`, `WIN_Present` and `WIN_Shutdown`, `gfxinfo`'s line, the stale declarations gone, as sections 14.4 and 14.10.
+- Who has the mouse, a change of the engine part: its own test read the multiplayer's key catchers (`KEYCATCH_CGAME`, which the single player has not), so each client now answers `CL_MouseTurnsView`, and the engine part adds the focus. The multiplayer's answer is the test as it was. The single player's: in game while neither the menus nor the console take the keys, and while a video plays (`CA_CINEMATIC` or an in-game one), whatever the menus' state: a video started from the menus leaves the UI's key catcher set and hides the UI's pointer (`UI_Cursor_Show(false)`), so no pointer is shown over it; the mouse is held meanwhile, as it was.
+
+The view that did not turn (section 8; "Known issues" of the progress page): found and fixed. A scripted `+left` reproduces it (`viewpos` before and after: the same yaw), and a trace showed the view angles not being numbers from the level's first frame, without `cl_overrideAngles` being set: section 8's suspicion was wrong. The cause: `CL_MouseMove` computes the mouse's rate as `SQRTFAST(mx * mx + my * my)`, which is `x * Q_rsqrtf(x)`; with no motion that is 0 times the inverse root of 0. Quake's approximation of the inverse root gave a large number and the product was 0; since the inverse root is exact (12 November 2026, plan step 14) it is infinite and the product is not a number, which the test for "no motion" placed after it (`!mx && !my`) lets through into `cl.viewangles`, where every later addition stays not a number. The multiplayer's `CL_MouseMove` returns before the rate when the mouse did not move; the single player's now does the same. The reference build (SDL 2) has the defect, so it was not the platform code's.
+
+| | before | now |
+|---|---|---|
+| In a level of either game, the mouse moved or the key bound to `+left` held | the view stays where the level started it (`viewpos`: yaw 0, then 0) | the view turns (`viewpos`: yaw 165, then 218 after 60 frames of `+left`) |
+
+Checked on the development machine (llvm-mingw's clang): the presets Release, Debug and AddressSanitizer build every target without a warning, the five `modernjk` tests pass in each, clang-tidy at zero on the layer's four files (the engine part once per engine: three times), clang-format clean. Scripted silent sessions of both games on the Release build: the layer's line in the log, a level loaded (`mp/duel1` and `yavin1b` in Jedi Academy, `ffa_bespin` and `artus_mine` in Jedi Outcast), the view turned by `+left` and the player moved by `+forward`, `bind F13` and `bind U+00B4` taken and `bind FOOBAR` refused, a size changed by `vid_restart` on the same window (`MODE: 1024 x 576 windowed`), a screenshot of the level at that size, a clean quit. The mouse tried by hand on these sessions, in both games: the view turns.
+
+Decided on 26 November 2026: while a video plays the mouse is held and no pointer is shown, and the single player's pointer keeps its 48 units.
+
+Seen on the way, the reference build's too, and fixed the same day (asked): at a `vid_restart` the single player's renderer printed five warnings, `cvar 'r_picmip' must be numeric, setting to 0` and the same for `r_subdivisions`, `r_znear`, `r_primitives` and `r_screenshotJpegQuality`, each setting put back to its default. The cause is `Q_isanumber` (`src/shared/qcommon/q_string.cpp`), which the settings with a range are checked by: it read `errno` after the conversion without clearing it before, and the conversion sets `errno` only when it fails; an error left by any earlier call made every number "not numeric". OpenJK's function does the same with the C library's `strtod`. Reproduced without the view's defect, in the console: `r_primitives 1e999` (refused, rightly), then `r_primitives 1`. The warnings at `vid_restart` were seen only in the sessions that had the view's defect (this build before its fix, the reference build) and in none since, with the same commands; which call left the error there was not looked for.
+
+| | before | now |
+|---|---|---|
+| In the console, `r_primitives 1e999`, then `r_primitives 1` | the second is refused too: `cvar 'r_primitives' must be numeric, setting to 0`; so is `r_subdivisions 8` after it, and every setting with a range, each put back to its default | the first is refused, the second taken (`r_primitives = "1"`) |
+
+Removed with it: a declaration of `in_joystick` that nothing used, in the single player's game (`src/code/game/g_vehicles.cpp`).
+
+Checked after these two fixes and the `.dat` exception's removal (section 14.6): the clang presets Release, Debug and AddressSanitizer without a warning, the five `modernjk` tests passed in each, the scripted scenarios `golden: SAME` (`scenarios.sh step15sp`, 2 min 43 s).
+
+The VMs' Release builds and the two games by hand, the same day: GCC 15, Clang 23 and MSVC built; in both games the pointer in the menus, no pointer over the intro's video, the view and the keys in game, a bind and Escape while a row waits for it, a field and Escape while it is edited, the console key, a saved game loaded: all passed. Two things came out of it:
+
+- Alt+Enter answered the left Alt only. The right Shift, Ctrl and Alt are keys of their own on this branch (8 November 2026), and the single player's shortcuts still read the left ones alone (sixteen tests in `src/code/client/cl_keys.cpp`: Alt+Enter, Shift+Escape for the console, Shift+Insert, the console's history with Shift and the wheel, its scrolling and its ends with Ctrl, the fields' Ctrl shortcuts). Fixed the same day as the multiplayer has it: `Key_ShiftDown`, `Key_CtrlDown` and `Key_AltDown` take either side.
+- Shift with the key under Escape typed nothing, in the multiplayer either. It is the layout's: on the French AZERTY layout that key types `²` alone and nothing with Shift (asked of Windows, `ToUnicodeEx` on scancode 0x29 of layout 040C: one character without Shift, none with it). The test asked for was wrong; on a layout whose key has a shifted character (`~` on the US one) that character is typed.
+
+| | before | now |
+|---|---|---|
+| In either single-player game, the right Alt held and Enter pressed | nothing | the display goes between a window and borderless fullscreen, as with the left Alt |
+| The console open, the right Ctrl held and Page Up pressed | one line up | five lines up, as with the left Ctrl |
+
+Seen there too, in Jedi Outcast, not this step's (the reference build does it too), and fixed the same day (asked): the picture stored in a saved game was upside down. It is the picture the loading screen shows when a saved game is loaded, and again at each restart of the video after it, which is how Alt+Enter showed it, and the one the load menu shows beside a save. The screen's copy has its rows from the top since upstream OpenJK's fix of the level transition screen (`RE_GetScreenShot`, March 2025), as the level's picture of an autosave has, and `SG_WriteScreenshot` (`src/code/server/sv_savegame.cpp`) still asked the JPEG writer for rows from the bottom: one argument. Jedi Academy stores no picture.
+
+| | before | now |
+|---|---|---|
+| Jedi Outcast, a game saved then loaded | the loading screen's picture is upside down, and the save's picture in the load menu | upright, for a save made from now on (a save made before keeps its picture) |
+
+Checked by reading the picture out of the saves' files, a save made by hand and an autosave, before and after: upside down, then upright.
+
+Checked after the modifiers' and the picture's fixes: the clang presets Release, Debug and AddressSanitizer without a warning, the five `modernjk` tests passed in each. Not checked: the right Alt, Ctrl and Shift by hand; GCC 15, Clang 23 on Linux and MSVC on these last two changes; the loading screen and the load menu by hand.
+
+### 14.15 SDL 2 and the old layer removed, the key codes in one definition (26 November 2026)
+
+The end of point 4 of section 11, once both single-player games were tried on the layer.
+
+Removed:
+
+- `libs/SDL2` (the prebuilt DLL, its import library and its headers, 4.4 MB) and its targets in `Dependencies.cmake` (`SDL2::SDL2`, `SDL2::SDL2main`, the system's SDL2 on Linux); `.gitignore`'s line for its `bin` folder.
+- `src/shared/sdl/` (`sdl_window.cpp`, `sdl_input.cpp`); its icon, which the engine part includes, is `src/shared/platform/engine/window_icon.h`.
+- The target `modernjk_sys_client` and the function `modernjk_copy_runtime_dlls` (`src/shared/CMakeLists.txt`); every engine that opens a window links `modernjk_sys_platform`.
+- The definition `MODERNJK_PLATFORM` and the branches it chose in `src/shared/sys/` (`sys_main.cpp`, `sys_loadlib.h`, `sys_win32.cpp`, `sys_unix.cpp`): what differs now is the dedicated server (`DEDICATED`), which keeps its own clock and links no SDL; the modules' libraries are loaded by the system's own call everywhere.
+- What only the old layer used: the declarations of `IN_Init`, `IN_Frame`, `IN_Shutdown` and `IN_Restart` and the dedicated server's empty ones (`src/codemp/null/null_input.cpp`), `WIN_Init` and its kin with their types (`window_t`, `windowDesc_t`, `graphicsApi_t`, `glProfile_t`, `glContextFlags_t`), the system queue's events for the keys, the characters, the mouse and the joystick's axes (`SE_KEY`, `SE_CHAR`, `SE_MOUSE`, `SE_JOYSTICK_AXIS`: the queue carries the console's lines only), the multiplayer renderer's unused `window_t` field.
+- clang-tidy's `-DSDL_DISABLE_ANALYZE_MACROS` (`cmake/StaticAnalyzers.cmake`), the SDL 2 exception of GUIDELINES section 9, `libsdl2-dev` and SDL 2's row in the root README.
+
+The key codes: `fakeAscii_t` is defined once, in `src/shared/qcommon/q_keycodes.h`, in place of `src/codemp/ui/keycodes.h` and `src/code/client/keycodes.h`, which held the same enumerators (GUIDELINES section 6; section 9.3).
+
+Checked on the development machine (llvm-mingw's clang): the presets Release, Debug and AddressSanitizer configure again and build every target without a warning, the five `modernjk` tests pass in each, clang-tidy at zero on the layer's four files, clang-format clean; a scripted session of each of the three clients (the multiplayer, Jedi Academy, Jedi Outcast) loads a level and quits cleanly; the scripted scenarios `golden: SAME`.
+
+The full VM validations, the same day (logs `build/validate-linux.log`, `build/validate-windows.log`): `validate.sh` ALL OK (GCC 15 and Clang 23: Release, Debug, AddressSanitizer, the server's preset, the Debug build with link-time optimization, the formatting) and `validate.bat` ALL OK (MSVC: Release, Debug, AddressSanitizer), `ctest` 16 of 16 in every preset that runs it, no compiler warning.
+
+Outside the repository: Jedi Outcast's `update_from_build.bat`, in its game folder, no longer copies `SDL2.dll`; the game folders still hold the `SDL2.dll` of earlier builds, which nothing loads.
+
 ## 15. Where to resume (26 November 2026)
 
 ### 15.1 The state
 
-- Nothing of this step's code is committed. The work is in the working tree: `libs/SDL3/` (1,494 files, new), `src/shared/platform/` (new), `src/shared/sys/sys_charset.cpp` (new), `test/platform/` (new), and about 46 files changed (`git status`): the build (`Dependencies.cmake`, `.gitignore`, `src/shared/CMakeLists.txt`, `src/codemp/CMakeLists.txt`, `test/CMakeLists.txt`), the multiplayer's client, renderer, UI and cgame, the shared system files, the journal's removal in both engines and the file system, the documents, `GUIDELINES.md`, the root `README.md`.
-- Points 1, 2 and 3 of section 11 are written; point 3's six sub-steps are sections 14.4 (1), 14.8 (2), 14.10 (3), 14.11 (4), 14.9 (5), 14.13 (6), with the journal's removal (14.6), the pass against the C++ Core Guidelines (14.5) and the Escape fix (14.12). The multiplayer's client runs on the layer; the single player's two games still build and run on SDL 2 (`src/shared/sdl/`, `libs/SDL2`).
+- The multiplayer's part is committed (26 November 2026: `feat(platform): step 15, parts 1 and 2, the multiplayer's client on a new platform layer`), after the validations and the scenarios below. What that commit holds: `libs/SDL3/` (1,494 files, new), `src/shared/platform/` (new), `src/shared/sys/sys_charset.cpp` (new), `test/platform/` (new), and about 46 files changed (`git status`): the build (`Dependencies.cmake`, `.gitignore`, `src/shared/CMakeLists.txt`, `src/codemp/CMakeLists.txt`, `test/CMakeLists.txt`), the multiplayer's client, renderer, UI and cgame, the shared system files, the journal's removal in both engines and the file system, the documents, `GUIDELINES.md`, the root `README.md`.
+- Points 1, 2 and 3 of section 11 are written; point 3's six sub-steps are sections 14.4 (1), 14.8 (2), 14.10 (3), 14.11 (4), 14.9 (5), 14.13 (6), with the journal's removal (14.6), the pass against the C++ Core Guidelines (14.5) and the Escape fix (14.12). The multiplayer's client runs on the layer; so do the single player's two games since section 14.14 (26 November 2026, not committed: built and checked with clang on the development machine only). SDL 2, `src/shared/sdl/` and `libs/SDL2` are gone (section 14.15, the same day; the VM validations ALL OK without a warning; not committed).
 - Checked: every sub-step by the clang presets Release, Debug and AddressSanitizer on the development machine and by the Release presets of GCC 15, Clang 23 and MSVC on the VMs, without a warning; each tried by hand in multiplayer on the MSVC build ("everything works"), but a key without a code of its own pressed by hand (left out).
 - The scripted scenarios on the development machine, 26 November 2026 (`scenarios.sh step15mp`, the clang Release build; the journal's removal touched the file system the server uses): `golden: SAME`, in 2 min 42 s.
 - The full VM validations, 26 November 2026 (logs `build/validate-linux.log`, `build/validate-windows.log`): `validate.sh` ALL OK (GCC 15 and Clang 23: Release, Debug, AddressSanitizer, the server's preset, the Debug build with link-time optimization, the formatting) and `validate.bat` ALL OK (MSVC: Release, Debug, AddressSanitizer), `ctest` 16 of 16 in every preset that runs it, no compiler warning; the only messages are the `wayland-scanner`'s of section 14.1, once per protocol and configuration.
@@ -571,8 +649,8 @@ Not checked yet: the Wayland driver itself (`SDL_VIDEO_DRIVER=wayland`). Left op
 ### 15.2 Next, in this order
 
 1. Done on 26 November 2026: the validations ALL OK, the scenarios `golden: SAME`; the multiplayer's part is ready to commit.
-2. Choose, the choice not made yet: the commit of the multiplayer's part now (recommended: the working tree is large, and its state is coherent), or the single player's engines first and one commit for all. For a commit now, the title: `feat(platform): step 15, parts 1 and 2, the multiplayer: ...` (the window and the input on a new layer on SDL 3.4.20, the display's settings, the keys' times in nanoseconds, the system's pointer in the menus, the journal removed), given once the validations pass.
-3. Point 4, the single player's engines (Jedi Academy and Jedi Outcast, one engine in `src/code`) on the layer:
+2. Done on 26 November 2026: the multiplayer's part committed.
+3. Point 4, the single player's engines (Jedi Academy and Jedi Outcast, one engine in `src/code`) on the layer. Written on 26 November 2026 (section 14.14): the worktree, the engine, the client, the UI, the renderer, Escape and the view are done; the VMs' builds and both games by hand passed the same day; the removals and the key codes' one definition are done (section 14.15), the full VM validations ALL OK the same day. Left of this point: the commit. The list as it was:
    - a worktree at the commit before this work first, kept for the measurements of point 6 (section 11);
    - the engine part `src/shared/platform/engine/engine.cpp` is compiled against each engine's headers: it uses the client's `cls`, `kg`, `Key_GetCatcher`, `CL_KeyEvent(key, down, int64_t)`, `CL_CharEvent`, `CL_MouseEvent(float, float)`, `CL_PointerEvent`, `Key_DynamicKey`, `SND_SetFocus`, `com_unfocused`; the single player's client (`src/code/client/`) has to give the same;
    - what was done to the multiplayer, to do again there: `Com_Frame` calling `Platform_Frame` (`src/code/qcommon/common.cpp:1427`), the renderer's imports (`src/code/rd-common/tr_public.h:94`, filled in `src/code/client/cl_main.cpp:1170`) and `src/code/rd-vanilla`, the keys' times and the mouse in floats (`src/code/client/cl_input.cpp`, `cl_keys.cpp`), the pointer (its image is the shader the single player's menus name as `cursor`: to read in each game's archives, as section 14.9 did; each UI's `MouseEvent` and drawn pointer), the character event in place of `K_CHAR_FLAG` (`src/code/client/cl_keys.cpp:1366`, `src/code/ui/ui_shared.cpp:8999`), the keys without a code, the console key's settings, Alt+Enter;
@@ -582,7 +660,8 @@ Not checked yet: the Wayland driver itself (`SDL_VIDEO_DRIVER=wayland`). Left op
    - the key codes in one definition for the trees (`src/codemp/ui/keycodes.h` and `src/code/client/keycodes.h` into `src/shared/qcommon`).
 4. Point 5, the menus: the four settings' rows in the six setup menus and their texts in the games' languages (the sound device's row, `UI_SOUND_DEVICE`, is the model), the old rows removed, the quality presets no longer touching the display (section 9.2).
 5. Point 6: the checks in game, the measurements before and after (section 11's list; the black moment at alt-tab in borderless fullscreen, section 14.7, with the presentation's tool), the Wayland driver on the Linux VM (`SDL_VIDEO_DRIVER=wayland`), `SDL_HINT_VIDEO_DOUBLE_BUFFER`, then the validations.
-6. At the end of the step: one code for the clients' keys and input and the menus' shared code, if it can be (section 11); the sound's engine part against the C++ Core Guidelines (section 14.5).
+6. At the end of the step: one code for the clients' keys and input and the menus' shared code, if it can be (section 11); the sound's engine part against the C++ Core Guidelines (section 14.5); the menus' pointer placed exactly, in floats, where it is placed in whole units of the menus' 640 by 480 today (3 pixels on a screen 1,920 wide, 6 on one of 3,840: section 14.9's known limit), taken with the menus' one code (decided 26 November 2026: left as it is until then).
+   - Asked on 26 November 2026, where it is needed: the layer's tests made stronger, fuzzers included. What has no test today: the engine part (`src/shared/platform/engine/engine.cpp`: the keys' codes from the layer's events, the name of a key without a code, `r_exclusiveMode`'s reading, `Platform_IsKeyName`), the client's `Key_DynamicKey` (its sixteen codes, the one taken back) and `CL_KeyState` (the share of a span a key was held), all compiled into the engine only: to test them they have to be reachable from a test, as the sound's are. What reads text or data a player's files or the system give, so what a fuzzer is for: a bind's key name and `r_exclusiveMode` (configuration files), a typed text (UTF-8 from the system, turned into the one-byte set), an image for the pointer or the icon (its size against its bytes), and any sequence of SDL's events through `Input::Poll` and of display states through `Window::Apply` on the dummy driver. The fuzzers' preset is `windows-clang-fuzz` (netcodec's and the sound's, `src/shared/sound/fuzz/` the model).
 7. Then, each on a word: part 4 (the renderers' output stage), part 5 (the gamepad), part 6 (`SDL_DelayPrecise`).
 
 ### 15.3 What a next session needs to know

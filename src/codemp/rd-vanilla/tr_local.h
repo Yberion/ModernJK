@@ -889,8 +889,6 @@ typedef struct backEndState_s {
 typedef struct trGlobals_s {
     bool registered; // cleared at shutdown, set at beginRegistration
 
-    window_t window;
-
     int visCount;   // incremented every time a new vis cluster is entered
     int frameCount; // incremented every frame
     int sceneCount; // incremented every scene

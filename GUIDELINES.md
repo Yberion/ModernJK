@@ -75,7 +75,6 @@ After SF.12 of the C++ Core Guidelines:
 ## 9. Libraries
 
 - Every library is in `libs/`, at a pinned version, and built with the project; never the system's copy. Each library's README gives its source, its tag or commit, the files left out and how to update it; a local change is a patch file in `libs/<library>/patches/`, listed in the README, applied again at an update and dropped once a release no longer needs it.
-- The one exception: SDL2 from the system on Linux, until plan step 15 replaces it with SDL 3, vendored.
 - The system's drivers are not libraries of the project: on Linux the development headers of OpenGL and of the sound servers (PipeWire, PulseAudio, ALSA) come from the distribution's packages, and their libraries are the player's own, loaded at run time (OpenAL Soft opens the sound server's library with `dlopen`) (23 November 2026).
 - A library's licence must be compatible with the GPL v2.
 

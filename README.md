@@ -18,7 +18,7 @@ The single-player game is `modernjk_sp.x86_64` (`modernjk_sp.x86_64.exe` on Wind
 
 ## Building
 
-CMake presets, one per system, compiler and build type. The libraries are in `libs/` and built with the project; on Linux, SDL2 and OpenGL come from the system, and the development files of X11, Wayland and the sound servers too, whose libraries SDL 3 and OpenAL Soft open at run time. Run the commands from the repository's folder; the programs and modules go to `build/<preset>/bin`.
+CMake presets, one per system, compiler and build type. The libraries are in `libs/` and built with the project; on Linux, OpenGL comes from the system, and the development files of X11, Wayland and the sound servers too, whose libraries SDL 3 and OpenAL Soft open at run time. Run the commands from the repository's folder; the programs and modules go to `build/<preset>/bin`.
 
 ### Prerequisites
 
@@ -50,15 +50,14 @@ Linux:
 | what | version |
 |---|---|
 | GCC or Clang | GCC 15, Clang 23 tested |
-| SDL2, development files (the client only) | 2.0 (2.0.20 tested) |
 | OpenGL, development files (the client only) | the system's |
 | PipeWire, PulseAudio, ALSA and D-Bus, development files, and pkg-config (the client only: OpenAL Soft's backends, required) | the system's (PipeWire 0.3.23 or later) |
 | X11 (with Xext, Xcursor, Xfixes, Xi, Xrandr), Wayland, libdecor, xkbcommon, EGL and udev, development files (the client only: SDL 3's video drivers and gamepads, required) | the system's (Wayland 1.18 or later) |
 
-On Debian or Ubuntu, SDL2, OpenGL, the sound servers, then X11 and Wayland:
+On Debian or Ubuntu, OpenGL and the sound servers, then X11 and Wayland:
 
 ```
-sudo apt install libsdl2-dev libgl1-mesa-dev libpipewire-0.3-dev libpulse-dev libasound2-dev libdbus-1-dev pkg-config
+sudo apt install libgl1-mesa-dev libpipewire-0.3-dev libpulse-dev libasound2-dev libdbus-1-dev pkg-config
 sudo apt install libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxkbcommon-dev libwayland-dev libdecor-0-dev libegl1-mesa-dev libudev-dev
 ```
 
@@ -126,7 +125,7 @@ The libraries in `libs/`, each under its own licence:
 | [LLVM libc](https://github.com/llvm/llvm-project/tree/main/libc) (its math functions and text-to-float parser) | the LLVM contributors | the same floating-point results on every platform and compiler | Apache 2.0 with LLVM Exceptions |
 | [gsl-lite](https://github.com/gsl-lite/gsl-lite) | Martin Moene | spans in the single-player code | MIT |
 | [{fmt}](https://github.com/fmtlib/fmt) | Victor Zverovich and the {fmt} contributors | every printed and formatted text, its format checked at compile time | MIT |
-| [SDL](https://github.com/libsdl-org/SDL) | Sam Lantinga and the SDL contributors | the window and the input (the copy in `libs/` for Windows; Linux uses the system's) | zlib |
+| [SDL](https://github.com/libsdl-org/SDL) | Sam Lantinga and the SDL contributors | the window and the input (SDL 3, linked statically) | zlib |
 | [OpenAL Soft](https://github.com/kcat/openal-soft) | Chris Robinson and the OpenAL Soft contributors | playing the sound: mixing, 3D, reverb, the sound device | LGPL 2 or later |
 | [libFLAC](https://github.com/xiph/flac) | the Xiph.Org Foundation and the FLAC contributors | decoding the FLAC sounds | BSD (Xiph.Org) |
 | [dr_mp3 and dr_wav](https://github.com/mackron/dr_libs) | David Reid (dr_mp3's decoder from lieff's minimp3) | decoding the MP3 and WAV sounds | public domain or MIT-0 |

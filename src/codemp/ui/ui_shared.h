@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <qcommon/q_shared.h>
 #include <rd-common/tr_types.h>
-#include "keycodes.h"
+#include <shared/qcommon/q_keycodes.h>
 
 #include "menudef.h"
 
