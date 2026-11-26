@@ -1,4 +1,4 @@
-// ModernJK's texts of the menus, beside the game's (strings/<Language>/MENUS.str): the reverb's setting (s_reverb) the mute without the focus (s_muteWhenUnfocused) and the sound device (s_device).
+// ModernJK's texts of the menus, beside the game's (strings/<Language>/MENUS.str): the reverb's setting (s_reverb) the mute without the focus (s_muteWhenUnfocused), the sound device (s_device), the display's rows (r_displayState, r_screen, the resolution and the refresh rate) and the adaptive vertical sync (r_swapInterval -1).
 VERSION             "1"
 CONFIG              "W:\bin\stringed.cfg"
 FILENOTES           ""
@@ -30,6 +30,58 @@ LANG_FRENCH         "La sortie où joue le son : celle par défaut du système, ou 
 REFERENCE           SOUND_DEVICE_DEFAULT
 LANG_ENGLISH        "Default"
 LANG_FRENCH         "Par défaut"
+
+REFERENCE           DISPLAY_STATE
+LANG_ENGLISH        "Display:"
+LANG_FRENCH         "Affichage :"
+
+REFERENCE           DISPLAY_STATE_DESC
+LANG_ENGLISH        "Show the game in a window, in borderless fullscreen (an instant alt-tab) or in exclusive fullscreen (one of the screen's modes)."
+LANG_FRENCH         "Afficher le jeu en fenêtre, en plein écran sans bordure (alt-tab instantané) ou en plein écran exclusif (un des modes de l'écran)"
+
+REFERENCE           DISPLAY_WINDOW
+LANG_ENGLISH        "Window"
+LANG_FRENCH         "Fenêtre"
+
+REFERENCE           DISPLAY_BORDERLESS
+LANG_ENGLISH        "Borderless"
+LANG_FRENCH         "Sans bordure"
+
+REFERENCE           DISPLAY_EXCLUSIVE
+LANG_ENGLISH        "Exclusive"
+LANG_FRENCH         "Exclusif"
+
+REFERENCE           DISPLAY_SCREEN
+LANG_ENGLISH        "Screen:"
+LANG_FRENCH         "Écran :"
+
+REFERENCE           DISPLAY_SCREEN_DESC
+LANG_ENGLISH        "The screen the game is shown on."
+LANG_FRENCH         "L'écran où le jeu s'affiche"
+
+REFERENCE           DISPLAY_RESOLUTION
+LANG_ENGLISH        "Resolution:"
+LANG_FRENCH         "Résolution :"
+
+REFERENCE           DISPLAY_RESOLUTION_DESC
+LANG_ENGLISH        "The window's size, or the screen's mode in exclusive fullscreen; borderless fullscreen keeps the desktop's."
+LANG_FRENCH         "La taille de la fenêtre, ou le mode de l'écran en plein écran exclusif ; le plein écran sans bordure garde celui du bureau"
+
+REFERENCE           DISPLAY_REFRESH
+LANG_ENGLISH        "Refresh rate:"
+LANG_FRENCH         "Fréquence :"
+
+REFERENCE           DISPLAY_REFRESH_DESC
+LANG_ENGLISH        "The screen's refresh rate in exclusive fullscreen; a window and borderless fullscreen keep the desktop's."
+LANG_FRENCH         "La fréquence de l'écran en plein écran exclusif ; la fenêtre et le plein écran sans bordure gardent celle du bureau"
+
+REFERENCE           DISPLAY_DESKTOP
+LANG_ENGLISH        "Desktop"
+LANG_FRENCH         "Bureau"
+
+REFERENCE           VSYNC_ADAPTIVE
+LANG_ENGLISH        "Adaptive"
+LANG_FRENCH         "Adaptative"
 
 
 ENDMARKER

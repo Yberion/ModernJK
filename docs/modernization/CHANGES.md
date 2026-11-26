@@ -190,6 +190,7 @@ Each line links to its section.
 |---|---|---|
 | [39. The multiplayer's window and input on a new platform layer](#39-the-multiplayers-window-and-input-on-a-new-platform-layer) | SDL 2 behind a layer of 2005: keys dated by the frame and rounded to the millisecond, the mouse rounded to whole counts and held in the menus, a window created again at each restart of the video, thirteen fixed video modes | a layer written from zero on SDL 3.4.20, linked into the client: keys dated in nanoseconds when they move, the mouse in floats, the system's pointer in the menus, one window kept, borderless fullscreen by default and the screen's own modes |
 | [40. The single player's two games on the platform layer](#40-the-single-players-two-games-on-the-platform-layer) | Jedi Academy's and Jedi Outcast's single player still on SDL 2, with `SDL2.dll` beside them; on this branch their view turned neither with the mouse nor with the keys | both on the same layer as the multiplayer, with what section 39 lists; the view turns again |
+| [41. The display's rows in the setup menus](#41-the-displays-rows-in-the-setup-menus) | a video mode among eight fixed sizes, a colour depth and full screen on or off, which the quality presets also changed | the display (window, borderless, exclusive), the screen, the resolution and the refresh rate from the screen's own modes; the presets leave the display alone |
 
 **Reference**: [27. Settings and commands](#27-settings-and-commands), [28. Build, tests and repository](#28-build-tests-and-repository), [29. Name: ModernJK](#29-name-modernjk), [30. Compatibility](#30-compatibility), [31. C++20, 64-bit Windows, Linux and macOS](#31-c20-64-bit-windows-linux-and-macos), [32. Not changed yet](#32-not-changed-yet).
 
@@ -1585,7 +1586,7 @@ The work: [progress/step-21-sound.md](progress/step-21-sound.md) section 16.
 
 Costs: about 2.8 MB more in the client's executable (SDL 3 linked statically, measured: 5.8 to 8.6 MB with clang), and one DLL of 1.5 MB less beside it; nothing measured yet on the frame's time, the input margin and the presentation, which are measured before and after at the end of the work.
 
-Not there yet in the multiplayer: the video rows of the setup menus still write the old settings and do nothing; no joystick nor gamepad; `r_ext_multisample` is read when the program starts; in borderless fullscreen the screen goes black for a moment at alt-tab (not diagnosed).
+Not there yet in the multiplayer: no joystick nor gamepad; `r_ext_multisample` is read when the program starts; in borderless fullscreen the screen goes black for a moment at alt-tab (not diagnosed).
 
 <details>
 <summary>Technical details</summary>
@@ -1629,7 +1630,7 @@ The work: [progress/step-15-platform.md](progress/step-15-platform.md) section 1
 | `SDL2.dll` beside the two executables | needed | gone |
 | A setting with a range, after a number out of range was read (the three games; OpenJK's) | refused whatever its value and put back to its default: in the console, `r_primitives 1e999` then `r_primitives 1` gives `cvar 'r_primitives' must be numeric, setting to 0`, and so does every such setting after it | checked on its own value: `r_primitives 1` is taken |
 
-Not there yet: the video rows of the setup menus still write the old settings and do nothing; no joystick nor gamepad.
+Not there yet: no joystick nor gamepad.
 
 <details>
 <summary>Technical details</summary>
@@ -1646,5 +1647,45 @@ Not there yet: the video rows of the setup menus still write the old settings an
 | A number's check (`Q_isanumber`, `src/shared/qcommon/q_string.cpp`) | `errno` read after the conversion, which sets it only when it fails: an error left by an earlier call made every number "not numeric" | `errno` cleared before the conversion |
 
 The work: [progress/step-15-platform.md](progress/step-15-platform.md) section 14.14.
+
+</details>
+
+### 41. The display's rows in the setup menus
+
+**Before.** The video page of the six setup menus (the multiplayer's, Jedi Academy's and Jedi Outcast's, from the main menu and in game) showed a video mode among eight fixed sizes from 640 by 480 to 2048 by 1536, a colour depth (16 or 32 bits) and full screen on or off; the quality presets also set the full screen, a mode of 640 by 480 or 800 by 600 and the colour depth. Since sections 39 and 40 these rows wrote settings the engines no longer read: they did nothing.
+
+**Now.** Four rows in their place, each fed by the screens the system reports:
+
+- **Display**: Window, Borderless, Exclusive (`r_displayState`).
+- **Screen**: each screen by its number and its name, "1: AW2724HF" (`r_screen`).
+- **Resolution**: in a window, the screen's own sizes that fit in the part a window can take, without the taskbar (`r_windowWidth`, `r_windowHeight`); in exclusive fullscreen, "Desktop" (the screen's present mode) then each size of the screen's modes (`r_exclusiveMode`); greyed in borderless fullscreen, showing the desktop's size.
+- **Refresh rate**: in exclusive fullscreen at a size of its own, the rates the screen has at that size, the highest first (`r_exclusiveMode`); greyed otherwise, showing the desktop's rate.
+
+The vertical sync's row takes a third value, Adaptive (`r_swapInterval -1`). The quality presets leave the display alone. "Apply" restarts the video, as before, on the same window.
+
+**Why.** Each display setting has its row in the menus (decided 25 November 2026), and a list written in a menu cannot know a player's screens: a screen of 2560 by 1440 at 165 Hz had no row for its size nor its rate.
+
+**Gain.**
+
+| fix | before | now |
+|---|---|---|
+| The sizes offered | eight sizes written in the menu, 4:3 and 5:4 for most, whatever the screen | the screen's own: on a screen 1920 by 1080, nineteen sizes for exclusive fullscreen, and for a window the sixteen that fit above a taskbar |
+| The refresh rate | not in the menus (`r_displayRefresh` in the console) | among the screen's rates at the chosen size: 360, 300, 254.87, 240... down to 23.98 on a screen of 360 Hz (eighteen rates) |
+| A second screen | not in the menus | chosen by its number and name |
+| The vertical sync | off or on | off, on, or adaptive: an image late for the screen's refresh is shown at once, with a tear, instead of a whole refresh later (on a driver without it, the plain vertical sync) |
+| The quality presets | changed the mode to 640 by 480 or 800 by 600, the full screen and the colour depth | the picture's quality only |
+
+<details>
+<summary>Technical details</summary>
+
+| | before | now |
+|---|---|---|
+| The rows | `ITEM_TYPE_MULTI` with fixed lists of `ui_r_mode`, `ui_r_colorbits`, `ui_r_fullscreen` | the state a list of `ui_r_displayState`; the screen, resolution and refresh rate rows owner-drawn (`UI_DISPLAY_SCREEN`, `UI_DISPLAY_RESOLUTION`, `UI_DISPLAY_REFRESH`), as the sound device's row is; greyed by `cvarTest` on `ui_r_displayState` and `ui_r_refreshChoice`, the menus given a `disableColor` |
+| What each row shows and gives | | `src/shared/platform/menus/display.cpp`, without SDL, compiled by both engines and the multiplayer's UI module (`modernjk_platform_menus`), tested in `modernjk.platform` |
+| The screens for the UI | | `Platform_Screens`, read when the window opens, at each start of the renderer and when a screen is plugged, unplugged or changes its desktop's mode or usable area; the multiplayer's UI through `uiImport_t::ext.Screens` (`UI_API_VERSION` 8) |
+| `getvideosetup`, `updatevideosetup` | copied `r_mode`, `r_fullscreen`, `r_colorbits`, `r_depthbits` | copy `r_displayState`, `r_screen`, `r_windowWidth`, `r_windowHeight`, `r_exclusiveMode` |
+| The texts | | `assets/jka/strings/<Language>/MODERNJK.str` and `assets/jk2/strip/MENUS4.sp`, in English, French, German and Spanish |
+
+The work: [progress/step-15-platform.md](progress/step-15-platform.md) section 14.16.
 
 </details>

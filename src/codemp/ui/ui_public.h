@@ -26,9 +26,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <ghoul2/G2.h>
 
+#include <shared/platform/window/window.h>
 #include <shared/sound/sound.h>
 
-inline constexpr int UI_API_VERSION = 7;
+#include <span>
+
+inline constexpr int UI_API_VERSION = 8;
 
 enum class fakeAscii_t; // shared/qcommon/q_keycodes.h
 
@@ -224,6 +227,9 @@ typedef struct uiImport_s {
         void (*AddCommand)(const char* cmd_name);
         void (*RemoveCommand)(const char* cmd_name);
         lanServerState_t (*LAN_GetServerState)(lanSource_t source, int n);
+        // the screens, the system's primary one first, for the video menu's display rows; the list stays valid until
+        // a screen changes or the renderer starts again
+        std::span<const platform::Screen> (*Screens)();
     } ext;
 } uiImport_t;
 

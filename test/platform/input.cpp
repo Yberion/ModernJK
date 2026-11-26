@@ -278,6 +278,13 @@ void CheckWindowEvents(platform::Input& input, SDL_Window* window)
     display.display.type = SDL_EVENT_DISPLAY_ADDED;
     display.display.timestamp = 78;
     CHECK(SDL_PushEvent(&display));
+    display.display.type = SDL_EVENT_DISPLAY_DESKTOP_MODE_CHANGED;
+    CHECK(SDL_PushEvent(&display));
+    display.display.type = SDL_EVENT_DISPLAY_USABLE_BOUNDS_CHANGED;
+    CHECK(SDL_PushEvent(&display));
+    // the screen's present mode changes with exclusive fullscreen: not the list's
+    display.display.type = SDL_EVENT_DISPLAY_CURRENT_MODE_CHANGED;
+    CHECK(SDL_PushEvent(&display));
     SDL_Event quit{};
     quit.quit.type = SDL_EVENT_QUIT;
     quit.quit.timestamp = 79;
@@ -285,8 +292,9 @@ void CheckWindowEvents(platform::Input& input, SDL_Window* window)
 
     const std::span<const platform::Event> events = input.Poll();
     constexpr platform::WindowChange kExpected[] = {
-        platform::WindowChange::FocusLost,        platform::WindowChange::Minimized,      platform::WindowChange::Restored, platform::WindowChange::FocusGained,
-        platform::WindowChange::PixelSizeChanged, platform::WindowChange::ScreensChanged, platform::WindowChange::Quit};
+        platform::WindowChange::FocusLost,      platform::WindowChange::Minimized,        platform::WindowChange::Restored,
+        platform::WindowChange::FocusGained,    platform::WindowChange::PixelSizeChanged, platform::WindowChange::ScreensChanged,
+        platform::WindowChange::ScreensChanged, platform::WindowChange::ScreensChanged,   platform::WindowChange::Quit};
     CHECK_EQUAL(events.size(), std::size(kExpected));
 
     if (events.size() != std::size(kExpected)) {

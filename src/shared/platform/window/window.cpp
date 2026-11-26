@@ -266,9 +266,19 @@ std::vector<Screen> Screens()
         const char* const name = SDL_GetDisplayName(id);
         screen.name = name != nullptr ? name : "";
 
+        float density = 1.0F;
+
         if (const SDL_DisplayMode* const desktop = SDL_GetDesktopDisplayMode(id); desktop != nullptr) {
             screen.desktop = ModeInPixels(*desktop);
+            density = desktop->pixel_density > 0.0F ? desktop->pixel_density : 1.0F;
         }
+
+        // in the screen's units, as the desktop's mode, so in pixels once multiplied by its density
+        SDL_Rect usable{};
+        const bool told = SDL_GetDisplayUsableBounds(id, &usable) && usable.w > 0 && usable.h > 0;
+        screen.usable = told
+                            ? PixelSize{.width = RoundSize(static_cast<float>(usable.w) * density), .height = RoundSize(static_cast<float>(usable.h) * density)}
+                            : PixelSize{.width = screen.desktop.width, .height = screen.desktop.height};
 
         int count = 0;
         const ModeListPtr modes(SDL_GetFullscreenDisplayModes(id, &count), SDL_free);

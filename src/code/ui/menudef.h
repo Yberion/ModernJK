@@ -157,3 +157,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define UI_STARTMAPCINEMATIC 255
 #define UI_MAPS_SELECTION 256
 #define UI_SOUND_DEVICE 257 // the sound's output (s_device), the menus naming it by its number
+// the display's rows of the video menu, the menus naming them by their numbers: the screen (r_screen), the resolution
+// (r_windowWidth and r_windowHeight in a window, r_exclusiveMode in exclusive fullscreen) and the refresh rate
+// (r_exclusiveMode)
+#define UI_DISPLAY_SCREEN 258
+#define UI_DISPLAY_RESOLUTION 259
+#define UI_DISPLAY_REFRESH 260

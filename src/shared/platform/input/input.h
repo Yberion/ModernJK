@@ -176,7 +176,8 @@ enum class WindowChange {
     Restored,
     // the size of what is drawn changed: WindowEvent::width and height, in pixels
     PixelSizeChanged,
-    // a screen was plugged or unplugged: the list of Window::Screens changed
+    // a screen was plugged or unplugged, or a screen's desktop mode or usable area changed: what platform::Screens
+    // lists changed
     ScreensChanged,
     // the player or the system asks the program to quit
     Quit,

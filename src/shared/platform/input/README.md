@@ -16,7 +16,7 @@ A player who taps a strafe key for a few milliseconds between two frames moves f
 | `PointerMotion` | the pointer moved, in `MouseMode::Pointer`; and once when the mouse is given to the pointer, before it moves | its place in the window, in pixels |
 | `MouseButton` | a button pressed or released | its number: `kLeftButton`, `kMiddleButton`, `kRightButton`, `kBackButton`, `kForwardButton`, then the mouse's others |
 | `MouseWheel` | the wheel turned by at least a notch | whole notches, positive away from the player |
-| `WindowEvent` | the focus, minimized, restored, a new size in pixels, a screen plugged or unplugged, quit | the change, and the size for a new size |
+| `WindowEvent` | the focus, minimized, restored, a new size in pixels, a screen plugged or unplugged or its desktop's mode or usable area changed, quit | the change, and the size for a new size |
 
 ## A key
 

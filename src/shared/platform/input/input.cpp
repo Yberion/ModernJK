@@ -294,6 +294,8 @@ std::span<const Event> Input::Poll()
             break;
         case SDL_EVENT_DISPLAY_ADDED:
         case SDL_EVENT_DISPLAY_REMOVED:
+        case SDL_EVENT_DISPLAY_DESKTOP_MODE_CHANGED:
+        case SDL_EVENT_DISPLAY_USABLE_BOUNDS_CHANGED:
             events_.emplace_back(WindowEvent{.time = TimeOf(event.display.timestamp), .change = WindowChange::ScreensChanged});
             break;
         case SDL_EVENT_QUIT:

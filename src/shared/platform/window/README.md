@@ -14,7 +14,7 @@ The "display" rows of the setup menus: a player picks borderless fullscreen (the
 | `DisplayState::Borderless` | the whole screen, in the screen's present mode | the screen's desktop mode |
 | `DisplayState::Exclusive` | the whole screen, in a mode of the screen's own list | `WindowSettings::exclusive`: of the screen's modes of that size, the one of the nearest refresh rate; all zero for the screen's present mode |
 
-`WindowSettings::screen` is 0 for the system's primary screen, then the others, in the order of `platform::Screens()`; a screen that does not exist is the primary one.
+`WindowSettings::screen` is 0 for the system's primary screen, then the others, in the order of `platform::Screens()`; a screen that does not exist is the primary one. Each `Screen` gives its name, its desktop's mode, the part a window can take without the taskbar or the dock (`usable`, the desktop's size when the system does not tell) and the modes exclusive fullscreen can set.
 
 ## Rules
 

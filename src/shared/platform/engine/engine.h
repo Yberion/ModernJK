@@ -26,6 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Platform_Display, Platform_Present and the two OpenGL lookups, and calls Platform_Frame where it reads its input.
 #pragma once
 
+#include <shared/platform/window/window.h>
+
 #include <cstdint>
 #include <span>
 
@@ -58,6 +60,11 @@ void Platform_Frame();
 // width times height of them, shown at shownWidth by shownHeight pixels, its top left corner the pixel that points.
 // False when the system refused or before the window is open: the pointer stays the system's arrow.
 [[nodiscard]] bool Platform_SetPointerImage(std::span<const std::uint8_t> rgba, int width, int height, int shownWidth, int shownHeight);
+
+// The screens, the system's primary one first, for the menus' display rows (src/shared/platform/menus/display.h):
+// read when the window opens, again at each start of the renderer and when a screen is plugged or unplugged or its
+// desktop's mode or usable area changes; empty before the window opens. The list stays valid until one of those.
+std::span<const platform::Screen> Platform_Screens();
 
 // The client's clock, the layer's: in milliseconds; in nanoseconds; and the time, in nanoseconds, at which
 // Platform_Frame last read the input: no event it handed over is later.

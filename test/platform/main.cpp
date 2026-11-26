@@ -53,6 +53,7 @@ int main(int argc, char** argv)
         RunSdlTests();
         RunWindowTests();
         RunInputTests();
+        RunMenusTests();
     }
 
     fmt::println("{} failed check(s)", ::test::failures);

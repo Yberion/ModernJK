@@ -29,6 +29,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "FXExport.h"
 #include "FxUtil.h"
 
+#include <shared/platform/engine/engine.h>
+
 extern IHeapAllocator* G2VertSpaceClient;
 extern botlib_export_t* botlib_export;
 
@@ -795,6 +797,7 @@ void CL_BindUI(void)
         uii.ext.AddCommand = CL_AddUICommand;
         uii.ext.RemoveCommand = UIVM_Cmd_RemoveCommand;
         uii.ext.LAN_GetServerState = LAN_GetServerState;
+        uii.ext.Screens = Platform_Screens;
 
         GetUIAPI = (GetUIAPI_t)uivm->GetModuleAPI;
         ret = GetUIAPI(UI_API_VERSION, &uii);

@@ -364,6 +364,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define UI_CHAT_SPOT 296
 #define UI_CHAT_TACTICAL 297
 #define UI_SOUND_DEVICE 298 // the sound's output (s_device), the menus naming it by its number
+// the display's rows of the video menu, the menus naming them by their numbers: the screen (r_screen), the resolution
+// (r_windowWidth and r_windowHeight in a window, r_exclusiveMode in exclusive fullscreen) and the refresh rate
+// (r_exclusiveMode)
+#define UI_DISPLAY_SCREEN 299
+#define UI_DISPLAY_RESOLUTION 300
+#define UI_DISPLAY_REFRESH 301
 
 #define VOICECHAT_GETFLAG "getflag"                     // command someone to get the flag
 #define VOICECHAT_OFFENSE "offense"                     // command someone to go on offense

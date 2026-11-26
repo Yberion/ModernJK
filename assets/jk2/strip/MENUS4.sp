@@ -2,8 +2,8 @@ VERSION 1
 CONFIG W:\bin\striped.cfg
 ID 254
 REFERENCE MENUS4
-DESCRIPTION "ModernJK's menu text: the reverb's setting, the mute without the focus and the sound device"
-COUNT 7
+DESCRIPTION "ModernJK's menu text: the reverb's setting, the mute without the focus, the sound device, the display's rows and the adaptive vertical sync"
+COUNT 20
 INDEX 0
 {
    REFERENCE REVERB
@@ -59,4 +59,108 @@ INDEX 6
    TEXT_LANGUAGE2 "Par défaut"
    TEXT_LANGUAGE3 "Standard"
    TEXT_LANGUAGE8 "Predeterminado"
+}
+INDEX 7
+{
+   REFERENCE DISPLAY_STATE
+   TEXT_LANGUAGE1 "Display:"
+   TEXT_LANGUAGE2 "Affichage:"
+   TEXT_LANGUAGE3 "Anzeige:"
+   TEXT_LANGUAGE8 "Modo de pantalla:"
+}
+INDEX 8
+{
+   REFERENCE DISPLAY_STATE_DESC
+   TEXT_LANGUAGE1 "Show the game in a window, in borderless fullscreen (an instant alt-tab) or in exclusive fullscreen (one of the screen's modes)."
+   TEXT_LANGUAGE2 "Afficher le jeu en fenêtre, en plein écran sans bordure (alt-tab instantané) ou en plein écran exclusif (un des modes de l'écran)"
+   TEXT_LANGUAGE3 "Zeigt das Spiel in einem Fenster, im randlosen Vollbild (sofortiges Alt-Tab) oder im exklusiven Vollbild (einer der Modi des Bildschirms)."
+   TEXT_LANGUAGE8 "Mostrar el juego en una ventana, en pantalla completa sin bordes (alt-tab instantáneo) o en pantalla completa exclusiva (uno de los modos de la pantalla)."
+}
+INDEX 9
+{
+   REFERENCE DISPLAY_WINDOW
+   TEXT_LANGUAGE1 "Window"
+   TEXT_LANGUAGE2 "Fenêtre"
+   TEXT_LANGUAGE3 "Fenster"
+   TEXT_LANGUAGE8 "Ventana"
+}
+INDEX 10
+{
+   REFERENCE DISPLAY_BORDERLESS
+   TEXT_LANGUAGE1 "Borderless"
+   TEXT_LANGUAGE2 "Sans bordure"
+   TEXT_LANGUAGE3 "Randlos"
+   TEXT_LANGUAGE8 "Sin bordes"
+}
+INDEX 11
+{
+   REFERENCE DISPLAY_EXCLUSIVE
+   TEXT_LANGUAGE1 "Exclusive"
+   TEXT_LANGUAGE2 "Exclusif"
+   TEXT_LANGUAGE3 "Exklusiv"
+   TEXT_LANGUAGE8 "Exclusiva"
+}
+INDEX 12
+{
+   REFERENCE DISPLAY_SCREEN
+   TEXT_LANGUAGE1 "Screen:"
+   TEXT_LANGUAGE2 "Écran:"
+   TEXT_LANGUAGE3 "Bildschirm:"
+   TEXT_LANGUAGE8 "Pantalla:"
+}
+INDEX 13
+{
+   REFERENCE DISPLAY_SCREEN_DESC
+   TEXT_LANGUAGE1 "The screen the game is shown on."
+   TEXT_LANGUAGE2 "L'écran où le jeu s'affiche"
+   TEXT_LANGUAGE3 "Der Bildschirm, auf dem das Spiel angezeigt wird."
+   TEXT_LANGUAGE8 "La pantalla en la que se muestra el juego."
+}
+INDEX 14
+{
+   REFERENCE DISPLAY_RESOLUTION
+   TEXT_LANGUAGE1 "Resolution:"
+   TEXT_LANGUAGE2 "Résolution:"
+   TEXT_LANGUAGE3 "Auflösung:"
+   TEXT_LANGUAGE8 "Resolución:"
+}
+INDEX 15
+{
+   REFERENCE DISPLAY_RESOLUTION_DESC
+   TEXT_LANGUAGE1 "The window's size, or the screen's mode in exclusive fullscreen; borderless fullscreen keeps the desktop's."
+   TEXT_LANGUAGE2 "La taille de la fenêtre, ou le mode de l'écran en plein écran exclusif; le plein écran sans bordure garde celui du bureau"
+   TEXT_LANGUAGE3 "Die Größe des Fensters oder der Modus des Bildschirms im exklusiven Vollbild; das randlose Vollbild behält den des Desktops."
+   TEXT_LANGUAGE8 "El tamaño de la ventana, o el modo de la pantalla en pantalla completa exclusiva; la pantalla completa sin bordes mantiene el del escritorio."
+}
+INDEX 16
+{
+   REFERENCE DISPLAY_REFRESH
+   TEXT_LANGUAGE1 "Refresh rate:"
+   TEXT_LANGUAGE2 "Fréquence:"
+   TEXT_LANGUAGE3 "Bildwiederholrate:"
+   TEXT_LANGUAGE8 "Frecuencia:"
+}
+INDEX 17
+{
+   REFERENCE DISPLAY_REFRESH_DESC
+   TEXT_LANGUAGE1 "The screen's refresh rate in exclusive fullscreen; a window and borderless fullscreen keep the desktop's."
+   TEXT_LANGUAGE2 "La fréquence de l'écran en plein écran exclusif; la fenêtre et le plein écran sans bordure gardent celle du bureau"
+   TEXT_LANGUAGE3 "Die Bildwiederholrate des Bildschirms im exklusiven Vollbild; Fenster und randloses Vollbild behalten die des Desktops."
+   TEXT_LANGUAGE8 "La frecuencia de la pantalla en pantalla completa exclusiva; la ventana y la pantalla completa sin bordes mantienen la del escritorio."
+}
+INDEX 18
+{
+   REFERENCE DISPLAY_DESKTOP
+   TEXT_LANGUAGE1 "Desktop"
+   TEXT_LANGUAGE2 "Bureau"
+   TEXT_LANGUAGE3 "Desktop"
+   TEXT_LANGUAGE8 "Escritorio"
+}
+INDEX 19
+{
+   REFERENCE VSYNC_ADAPTIVE
+   TEXT_LANGUAGE1 "Adaptive"
+   TEXT_LANGUAGE2 "Adaptative"
+   TEXT_LANGUAGE3 "Adaptiv"
+   TEXT_LANGUAGE8 "Adaptativa"
 }

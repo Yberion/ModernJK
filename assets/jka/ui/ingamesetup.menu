@@ -12,6 +12,7 @@
 		rect					0 0 640 480				// Size and position of the menu
 		visible					1					// Visible on open
 		focusColor				1 1 1 1					// Focus color for text and items
+		disableColor			.5 .5 .5 1				// Color of a row without a choice
 		descX					320
 		descY					426
 		descScale				1
@@ -1008,12 +1009,12 @@
 
 		itemDef 
 		{	
-			name				video_mode
+			name				display_state
 			group				video
       			type				ITEM_TYPE_MULTI
-			text				@MENUS_VIDEO_MODE
-			cvarFloatList			{ @MENUS_640_X_480 3 @MENUS_800_X_600 4  @MENUS_1024_X_768 6 @MENUS_1152_X_864 7  @MENUS_1280_X_1024 8  @MENUS_1600_X_1200 9  @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 }
-			cvar				"ui_r_mode"
+			text				@MODERNJK_DISPLAY_STATE
+			cvarFloatList			{ @MODERNJK_DISPLAY_WINDOW 0 @MODERNJK_DISPLAY_BORDERLESS 1 @MODERNJK_DISPLAY_EXCLUSIVE 2 }
+			cvar				"ui_r_displayState"
 
 			rect				260 216 340 14
 			textalign			ITEM_ALIGN_RIGHT
@@ -1022,7 +1023,7 @@
 			font 				4					
 			textscale 			1
 			forecolor			.615 .615 .956 1
-			descText			@MENUS_CHANGE_THE_DISPLAY_RESOLUTION
+			descText			@MODERNJK_DISPLAY_STATE_DESC
 
 			visible				0
 
@@ -1037,7 +1038,7 @@
 			action 
 			{
 				play			"sound/interface/button1.wav" ; 
-				uiScript		glCustom ;
+				uiScript		update	"ui_r_displayState" ;
 				setcvar			ui_r_modified	1 ;
 				show			applyChanges
 			}
@@ -1045,21 +1046,21 @@
 
 		itemDef 
 		{	
-			name				color_depth
+			name				display_screen
 			group				video
-			type				ITEM_TYPE_MULTI
-			text				@MENUS_COLOR_DEPTH
+      			type				ITEM_TYPE_OWNERDRAW
+			text				@MODERNJK_DISPLAY_SCREEN
+			ownerdraw			258	// UI_DISPLAY_SCREEN, the screen (r_screen)
+			special				158	// the width the value is cut to
+
 			rect				260 230 340 14
 			textalign			ITEM_ALIGN_RIGHT
 			textalignx			174
-			textaligny			0
+			textaligny		0
 			font 				4					
 			textscale 			1
 			forecolor			.615 .615 .956 1
-
-			cvarFloatList			{  @MENUS_DEFAULT 0 @MENUS_16_BIT 16 @MENUS_32_BIT 32 }
-			descText			@MENUS_CHANGE_THE_NUMBER_OF
-			cvar				"ui_r_colorbits"
+			descText			@MODERNJK_DISPLAY_SCREEN_DESC
 
 			visible				0
 
@@ -1073,31 +1074,31 @@
 			} 
 			action 
 			{
-				play			"sound/interface/button1.wav"
-				uiScript		glCustom
-				uiScript update 	"ui_r_colorbits"
-				setcvar			ui_r_modified	1
+				play			"sound/interface/button1.wav" ; 
+				setcvar			ui_r_modified	1 ;
 				show			applyChanges
 			}
 		}
 
 		itemDef 
 		{	
-			name				fullscreen
+			name				display_resolution
 			group				video
-			type				ITEM_TYPE_MULTI
-			text				@MENUS_FULL_SCREEN
+      			type				ITEM_TYPE_OWNERDRAW
+			text				@MODERNJK_DISPLAY_RESOLUTION
+			ownerdraw			259	// UI_DISPLAY_RESOLUTION, the window's size or exclusive fullscreen's mode
+			special				158	// the width the value is cut to
+			cvarTest			ui_r_displayState
+			disableCvar			{ 1 }
+
 			rect				260 244 340 14
 			textalign			ITEM_ALIGN_RIGHT
 			textalignx			174
-			textaligny			0
+			textaligny		0
 			font 				4					
 			textscale 			1
 			forecolor			.615 .615 .956 1
-
-			cvarFloatList			{  @MENUS_OFF 0 @MENUS_ON 1 }
-			descText			@MENUS_TOGGLE_BETWEEN_FULL_SCREEN
-			cvar				"ui_r_fullscreen"
+			descText			@MODERNJK_DISPLAY_RESOLUTION_DESC
 
 			visible				0
 
@@ -1112,7 +1113,44 @@
 			action 
 			{
 				play			"sound/interface/button1.wav" ; 
-				uiScript		glCustom ;
+				setcvar			ui_r_modified	1 ;
+				show			applyChanges
+			}
+		}
+
+		itemDef 
+		{	
+			name				display_refresh
+			group				video
+      			type				ITEM_TYPE_OWNERDRAW
+			text				@MODERNJK_DISPLAY_REFRESH
+			ownerdraw			260	// UI_DISPLAY_REFRESH, exclusive fullscreen's refresh rate
+			special				158	// the width the value is cut to
+			cvarTest			ui_r_refreshChoice
+			enableCvar			{ 1 }
+
+			rect				260 258 340 14
+			textalign			ITEM_ALIGN_RIGHT
+			textalignx			174
+			textaligny		0
+			font 				4					
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			descText			@MODERNJK_DISPLAY_REFRESH_DESC
+
+			visible				0
+
+			mouseenter 
+			{ 
+				show			highlight6
+			}
+			mouseexit 
+			{ 
+				hide			highlight6
+			} 
+			action 
+			{
+				play			"sound/interface/button1.wav" ; 
 				setcvar			ui_r_modified	1 ;
 				show			applyChanges
 			}
@@ -1124,7 +1162,7 @@
 			group				video
 			type				ITEM_TYPE_MULTI
 			text				@MENUS_GEOMETRIC_DETAIL
-			rect				260 258 340 14
+			rect				260 272 340 14
 			textalign			ITEM_ALIGN_RIGHT
 			textalignx			174
 			textaligny			0
@@ -1139,11 +1177,11 @@
 
 			mouseenter 
 			{ 
-				show			highlight6
+				show			highlight7
 			}
 			mouseexit 
 			{ 
-				hide			highlight6
+				hide			highlight7
 			} 
 			action 
 			{
@@ -1161,7 +1199,7 @@
 			group				video
 			type				ITEM_TYPE_MULTI
 			text				@MENUS_TEXTURE_DETAIL
-			rect				260 272 340 14
+			rect				260 286 340 14
 			textalign			ITEM_ALIGN_RIGHT
 			textalignx			174
 			textaligny			0
@@ -1171,42 +1209,6 @@
 			cvarFloatList			{  @MENUS_LOW 3 @MENUS_MEDIUM 2 @MENUS_HIGH 1 @MENUS_VERY_HIGH 0 }
 			descText			@MENUS_SELECT_THE_RESOLUTION
 			cvar				"ui_r_picmip"
-
-			visible				0
-
-			mouseenter 
-			{ 
-				show			highlight7
-			}
-			mouseexit 
-			{ 
-				hide			highlight7
-			} 
-			action 
-			{
-				play			"sound/interface/button1.wav" ; 
-				uiScript		glCustom ;
-				setcvar			ui_r_modified	1 ;
-				show			applyChanges
-			}
-		}
-
-		itemDef 
-		{	
-			name				texture_quality
-			group				video
-			type				ITEM_TYPE_MULTI
-			text				@MENUS_TEXTURE_QUALITY
-			rect				260 286 340 14
-			textalign			ITEM_ALIGN_RIGHT
-			textalignx			174
-			textaligny			0
-			font 				4					
-			textscale 			1
-			forecolor			.615 .615 .956 1
-			cvarFloatList			{  @MENUS_DEFAULT 0 @MENUS_16_BIT 16 @MENUS_32_BIT 32 }
-			descText			@MENUS_SELECT_THE_NUMBER_OF
-			cvar				"ui_r_texturebits"
 
 			visible				0
 
@@ -1229,10 +1231,10 @@
 
 		itemDef 
 		{	
-			name				texture_filter
+			name				texture_quality
 			group				video
 			type				ITEM_TYPE_MULTI
-			text				@MENUS_TEXTURE_FILTER
+			text				@MENUS_TEXTURE_QUALITY
 			rect				260 300 340 14
 			textalign			ITEM_ALIGN_RIGHT
 			textalignx			174
@@ -1240,9 +1242,9 @@
 			font 				4					
 			textscale 			1
 			forecolor			.615 .615 .956 1
-			cvarStrList			{  @MENUS_BILINEAR , "GL_LINEAR_MIPMAP_NEAREST" , @MENUS_TRILINEAR , "GL_LINEAR_MIPMAP_LINEAR" }
-			descText			@MENUS_ADJUST_HOW_WELL_THE_TEXTURES
-			cvar				"ui_r_texturemode"
+			cvarFloatList			{  @MENUS_DEFAULT 0 @MENUS_16_BIT 16 @MENUS_32_BIT 32 }
+			descText			@MENUS_SELECT_THE_NUMBER_OF
+			cvar				"ui_r_texturebits"
 
 			visible				0
 
@@ -1265,10 +1267,10 @@
 
 		itemDef 
 		{	
-			name				simple_shaders
+			name				texture_filter
 			group				video
 			type				ITEM_TYPE_MULTI
-			text				@MENUS_DETAILED_SHADERS
+			text				@MENUS_TEXTURE_FILTER
 			rect				260 314 340 14
 			textalign			ITEM_ALIGN_RIGHT
 			textalignx			174
@@ -1276,9 +1278,9 @@
 			font 				4					
 			textscale 			1
 			forecolor			.615 .615 .956 1
-			cvarFloatList			{  @MENUS_OFF 0 @MENUS_ON 1 }
-			descText			@MENUS_HIDE_OR_UNHIDE_TEXTURES
-			cvar				"ui_r_detailtextures"
+			cvarStrList			{  @MENUS_BILINEAR , "GL_LINEAR_MIPMAP_NEAREST" , @MENUS_TRILINEAR , "GL_LINEAR_MIPMAP_LINEAR" }
+			descText			@MENUS_ADJUST_HOW_WELL_THE_TEXTURES
+			cvar				"ui_r_texturemode"
 
 			visible				0
 
@@ -1299,6 +1301,42 @@
 			}
 		}
 
+		itemDef 
+		{	
+			name				simple_shaders
+			group				video
+			type				ITEM_TYPE_MULTI
+			text				@MENUS_DETAILED_SHADERS
+			rect				260 328 340 14
+			textalign			ITEM_ALIGN_RIGHT
+			textalignx			174
+			textaligny			0
+			font 				4					
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			cvarFloatList			{  @MENUS_OFF 0 @MENUS_ON 1 }
+			descText			@MENUS_HIDE_OR_UNHIDE_TEXTURES
+			cvar				"ui_r_detailtextures"
+
+			visible				0
+
+			mouseenter 
+			{ 
+				show			highlight11
+			}
+			mouseexit 
+			{ 
+				hide			highlight11
+			} 
+			action 
+			{
+				play			"sound/interface/button1.wav" ; 
+				uiScript		glCustom ;
+				setcvar			ui_r_modified	1 ;
+				show			applyChanges
+			}
+		}
+
 
 
 		itemDef 
@@ -1308,8 +1346,8 @@
       			type				ITEM_TYPE_MULTI
 			text				@MENUS_VIDEO_SYNC
 			cvar				"r_swapInterval"	
-			cvarFloatList			{  @MENUS_OFF 0 @MENUS_ON 1 }
-			rect				260 328 340 14
+			cvarFloatList			{  @MENUS_OFF 0 @MENUS_ON 1 @MODERNJK_VSYNC_ADAPTIVE -1 }
+			rect				260 342 340 14
 	   		textalign			ITEM_ALIGN_RIGHT
 			textalignx			174
 			textaligny			0

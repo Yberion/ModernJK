@@ -18,8 +18,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// The parts of the platform's tests, each in its own file; main.cpp runs them in this order. Each part starts the
-// layer on SDL's dummy video driver (a screen and windows in memory) and stops it.
+// The parts of the platform's tests, each in its own file; main.cpp runs them in this order. Each part but the menus'
+// starts the layer on SDL's dummy video driver (a screen and windows in memory) and stops it; the menus' rows are
+// functions of their arguments, given screens written in the test.
 #pragma once
 
 // SDL 3 as the platform layer uses it (sdl.cpp)
@@ -28,6 +29,8 @@ void RunSdlTests();
 void RunWindowTests();
 // src/shared/platform/input (input.cpp)
 void RunInputTests();
+// src/shared/platform/menus (menus.cpp)
+void RunMenusTests();
 // the window on the system's own driver and screen, asked by hand (real.cpp)
 void RunRealWindowTests();
 

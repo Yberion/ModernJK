@@ -1,4 +1,4 @@
-// ModernJK's texts of the menus, beside the game's (strings/<Language>/MENUS.str): the reverb's setting (s_reverb) the mute without the focus (s_muteWhenUnfocused) and the sound device (s_device).
+// ModernJK's texts of the menus, beside the game's (strings/<Language>/MENUS.str): the reverb's setting (s_reverb) the mute without the focus (s_muteWhenUnfocused), the sound device (s_device), the display's rows (r_displayState, r_screen, the resolution and the refresh rate) and the adaptive vertical sync (r_swapInterval -1).
 VERSION             "1"
 CONFIG              "W:\bin\stringed.cfg"
 FILENOTES           ""
@@ -30,6 +30,58 @@ LANG_GERMAN         "Der Ausgang, auf dem der Ton spielt: der Standard des Syste
 REFERENCE           SOUND_DEVICE_DEFAULT
 LANG_ENGLISH        "Default"
 LANG_GERMAN         "Standard"
+
+REFERENCE           DISPLAY_STATE
+LANG_ENGLISH        "Display:"
+LANG_GERMAN         "Anzeige:"
+
+REFERENCE           DISPLAY_STATE_DESC
+LANG_ENGLISH        "Show the game in a window, in borderless fullscreen (an instant alt-tab) or in exclusive fullscreen (one of the screen's modes)."
+LANG_GERMAN         "Zeigt das Spiel in einem Fenster, im randlosen Vollbild (sofortiges Alt-Tab) oder im exklusiven Vollbild (einer der Modi des Bildschirms)."
+
+REFERENCE           DISPLAY_WINDOW
+LANG_ENGLISH        "Window"
+LANG_GERMAN         "Fenster"
+
+REFERENCE           DISPLAY_BORDERLESS
+LANG_ENGLISH        "Borderless"
+LANG_GERMAN         "Randlos"
+
+REFERENCE           DISPLAY_EXCLUSIVE
+LANG_ENGLISH        "Exclusive"
+LANG_GERMAN         "Exklusiv"
+
+REFERENCE           DISPLAY_SCREEN
+LANG_ENGLISH        "Screen:"
+LANG_GERMAN         "Bildschirm:"
+
+REFERENCE           DISPLAY_SCREEN_DESC
+LANG_ENGLISH        "The screen the game is shown on."
+LANG_GERMAN         "Der Bildschirm, auf dem das Spiel angezeigt wird."
+
+REFERENCE           DISPLAY_RESOLUTION
+LANG_ENGLISH        "Resolution:"
+LANG_GERMAN         "Auflösung:"
+
+REFERENCE           DISPLAY_RESOLUTION_DESC
+LANG_ENGLISH        "The window's size, or the screen's mode in exclusive fullscreen; borderless fullscreen keeps the desktop's."
+LANG_GERMAN         "Die Größe des Fensters oder der Modus des Bildschirms im exklusiven Vollbild; das randlose Vollbild behält den des Desktops."
+
+REFERENCE           DISPLAY_REFRESH
+LANG_ENGLISH        "Refresh rate:"
+LANG_GERMAN         "Bildwiederholrate:"
+
+REFERENCE           DISPLAY_REFRESH_DESC
+LANG_ENGLISH        "The screen's refresh rate in exclusive fullscreen; a window and borderless fullscreen keep the desktop's."
+LANG_GERMAN         "Die Bildwiederholrate des Bildschirms im exklusiven Vollbild; Fenster und randloses Vollbild behalten die des Desktops."
+
+REFERENCE           DISPLAY_DESKTOP
+LANG_ENGLISH        "Desktop"
+LANG_GERMAN         "Desktop"
+
+REFERENCE           VSYNC_ADAPTIVE
+LANG_ENGLISH        "Adaptive"
+LANG_GERMAN         "Adaptiv"
 
 
 ENDMARKER

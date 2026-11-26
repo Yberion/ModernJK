@@ -53,6 +53,9 @@ USER INTERFACE MAIN
 #include <qcommon/q_shared.h>
 #include <qcommon/game_version.h>
 
+#include <shared/platform/engine/engine.h>
+#include <shared/platform/menus/display.h>
+
 extern bool ItemParse_model_g2anim_go(itemDef_t* item, const char* animName);
 extern bool ItemParse_asset_model_go(itemDef_t* item, const char* name);
 extern bool ItemParse_model_g2skin_go(itemDef_t* item, const char* skinName);
@@ -1802,6 +1805,65 @@ static bool UI_Crosshair_HandleKey(int flags, float* special, fakeAscii_t key)
     return false;
 }
 
+// the display's settings as the video menu edits them before "Apply": the copies ui_r_displayState, ui_r_screen,
+// ui_r_windowWidth, ui_r_windowHeight and ui_r_exclusiveMode
+static platform::WindowSettings UI_DisplayChoice()
+{
+    return {.state = platform::DisplayStateOf(Cvar_VariableIntegerValue("ui_r_displayState")),
+            .screen = Cvar_VariableIntegerValue("ui_r_screen"),
+            .width = Cvar_VariableIntegerValue("ui_r_windowWidth"),
+            .height = Cvar_VariableIntegerValue("ui_r_windowHeight"),
+            .exclusive = platform::ParseMode(Cvar_VariableString("ui_r_exclusiveMode"))};
+}
+
+// whether the refresh rate row offers a choice, which the menu reads to grey the row (ui_r_refreshChoice)
+static void UI_SetRefreshChoice(const platform::WindowSettings& settings)
+{
+    Cvar_SetValue("ui_r_refreshChoice", platform::RefreshHasChoice(settings) ? 1 : 0);
+}
+
+// the display's settings the screen, resolution and refresh rate rows change, into the menu's copies
+static void UI_SetDisplayChoice(const platform::WindowSettings& settings)
+{
+    Cvar_SetValue("ui_r_screen", settings.screen);
+    Cvar_SetValue("ui_r_windowWidth", settings.width);
+    Cvar_SetValue("ui_r_windowHeight", settings.height);
+    Cvar_Set("ui_r_exclusiveMode", platform::ModeText(settings.exclusive).c_str());
+    UI_SetRefreshChoice(settings);
+}
+
+// a click on the screen, resolution or refresh rate row: its next value at each click, Enter or right arrow, the one
+// before with the right button or the left arrow; false when nothing changes, so that "Apply" is not shown for it
+static bool UI_DisplayRow_HandleKey(int ownerDraw, fakeAscii_t key)
+{
+    const bool back = key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_CURSOR_LEFT;
+
+    if (!back && key != fakeAscii_t::A_MOUSE1 && key != fakeAscii_t::A_ENTER && key != fakeAscii_t::A_KP_ENTER && key != fakeAscii_t::A_CURSOR_RIGHT) {
+        return false;
+    }
+
+    const std::span<const platform::Screen> screens = Platform_Screens();
+    const platform::WindowSettings choice = UI_DisplayChoice();
+    platform::WindowSettings next;
+
+    if (ownerDraw == UI_DISPLAY_SCREEN) {
+        next = platform::NextScreen(screens, choice, back);
+    }
+    else if (ownerDraw == UI_DISPLAY_RESOLUTION) {
+        next = platform::NextResolution(screens, choice, back);
+    }
+    else {
+        next = platform::NextRefreshRate(screens, choice, back);
+    }
+
+    if (next == choice) {
+        return false;
+    }
+
+    UI_SetDisplayChoice(next);
+    return true;
+}
+
 // the next output at each click, Enter or right arrow, the one before with the right button or the left arrow, in the
 // order the system's default then each output the system lists
 static bool UI_SoundDevice_HandleKey(fakeAscii_t key)
@@ -1831,6 +1893,10 @@ static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float* special, fake
         break;
     case UI_SOUND_DEVICE:
         return UI_SoundDevice_HandleKey(key);
+    case UI_DISPLAY_SCREEN:
+    case UI_DISPLAY_RESOLUTION:
+    case UI_DISPLAY_REFRESH:
+        return UI_DisplayRow_HandleKey(ownerDraw, key);
     default:
         break;
     }
@@ -3038,20 +3104,8 @@ static void UI_Update(const char* name)
     else if (Q_stricmp(name, "ui_GetName") == 0) {
         Cvar_Set("ui_Name", UI_Cvar_VariableString("name"));
     }
-    else if (Q_stricmp(name, "ui_r_colorbits") == 0) {
-        switch (val) {
-        case 0:
-            Cvar_SetValue("ui_r_depthbits", 0);
-            break;
-
-        case 16:
-            Cvar_SetValue("ui_r_depthbits", 16);
-            break;
-
-        case 32:
-            Cvar_SetValue("ui_r_depthbits", 24);
-            break;
-        }
+    else if (Q_stricmp(name, "ui_r_displayState") == 0) {
+        UI_SetRefreshChoice(UI_DisplayChoice());
     }
     else if (Q_stricmp(name, "ui_r_lodbias") == 0) {
         switch (val) {
@@ -3071,13 +3125,9 @@ static void UI_Update(const char* name)
         switch (val) {
         case 0: // high quality
 
-            Cvar_SetValue("ui_r_fullScreen", 1);
             Cvar_SetValue("ui_r_subdivisions", 4);
             Cvar_SetValue("ui_r_lodbias", 0);
-            Cvar_SetValue("ui_r_colorbits", 32);
-            Cvar_SetValue("ui_r_depthbits", 24);
             Cvar_SetValue("ui_r_picmip", 0);
-            Cvar_SetValue("ui_r_mode", 4);
             Cvar_SetValue("ui_r_texturebits", 32);
             Cvar_SetValue("ui_r_fastSky", 0);
             Cvar_SetValue("ui_r_inGameVideo", 1);
@@ -3086,13 +3136,9 @@ static void UI_Update(const char* name)
             break;
 
         case 1: // normal
-            Cvar_SetValue("ui_r_fullScreen", 1);
             Cvar_SetValue("ui_r_subdivisions", 4);
             Cvar_SetValue("ui_r_lodbias", 0);
-            Cvar_SetValue("ui_r_colorbits", 0);
-            Cvar_SetValue("ui_r_depthbits", 24);
             Cvar_SetValue("ui_r_picmip", 1);
-            Cvar_SetValue("ui_r_mode", 3);
             Cvar_SetValue("ui_r_texturebits", 0);
             Cvar_SetValue("ui_r_fastSky", 0);
             Cvar_SetValue("ui_r_inGameVideo", 1);
@@ -3102,13 +3148,9 @@ static void UI_Update(const char* name)
 
         case 2: // fast
 
-            Cvar_SetValue("ui_r_fullScreen", 1);
             Cvar_SetValue("ui_r_subdivisions", 12);
             Cvar_SetValue("ui_r_lodbias", 1);
-            Cvar_SetValue("ui_r_colorbits", 0);
-            Cvar_SetValue("ui_r_depthbits", 0);
             Cvar_SetValue("ui_r_picmip", 2);
-            Cvar_SetValue("ui_r_mode", 3);
             Cvar_SetValue("ui_r_texturebits", 0);
             Cvar_SetValue("ui_r_fastSky", 1);
             Cvar_SetValue("ui_r_inGameVideo", 0);
@@ -3118,12 +3160,8 @@ static void UI_Update(const char* name)
 
         case 3: // fastest
 
-            Cvar_SetValue("ui_r_fullScreen", 1);
             Cvar_SetValue("ui_r_subdivisions", 20);
             Cvar_SetValue("ui_r_lodbias", 2);
-            Cvar_SetValue("ui_r_colorbits", 16);
-            Cvar_SetValue("ui_r_depthbits", 16);
-            Cvar_SetValue("ui_r_mode", 3);
             Cvar_SetValue("ui_r_picmip", 3);
             Cvar_SetValue("ui_r_texturebits", 16);
             Cvar_SetValue("ui_r_fastSky", 1);
@@ -3374,6 +3412,16 @@ static void UI_DrawCrosshair(rectDef_t* rect, float scale, vec4_t color)
 UI_OwnerDraw
 =================
 */
+// a row's value cut to the width the menu gives it (the item's special), as a long name is
+static void UI_DrawCutText(std::string text, const rectDef_t& rect, float width, float scale, vec4_t color, int textStyle, int iFontIndex)
+{
+    while (text.size() > 1 && width > 0.0f && static_cast<float>(Text_Width(text.c_str(), scale, iFontIndex)) > width) {
+        text.pop_back();
+    }
+
+    Text_Paint(rect.x, rect.y, scale, color, text.c_str(), 0, textStyle, iFontIndex);
+}
+
 // the sound's output (s_device): the system's default, or the output's name cut to the width the menu gives the value
 // (the item's special)
 static void UI_DrawSoundDevice(const rectDef_t& rect, float width, float scale, vec4_t color, int textStyle, int iFontIndex)
@@ -3388,11 +3436,32 @@ static void UI_DrawSoundDevice(const rectDef_t& rect, float width, float scale, 
 #endif
     }
 
-    while (text.size() > 1 && width > 0.0f && static_cast<float>(Text_Width(text.c_str(), scale, iFontIndex)) > width) {
-        text.pop_back();
+    UI_DrawCutText(std::move(text), rect, width, scale, color, textStyle, iFontIndex);
+}
+
+// the screen, resolution and refresh rate rows: the value each shows for the settings the menu edits, cut to the width
+// the menu gives it
+static void UI_DrawDisplayRow(int ownerDraw, const rectDef_t& rect, float width, float scale, vec4_t color, int textStyle, int iFontIndex)
+{
+    const std::span<const platform::Screen> screens = Platform_Screens();
+    const platform::WindowSettings choice = UI_DisplayChoice();
+    std::string text;
+
+    if (ownerDraw == UI_DISPLAY_SCREEN) {
+        text = platform::ScreenText(screens, choice.screen);
+    }
+    else if (ownerDraw == UI_DISPLAY_RESOLUTION) {
+#ifdef JK2_MODE
+        text = platform::ResolutionText(screens, choice, ui.SP_GetStringTextString("MENUS4_DISPLAY_DESKTOP"));
+#else
+        text = platform::ResolutionText(screens, choice, SE_GetString("MODERNJK_DISPLAY_DESKTOP"));
+#endif
+    }
+    else {
+        text = platform::RefreshText(screens, choice);
     }
 
-    Text_Paint(rect.x, rect.y, scale, color, text.c_str(), 0, textStyle, iFontIndex);
+    UI_DrawCutText(std::move(text), rect, width, scale, color, textStyle, iFontIndex);
 }
 
 static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special,
@@ -3411,6 +3480,11 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
         break;
     case UI_SOUND_DEVICE:
         UI_DrawSoundDevice(rect, special, scale, color, textStyle, iFontIndex);
+        break;
+    case UI_DISPLAY_SCREEN:
+    case UI_DISPLAY_RESOLUTION:
+    case UI_DISPLAY_REFRESH:
+        UI_DrawDisplayRow(ownerDraw, rect, special, scale, color, textStyle, iFontIndex);
         break;
     case UI_VERSION:
         UI_Version(&rect, scale, color, iFontIndex);
@@ -3763,16 +3837,17 @@ you to discard your changes if you did something you didnt want
 */
 void UI_UpdateVideoSetup(void)
 {
-    Cvar_Set("r_mode", Cvar_VariableString("ui_r_mode"));
-    Cvar_Set("r_fullscreen", Cvar_VariableString("ui_r_fullscreen"));
-    Cvar_Set("r_colorbits", Cvar_VariableString("ui_r_colorbits"));
+    Cvar_Set("r_displayState", Cvar_VariableString("ui_r_displayState"));
+    Cvar_Set("r_screen", Cvar_VariableString("ui_r_screen"));
+    Cvar_Set("r_windowWidth", Cvar_VariableString("ui_r_windowWidth"));
+    Cvar_Set("r_windowHeight", Cvar_VariableString("ui_r_windowHeight"));
+    Cvar_Set("r_exclusiveMode", Cvar_VariableString("ui_r_exclusiveMode"));
     Cvar_Set("r_lodbias", Cvar_VariableString("ui_r_lodbias"));
     Cvar_Set("r_picmip", Cvar_VariableString("ui_r_picmip"));
     Cvar_Set("r_texturebits", Cvar_VariableString("ui_r_texturebits"));
     Cvar_Set("r_texturemode", Cvar_VariableString("ui_r_texturemode"));
     Cvar_Set("r_detailtextures", Cvar_VariableString("ui_r_detailtextures"));
     Cvar_Set("r_ext_compress_textures", Cvar_VariableString("ui_r_ext_compress_textures"));
-    Cvar_Set("r_depthbits", Cvar_VariableString("ui_r_depthbits"));
     Cvar_Set("r_subdivisions", Cvar_VariableString("ui_r_subdivisions"));
     Cvar_Set("r_fastSky", Cvar_VariableString("ui_r_fastSky"));
     Cvar_Set("r_inGameVideo", Cvar_VariableString("ui_r_inGameVideo"));
@@ -3796,16 +3871,18 @@ void UI_GetVideoSetup(void)
     Cvar_Register(nullptr, "ui_r_glCustom", "4", cvarFlags_t::CVAR_ARCHIVE);
 
     // Make sure the cvars are registered as read only.
-    Cvar_Register(nullptr, "ui_r_mode", "0", cvarFlags_t::CVAR_ROM);
-    Cvar_Register(nullptr, "ui_r_fullscreen", "0", cvarFlags_t::CVAR_ROM);
-    Cvar_Register(nullptr, "ui_r_colorbits", "0", cvarFlags_t::CVAR_ROM);
+    Cvar_Register(nullptr, "ui_r_displayState", "1", cvarFlags_t::CVAR_ROM);
+    Cvar_Register(nullptr, "ui_r_screen", "0", cvarFlags_t::CVAR_ROM);
+    Cvar_Register(nullptr, "ui_r_windowWidth", "1280", cvarFlags_t::CVAR_ROM);
+    Cvar_Register(nullptr, "ui_r_windowHeight", "720", cvarFlags_t::CVAR_ROM);
+    Cvar_Register(nullptr, "ui_r_exclusiveMode", "", cvarFlags_t::CVAR_ROM);
+    Cvar_Register(nullptr, "ui_r_refreshChoice", "0", cvarFlags_t::CVAR_ROM);
     Cvar_Register(nullptr, "ui_r_lodbias", "0", cvarFlags_t::CVAR_ROM);
     Cvar_Register(nullptr, "ui_r_picmip", "0", cvarFlags_t::CVAR_ROM);
     Cvar_Register(nullptr, "ui_r_texturebits", "0", cvarFlags_t::CVAR_ROM);
     Cvar_Register(nullptr, "ui_r_texturemode", "0", cvarFlags_t::CVAR_ROM);
     Cvar_Register(nullptr, "ui_r_detailtextures", "0", cvarFlags_t::CVAR_ROM);
     Cvar_Register(nullptr, "ui_r_ext_compress_textures", "0", cvarFlags_t::CVAR_ROM);
-    Cvar_Register(nullptr, "ui_r_depthbits", "0", cvarFlags_t::CVAR_ROM);
     Cvar_Register(nullptr, "ui_r_subdivisions", "0", cvarFlags_t::CVAR_ROM);
     Cvar_Register(nullptr, "ui_r_fastSky", "0", cvarFlags_t::CVAR_ROM);
     Cvar_Register(nullptr, "ui_r_inGameVideo", "0", cvarFlags_t::CVAR_ROM);
@@ -3814,16 +3891,19 @@ void UI_GetVideoSetup(void)
     Cvar_Register(nullptr, "ui_r_modified", "0", cvarFlags_t::CVAR_ROM);
 
     // Copy over the real video cvars into their temporary counterparts
-    Cvar_Set("ui_r_mode", Cvar_VariableString("r_mode"));
-    Cvar_Set("ui_r_colorbits", Cvar_VariableString("r_colorbits"));
-    Cvar_Set("ui_r_fullscreen", Cvar_VariableString("r_fullscreen"));
+    // the state as the engine reads it, so that a value it takes as borderless fullscreen shows as such
+    Cvar_SetValue("ui_r_displayState", platform::DisplayStateSetting(platform::DisplayStateOf(Cvar_VariableIntegerValue("r_displayState"))));
+    Cvar_Set("ui_r_screen", Cvar_VariableString("r_screen"));
+    Cvar_Set("ui_r_windowWidth", Cvar_VariableString("r_windowWidth"));
+    Cvar_Set("ui_r_windowHeight", Cvar_VariableString("r_windowHeight"));
+    Cvar_Set("ui_r_exclusiveMode", Cvar_VariableString("r_exclusiveMode"));
+    UI_SetRefreshChoice(UI_DisplayChoice());
     Cvar_Set("ui_r_lodbias", Cvar_VariableString("r_lodbias"));
     Cvar_Set("ui_r_picmip", Cvar_VariableString("r_picmip"));
     Cvar_Set("ui_r_texturebits", Cvar_VariableString("r_texturebits"));
     Cvar_Set("ui_r_texturemode", Cvar_VariableString("r_texturemode"));
     Cvar_Set("ui_r_detailtextures", Cvar_VariableString("r_detailtextures"));
     Cvar_Set("ui_r_ext_compress_textures", Cvar_VariableString("r_ext_compress_textures"));
-    Cvar_Set("ui_r_depthbits", Cvar_VariableString("r_depthbits"));
     Cvar_Set("ui_r_subdivisions", Cvar_VariableString("r_subdivisions"));
     Cvar_Set("ui_r_fastSky", Cvar_VariableString("r_fastSky"));
     Cvar_Set("ui_r_inGameVideo", Cvar_VariableString("r_inGameVideo"));

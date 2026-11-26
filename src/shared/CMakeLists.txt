@@ -91,6 +91,12 @@ target_link_libraries(modernjk_rd_common INTERFACE vendored::wuffs vendored::stb
 add_library(modernjk_cgame_sound INTERFACE)
 target_sources(modernjk_cgame_sound INTERFACE cgame/cg_sound.cpp)
 
+# The display's rows of the setup menus, the same in the three games, without SDL: compiled by each engine that opens
+# a window and by the multiplayer's UI module
+add_library(modernjk_platform_menus INTERFACE)
+target_sources(modernjk_platform_menus INTERFACE platform/menus/display.cpp)
+target_link_libraries(modernjk_platform_menus INTERFACE vendored::fmt)
+
 # The sound of the engines that play it, and its decoders' fuzzers
 if(TARGET vendored::flac)
 	add_subdirectory(sound)
@@ -109,10 +115,10 @@ if(TARGET modernjk_platform)
 		platform/engine/engine.cpp)
 	if(WIN32)
 		target_sources(modernjk_sys_platform INTERFACE sys/sys_win32.cpp sys/con_passive.cpp sys/win_manifest.manifest)
-		target_link_libraries(modernjk_sys_platform INTERFACE modernjk_platform winmm)
+		target_link_libraries(modernjk_sys_platform INTERFACE modernjk_platform modernjk_platform_menus winmm)
 	else()
 		target_sources(modernjk_sys_platform INTERFACE sys/sys_unix.cpp sys/con_tty.cpp)
-		target_link_libraries(modernjk_sys_platform INTERFACE modernjk_platform OpenGL::GL ${CMAKE_DL_LIBS})
+		target_link_libraries(modernjk_sys_platform INTERFACE modernjk_platform modernjk_platform_menus OpenGL::GL ${CMAKE_DL_LIBS})
 	endif()
 endif()
 

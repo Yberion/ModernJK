@@ -107,6 +107,9 @@ struct Screen {
     std::string name;
     // the mode of the desktop, which a window and borderless fullscreen keep
     DisplayMode desktop;
+    // the part of the screen a window can take, without the taskbar or the dock: the desktop's size when the system
+    // does not tell
+    PixelSize usable;
     // the modes exclusive fullscreen can set, the largest first, each size and rate once
     std::vector<DisplayMode> modes;
 };

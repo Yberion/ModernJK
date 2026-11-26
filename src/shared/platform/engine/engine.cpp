@@ -33,6 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <qcommon/qcommon.h>
 
 #include <shared/platform/input/input.h>
+#include <shared/platform/menus/display.h>
 #include <shared/platform/platform.h>
 #include <shared/platform/window/window.h>
 #include <shared/sys/sys_public.h>
@@ -48,7 +49,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-#include <cstring>
 #include <optional>
 #include <span>
 #include <string>
@@ -99,7 +99,7 @@ struct Settings {
 // What the engine's functions share from the window's opening to the program's end.
 struct Layer {
     Layer(platform::Window&& opened, const platform::WindowSettings& applied, const Settings& registered)
-        : window(std::move(opened)), input(window), settings(applied), cvars(registered)
+        : window(std::move(opened)), input(window), settings(applied), cvars(registered), screens(platform::Screens())
     {
     }
 
@@ -109,6 +109,8 @@ struct Layer {
     // the display's settings as the window has them
     platform::WindowSettings settings;
     Settings cvars;
+    // the screens as the menus list them, read again when they change
+    std::vector<platform::Screen> screens;
     // the key pressed last, so that the character of the key that opens the console is not typed into it
     fakeAscii_t lastKeyDown = fakeAscii_t::A_NULL;
     // when the input was last read
@@ -155,45 +157,6 @@ Settings RegisterSettings()
             .multisample = Cvar_Get("r_ext_multisample", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH)};
 }
 
-// The mode r_exclusiveMode names, "1920x1080@144"; all zero, the screen's present mode, when it is empty or not
-// of that form.
-platform::DisplayMode ExclusiveMode(const char* text)
-{
-    platform::DisplayMode mode;
-    const char* const end = text + std::strlen(text);
-    const std::from_chars_result width = std::from_chars(text, end, mode.width);
-
-    if (width.ec != std::errc{} || width.ptr == end || *width.ptr != 'x') {
-        return {};
-    }
-
-    const std::from_chars_result height = std::from_chars(width.ptr + 1, end, mode.height);
-
-    if (height.ec != std::errc{} || mode.width <= 0 || mode.height <= 0) {
-        return {};
-    }
-
-    if (height.ptr != end && *height.ptr == '@') {
-        mode.refresh = static_cast<float>(Q_atof(height.ptr + 1));
-    }
-
-    return mode;
-}
-
-// The display's state r_displayState names: 0 a window, 1 borderless fullscreen, 2 exclusive fullscreen; any other
-// value is borderless fullscreen, the default.
-platform::DisplayState DisplayState(int setting)
-{
-    switch (setting) {
-    case 0:
-        return platform::DisplayState::Window;
-    case 2:
-        return platform::DisplayState::Exclusive;
-    default:
-        return platform::DisplayState::Borderless;
-    }
-}
-
 // The swap r_swapInterval names: 0 at once, a negative value the adaptive sync, any other the vertical sync.
 platform::SwapInterval SwapInterval(int setting)
 {
@@ -207,11 +170,11 @@ platform::SwapInterval SwapInterval(int setting)
 // The display's settings as the window takes them.
 platform::WindowSettings ReadSettings(const Settings& cvars)
 {
-    return {.state = DisplayState(cvars.displayState->integer),
+    return {.state = platform::DisplayStateOf(cvars.displayState->integer),
             .screen = cvars.screen->integer,
             .width = cvars.windowWidth->integer,
             .height = cvars.windowHeight->integer,
-            .exclusive = ExclusiveMode(cvars.exclusiveMode->string)};
+            .exclusive = platform::ParseMode(cvars.exclusiveMode->string)};
 }
 
 // The engine's key of one the layer names.
@@ -512,8 +475,8 @@ void OnWheel(const platform::MouseWheel& event)
     }
 }
 
-// What happened to the window, to the engine's settings and to the sound.
-void OnWindow(const platform::WindowEvent& event)
+// What happened to the window, to the engine's settings, to the sound and to the screens' list.
+void OnWindow(Layer& layer, const platform::WindowEvent& event)
 {
     switch (event.change) {
     case platform::WindowChange::FocusGained:
@@ -533,8 +496,10 @@ void OnWindow(const platform::WindowEvent& event)
     case platform::WindowChange::Quit:
         Cbuf_ExecuteText(cbufExec_t::EXEC_NOW, "quit Closed window\n");
         break;
-    case platform::WindowChange::PixelSizeChanged:
     case platform::WindowChange::ScreensChanged:
+        layer.screens = platform::Screens();
+        break;
+    case platform::WindowChange::PixelSizeChanged:
         break;
     }
 }
@@ -553,30 +518,18 @@ public:
     void operator()(const platform::PointerMotion& motion) const { CL_PointerEvent(motion.x, motion.y); }
     void operator()(const platform::MouseButton& button) const { CL_KeyEvent(ButtonKeyCode(button.button), button.down, button.time.count()); }
     void operator()(const platform::MouseWheel& wheel) const { OnWheel(wheel); }
-    void operator()(const platform::WindowEvent& change) const { OnWindow(change); }
+    void operator()(const platform::WindowEvent& change) const { OnWindow(*layer_, change); }
 
 private:
     // never null: made from a reference
     Layer* layer_;
 };
 
-// The screen the display's settings name: the one of that number, the primary one when there is none of it.
-const platform::Screen* ScreenOf(const std::vector<platform::Screen>& screens, int number)
-{
-    if (screens.empty()) {
-        return nullptr;
-    }
-
-    const auto index = static_cast<std::size_t>(std::max(number, 0));
-    return index < screens.size() ? &screens[index] : &screens.front();
-}
-
 // The refresh rate of the display as it is set, in whole images per second: the mode's in exclusive fullscreen when
 // the setting names one, the desktop's otherwise; 0 when the system does not tell.
-int RefreshRate(const platform::WindowSettings& settings)
+int RefreshRate(std::span<const platform::Screen> screens, const platform::WindowSettings& settings)
 {
-    const std::vector<platform::Screen> screens = platform::Screens();
-    const platform::Screen* const screen = ScreenOf(screens, settings.screen);
+    const platform::Screen* const screen = platform::ScreenOf(screens, settings.screen);
 
     if (screen == nullptr) {
         return 0;
@@ -717,6 +670,12 @@ bool Platform_SetPointerImage(std::span<const std::uint8_t> rgba, int width, int
     return running && running->window.SetPointerImage(image, {.width = shownWidth, .height = shownHeight}, {});
 }
 
+std::span<const platform::Screen> Platform_Screens()
+{
+    const std::optional<Layer>& running = Running();
+    return running ? std::span<const platform::Screen>(running->screens) : std::span<const platform::Screen>();
+}
+
 int Platform_Milliseconds()
 {
     return Milliseconds(platform::Now());
@@ -747,6 +706,7 @@ void Platform_Display(glconfig_s* glConfig)
     // are applied to the window, which stays the same one. A latched setting takes its new value when it is
     // registered again.
     layer.cvars = RegisterSettings();
+    layer.screens = platform::Screens();
 
     if (const platform::WindowSettings wanted = ReadSettings(layer.cvars); wanted != layer.settings) {
         if (!layer.window.Apply(wanted)) {
@@ -762,7 +722,7 @@ void Platform_Display(glconfig_s* glConfig)
     glConfig->colorBits = kColourBits;
     glConfig->depthBits = kDepthBits;
     glConfig->stencilBits = kStencilBits;
-    glConfig->displayFrequency = RefreshRate(layer.settings);
+    glConfig->displayFrequency = RefreshRate(layer.screens, layer.settings);
     glConfig->isFullscreen = layer.settings.state != platform::DisplayState::Window;
     glConfig->stereoEnabled = false;
     // the screen's own brightness table is never touched: the renderer applies r_gamma itself

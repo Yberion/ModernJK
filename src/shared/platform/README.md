@@ -12,6 +12,7 @@ What a player touches before anything is drawn: the window that fills the screen
 |---|---|---|
 | `window/` | the window and its OpenGL context: the three display states (a window, borderless fullscreen, exclusive fullscreen), the screens and their modes, the swap, the icon and the pointer's image | [window/README.md](window/README.md) |
 | `input/` | the keyboard, the mouse and the window's own events as a list of typed events, each with its time in nanoseconds | [input/README.md](input/README.md) |
+| `menus/` | the display's rows of the setup menus (the screen, the resolution, the refresh rate): their texts and the value a click gives, without SDL, compiled by the engines and the multiplayer's UI module | [menus/README.md](menus/README.md) |
 
 The files at the root: `platform.h` and `platform.cpp` (the clock, the start and the stop, the layer's description, the clipboard, the error's message box).
 
@@ -43,7 +44,7 @@ for (;;) {
 
 ## Tests
 
-`modernjk.platform` in `ctest` (`test/platform`): SDL 3 as it is built for the client (`sdl.cpp`), the window (`window.cpp`) and the input (`input.cpp`), on SDL's dummy video driver, which keeps a screen and windows in memory: no screen is needed, and the events are pushed into SDL's queue at chosen times. The dummy driver has no OpenGL: `modernjk_test_platform real`, run by hand, opens a window with a context on the system's own driver and screen, takes it through the three display states and prints what it got (`real.cpp`).
+`modernjk.platform` in `ctest` (`test/platform`): SDL 3 as it is built for the client (`sdl.cpp`), the window (`window.cpp`), the input (`input.cpp`) and the menus' display rows (`menus.cpp`), on SDL's dummy video driver, which keeps a screen and windows in memory: no screen is needed, and the events are pushed into SDL's queue at chosen times. The dummy driver has no OpenGL: `modernjk_test_platform real`, run by hand, opens a window with a context on the system's own driver and screen, takes it through the three display states and prints what it got (`real.cpp`).
 
 ## Rules
 

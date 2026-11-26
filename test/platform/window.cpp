@@ -19,7 +19,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // The tests of src/shared/platform (platform.h) and of its window (window/), on SDL's dummy video driver: the layer's
-// description and clock; the screens listed with their desktop's mode; a window opened at the size asked, in pixels;
+// description and clock; the screens listed with their desktop's mode and usable area; a window opened at the size asked, in pixels;
 // the same window taken through the three display states and back, never created again; a screen that does not
 // exist taken as the primary one; a window without a context refusing what needs one; an icon and a pointer's image
 // taken, pixels of a wrong count left out; an OpenGL context, which the dummy driver lacks, refused with a text
@@ -142,6 +142,8 @@ void RunWindowTests()
 
     if (!screens.empty()) {
         CHECK(screens.front().desktop.width > 0 && screens.front().desktop.height > 0);
+        // the dummy driver has no taskbar: the usable area is the whole screen
+        CHECK(screens.front().usable == (platform::PixelSize{.width = screens.front().desktop.width, .height = screens.front().desktop.height}));
         CheckStates(screens.front());
     }
 
