@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // engine.cpp -- the output stage as a renderer runs it, compiled by each renderer against its own headers
 // (<rd-vanilla/tr_local.h> of its tree): the table of OpenGL's functions and the stage live from Output_Init to
 // Output_Shutdown, in one object reached through one function (Running), the stage keeping a pointer to the table
-// beside it. The settings are the renderer's own (r_ext_multisample, r_outputPrecision, r_outputDither, r_gamma),
+// beside it. The settings are the renderer's own (r_ext_multisample, r_gamma),
 // registered in its tree's R_Register.
 #include "engine.h"
 
@@ -49,17 +49,10 @@ std::optional<Output>& Running()
     return output;
 }
 
-// The scene's precision r_outputPrecision names: 1 for 16 bits a channel, anything else 8.
-render_output::Precision Precision(const cvar_t& setting)
-{
-    return setting.integer == 1 ? render_output::Precision::Rgba16 : render_output::Precision::Rgba8;
-}
-
 // The stage's settings: the window's size, the renderer's settings.
 render_output::Settings ReadSettings()
 {
-    return {
-        .size = {.width = glConfig.vidWidth, .height = glConfig.vidHeight}, .samples = r_ext_multisample->integer, .precision = Precision(*r_outputPrecision)};
+    return {.size = {.width = glConfig.vidWidth, .height = glConfig.vidHeight}, .samples = r_ext_multisample->integer};
 }
 
 } // namespace
@@ -85,9 +78,9 @@ void Output_Init()
 
     Output& output = Running().emplace(Output{.gl = std::move(gl), .stage = std::move(*stage)});
     output.stage.DrawScene();
-    r_outputPrecision->modified = false;
     r_ext_multisample->modified = false;
-    // what the renderer draws into: the scene's colour, depth and stencil
+    // what the renderer draws with: 8 bits a channel, as its textures and the window (the scene keeps 16 for the pass,
+    // which the texture memory estimates that read this must not count), the scene's depth and stencil
     glConfig.colorBits = 32;
     glConfig.depthBits = 24;
     glConfig.stencilBits = 8;
@@ -108,13 +101,11 @@ void Output_DrawScene()
 
     render_output::Stage& stage = running->stage;
 
-    if (r_ext_multisample->modified || r_outputPrecision->modified) {
+    if (r_ext_multisample->modified) {
         r_ext_multisample->modified = false;
-        r_outputPrecision->modified = false;
 
         if (!stage.Apply(ReadSettings())) {
-            Q_PrintlnWarning("the scene's images could not be made for r_ext_multisample {} and r_outputPrecision {}", r_ext_multisample->integer,
-                             r_outputPrecision->integer);
+            Q_PrintlnWarning("the scene's images could not be made for r_ext_multisample {}", r_ext_multisample->integer);
         }
     }
 
@@ -140,7 +131,7 @@ void Output_MakeReadable(render_output::Buffers buffers, int x, int y, int width
 void Output_Present()
 {
     if (std::optional<Output>& running = Running()) {
-        running->stage.Present(r_gamma->value, r_outputDither->integer != 0 ? render_output::Dither::Ordered : render_output::Dither::None);
+        running->stage.Present(r_gamma->value);
     }
 }
 
@@ -153,6 +144,5 @@ void Output_PrintInfo()
     }
 
     const render_output::Settings& current = running->stage.Current();
-    Q_Println("OUTPUT: {}, {} samples, dither {}", current.precision == render_output::Precision::Rgba16 ? "RGBA16" : "RGBA8", current.samples,
-              r_outputDither->integer != 0 ? "ordered" : "none");
+    Q_Println("OUTPUT: RGBA16, {} samples", current.samples);
 }

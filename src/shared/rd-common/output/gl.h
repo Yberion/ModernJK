@@ -64,7 +64,6 @@ constexpr GLenum kActiveTexture = 0x84E0;
 constexpr GLenum kTextureBinding2d = 0x8069;
 constexpr GLenum kRgba = 0x1908;
 constexpr GLenum kUnsignedByte = 0x1401;
-constexpr GLenum kRgba8 = 0x8058;
 constexpr GLenum kRgba16 = 0x805B;
 constexpr GLenum kDepth24Stencil8 = 0x88F0;
 constexpr GLenum kFramebuffer = 0x8D40;

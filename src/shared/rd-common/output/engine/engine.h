@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // engine.h -- the output stage as a renderer runs it, compiled by each renderer against its own headers (engine.cpp):
 // OpenGL's functions loaded through the renderer's import, the stage made at the window's size with the settings
-// r_ext_multisample, r_outputPrecision and r_outputDither, the player's brightness r_gamma applied by the pass.
+// r_ext_multisample, the player's brightness r_gamma applied by the pass.
 // Example: the renderer makes the stage once it knows the window (Output_Init), draws each image into it
 // (Output_DrawScene), makes the picture readable before it copies or reads from it (Output_MakeReadable, then
 // Output_DrawScene), and presents it before the swap and before a capture (Output_Present).

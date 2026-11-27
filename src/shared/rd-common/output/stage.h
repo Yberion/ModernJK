@@ -22,6 +22,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // menus) into an image of its own, the scene, with its depth, its stencil and its samples; at the end of the image one
 // pass draws the scene into the window and applies the player's brightness there, r_gamma's curve computed in floating
 // point, the same at every display state and with or without the focus, since the screen's own ramp is never touched.
+// The scene holds 16 bits a channel, which keeps the dark tones a brightness above 1 spreads apart; the pass adds a
+// fixed noise within 0.375 of a level before the window's 8 bits round the colour, which hides the steps of one level
+// left, an exact level keeping its value.
 // What the renderer reads back of its picture (a copy into a texture, a pixel of depth, the stencil) is made readable
 // first: a multisampled image is resolved into a single-sampled one, which OpenGL asks before any read.
 // Example: a renderer makes the stage once its context is current, draws each image into it, then presents it:
@@ -30,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //     stage->MakeReadable(render_output::Buffers::Colour, {.x = 0, .y = 0, .width = 1920, .height = 1080});
 //     // ... glCopyTexSubImage2D from the scene ...
 //     stage->DrawScene();
-//     stage->Present(1.2F, render_output::Dither::None);   // then the window's swap
+//     stage->Present(1.2F);   // then the window's swap
 #pragma once
 
 #include "gl.h"
@@ -40,18 +43,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <string>
 
 namespace render_output {
-
-// The precision of the scene's colour; both clamp the blends to [0, 1], as a window's colour does.
-enum class Precision {
-    Rgba8,  // 8 bits a channel, as the window's
-    Rgba16, // 16 bits a channel, unsigned normalized
-};
-
-// What the pass adds to the colour before the window's 8 bits a channel round it.
-enum class Dither {
-    None,    // nothing: the colour rounded to the nearest of the window's levels
-    Ordered, // a fixed pattern of 4 by 4 pixels, within 0.375 of a level: an exact level stays as it is
-};
 
 // A size in pixels.
 struct Size {
@@ -75,7 +66,6 @@ struct Settings {
     Size size;
     // the samples a pixel asked; 0 or 1 for none, else 2, 4 or 8 at most what the driver allows (AllowedSamples)
     int samples = 0;
-    Precision precision = Precision::Rgba8;
 
     [[nodiscard]] bool operator==(const Settings&) const = default;
 };
@@ -115,7 +105,7 @@ public:
     // Draws the scene into the window's back buffer through the pass, with r_gamma's curve and the dither, and
     // leaves the window's framebuffer bound, for the swap and for a capture to read. The state of OpenGL the
     // renderer keeps is as it was.
-    void Present(float gamma, Dither dither);
+    void Present(float gamma);
 
     Stage(const Stage&) = delete;
     Stage& operator=(const Stage&) = delete;
@@ -141,7 +131,6 @@ private:
     struct Pass {
         GLuint program = 0;
         GLint inverseGamma = -1;
-        GLint dither = -1;
     };
 
     Stage(const Gl& gl, Pass pass, Images images, const Settings& settings) noexcept;

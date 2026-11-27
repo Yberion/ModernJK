@@ -1139,8 +1139,6 @@ extern cvar_t* r_ignoreGLErrors;
 extern cvar_t* r_mapOverBrightBits;
 
 extern cvar_t* r_ext_multisample; // the samples a pixel of the scene, applied at once
-extern cvar_t* r_outputPrecision; // the scene's colour: 0 8 bits a channel, 1 16 bits, until the measure chooses
-extern cvar_t* r_outputDither;    // the output pass's ordered dither, until the measure chooses
 
 extern cvar_t* r_debugSurface;
 extern cvar_t* r_simpleMipMaps;

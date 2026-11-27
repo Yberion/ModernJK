@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // The stage on the system's own OpenGL driver, run by hand (modernjk_test_rd_common real): a window of the platform
 // layer, the 256 levels of grey drawn into the scene one column each, then read back in the window after the pass:
-// at r_gamma 1 each level as it was drawn, with and without the dither, at both precisions and multisampled; at
+// at r_gamma 1 each level as it was drawn, the dither included, with and without multisampling; at
 // other values the curve's level, 255 * (level / 255)^(1 / gamma) rounded, within one level (the driver's pow);
 // and a multisampled scene made readable gives its levels back as drawn.
 #include <check.h>
@@ -101,7 +101,7 @@ int CurveLevel(int level, float gamma)
 }
 
 // one case of the pass: the levels read in the window against the curve's, the largest difference allowed
-void CheckPass(const Gl& gl, const Extra& extra, const Settings& settings, float gamma, Dither dither, int allowed)
+void CheckPass(const Gl& gl, const Extra& extra, const Settings& settings, float gamma, int allowed)
 {
     auto stage = Stage::Create(gl, settings);
     CHECK(stage.has_value());
@@ -113,7 +113,7 @@ void CheckPass(const Gl& gl, const Extra& extra, const Settings& settings, float
 
     stage->DrawScene();
     DrawLevels(gl, extra, settings.size);
-    stage->Present(gamma, dither);
+    stage->Present(gamma);
     const std::array<int, kLevels> levels = ReadLevels(extra);
     int worst = 0;
 
@@ -121,8 +121,7 @@ void CheckPass(const Gl& gl, const Extra& extra, const Settings& settings, float
         worst = std::max(worst, std::abs(levels[static_cast<std::size_t>(level)] - CurveLevel(level, gamma)));
     }
 
-    fmt::println("{} {} samples, gamma {}, dither {}: largest difference {} level(s)", settings.precision == Precision::Rgba16 ? "RGBA16" : "RGBA8",
-                 stage->Current().samples, gamma, dither == Dither::Ordered ? "on" : "off", worst);
+    fmt::println("{} samples, gamma {}: largest difference {} level(s)", stage->Current().samples, gamma, worst);
     CHECK(worst <= allowed);
 }
 
@@ -184,14 +183,11 @@ int RunRealTests()
             CHECK(size.width >= kLevels);
             fmt::println("{}", platform::Description());
 
-            for (const Precision precision : {Precision::Rgba8, Precision::Rgba16}) {
-                for (const int samples : {0, 4}) {
-                    const Settings stageSettings{.size = size, .samples = samples, .precision = precision};
-                    CheckPass(*gl, extra, stageSettings, 1.0F, Dither::None, 0);
-                    CheckPass(*gl, extra, stageSettings, 1.0F, Dither::Ordered, 0);
-                    CheckPass(*gl, extra, stageSettings, 1.5F, Dither::None, 1);
-                    CheckPass(*gl, extra, stageSettings, 2.5F, Dither::None, 1);
-                }
+            for (const int samples : {0, 4}) {
+                const Settings stageSettings{.size = size, .samples = samples};
+                CheckPass(*gl, extra, stageSettings, 1.0F, 0);
+                CheckPass(*gl, extra, stageSettings, 1.5F, 1);
+                CheckPass(*gl, extra, stageSettings, 2.5F, 1);
             }
 
             CheckReadable(*gl, extra, size);

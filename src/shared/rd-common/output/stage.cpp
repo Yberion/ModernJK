@@ -31,7 +31,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <array>
 #include <cassert>
 #include <cstddef>
-#include <string_view>
 #include <utility>
 
 namespace render_output {
@@ -46,22 +45,21 @@ void main()
 }
 )";
 
-// the pass's fragment shader. The dither's thresholds are Bayer's matrix of 4 by 4, each centred in its sixteenth,
-// moved to [-15/32, 15/32] and scaled by 0.8, so within 0.375 of one of the window's levels: an exact level keeps
-// its value after the rounding. A driver's conversion to 8 bits is not always the exact rounding (NVIDIA's rounded a
-// value 15/32 of a level above another up), hence the margin.
+// the pass's fragment shader. The dither is Jimenez's interleaved gradient noise ("Next Generation Post Processing in
+// Call of Duty: Advanced Warfare", SIGGRAPH 2014), a value of [0, 1) for each pixel without a pattern of its own,
+// moved to [-0.375, 0.375) of one of the window's levels: an exact level keeps its value after the rounding. A
+// driver's conversion to 8 bits is not always the exact rounding (NVIDIA's rounded a value 15/32 of a level above
+// another up), hence the margin under half a level.
 constexpr const char* kFragmentSource = R"(#version 130
 uniform sampler2D scene;
 uniform float inverseGamma;
-uniform float dither;
 out vec4 colour;
-const float kBayer[16] = float[16](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
 void main()
 {
     ivec2 pixel = ivec2(gl_FragCoord.xy);
     vec3 value = pow(texelFetch(scene, pixel, 0).rgb, vec3(inverseGamma));
-    float threshold = ((kBayer[(pixel.y & 3) * 4 + (pixel.x & 3)] + 0.5) / 16.0 - 0.5) * 0.8;
-    colour = vec4(value + dither * threshold / 255.0, 1.0);
+    float noise = fract(52.9829189 * fract(dot(vec2(pixel), vec2(0.06711056, 0.00583715))));
+    colour = vec4(value + (noise - 0.5) * 0.75 / 255.0, 1.0);
 }
 )";
 
@@ -187,16 +185,6 @@ bool Attach(const Gl& gl, GLuint framebuffer, GLuint colourTexture, GLuint colou
     return gl.CheckFramebufferStatus(kFramebuffer) == kFramebufferComplete;
 }
 
-GLenum Format(Precision precision)
-{
-    return precision == Precision::Rgba16 ? kRgba16 : kRgba8;
-}
-
-std::string_view Name(Precision precision)
-{
-    return precision == Precision::Rgba16 ? "RGBA16" : "RGBA8";
-}
-
 // The bits a blit copies for what a read needs.
 GLbitfield Mask(Buffers buffers)
 {
@@ -252,7 +240,7 @@ std::expected<Stage, std::string> Stage::Create(const Gl& gl, const Settings& se
         return std::unexpected(program.error());
     }
 
-    const Pass pass{.program = *program, .inverseGamma = gl.GetUniformLocation(*program, "inverseGamma"), .dither = gl.GetUniformLocation(*program, "dither")};
+    const Pass pass{.program = *program, .inverseGamma = gl.GetUniformLocation(*program, "inverseGamma")};
     // the scene is the texture of unit 0, set once for the program's life
     gl.UseProgram(pass.program);
     gl.Uniform1i(gl.GetUniformLocation(pass.program, "scene"), 0);
@@ -306,7 +294,8 @@ const Settings& Stage::Current() const noexcept
 std::expected<Stage::Images, std::string> Stage::MakeImages(const Gl& gl, const Settings& settings)
 {
     Images images;
-    const GLenum format = Format(settings.precision);
+    // 16 bits a channel, unsigned normalized: the blends clamped to [0, 1], as a window's colour clamps them
+    const GLenum format = kRgba16;
     const bool multisampled = settings.samples > 0;
     gl.GenFramebuffers(1, &images.sceneFramebuffer);
 
@@ -332,8 +321,8 @@ std::expected<Stage::Images, std::string> Stage::MakeImages(const Gl& gl, const 
     if (!complete) {
         gl.BindFramebuffer(kFramebuffer, 0);
         DeleteImages(gl, images);
-        return std::unexpected(fmt::format("the driver refused the scene's images ({}, {} samples, {} by {})", Name(settings.precision), settings.samples,
-                                           settings.size.width, settings.size.height));
+        return std::unexpected(
+            fmt::format("the driver refused the scene's images (RGBA16, {} samples, {} by {})", settings.samples, settings.size.width, settings.size.height));
     }
 
     return images;
@@ -373,7 +362,7 @@ void Stage::MakeReadable(Buffers buffers, Region region)
     gl_->BindFramebuffer(kReadFramebuffer, images_.resolveFramebuffer);
 }
 
-void Stage::Present(float gamma, Dither dither)
+void Stage::Present(float gamma)
 {
     const Size size = settings_.size;
     GLuint source = images_.sceneTexture;
@@ -400,7 +389,6 @@ void Stage::Present(float gamma, Dither dither)
     gl_->BindTexture(kTexture2d, source);
     gl_->UseProgram(pass_.program);
     gl_->Uniform1f(pass_.inverseGamma, 1.0F / std::clamp(gamma, kMinimumGamma, kMaximumGamma));
-    gl_->Uniform1f(pass_.dither, dither == Dither::Ordered ? 1.0F : 0.0F);
     gl_->Begin(kTriangles);
 
     for (const auto& [x, y] : kCoveringTriangle) {

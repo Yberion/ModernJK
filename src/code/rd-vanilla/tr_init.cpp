@@ -93,8 +93,6 @@ cvar_t* r_ext_compiled_vertex_array;
 cvar_t* r_ext_texture_env_add;
 cvar_t* r_ext_texture_filter_anisotropic;
 cvar_t* r_ext_multisample;
-cvar_t* r_outputPrecision;
-cvar_t* r_outputDither;
 
 cvar_t* r_DynamicGlow;
 cvar_t* r_DynamicGlowPasses;
@@ -1416,8 +1414,6 @@ void R_Register(void)
     r_ext_texture_env_add = ri.Cvar_Get("r_ext_texture_env_add", "1", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH);
     r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "16", cvarFlags_t::CVAR_ARCHIVE_ND);
     r_ext_multisample = ri.Cvar_Get("r_ext_multisample", "0", cvarFlags_t::CVAR_ARCHIVE_ND);
-    r_outputPrecision = ri.Cvar_Get("r_outputPrecision", "0", cvarFlags_t::CVAR_NONE);
-    r_outputDither = ri.Cvar_Get("r_outputDither", "0", cvarFlags_t::CVAR_NONE);
 
     r_DynamicGlow = ri.Cvar_Get("r_DynamicGlow", "0", cvarFlags_t::CVAR_ARCHIVE_ND);
     r_DynamicGlowPasses = ri.Cvar_Get("r_DynamicGlowPasses", "5", cvarFlags_t::CVAR_ARCHIVE_ND);
