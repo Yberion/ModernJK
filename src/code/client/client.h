@@ -29,6 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <qcommon/qcommon.h>
 #include <rd-common/tr_public.h>
 #include <shared/client/engine/keys.h>
+#include <shared/client/engine/input.h>
 #include <shared/sound/engine/engine.h>
 #include <cgame/cg_public.h>
 
@@ -282,6 +283,8 @@ extern cvar_t* cl_sensitivity;
 extern cvar_t* cl_freelook;
 
 extern cvar_t* cl_mouseAccel;
+extern cvar_t* cl_mouseAccelOffset;
+extern cvar_t* cl_mouseAccelStyle;
 extern cvar_t* cl_showMouseRate;
 
 extern cvar_t* cl_allowAltEnter;
@@ -317,13 +320,10 @@ bool CL_CheckPaused(void);
 //
 // cl_input
 //
-typedef struct {
-    int down[2];      // key nums holding it down
-    int64_t downtime; // when it went down, in nanoseconds on the client's clock; 0 when not known
-    int64_t nsec;     // nanoseconds down since the keys were last read, when it went down and up in between
-    bool active;      // current state
-    bool wasPressed;  // set when down, not cleared when up
-} kbutton_t;
+// the input's values of this game (src/shared/client/engine/input.h): the factor of the keys' turn while the cgame
+// overrides the view, and the movement a key gives while walking (127 running)
+inline constexpr float CL_OVERRIDE_MOUSE_SENSITIVITY = 5.0f;
+inline constexpr int CL_WALK_MOVESPEED = 64;
 
 extern kbutton_t in_mlook, in_klook;
 extern kbutton_t in_strafe;
@@ -336,7 +336,6 @@ void CL_ClearState(void);
 void CL_WritePacket(void);
 void IN_CenterView(void);
 
-float CL_KeyState(kbutton_t* key);
 const char* Key_KeynumToString(fakeAscii_t keynum /*, bool bTranslate*/); // note: translate is only called for menu display not configs
 
 //

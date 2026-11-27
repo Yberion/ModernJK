@@ -22,7 +22,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cl.input.c  -- builds an intended movement command to send to the server
+// cl_input.cpp -- the multiplayer's part of the input (src/shared/client/engine/input.h): one command per tick, made
+// as the command clock enters it (between two frames when it does: CL_InputTick) and sent in its packet; the buttons'
+// bits the game reads, the generic commands, the force powers, the automap that takes the movement keys and the mouse
+// while it shows, the fighters' pitch.
 
 #include "client.h"
 #include "cl_cgameapi.h"
@@ -32,75 +35,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef _WIN32
 #include <cmath>
 #endif
-unsigned frame_msec; // the frame's length: the view turns every frame
-int old_com_frameTime;
-// One user command per tick: the key states are measured over the time since the last command, and the
-// movement the mouse gives while strafing or without mouse look is gathered over the frames until the next command.
 // The input's time, on the clock of com_frameTime: the frame's time when a frame reads the input, the present time when
-// a tick's command is made between two frames (CL_InputTick)
+// a tick's command is made between two frames (CL_InputTick); and the same moment on the client's clock, in nanoseconds
 static int s_inputTime;
-// The keys' own times are in nanoseconds on the client's clock, as the platform layer dates them: the time the input was
-// last read at on that clock, the time between the two last reads (the view's keys) and the time since the last command
-// (the movement's keys). The share of these times a key was held is exact, whatever the frame rate.
 static int64_t s_inputNsec;
-static int64_t s_lastInputNsec;
-static int64_t s_frameNsec = 1'000'000;
-static int64_t s_cmdNsec = 1'000'000;
-static int64_t s_lastCmdNsec;
-// the shortest and the longest of these times: over 1,000 frames per second each frame counts as a millisecond, and
-// after a hitch the extra time is cut, so that it gives no unexpected move
-constexpr int64_t MIN_INPUT_NSEC = 1'000'000;
-constexpr int64_t MAX_INPUT_NSEC = 200'000'000;
-static float s_mouseSide, s_mouseForward;
 
-float cl_mPitchOverride = 0.0f;
-float cl_mYawOverride = 0.0f;
-float cl_mSensitivityOverride = 0.0f;
 bool cl_bUseFighterPitch = false;
 bool cl_crazyShipControls = false;
 
-#ifdef VEH_CONTROL_SCHEME_4
-constexpr float OVERRIDE_MOUSE_SENSITIVITY = 5.0f; // 20.0f = 180 degree turn in one mouse swipe across keyboard
-#else                                              // VEH_CONTROL_SCHEME_4
-constexpr float OVERRIDE_MOUSE_SENSITIVITY = 10.0f; // 20.0f = 180 degree turn in one mouse swipe across keyboard
-#endif                                             // VEH_CONTROL_SCHEME_4
-/*
-===============================================================================
-
-KEY BUTTONS
-
-Continuous button event tracking is complicated by the fact that two different
-input sources (say, mouse button 1 and the control key) can both press the
-same button, but the button should only be released when both of the
-pressing key have been released.
-
-When a key event issues a button command (+forward, +attack, etc), it appends
-its key number as argv(1) so it can be matched up with the release.
-
-argv(2) will be set to the time the event happened, which allows exact
-control even at low framerates when the down and up events may both get qued
-at the same time.
-
-===============================================================================
-*/
-
-kbutton_t in_left, in_right, in_forward, in_back;
-kbutton_t in_lookup, in_lookdown, in_moveleft, in_moveright;
-kbutton_t in_strafe, in_speed;
-kbutton_t in_up, in_down;
-
-constexpr int MAX_KBUTTONS = 16;
-
-kbutton_t in_buttons[MAX_KBUTTONS];
-
-bool in_mlooking;
-
-void IN_Button11Down(void);
-void IN_Button11Up(void);
-void IN_Button10Down(void);
-void IN_Button10Up(void);
-void IN_Button6Down(void);
-void IN_Button6Up(void);
 void IN_UseGivenForce(void)
 {
     const char* c = Cmd_Argv(1);
@@ -168,20 +110,6 @@ void IN_UseGivenForce(void)
     if (genCmdNum != genCmds_t::GENCMD_NONE) {
         cl.gcmdSendValue = true;
         cl.gcmdValue = std::to_underlying(genCmdNum);
-    }
-}
-
-void IN_MLookDown(void)
-{
-    in_mlooking = true;
-}
-
-void IN_CenterView(void);
-void IN_MLookUp(void)
-{
-    in_mlooking = false;
-    if (!cl_freelook->integer) {
-        IN_CenterView();
     }
 }
 
@@ -411,135 +339,6 @@ void IN_VoiceChatButton(void)
     UIVM_SetActiveMenu(uiMenuCommand_t::UIMENU_VOICECHAT);
 }
 
-void IN_KeyDown(kbutton_t* b)
-{
-    int k;
-    const char* c;
-
-    c = Cmd_Argv(1);
-    if (c[0]) {
-        k = atoi(c);
-    }
-    else {
-        k = -1; // typed manually at the console for continuous down
-    }
-
-    if (k == b->down[0] || k == b->down[1]) {
-        return; // repeating key
-    }
-
-    if (!b->down[0]) {
-        b->down[0] = k;
-    }
-    else if (!b->down[1]) {
-        b->down[1] = k;
-    }
-    else {
-        Q_Println("Three keys down for a button!");
-        return;
-    }
-
-    if (b->active) {
-        return; // still down
-    }
-
-    // save timestamp for partial frame summing
-    c = Cmd_Argv(2);
-    b->downtime = strtoll(c, nullptr, 10);
-
-    b->active = true;
-    b->wasPressed = true;
-}
-
-void IN_KeyUp(kbutton_t* b)
-{
-    int k;
-    const char* c;
-    int64_t uptime;
-
-    c = Cmd_Argv(1);
-    if (c[0]) {
-        k = atoi(c);
-    }
-    else {
-        // typed manually at the console, assume for unsticking, so clear all
-        b->down[0] = b->down[1] = 0;
-        b->active = false;
-        return;
-    }
-
-    if (b->down[0] == k) {
-        b->down[0] = 0;
-    }
-    else if (b->down[1] == k) {
-        b->down[1] = 0;
-    }
-    else {
-        return; // key up without coresponding down (menu pass through)
-    }
-    if (b->down[0] || b->down[1]) {
-        return; // some other key is still holding it down
-    }
-
-    b->active = false;
-
-    // save timestamp for partial frame summing
-    c = Cmd_Argv(2);
-    uptime = strtoll(c, nullptr, 10);
-    if (uptime) {
-        b->nsec += uptime - b->downtime;
-    }
-    else {
-        b->nsec += s_frameNsec / 2;
-    }
-
-    b->active = false;
-}
-
-/*
-===============
-CL_KeyState
-
-Returns the fraction of the span (the frame for the view angles, the time since the last
-command for the movement) that the key was down
-===============
-*/
-float CL_KeyState(kbutton_t* key, int64_t span)
-{
-    float val;
-    int64_t nsec;
-
-    nsec = key->nsec;
-    key->nsec = 0;
-
-    if (key->active) {
-        // still down
-        if (!key->downtime) {
-            nsec = span;
-        }
-        else {
-            nsec += s_inputNsec - key->downtime;
-        }
-        key->downtime = s_inputNsec;
-    }
-
-#if 0
-	if (nsec) {
-		Q_Print("{} ", nsec);
-	}
-#endif
-
-    val = static_cast<float>(static_cast<double>(nsec) / static_cast<double>(span));
-    if (val < 0) {
-        val = 0;
-    }
-    if (val > 1) {
-        val = 1;
-    }
-
-    return val;
-}
-
 enum class autoMapKey_t {
     AUTOMAP_KEY_FORWARD = 1,
     AUTOMAP_KEY_BACK,
@@ -621,437 +420,82 @@ static void CL_AutoMapKey(autoMapKey_t autoMapKey, bool up)
     g_clAutoMapInput.goToDefaults = false;
 }
 
-void IN_UpDown(void)
-{
-    if (g_clAutoMapMode) {
-        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_PITCHUP, false);
-    }
-    else {
-        IN_KeyDown(&in_up);
-    }
-}
-void IN_UpUp(void)
-{
-    if (g_clAutoMapMode) {
-        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_PITCHUP, true);
-    }
-    else {
-        IN_KeyUp(&in_up);
-    }
-}
-void IN_DownDown(void)
-{
-    if (g_clAutoMapMode) {
-        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_PITCHDOWN, false);
-    }
-    else {
-        IN_KeyDown(&in_down);
-    }
-}
-void IN_DownUp(void)
-{
-    if (g_clAutoMapMode) {
-        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_PITCHDOWN, true);
-    }
-    else {
-        IN_KeyUp(&in_down);
-    }
-}
-void IN_LeftDown(void)
-{
-    IN_KeyDown(&in_left);
-}
-void IN_LeftUp(void)
-{
-    IN_KeyUp(&in_left);
-}
-void IN_RightDown(void)
-{
-    IN_KeyDown(&in_right);
-}
-void IN_RightUp(void)
-{
-    IN_KeyUp(&in_right);
-}
-void IN_ForwardDown(void)
-{
-    if (g_clAutoMapMode) {
-        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_FORWARD, false);
-    }
-    else {
-        IN_KeyDown(&in_forward);
-    }
-}
-void IN_ForwardUp(void)
-{
-    if (g_clAutoMapMode) {
-        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_FORWARD, true);
-    }
-    else {
-        IN_KeyUp(&in_forward);
-    }
-}
-void IN_BackDown(void)
-{
-    if (g_clAutoMapMode) {
-        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_BACK, false);
-    }
-    else {
-        IN_KeyDown(&in_back);
-    }
-}
-void IN_BackUp(void)
-{
-    if (g_clAutoMapMode) {
-        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_BACK, true);
-    }
-    else {
-        IN_KeyUp(&in_back);
-    }
-}
-void IN_LookupDown(void)
-{
-    IN_KeyDown(&in_lookup);
-}
-void IN_LookupUp(void)
-{
-    IN_KeyUp(&in_lookup);
-}
-void IN_LookdownDown(void)
-{
-    IN_KeyDown(&in_lookdown);
-}
-void IN_LookdownUp(void)
-{
-    IN_KeyUp(&in_lookdown);
-}
-void IN_MoveleftDown(void)
-{
-    if (g_clAutoMapMode) {
-        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_YAWLEFT, false);
-    }
-    else {
-        IN_KeyDown(&in_moveleft);
-    }
-}
-void IN_MoveleftUp(void)
-{
-    if (g_clAutoMapMode) {
-        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_YAWLEFT, true);
-    }
-    else {
-        IN_KeyUp(&in_moveleft);
-    }
-}
-void IN_MoverightDown(void)
-{
-    if (g_clAutoMapMode) {
-        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_YAWRIGHT, false);
-    }
-    else {
-        IN_KeyDown(&in_moveright);
-    }
-}
-void IN_MoverightUp(void)
-{
-    if (g_clAutoMapMode) {
-        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_YAWRIGHT, true);
-    }
-    else {
-        IN_KeyUp(&in_moveright);
-    }
-}
+/*
+=================
+CL_MapTakesButton
 
-void IN_SpeedDown(void)
+The automap takes the movement keys while it shows: forward and back move it, the strafe keys turn it, jump and crouch
+tilt it, use puts it back to its first view
+=================
+*/
+bool CL_MapTakesButton(const kbutton_t* button, bool down)
 {
-    IN_KeyDown(&in_speed);
-}
-void IN_SpeedUp(void)
-{
-    IN_KeyUp(&in_speed);
-}
-void IN_StrafeDown(void)
-{
-    IN_KeyDown(&in_strafe);
-}
-void IN_StrafeUp(void)
-{
-    IN_KeyUp(&in_strafe);
-}
+    if (!g_clAutoMapMode) {
+        return false;
+    }
 
-void IN_Button0Down(void)
-{
-    IN_KeyDown(&in_buttons[0]);
-}
-void IN_Button0Up(void)
-{
-    IN_KeyUp(&in_buttons[0]);
-}
-void IN_Button1Down(void)
-{
-    IN_KeyDown(&in_buttons[1]);
-}
-void IN_Button1Up(void)
-{
-    IN_KeyUp(&in_buttons[1]);
-}
-void IN_Button2Down(void)
-{
-    IN_KeyDown(&in_buttons[2]);
-}
-void IN_Button2Up(void)
-{
-    IN_KeyUp(&in_buttons[2]);
-}
-void IN_Button3Down(void)
-{
-    IN_KeyDown(&in_buttons[3]);
-}
-void IN_Button3Up(void)
-{
-    IN_KeyUp(&in_buttons[3]);
-}
-void IN_Button4Down(void)
-{
-    IN_KeyDown(&in_buttons[4]);
-}
-void IN_Button4Up(void)
-{
-    IN_KeyUp(&in_buttons[4]);
-}
-void IN_Button5Down(void) // use key
-{
-    if (g_clAutoMapMode) {
+    if (button == &in_forward) {
+        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_FORWARD, !down);
+    }
+    else if (button == &in_back) {
+        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_BACK, !down);
+    }
+    else if (button == &in_moveleft) {
+        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_YAWLEFT, !down);
+    }
+    else if (button == &in_moveright) {
+        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_YAWRIGHT, !down);
+    }
+    else if (button == &in_up) {
+        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_PITCHUP, !down);
+    }
+    else if (button == &in_down) {
+        CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_PITCHDOWN, !down);
+    }
+    else if (button == &in_buttons[5] && down) {
         CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_DEFAULTVIEW, false);
     }
     else {
-        IN_KeyDown(&in_buttons[5]);
+        return false;
     }
+
+    return true;
 }
-void IN_Button5Up(void)
+
+/*
+=================
+CL_MapTakesMouse
+
+The automap takes the mouse's motion while it shows
+=================
+*/
+bool CL_MapTakesMouse(float dx, float dy)
 {
-    IN_KeyUp(&in_buttons[5]);
+    if (!g_clAutoMapMode || !cls.cgameStarted) {
+        return false;
+    }
+
+    autoMapInput_t* data = (autoMapInput_t*)cl.mSharedMemory;
+
+    g_clAutoMapInput.yaw = dx;
+    g_clAutoMapInput.pitch = dy;
+    memcpy(data, &g_clAutoMapInput, sizeof(autoMapInput_t));
+    CGVM_AutomapInput();
+
+    g_clAutoMapInput.yaw = 0.0f;
+    g_clAutoMapInput.pitch = 0.0f;
+    return true;
 }
-void IN_Button6Down(void)
+
+// the fighters' own pitch factor while the cgame asks for it
+float CL_MousePitch(void)
 {
-    IN_KeyDown(&in_buttons[6]);
-}
-void IN_Button6Up(void)
-{
-    IN_KeyUp(&in_buttons[6]);
-}
-void IN_Button7Down(void)
-{
-    IN_KeyDown(&in_buttons[7]);
-}
-void IN_Button7Up(void)
-{
-    IN_KeyUp(&in_buttons[7]);
-}
-void IN_Button8Down(void)
-{
-    IN_KeyDown(&in_buttons[8]);
-}
-void IN_Button8Up(void)
-{
-    IN_KeyUp(&in_buttons[8]);
-}
-void IN_Button9Down(void)
-{
-    IN_KeyDown(&in_buttons[9]);
-}
-void IN_Button9Up(void)
-{
-    IN_KeyUp(&in_buttons[9]);
-}
-void IN_Button10Down(void)
-{
-    IN_KeyDown(&in_buttons[10]);
-}
-void IN_Button10Up(void)
-{
-    IN_KeyUp(&in_buttons[10]);
-}
-void IN_Button11Down(void)
-{
-    IN_KeyDown(&in_buttons[11]);
-}
-void IN_Button11Up(void)
-{
-    IN_KeyUp(&in_buttons[11]);
-}
-void IN_Button12Down(void)
-{
-    IN_KeyDown(&in_buttons[12]);
-}
-void IN_Button12Up(void)
-{
-    IN_KeyUp(&in_buttons[12]);
-}
-void IN_Button13Down(void)
-{
-    IN_KeyDown(&in_buttons[13]);
-}
-void IN_Button13Up(void)
-{
-    IN_KeyUp(&in_buttons[13]);
-}
-void IN_Button14Down(void)
-{
-    IN_KeyDown(&in_buttons[14]);
-}
-void IN_Button14Up(void)
-{
-    IN_KeyUp(&in_buttons[14]);
-}
-void IN_Button15Down(void)
-{
-    IN_KeyDown(&in_buttons[15]);
-}
-void IN_Button15Up(void)
-{
-    IN_KeyUp(&in_buttons[15]);
+    return cl_bUseFighterPitch ? m_pitchVeh->value : m_pitch->value;
 }
 
 void IN_CenterView(void)
 {
     cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snap.ps.delta_angles[PITCH]);
-}
-
-//==========================================================================
-
-cvar_t* cl_upspeed;
-cvar_t* cl_forwardspeed;
-cvar_t* cl_sidespeed;
-
-cvar_t* cl_yawspeed;
-cvar_t* cl_pitchspeed;
-
-cvar_t* cl_run;
-
-cvar_t* cl_anglespeedkey;
-
-/*
-================
-CL_AdjustAngles
-
-Moves the local angle positions
-================
-*/
-void CL_AdjustAngles(void)
-{
-    float speed;
-
-    if (in_speed.active) {
-        speed = 0.001 * cls.frametime * cl_anglespeedkey->value;
-    }
-    else {
-        speed = 0.001 * cls.frametime;
-    }
-
-    if (!in_strafe.active) {
-        if (cl_mYawOverride) {
-            if (cl_mSensitivityOverride) {
-                cl.viewangles[YAW] -= cl_mYawOverride * cl_mSensitivityOverride * speed * cl_yawspeed->value * CL_KeyState(&in_right, s_frameNsec);
-                cl.viewangles[YAW] += cl_mYawOverride * cl_mSensitivityOverride * speed * cl_yawspeed->value * CL_KeyState(&in_left, s_frameNsec);
-            }
-            else {
-                cl.viewangles[YAW] -= cl_mYawOverride * OVERRIDE_MOUSE_SENSITIVITY * speed * cl_yawspeed->value * CL_KeyState(&in_right, s_frameNsec);
-                cl.viewangles[YAW] += cl_mYawOverride * OVERRIDE_MOUSE_SENSITIVITY * speed * cl_yawspeed->value * CL_KeyState(&in_left, s_frameNsec);
-            }
-        }
-        else {
-            cl.viewangles[YAW] -= speed * cl_yawspeed->value * CL_KeyState(&in_right, s_frameNsec);
-            cl.viewangles[YAW] += speed * cl_yawspeed->value * CL_KeyState(&in_left, s_frameNsec);
-        }
-    }
-
-    if (cl_mPitchOverride) {
-        if (cl_mSensitivityOverride) {
-            cl.viewangles[PITCH] -= cl_mPitchOverride * cl_mSensitivityOverride * speed * cl_pitchspeed->value * CL_KeyState(&in_lookup, s_frameNsec);
-            cl.viewangles[PITCH] += cl_mPitchOverride * cl_mSensitivityOverride * speed * cl_pitchspeed->value * CL_KeyState(&in_lookdown, s_frameNsec);
-        }
-        else {
-            cl.viewangles[PITCH] -= cl_mPitchOverride * OVERRIDE_MOUSE_SENSITIVITY * speed * cl_pitchspeed->value * CL_KeyState(&in_lookup, s_frameNsec);
-            cl.viewangles[PITCH] += cl_mPitchOverride * OVERRIDE_MOUSE_SENSITIVITY * speed * cl_pitchspeed->value * CL_KeyState(&in_lookdown, s_frameNsec);
-        }
-    }
-    else {
-        cl.viewangles[PITCH] -= speed * cl_pitchspeed->value * CL_KeyState(&in_lookup, s_frameNsec);
-        cl.viewangles[PITCH] += speed * cl_pitchspeed->value * CL_KeyState(&in_lookdown, s_frameNsec);
-    }
-}
-
-/*
-================
-CL_KeyMove
-
-Sets the usercmd_t based on key states
-================
-*/
-void CL_KeyMove(usercmd_t* cmd)
-{
-    int movespeed;
-    int forward, side, up;
-
-    //
-    // adjust for speed key / running
-    // the walking flag is to keep animations consistant
-    // even during acceleration and develeration
-    //
-    if (in_speed.active != (cl_run->integer != 0)) {
-        movespeed = 127;
-        cmd->buttons &= ~buttonFlags_t::BUTTON_WALKING;
-    }
-    else {
-        cmd->buttons |= buttonFlags_t::BUTTON_WALKING;
-        movespeed = 46;
-    }
-
-    forward = 0;
-    side = 0;
-    up = 0;
-    if (in_strafe.active) {
-        side += movespeed * CL_KeyState(&in_right, s_cmdNsec);
-        side -= movespeed * CL_KeyState(&in_left, s_cmdNsec);
-    }
-
-    side += movespeed * CL_KeyState(&in_moveright, s_cmdNsec);
-    side -= movespeed * CL_KeyState(&in_moveleft, s_cmdNsec);
-
-    up += movespeed * CL_KeyState(&in_up, s_cmdNsec);
-    up -= movespeed * CL_KeyState(&in_down, s_cmdNsec);
-
-    forward += movespeed * CL_KeyState(&in_forward, s_cmdNsec);
-    forward -= movespeed * CL_KeyState(&in_back, s_cmdNsec);
-
-    cmd->forwardmove = ClampChar(forward);
-    cmd->rightmove = ClampChar(side);
-    cmd->upmove = ClampChar(up);
-}
-
-/*
-=================
-CL_MouseEvent
-=================
-*/
-void CL_MouseEvent(float dx, float dy)
-{
-    if (g_clAutoMapMode && cls.cgameStarted) { // automap input
-        autoMapInput_t* data = (autoMapInput_t*)cl.mSharedMemory;
-
-        g_clAutoMapInput.yaw = dx;
-        g_clAutoMapInput.pitch = dy;
-        memcpy(data, &g_clAutoMapInput, sizeof(autoMapInput_t));
-        CGVM_AutomapInput();
-
-        g_clAutoMapInput.yaw = 0.0f;
-        g_clAutoMapInput.pitch = 0.0f;
-    }
-    else {
-        cl.mouseDx[cl.mouseIndex] += dx;
-        cl.mouseDy[cl.mouseIndex] += dy;
-    }
 }
 
 /*
@@ -1089,242 +533,6 @@ bool CL_MouseTurnsView(void)
     }
 
     return !Any(Key_GetCatcher() & (keyCatchFlags_t::KEYCATCH_CONSOLE | keyCatchFlags_t::KEYCATCH_UI | keyCatchFlags_t::KEYCATCH_CGAME));
-}
-
-/*
-=================
-CL_JoystickEvent
-
-Joystick values stay set until changed
-=================
-*/
-void CL_JoystickEvent(int axis, int value, int time)
-{
-    if (axis < 0 || axis >= std::to_underlying(joystickAxis_t::MAX_JOYSTICK_AXIS)) {
-        Q_Error(errorParm_t::ERR_DROP, "CL_JoystickEvent: bad axis {}", axis);
-    }
-    cl.joystickAxis[static_cast<joystickAxis_t>(axis)] = value;
-}
-
-/*
-=================
-CL_JoystickAngles
-
-The view angles the joystick gives, every frame
-=================
-*/
-// the joystick's setting, kept with its menu's row: no device is read
-static cvar_t* in_joystick;
-static void CL_JoystickAngles(void)
-{
-    float anglespeed;
-
-    if (!in_joystick->integer) {
-        return;
-    }
-
-    if (in_speed.active) {
-        anglespeed = 0.001 * cls.frametime * cl_anglespeedkey->value;
-    }
-    else {
-        anglespeed = 0.001 * cls.frametime;
-    }
-
-    if (!in_strafe.active) {
-        if (cl_mYawOverride) {
-            if (cl_mSensitivityOverride) {
-                cl.viewangles[YAW] += cl_mYawOverride * cl_mSensitivityOverride * cl.joystickAxis[joystickAxis_t::AXIS_SIDE] / 2.0f;
-            }
-            else {
-                cl.viewangles[YAW] += cl_mYawOverride * OVERRIDE_MOUSE_SENSITIVITY * cl.joystickAxis[joystickAxis_t::AXIS_SIDE] / 2.0f;
-            }
-        }
-        else {
-            cl.viewangles[YAW] += anglespeed * (cl_yawspeed->value / 100.0f) * cl.joystickAxis[joystickAxis_t::AXIS_SIDE];
-        }
-    }
-
-    if (in_mlooking || cl_freelook->integer) {
-        if (cl_mPitchOverride) {
-            if (cl_mSensitivityOverride) {
-                cl.viewangles[PITCH] += cl_mPitchOverride * cl_mSensitivityOverride * cl.joystickAxis[joystickAxis_t::AXIS_FORWARD] / 2.0f;
-            }
-            else {
-                cl.viewangles[PITCH] += cl_mPitchOverride * OVERRIDE_MOUSE_SENSITIVITY * cl.joystickAxis[joystickAxis_t::AXIS_FORWARD] / 2.0f;
-            }
-        }
-        else {
-            cl.viewangles[PITCH] += anglespeed * (cl_pitchspeed->value / 100.0f) * cl.joystickAxis[joystickAxis_t::AXIS_FORWARD];
-        }
-    }
-}
-
-/*
-=================
-CL_JoystickMove
-
-The movement the joystick gives, per command
-=================
-*/
-static void CL_JoystickMove(usercmd_t* cmd)
-{
-    if (!in_joystick->integer) {
-        return;
-    }
-
-    if (in_speed.active == (cl_run->integer != 0)) {
-        cmd->buttons |= buttonFlags_t::BUTTON_WALKING;
-    }
-
-    if (in_strafe.active) {
-        cmd->rightmove = ClampChar(cmd->rightmove + cl.joystickAxis[joystickAxis_t::AXIS_SIDE]);
-    }
-
-    if (!in_mlooking && !cl_freelook->integer) {
-        cmd->forwardmove = ClampChar(cmd->forwardmove + cl.joystickAxis[joystickAxis_t::AXIS_FORWARD]);
-    }
-
-    cmd->upmove = ClampChar(cmd->upmove + cl.joystickAxis[joystickAxis_t::AXIS_UP]);
-}
-
-/*
-=================
-CL_MouseMove
-
-Every frame: the view angles now, and the movement of strafing or of no mouse look gathered for the next command
-=================
-*/
-static void CL_MouseMove(void)
-{
-    float mx, my;
-    const float speed = static_cast<float>(frame_msec);
-
-    // allow mouse smoothing
-    if (m_filter->integer) {
-        mx = (cl.mouseDx[0] + cl.mouseDx[1]) * 0.5;
-        my = (cl.mouseDy[0] + cl.mouseDy[1]) * 0.5;
-    }
-    else {
-        mx = cl.mouseDx[cl.mouseIndex];
-        my = cl.mouseDy[cl.mouseIndex];
-    }
-
-    cl.mouseIndex ^= 1;
-    cl.mouseDx[cl.mouseIndex] = 0;
-    cl.mouseDy[cl.mouseIndex] = 0;
-
-    if (mx == 0.0f && my == 0.0f)
-        return;
-
-    if (cl_mouseAccel->value != 0.0f) {
-        if (cl_mouseAccelStyle->integer == 0) {
-            float accelSensitivity;
-            float rate;
-
-            rate = SQRTFAST(mx * mx + my * my) / speed;
-
-            if (cl_mYawOverride || cl_mPitchOverride) { // FIXME: different people have different speed mouses,
-                if (cl_mSensitivityOverride) {
-                    // this will fuck things up for them, need to clamp
-                    // max input?
-                    accelSensitivity = cl_mSensitivityOverride;
-                }
-                else {
-                    accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
-                }
-            }
-            else {
-                accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
-            }
-            mx *= accelSensitivity;
-            my *= accelSensitivity;
-
-            if (cl_showMouseRate->integer)
-                Q_Println("rate: {:f}, accelSensitivity: {:f}", rate, accelSensitivity);
-        }
-        else {
-            float rate[2];
-            float power[2];
-
-            // sensitivity remains pretty much unchanged at low speeds
-            // cl_mouseAccel is a power value to how the acceleration is shaped
-            // cl_mouseAccelOffset is the rate for which the acceleration will have doubled the non accelerated amplification
-            // NOTE: decouple the config cvars for independent acceleration setup along X and Y?
-
-            rate[0] = Q_fabs(mx) / speed;
-            rate[1] = Q_fabs(my) / speed;
-            power[0] = Q_powf(rate[0] / cl_mouseAccelOffset->value, cl_mouseAccel->value);
-            power[1] = Q_powf(rate[1] / cl_mouseAccelOffset->value, cl_mouseAccel->value);
-
-            if (cl_mYawOverride || cl_mPitchOverride) { // FIXME: different people have different speed mouses,
-                if (cl_mSensitivityOverride) {
-                    // this will fuck things up for them, need to clamp
-                    // max input?
-                    mx = cl_mSensitivityOverride * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
-                    my = cl_mSensitivityOverride * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
-                }
-                else {
-                    mx = cl_sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
-                    my = cl_sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
-                }
-            }
-            else {
-                mx = cl_sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
-                my = cl_sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
-            }
-
-            if (cl_showMouseRate->integer)
-                Q_Println("ratex: {:f}, ratey: {:f}, powx: {:f}, powy: {:f}", rate[0], rate[1], power[0], power[1]);
-        }
-    }
-    else {
-        if (cl_mYawOverride || cl_mPitchOverride) { // FIXME: different people have different speed mouses,
-            if (cl_mSensitivityOverride) {
-                // this will fuck things up for them, need to clamp
-                // max input?
-                mx *= cl_mSensitivityOverride;
-                my *= cl_mSensitivityOverride;
-            }
-            else {
-                mx *= cl_sensitivity->value;
-                my *= cl_sensitivity->value;
-            }
-        }
-        else {
-            mx *= cl_sensitivity->value;
-            my *= cl_sensitivity->value;
-        }
-    }
-
-    // ingame FOV
-    mx *= cl.cgameSensitivity;
-    my *= cl.cgameSensitivity;
-
-    // add mouse X/Y movement to cmd
-    if (in_strafe.active)
-        s_mouseSide += m_side->value * mx;
-    else {
-        if (cl_mYawOverride)
-            cl.viewangles[YAW] -= cl_mYawOverride * mx;
-        else
-            cl.viewangles[YAW] -= m_yaw->value * mx;
-    }
-
-    if ((in_mlooking || cl_freelook->integer) && !in_strafe.active) {
-        // VVFIXME - This is supposed to be a CVAR
-        const float cl_pitchSensitivity = 1.0f;
-        const float pitch = cl_bUseFighterPitch ? m_pitchVeh->value : m_pitch->value;
-        if (cl_mPitchOverride) {
-            if (pitch > 0)
-                cl.viewangles[PITCH] += cl_mPitchOverride * my * cl_pitchSensitivity;
-            else
-                cl.viewangles[PITCH] -= cl_mPitchOverride * my * cl_pitchSensitivity;
-        }
-        else
-            cl.viewangles[PITCH] += pitch * my * cl_pitchSensitivity;
-    }
-    else
-        s_mouseForward -= m_forward->value * my;
 }
 
 bool CL_NoUseableForce(void)
@@ -1476,9 +684,7 @@ usercmd_t CL_CreateCmd(void)
     CL_KeyMove(&cmd);
 
     // get basic movement from mouse, gathered over the frames since the last command
-    cmd.rightmove = ClampChar(cmd.rightmove + s_mouseSide);
-    cmd.forwardmove = ClampChar(cmd.forwardmove + s_mouseForward);
-    s_mouseSide = s_mouseForward = 0.0f;
+    CL_MouseMoveToCommand(&cmd);
 
     // get basic movement from joystick
     CL_JoystickMove(&cmd);
@@ -1487,47 +693,6 @@ usercmd_t CL_CreateCmd(void)
     CL_FinishMove(&cmd);
 
     return cmd;
-}
-
-/*
-=================
-CL_UpdateViewAngles
-
-The view angles, every frame (the commands are made per tick, the view turns at the frame rate)
-=================
-*/
-static void CL_UpdateViewAngles(void)
-{
-    vec3_t oldAngles;
-
-    VectorCopy(cl.viewangles, oldAngles);
-
-    // keyboard angle adjustment
-    CL_AdjustAngles();
-
-    // the mouse
-    CL_MouseMove();
-
-    // the joystick
-    CL_JoystickAngles();
-
-    // check to make sure the angles haven't wrapped
-    if (cl.viewangles[PITCH] - oldAngles[PITCH] > 90) {
-        cl.viewangles[PITCH] = oldAngles[PITCH] + 90;
-    }
-    else if (oldAngles[PITCH] - cl.viewangles[PITCH] > 90) {
-        cl.viewangles[PITCH] = oldAngles[PITCH] - 90;
-    }
-
-    // draw debug graphs of turning for mouse testing
-    if (cl_debugMove->integer) {
-        if (cl_debugMove->integer == 1) {
-            SCR_DebugGraph(Q_fabsf(cl.viewangles[YAW] - oldAngles[YAW]), 0);
-        }
-        if (cl_debugMove->integer == 2) {
-            SCR_DebugGraph(Q_fabsf(cl.viewangles[PITCH] - oldAngles[PITCH]), 0);
-        }
-    }
 }
 
 /*
@@ -1547,29 +712,13 @@ void CL_CreateNewCommands(void)
     if (cls.state < connstate_t::CA_PRIMED)
         return;
 
-    frame_msec = s_inputTime - old_com_frameTime; // since the input was last read (a frame, or a tick between two)
-
-    // if running over 1000fps, act as if each frame is 1ms
-    // prevents divisions by zero
-    if (frame_msec < 1)
-        frame_msec = 1;
-
-    // if running less than 5fps, truncate the extra time to prevent
-    // unexpected moves after a hitch
-    if (frame_msec > 200)
-        frame_msec = 200;
-
-    old_com_frameTime = s_inputTime;
-    s_frameNsec = Q_min(Q_max(s_inputNsec - s_lastInputNsec, MIN_INPUT_NSEC), MAX_INPUT_NSEC);
-    s_lastInputNsec = s_inputNsec;
-
+    CL_InputRead(s_inputTime, s_inputNsec);
     CL_UpdateViewAngles();
 
     // until the first snapshot the client's clock does not run: a command every frame, as before, so that the packets
     // whose commands make the server put the client in the world keep coming
     if (cls.state != connstate_t::CA_ACTIVE) {
-        s_cmdNsec = s_frameNsec;
-        s_lastCmdNsec = s_inputNsec;
+        CL_CommandStart(false);
         cl.cmdNumber++;
         cl.cmds[cl.cmdNumber & CMD_MASK] = CL_CreateCmd();
         return;
@@ -1587,8 +736,7 @@ void CL_CreateNewCommands(void)
         return; // the gathered input waits for the next tick
     }
 
-    s_cmdNsec = Q_min(Q_max(s_inputNsec - s_lastCmdNsec, MIN_INPUT_NSEC), MAX_INPUT_NSEC);
-    s_lastCmdNsec = s_inputNsec;
+    CL_CommandStart(true);
     usercmd_t cmd = CL_CreateCmd();
     for (int t = last + TICK_MSEC; t <= tick; t += TICK_MSEC) {
         cmd.serverTime = t;
@@ -1852,32 +1000,8 @@ bool CL_InputTick(void)
     return cl.cmdNumber != cmdNumber ? true : false;
 }
 
-static const cmdList_t inputCmds[] = {{"centerview", "Centers view on screen", IN_CenterView, nullptr},
-                                      {"+moveup", "Jump", IN_UpDown, nullptr},
-                                      {"-moveup", nullptr, IN_UpUp, nullptr},
-                                      {"+movedown", "Crouch", IN_DownDown, nullptr},
-                                      {"-movedown", nullptr, IN_DownUp, nullptr},
-                                      {"+left", "Rotate camera left", IN_LeftDown, nullptr},
-                                      {"-left", nullptr, IN_LeftUp, nullptr},
-                                      {"+right", "Rotate camera right", IN_RightDown, nullptr},
-                                      {"-right", nullptr, IN_RightUp, nullptr},
-                                      {"+forward", "Move forward", IN_ForwardDown, nullptr},
-                                      {"-forward", nullptr, IN_ForwardUp, nullptr},
-                                      {"+back", "Move backward", IN_BackDown, nullptr},
-                                      {"-back", nullptr, IN_BackUp, nullptr},
-                                      {"+lookup", "Tilt camera up", IN_LookupDown, nullptr},
-                                      {"-lookup", nullptr, IN_LookupUp, nullptr},
-                                      {"+lookdown", "Tilt camera down", IN_LookdownDown, nullptr},
-                                      {"-lookdown", nullptr, IN_LookdownUp, nullptr},
-                                      {"+strafe", "Hold to strafe", IN_StrafeDown, nullptr},
-                                      {"-strafe", nullptr, IN_StrafeUp, nullptr},
-                                      {"+moveleft", "Strafe left", IN_MoveleftDown, nullptr},
-                                      {"-moveleft", nullptr, IN_MoveleftUp, nullptr},
-                                      {"+moveright", "Strafe right", IN_MoverightDown, nullptr},
-                                      {"-moveright", nullptr, IN_MoverightUp, nullptr},
-                                      {"+speed", "Walk or run", IN_SpeedDown, nullptr},
-                                      {"-speed", nullptr, IN_SpeedUp, nullptr},
-                                      {"+attack", "Primary Attack", IN_Button0Down, nullptr},
+// the multiplayer's own commands (the three games' common ones: CL_InitCommonInput)
+static const cmdList_t inputCmds[] = {{"+attack", "Primary Attack", IN_Button0Down, nullptr},
                                       {"-attack", nullptr, IN_Button0Up, nullptr},
                                       {"+use", "Use item", IN_Button5Down, nullptr},
                                       {"-use", nullptr, IN_Button5Up, nullptr},
@@ -1891,40 +1015,6 @@ static const cmdList_t inputCmds[] = {{"centerview", "Centers view on screen", I
                                       {"-force_lightning", nullptr, IN_Button10Up, nullptr},
                                       {"+force_drain", "Hold to use drain force power", IN_Button11Down, nullptr},
                                       {"-force_drain", nullptr, IN_Button11Up, nullptr},
-                                      {"+button0", "Button 0", IN_Button0Down, nullptr},
-                                      {"-button0", nullptr, IN_Button0Up, nullptr},
-                                      {"+button1", "Button 1", IN_Button1Down, nullptr},
-                                      {"-button1", nullptr, IN_Button1Up, nullptr},
-                                      {"+button2", "Button 2", IN_Button2Down, nullptr},
-                                      {"-button2", nullptr, IN_Button2Up, nullptr},
-                                      {"+button3", "Button 3", IN_Button3Down, nullptr},
-                                      {"-button3", nullptr, IN_Button3Up, nullptr},
-                                      {"+button4", "Button 4", IN_Button4Down, nullptr},
-                                      {"-button4", nullptr, IN_Button4Up, nullptr},
-                                      {"+button5", "Button 5", IN_Button5Down, nullptr},
-                                      {"-button5", nullptr, IN_Button5Up, nullptr},
-                                      {"+button6", "Button 6", IN_Button6Down, nullptr},
-                                      {"-button6", nullptr, IN_Button6Up, nullptr},
-                                      {"+button7", "Button 7", IN_Button7Down, nullptr},
-                                      {"-button7", nullptr, IN_Button7Up, nullptr},
-                                      {"+button8", "Button 8", IN_Button8Down, nullptr},
-                                      {"-button8", nullptr, IN_Button8Up, nullptr},
-                                      {"+button9", "Button 9", IN_Button9Down, nullptr},
-                                      {"-button9", nullptr, IN_Button9Up, nullptr},
-                                      {"+button10", "Button 10", IN_Button10Down, nullptr},
-                                      {"-button10", nullptr, IN_Button10Up, nullptr},
-                                      {"+button11", "Button 11", IN_Button11Down, nullptr},
-                                      {"-button11", nullptr, IN_Button11Up, nullptr},
-                                      {"+button12", "Button 12", IN_Button12Down, nullptr},
-                                      {"-button12", nullptr, IN_Button12Up, nullptr},
-                                      {"+button13", "Button 13", IN_Button13Down, nullptr},
-                                      {"-button13", nullptr, IN_Button13Up, nullptr},
-                                      {"+button14", "Button 14", IN_Button14Down, nullptr},
-                                      {"-button14", nullptr, IN_Button14Up, nullptr},
-                                      {"+button15", "Button 15", IN_Button15Down, nullptr},
-                                      {"-button15", nullptr, IN_Button15Up, nullptr},
-                                      {"+mlook", "Hold to use mouse look", IN_MLookDown, nullptr},
-                                      {"-mlook", nullptr, IN_MLookUp, nullptr},
                                       {"sv_saberswitch", "Holster/activate lightsaber", IN_GenCMD1, nullptr},
                                       {"engage_duel", "Engage private duel", IN_GenCMD2, nullptr},
                                       {"force_heal", "Use heal force power", IN_GenCMD3, nullptr},
@@ -1969,11 +1059,10 @@ CL_InitInput
 */
 void CL_InitInput(void)
 {
+    CL_InitCommonInput();
     Cmd_AddCommandList(inputCmds);
 
     cl_nodelta = Cvar_Get("cl_nodelta", "0", cvarFlags_t::CVAR_NONE);
-    cl_debugMove = Cvar_Get("cl_debugMove", "0", cvarFlags_t::CVAR_NONE);
-    in_joystick = Cvar_Get("in_joystick", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH);
 }
 
 /*
@@ -1983,5 +1072,6 @@ CL_ShutdownInput
 */
 void CL_ShutdownInput(void)
 {
+    CL_ShutdownCommonInput();
     Cmd_RemoveCommandList(inputCmds);
 }

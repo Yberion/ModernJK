@@ -29,6 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // runs every part and exits with the count of failed checks
 int main()
 {
+    RunButtonTests();
     RunFieldTests();
     RunKeyNamesTests();
 

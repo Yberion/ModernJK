@@ -198,7 +198,7 @@ Each line links to its section.
 
 | change | before | now |
 |---|---|---|
-| [43. The keys written once for the three games](#43-the-keys-written-once-for-the-three-games) | the keys, the console's line and the binds written twice, once for the multiplayer and once for the single player, which differed: the single player's right Shift, Ctrl and Alt named as the left ones, so their binds came back on the left keys; Home in a long console line leaving the cursor out of sight in the single player, Ctrl-E hiding the line's last character in the three games | one code for the three games: the right keys named apart everywhere, the cursor kept in view after every key, the console's line the same in the three games |
+| [43. The keys and the input written once for the three games](#43-the-keys-and-the-input-written-once-for-the-three-games) | the keys, the console's line, the binds and the turn of the view written twice, once for the multiplayer and once for the single player, which differed: the single player's right Shift, Ctrl and Alt named as the left ones, so their binds came back on the left keys; Home in a long console line leaving the cursor out of sight in the single player, Ctrl-E hiding the line's last character in the three games; one mouse acceleration in the single player | one code for the three games: the right keys named apart everywhere, the cursor kept in view after every key, the console's line the same in the three games, both mouse accelerations everywhere |
 
 **Reference**: [27. Settings and commands](#27-settings-and-commands), [28. Build, tests and repository](#28-build-tests-and-repository), [29. Name: ModernJK](#29-name-modernjk), [30. Compatibility](#30-compatibility), [31. C++20, 64-bit Windows, Linux and macOS](#31-c20-64-bit-windows-linux-and-macos), [32. Not changed yet](#32-not-changed-yet).
 
@@ -1766,11 +1766,11 @@ The work: [progress/step-15-platform.md](progress/step-15-platform.md) section 1
 
 ## J. The three games written once
 
-### 43. The keys written once for the three games
+### 43. The keys and the input written once for the three games
 
-**Before.** The clients' keys (their states, their binds, the console's line and its history, the chat's line, the keys' names) were written twice: once in the multiplayer's client and once in the single player's, which builds Jedi Academy and Jedi Outcast. The two copies had drifted apart, and a fix made in one was missing from the other.
+**Before.** The clients' keys (their states, their binds, the console's line and its history, the chat's line, the keys' names) and their input (the buttons of the game's commands, the view turned by the keys, the mouse and the joystick, a command's movement) were written twice: once in the multiplayer's client and once in the single player's, which builds Jedi Academy and Jedi Outcast. The two copies had drifted apart, and a fix made in one was missing from the other.
 
-**Now.** One code for the three games (`src/shared/client`), compiled by each client; each tree keeps only where a key goes beside the console (its own modules, its own menus, a video playing).
+**Now.** One code for the three games (`src/shared/client`), compiled by each client; each tree keeps only where a key goes beside the console (its own modules, its own menus, a video playing), the making of its commands and the values of its game (the buttons' bits, a key's movement while walking).
 
 **Why.** A change made once, the same behaviour for every player of the three games (decided 26 and 27 November 2026; [progress/step-15-platform.md](progress/step-15-platform.md) section 17).
 
@@ -1784,6 +1784,7 @@ The work: [progress/step-15-platform.md](progress/step-15-platform.md) section 1
 | Ctrl-E in a short console line, then a line typed past the console's width, in the three games | the line scrolled from a negative place, and the characters drawn at its start read from the memory before the line (read in the code) | the line scrolled from its start |
 | A character typed in the middle of a long console line, in the three games | the text left of the cursor moved by one at each character, the cursor staying in its column | the cursor moves, the text stays, until the cursor reaches the console's edge |
 | A control character in the clipboard pasted into the console, in the three games | acted as its key: a Ctrl-C emptied the line, a Ctrl-V pasted again without end | left out: only the printable characters are typed in |
+| The mouse's acceleration in the single player | one formula, `cl_mouseAccel` added to the sensitivity times the mouse's speed | the multiplayer's two: `cl_mouseAccelStyle` 1 gives the power curve of `cl_mouseAccel` and `cl_mouseAccelOffset` (0 and 5 by default, no acceleration while `cl_mouseAccel` is 0) |
 | The cgame's filter of the commands, in the multiplayer | each command typed or run by a key copied into the memory shared with the cgame, which could refuse it or put another in its place; the game's cgame accepted every one | removed: a copy and a call into the cgame less for each command |
 
 The cost: none at run time measured or expected; the console's line drawn at each frame reads the line once and copies the characters shown, as before.
@@ -1794,6 +1795,8 @@ The cost: none at run time measured or expected; the console's line drawn at eac
 | | before | now |
 |---|---|---|
 | The keys' code | `src/codemp/client/cl_keys.cpp` and `keys.h`, `src/code/client/cl_keys.cpp` and `keys.h` | `src/shared/client/engine/cl_keys.cpp` and `keys.h`, compiled by each client against its own `<client/client.h>`; each tree's `client/cl_keys.cpp` holds six small functions: what a key does during a video, what Escape closes or opens, whether the client's own menu takes the keys, where a key and a character go beside the console |
+| The input's code | `src/codemp/client/cl_input.cpp` and `src/code/client/cl_input.cpp`, each with its buttons, its view and its movement | `src/shared/client/engine/cl_input.cpp` and `input.h`: the buttons and their common commands, the view turned at every frame, a command's movement over its span, the mouse's movement gathered until the next command; each tree's `client/cl_input.cpp` makes its commands (per tick in the multiplayer, per frame in the single player), with four small functions (the view centred, the automap's keys and mouse, the fighters' pitch) and its game's values in its `client.h` |
+| A button's share of a span | `CL_KeyState`, `IN_KeyDown`, `IN_KeyUp` in each tree; `kbutton_t` in each `client.h` | `src/shared/client/button.h`, with its tests; `kbutton_t` defined once |
 | A text field's editing and the keys' names | in the engines' code | `src/shared/client` (`field.h`, `keynames.h`): a static library independent of the engines, after the C++ Core Guidelines, with its tests (`modernjk.client`) |
 | `field_t` | defined in each tree's `qcommon.h` | one definition, `src/shared/client/field.h` |
 | The single player's `Cmd_AddCommand` | without a command's description, the file system's code taking one through `files_engine.h` | a form taking the description, which it ignores, in its `qcommon.h` |

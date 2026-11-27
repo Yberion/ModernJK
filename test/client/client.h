@@ -22,6 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // part calls functions of their arguments only, on fields and tables written in the test.
 #pragma once
 
+// a button's presses and releases and the share of a span it was held (button.cpp)
+void RunButtonTests();
 // a text field's editing and what it shows (field.cpp)
 void RunFieldTests();
 // the keys' names and the free codes (keynames.cpp)

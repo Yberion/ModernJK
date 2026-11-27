@@ -4,17 +4,19 @@ The code the multiplayer's client and the single player's (which builds Jedi Aca
 
 ## In the game
 
-The console's line, the chat's (the multiplayer's) and the binds work the same in the three games. A long line typed in the console keeps its cursor in view: End or Ctrl-E shows the line's last characters, Home or Ctrl-A its first ones, a character typed in the middle moves the cursor and not the text. The right Shift, Ctrl and Alt are keys of their own everywhere (`RSHIFT`, `RCTRL`, `RALT`), so a bind on one of them comes back on it when the game starts again; the single player used to write it under the left key's name.
+The console's line, the chat's (the multiplayer's) and the binds work the same in the three games. A long line typed in the console keeps its cursor in view: End or Ctrl-E shows the line's last characters, Home or Ctrl-A its first ones, a character typed in the middle moves the cursor and not the text. The right Shift, Ctrl and Alt are keys of their own everywhere (`RSHIFT`, `RCTRL`, `RALT`), so a bind on one of them comes back on it when the game starts again; the single player used to write it under the left key's name. The view turns the same way in the three games, at every frame, by the keys, the mouse (with either of the two accelerations, `cl_mouseAccelStyle`) and the joystick; a movement key held for a third of a command's span moves the player a third as far, to the nanosecond.
 
 ## Files
 
 | file | what it does |
 |---|---|
+| `button.h`, `button.cpp` | a button of the game's commands (`kbutton_t`, one definition for the trees): a key pressed on it and released from it, up to two keys holding it, and the share of a span it was held, from the keys' times in nanoseconds |
 | `field.h`, `field.cpp` | a line of text being typed (`field_t`, one definition for the trees): what a key (Delete, the arrows, Home, End, Insert) or a character (a printable one, Ctrl-H, Ctrl-C, Ctrl-V, Ctrl-A, Ctrl-E) does to it, and which part of it is drawn; the clipboard and the overstrike switch are asked of the engine by what the functions return |
 | `keynames.h`, `keynames.cpp` | the engine's table of the keys (`keyname_t`, `keyNames_t`), the name a bind writes for a key and the key a name gives back, and the sixteen free codes the keys without a code of their own take with their names (`DynamicKeys`) |
+| `engine/input.h`, `engine/cl_input.cpp` | the input as a client runs it, compiled by each client: the buttons and their common commands, the view turned at every frame, a command's movement over its span, the mouse's movement gathered until the next command |
 | `engine/keys.h`, `engine/cl_keys.cpp` | the keys as a client runs them, compiled by each client: the keys' states and binds, the console's line and its history, the edit fields drawn, the bind commands, a key or a character given to the console or to what the tree names |
 
-Each tree's `client/cl_keys.cpp` writes the functions `engine/keys.h` lists under "each tree's client/cl_keys.cpp": what a key does while a video plays, what Escape closes or opens, and where a key or a character goes beside the console (the multiplayer's download question, UI module, cgame module and chat; the single player's UI).
+Each tree's `client/cl_keys.cpp` writes the functions `engine/keys.h` lists under "each tree's client/cl_keys.cpp": what a key does while a video plays, what Escape closes or opens, and where a key or a character goes beside the console (the multiplayer's download question, UI module, cgame module and chat; the single player's UI). Its `client/cl_input.cpp` writes the four functions `engine/input.h` lists the same way (the view centred, the map view's keys and mouse, the mouse's pitch factor) and makes the commands, and its `client.h` gives its game's values (`CL_OVERRIDE_MOUSE_SENSITIVITY`, `CL_WALK_MOVESPEED`).
 
 ## Rules
 
@@ -40,4 +42,4 @@ const std::optional<fakeAscii_t> key = client_input::KeyOfName(keynames, text.c_
 
 ## Tests
 
-`test/client` (`modernjk.client` in `ctest`): characters typed, inserted and put in place, the line's room; the control characters; the keys; the cursor kept in view on a line longer than the field (End and Ctrl-E showing the last characters, a short line ended then typed past the field never scrolled from a negative place); what a field shows whatever it holds; no two keys of the table named alike; every key's name read back as the key; the names' forms (one character, a name in any case, `0x` and two digits); the free codes given, found again, taken back, none left.
+`test/client` (`modernjk.client` in `ctest`): a button's presses and releases (a repeat, two keys, a third refused, the console's command) and the share of a span it was held (held through it, pressed in it, a tap, a release without a time, a press without one, clamped to 0 and 1); characters typed, inserted and put in place, the line's room; the control characters; the keys; the cursor kept in view on a line longer than the field (End and Ctrl-E showing the last characters, a short line ended then typed past the field never scrolled from a negative place); what a field shows whatever it holds; no two keys of the table named alike; every key's name read back as the key; the names' forms (one character, a name in any case, `0x` and two digits); the free codes given, found again, taken back, none left.

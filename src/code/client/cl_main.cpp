@@ -62,6 +62,8 @@ cvar_t* cl_freelook;
 cvar_t* cl_sensitivity;
 
 cvar_t* cl_mouseAccel;
+cvar_t* cl_mouseAccelOffset;
+cvar_t* cl_mouseAccelStyle;
 cvar_t* cl_showMouseRate;
 cvar_t* cl_framerate;
 
@@ -1330,6 +1332,13 @@ void CL_Init(void)
     cl_sensitivity = Cvar_Get("sensitivity", "5", cvarFlags_t::CVAR_ARCHIVE);
     cl_mouseAccel = Cvar_Get("cl_mouseAccel", "0", cvarFlags_t::CVAR_ARCHIVE_ND);
     cl_freelook = Cvar_Get("cl_freelook", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
+
+    // 0: legacy mouse acceleration
+    // 1: new implementation
+    cl_mouseAccelStyle = Cvar_Get("cl_mouseAccelStyle", "0", cvarFlags_t::CVAR_ARCHIVE_ND);
+    // offset for the power function (for style 1, ignored otherwise)
+    // this should be set to the max rate value
+    cl_mouseAccelOffset = Cvar_Get("cl_mouseAccelOffset", "5", cvarFlags_t::CVAR_ARCHIVE_ND);
 
     cl_showMouseRate = Cvar_Get("cl_showmouserate", "0", cvarFlags_t::CVAR_NONE);
 

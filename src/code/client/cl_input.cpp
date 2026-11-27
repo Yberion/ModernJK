@@ -22,65 +22,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cl.input.c  -- builds an intended movement command to send to the server
+// cl_input.cpp -- the single player's part of the input (src/shared/client/engine/input.h): one command per frame,
+// sent to the game in this process; the buttons' bits the game reads, the force powers; no map view takes the keys.
 
 #include <server/exe_headers.h>
 
 #include "client.h"
 #include "client_ui.h"
 #include <shared/platform/engine/engine.h>
-
-#include <cstdlib>
-#ifndef _WIN32
-#include <cmath>
-#endif
-
-unsigned frame_msec;
-int old_com_frameTime;
-// The keys' own times are in nanoseconds on the client's clock, as the platform layer dates them: the time the input was
-// last read at on that clock, and the time between the two last reads, the frame's. The share of a frame a key was held
-// is exact, whatever the frame rate.
-static int64_t s_inputNsec;
-static int64_t s_lastInputNsec;
-static int64_t s_frameNsec = 1'000'000;
-// the shortest and the longest of a frame's time: over 1,000 frames per second each frame counts as a millisecond, and
-// after a hitch the extra time is cut, so that it gives no unexpected move
-constexpr int64_t MIN_INPUT_NSEC = 1'000'000;
-constexpr int64_t MAX_INPUT_NSEC = 200'000'000;
-float cl_mPitchOverride = 0.0f;
-float cl_mYawOverride = 0.0f;
-
-/*
-===============================================================================
-
-KEY BUTTONS
-
-Continuous button event tracking is complicated by the fact that two different
-input sources (say, mouse button 1 and the control key) can both press the
-same button, but the button should only be released when both of the
-pressing key have been released.
-
-When a key event issues a button command (+forward, +attack, etc), it appends
-its key number as argv(1) so it can be matched up with the release.
-
-argv(2) will be set to the time the event happened, which allows exact
-control even at low framerates when the down and up events may both get qued
-at the same time.
-
-===============================================================================
-*/
-
-kbutton_t in_left, in_right, in_forward, in_back;
-kbutton_t in_lookup, in_lookdown, in_moveleft, in_moveright;
-kbutton_t in_strafe, in_speed;
-kbutton_t in_up, in_down;
-
-kbutton_t in_buttons[32];
-
-bool in_mlooking;
-
-// the joystick's setting, kept with its menu's row: no device is read
-static cvar_t* in_joystick;
 
 static void IN_UseGivenForce(void)
 {
@@ -150,489 +99,26 @@ static void IN_UseGivenForce(void)
     }
 }
 
-void IN_MLookDown(void)
-{
-    in_mlooking = true;
-}
-
-void IN_CenterView(void);
-void IN_MLookUp(void)
-{
-    in_mlooking = false;
-    if (!cl_freelook->integer) {
-        IN_CenterView();
-    }
-}
-
-void IN_KeyDown(kbutton_t* b)
-{
-    int k;
-    const char* c;
-
-    c = Cmd_Argv(1);
-    if (c[0]) {
-        k = atoi(c);
-    }
-    else {
-        k = -1; // typed manually at the console for continuous down
-    }
-
-    if (k == b->down[0] || k == b->down[1]) {
-        return; // repeating key
-    }
-
-    if (!b->down[0]) {
-        b->down[0] = k;
-    }
-    else if (!b->down[1]) {
-        b->down[1] = k;
-    }
-    else {
-        Q_Println("Three keys down for a button!");
-        return;
-    }
-
-    if (b->active) {
-        return; // still down
-    }
-
-    // save timestamp for partial frame summing
-    c = Cmd_Argv(2);
-    b->downtime = strtoll(c, nullptr, 10);
-
-    b->active = true;
-    b->wasPressed = true;
-}
-
-void IN_KeyUp(kbutton_t* b)
-{
-    int k;
-    const char* c;
-    int64_t uptime;
-
-    c = Cmd_Argv(1);
-    if (c[0]) {
-        k = atoi(c);
-    }
-    else {
-        // typed manually at the console, assume for unsticking, so clear all
-        b->down[0] = b->down[1] = 0;
-        b->active = false;
-        return;
-    }
-
-    if (b->down[0] == k) {
-        b->down[0] = 0;
-    }
-    else if (b->down[1] == k) {
-        b->down[1] = 0;
-    }
-    else {
-        return; // key up without coresponding down (menu pass through)
-    }
-    if (b->down[0] || b->down[1]) {
-        return; // some other key is still holding it down
-    }
-
-    b->active = false;
-
-    // save timestamp for partial frame summing
-    c = Cmd_Argv(2);
-    uptime = strtoll(c, nullptr, 10);
-    if (uptime) {
-        b->nsec += uptime - b->downtime;
-    }
-    else {
-        b->nsec += s_frameNsec / 2;
-    }
-
-    b->active = false;
-}
-
-/*
-===============
-CL_KeyState
-
-Returns the fraction of the frame that the key was down
-===============
-*/
-float CL_KeyState(kbutton_t* key)
-{
-    float val;
-    int64_t nsec;
-
-    nsec = key->nsec;
-    key->nsec = 0;
-
-    if (key->active) {
-        // still down
-        if (!key->downtime) {
-            nsec = s_frameNsec;
-        }
-        else {
-            nsec += s_inputNsec - key->downtime;
-        }
-        key->downtime = s_inputNsec;
-    }
-
-#if 0
-	if (nsec) {
-		Q_Print("{} ", nsec);
-	}
-#endif
-
-    val = static_cast<float>(static_cast<double>(nsec) / static_cast<double>(s_frameNsec));
-    if (val < 0) {
-        val = 0;
-    }
-    if (val > 1) {
-        val = 1;
-    }
-
-    return val;
-}
-
-void IN_UpDown(void)
-{
-    IN_KeyDown(&in_up);
-}
-void IN_UpUp(void)
-{
-    IN_KeyUp(&in_up);
-}
-void IN_DownDown(void)
-{
-    IN_KeyDown(&in_down);
-}
-void IN_DownUp(void)
-{
-    IN_KeyUp(&in_down);
-}
-void IN_LeftDown(void)
-{
-    IN_KeyDown(&in_left);
-}
-void IN_LeftUp(void)
-{
-    IN_KeyUp(&in_left);
-}
-void IN_RightDown(void)
-{
-    IN_KeyDown(&in_right);
-}
-void IN_RightUp(void)
-{
-    IN_KeyUp(&in_right);
-}
-void IN_ForwardDown(void)
-{
-    IN_KeyDown(&in_forward);
-}
-void IN_ForwardUp(void)
-{
-    IN_KeyUp(&in_forward);
-}
-void IN_BackDown(void)
-{
-    IN_KeyDown(&in_back);
-}
-void IN_BackUp(void)
-{
-    IN_KeyUp(&in_back);
-}
-void IN_LookupDown(void)
-{
-    IN_KeyDown(&in_lookup);
-}
-void IN_LookupUp(void)
-{
-    IN_KeyUp(&in_lookup);
-}
-void IN_LookdownDown(void)
-{
-    IN_KeyDown(&in_lookdown);
-}
-void IN_LookdownUp(void)
-{
-    IN_KeyUp(&in_lookdown);
-}
-void IN_MoveleftDown(void)
-{
-    IN_KeyDown(&in_moveleft);
-}
-void IN_MoveleftUp(void)
-{
-    IN_KeyUp(&in_moveleft);
-}
-void IN_MoverightDown(void)
-{
-    IN_KeyDown(&in_moveright);
-}
-void IN_MoverightUp(void)
-{
-    IN_KeyUp(&in_moveright);
-}
-
-void IN_SpeedDown(void)
-{
-    IN_KeyDown(&in_speed);
-}
-void IN_SpeedUp(void)
-{
-    IN_KeyUp(&in_speed);
-}
-void IN_StrafeDown(void)
-{
-    IN_KeyDown(&in_strafe);
-}
-void IN_StrafeUp(void)
-{
-    IN_KeyUp(&in_strafe);
-}
-
-void IN_Button0Down(void)
-{
-    IN_KeyDown(&in_buttons[0]);
-}
-void IN_Button0Up(void)
-{
-    IN_KeyUp(&in_buttons[0]);
-}
-void IN_Button1Down(void)
-{
-    IN_KeyDown(&in_buttons[1]);
-}
-void IN_Button1Up(void)
-{
-    IN_KeyUp(&in_buttons[1]);
-}
-void IN_Button2Down(void)
-{
-    IN_KeyDown(&in_buttons[2]);
-}
-void IN_Button2Up(void)
-{
-    IN_KeyUp(&in_buttons[2]);
-}
-void IN_Button3Down(void)
-{
-    IN_KeyDown(&in_buttons[3]);
-}
-void IN_Button3Up(void)
-{
-    IN_KeyUp(&in_buttons[3]);
-}
-void IN_Button4Down(void)
-{
-    IN_KeyDown(&in_buttons[4]);
-}
-void IN_Button4Up(void)
-{
-    IN_KeyUp(&in_buttons[4]);
-}
-void IN_Button5Down(void)
-{
-    IN_KeyDown(&in_buttons[5]);
-}
-void IN_Button5Up(void)
-{
-    IN_KeyUp(&in_buttons[5]);
-}
-void IN_Button6Down(void)
-{
-    IN_KeyDown(&in_buttons[6]);
-}
-void IN_Button6Up(void)
-{
-    IN_KeyUp(&in_buttons[6]);
-}
-void IN_Button7Down(void)
-{
-    IN_KeyDown(&in_buttons[7]);
-}
-void IN_Button7Up(void)
-{
-    IN_KeyUp(&in_buttons[7]);
-}
-void IN_Button8Down(void)
-{
-    IN_KeyDown(&in_buttons[8]);
-}
-void IN_Button8Up(void)
-{
-    IN_KeyUp(&in_buttons[8]);
-}
-void IN_Button9Down(void)
-{
-    IN_KeyDown(&in_buttons[9]);
-}
-void IN_Button9Up(void)
-{
-    IN_KeyUp(&in_buttons[9]);
-}
-void IN_Button10Down(void)
-{
-    IN_KeyDown(&in_buttons[10]);
-}
-void IN_Button10Up(void)
-{
-    IN_KeyUp(&in_buttons[10]);
-}
-void IN_Button11Down(void)
-{
-    IN_KeyDown(&in_buttons[11]);
-}
-void IN_Button11Up(void)
-{
-    IN_KeyUp(&in_buttons[11]);
-}
-void IN_Button12Down(void)
-{
-    IN_KeyDown(&in_buttons[12]);
-}
-void IN_Button12Up(void)
-{
-    IN_KeyUp(&in_buttons[12]);
-}
-void IN_Button13Down(void)
-{
-    IN_KeyDown(&in_buttons[13]);
-}
-void IN_Button13Up(void)
-{
-    IN_KeyUp(&in_buttons[13]);
-}
-void IN_Button14Down(void)
-{
-    IN_KeyDown(&in_buttons[14]);
-}
-void IN_Button14Up(void)
-{
-    IN_KeyUp(&in_buttons[14]);
-}
-void IN_Button15Down(void)
-{
-    IN_KeyDown(&in_buttons[15]);
-}
-void IN_Button15Up(void)
-{
-    IN_KeyUp(&in_buttons[15]);
-}
-
 void IN_CenterView(void)
 {
     cl.viewangles[PITCH] = -SHORT2ANGLE(cl.frame.ps.delta_angles[PITCH]);
 }
 
-//==========================================================================
-
-cvar_t* cl_upspeed;
-cvar_t* cl_forwardspeed;
-cvar_t* cl_sidespeed;
-
-cvar_t* cl_yawspeed;
-cvar_t* cl_pitchspeed;
-
-cvar_t* cl_run;
-
-cvar_t* cl_anglespeedkey;
-
-/*
-================
-CL_AdjustAngles
-
-Moves the local angle positions
-================
-*/
-void CL_AdjustAngles(void)
+// no map view takes the movement keys
+bool CL_MapTakesButton(const kbutton_t* button, bool down)
 {
-    float speed;
-
-    if (in_speed.active) {
-        speed = 0.001 * cls.frametime * cl_anglespeedkey->value;
-    }
-    else {
-        speed = 0.001 * cls.frametime;
-    }
-
-    if (!in_strafe.active) {
-        if (cl_mYawOverride) {
-            cl.viewangles[YAW] -= cl_mYawOverride * 5.0f * speed * cl_yawspeed->value * CL_KeyState(&in_right);
-            cl.viewangles[YAW] += cl_mYawOverride * 5.0f * speed * cl_yawspeed->value * CL_KeyState(&in_left);
-        }
-        else {
-            cl.viewangles[YAW] -= speed * cl_yawspeed->value * CL_KeyState(&in_right);
-            cl.viewangles[YAW] += speed * cl_yawspeed->value * CL_KeyState(&in_left);
-        }
-    }
-
-    if (cl_mPitchOverride) {
-        cl.viewangles[PITCH] -= cl_mPitchOverride * 5.0f * speed * cl_pitchspeed->value * CL_KeyState(&in_lookup);
-        cl.viewangles[PITCH] += cl_mPitchOverride * 5.0f * speed * cl_pitchspeed->value * CL_KeyState(&in_lookdown);
-    }
-    else {
-        cl.viewangles[PITCH] -= speed * cl_pitchspeed->value * CL_KeyState(&in_lookup);
-        cl.viewangles[PITCH] += speed * cl_pitchspeed->value * CL_KeyState(&in_lookdown);
-    }
+    return false;
 }
 
-/*
-================
-CL_KeyMove
-
-Sets the usercmd_t based on key states
-================
-*/
-void CL_KeyMove(usercmd_t* cmd)
+// no map view takes the mouse
+bool CL_MapTakesMouse(float dx, float dy)
 {
-    int movespeed;
-    int forward, side, up;
-
-    //
-    // adjust for speed key / running
-    // the walking flag is to keep animations consistant
-    // even during acceleration and develeration
-    //
-    if (in_speed.active != (cl_run->integer != 0)) {
-        movespeed = 127;
-        cmd->buttons &= ~buttonFlags_t::BUTTON_WALKING;
-    }
-    else {
-        cmd->buttons |= buttonFlags_t::BUTTON_WALKING;
-        movespeed = 64;
-    }
-
-    forward = 0;
-    side = 0;
-    up = 0;
-    if (in_strafe.active) {
-        side += movespeed * CL_KeyState(&in_right);
-        side -= movespeed * CL_KeyState(&in_left);
-    }
-
-    side += movespeed * CL_KeyState(&in_moveright);
-    side -= movespeed * CL_KeyState(&in_moveleft);
-
-    up += movespeed * CL_KeyState(&in_up);
-    up -= movespeed * CL_KeyState(&in_down);
-
-    forward += movespeed * CL_KeyState(&in_forward);
-    forward -= movespeed * CL_KeyState(&in_back);
-
-    cmd->forwardmove = ClampChar(forward);
-    cmd->rightmove = ClampChar(side);
-    cmd->upmove = ClampChar(up);
+    return false;
 }
 
-/*
-=================
-CL_MouseEvent
-=================
-*/
-void CL_MouseEvent(float dx, float dy)
+float CL_MousePitch(void)
 {
-    cl.mouseDx[cl.mouseIndex] += dx;
-    cl.mouseDy[cl.mouseIndex] += dy;
+    return m_pitch->value;
 }
 
 /*
@@ -671,155 +157,6 @@ bool CL_MouseTurnsView(void)
 }
 
 /*
-=================
-CL_JoystickEvent
-
-Joystick values stay set until changed
-=================
-*/
-void CL_JoystickEvent(int axis, int value, int time)
-{
-    if (axis < 0 || axis >= std::to_underlying(joystickAxis_t::MAX_JOYSTICK_AXIS)) {
-        Q_Error(errorParm_t::ERR_DROP, "CL_JoystickEvent: bad axis {}", axis);
-    }
-    cl.joystickAxis[static_cast<joystickAxis_t>(axis)] = value;
-}
-
-/*
-=================
-CL_JoystickMove
-=================
-*/
-void CL_JoystickMove(usercmd_t* cmd)
-{
-    float anglespeed;
-
-    if (!in_joystick->integer) {
-        return;
-    }
-
-    if (in_speed.active == (cl_run->integer != 0)) {
-        cmd->buttons |= buttonFlags_t::BUTTON_WALKING;
-    }
-
-    if (in_speed.active) {
-        anglespeed = 0.001 * cls.frametime * cl_anglespeedkey->value;
-    }
-    else {
-        anglespeed = 0.001 * cls.frametime;
-    }
-
-    if (!in_strafe.active) {
-        if (cl_mYawOverride) {
-            cl.viewangles[YAW] += 5.0f * cl_mYawOverride * cl.joystickAxis[joystickAxis_t::AXIS_SIDE];
-        }
-        else {
-            cl.viewangles[YAW] += anglespeed * (cl_yawspeed->value / 100.0f) * cl.joystickAxis[joystickAxis_t::AXIS_SIDE];
-        }
-    }
-    else {
-        cmd->rightmove = ClampChar(cmd->rightmove + cl.joystickAxis[joystickAxis_t::AXIS_SIDE]);
-    }
-
-    if (in_mlooking) {
-        if (cl_mPitchOverride) {
-            cl.viewangles[PITCH] += 5.0f * cl_mPitchOverride * cl.joystickAxis[joystickAxis_t::AXIS_FORWARD];
-        }
-        else {
-            cl.viewangles[PITCH] += anglespeed * (cl_pitchspeed->value / 100.0f) * cl.joystickAxis[joystickAxis_t::AXIS_FORWARD];
-        }
-    }
-    else {
-        cmd->forwardmove = ClampChar(cmd->forwardmove + cl.joystickAxis[joystickAxis_t::AXIS_FORWARD]);
-    }
-
-    cmd->upmove = ClampChar(cmd->upmove + cl.joystickAxis[joystickAxis_t::AXIS_UP]);
-}
-
-/*
-=================
-CL_MouseMove
-=================
-*/
-void CL_MouseMove(usercmd_t* cmd)
-{
-    float mx, my;
-    float accelSensitivity;
-    float rate;
-    const float speed = static_cast<float>(frame_msec);
-    const float pitch = m_pitch->value;
-
-    // allow mouse smoothing
-    if (m_filter->integer) {
-        mx = (cl.mouseDx[0] + cl.mouseDx[1]) * 0.5;
-        my = (cl.mouseDy[0] + cl.mouseDy[1]) * 0.5;
-    }
-    else {
-        mx = cl.mouseDx[cl.mouseIndex];
-        my = cl.mouseDy[cl.mouseIndex];
-    }
-
-    cl.mouseIndex ^= 1;
-    cl.mouseDx[cl.mouseIndex] = 0;
-    cl.mouseDy[cl.mouseIndex] = 0;
-
-    // no motion, nothing to add; the rate below would be 0 times the inverse root of 0, which is not a number, and
-    // the view angles would never be numbers again
-    if (mx == 0.0f && my == 0.0f) {
-        return;
-    }
-
-    rate = SQRTFAST(mx * mx + my * my) / speed;
-    accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
-
-    // scale by FOV
-    accelSensitivity *= cl.cgameSensitivity;
-
-    if (rate && cl_showMouseRate->integer) {
-        Q_Println("{:f} : {:f}", rate, accelSensitivity);
-    }
-
-    mx *= accelSensitivity;
-    my *= accelSensitivity;
-
-    if (!mx && !my) {
-        return;
-    }
-
-    // add mouse X/Y movement to cmd
-    if (in_strafe.active) {
-        cmd->rightmove = ClampChar(cmd->rightmove + m_side->value * mx);
-    }
-    else {
-        if (cl_mYawOverride) {
-            cl.viewangles[YAW] -= cl_mYawOverride * mx;
-        }
-        else {
-            cl.viewangles[YAW] -= m_yaw->value * mx;
-        }
-    }
-
-    if ((in_mlooking || cl_freelook->integer) && !in_strafe.active) {
-        // VVFIXME - This is supposed to be a CVAR
-        const float cl_pitchSensitivity = 1.0f;
-        if (cl_mPitchOverride) {
-            if (pitch > 0) {
-                cl.viewangles[PITCH] += cl_mPitchOverride * my * cl_pitchSensitivity;
-            }
-            else {
-                cl.viewangles[PITCH] -= cl_mPitchOverride * my * cl_pitchSensitivity;
-            }
-        }
-        else {
-            cl.viewangles[PITCH] += pitch * my * cl_pitchSensitivity;
-        }
-    }
-    else {
-        cmd->forwardmove = ClampChar(cmd->forwardmove - m_forward->value * my);
-    }
-}
-
-/*
 ==============
 CL_CmdButtons
 ==============
@@ -833,7 +170,7 @@ void CL_CmdButtons(usercmd_t* cmd)
     // send a button bit even if the key was pressed and released in
     // less than a frame
     //
-    for (i = 0; i < 32; i++) {
+    for (i = 0; i < MAX_KBUTTONS; i++) {
         if (in_buttons[i].active || in_buttons[i].wasPressed) {
             cmd->buttons |= static_cast<buttonFlags_t>(1 << i);
         }
@@ -892,12 +229,6 @@ bool cl_overrideAngles = false;
 usercmd_t CL_CreateCmd(void)
 {
     usercmd_t cmd;
-    vec3_t oldAngles;
-
-    VectorCopy(cl.viewangles, oldAngles);
-
-    // keyboard angle adjustment
-    CL_AdjustAngles();
 
     memset(&cmd, 0, sizeof(cmd));
 
@@ -907,18 +238,10 @@ usercmd_t CL_CreateCmd(void)
     CL_KeyMove(&cmd);
 
     // get basic movement from mouse
-    CL_MouseMove(&cmd);
+    CL_MouseMoveToCommand(&cmd);
 
     // get basic movement from joystick
     CL_JoystickMove(&cmd);
-
-    // check to make sure the angles haven't wrapped
-    if (cl.viewangles[PITCH] - oldAngles[PITCH] > 90) {
-        cl.viewangles[PITCH] = oldAngles[PITCH] + 90;
-    }
-    else if (oldAngles[PITCH] - cl.viewangles[PITCH] > 90) {
-        cl.viewangles[PITCH] = oldAngles[PITCH] - 90;
-    }
 
     if (cl_overrideAngles) {
         VectorCopy(cl_overriddenAngles, cl.viewangles);
@@ -927,16 +250,6 @@ usercmd_t CL_CreateCmd(void)
     // store out the final values
     CL_FinishMove(&cmd);
 
-    // draw debug graphs of turning for mouse testing
-    if (cl_debugMove->integer) {
-        if (cl_debugMove->integer == 1) {
-            SCR_DebugGraph(Q_fabsf(cl.viewangles[YAW] - oldAngles[YAW]), 0);
-        }
-        if (cl_debugMove->integer == 2) {
-            SCR_DebugGraph(Q_fabsf(cl.viewangles[PITCH] - oldAngles[PITCH]), 0);
-        }
-    }
-
     return cmd;
 }
 
@@ -944,7 +257,7 @@ usercmd_t CL_CreateCmd(void)
 =================
 CL_CreateNewCommands
 
-Create a new usercmd_t structure for this frame
+Turns the view, then creates a new usercmd_t structure for this frame
 =================
 */
 void CL_CreateNewCommands(void)
@@ -955,25 +268,12 @@ void CL_CreateNewCommands(void)
     //	if ( cls.state < connstate_t::CA_PRIMED )
     //		return;
 
-    frame_msec = com_frameTime - old_com_frameTime;
-
-    // if running over 1000fps, act as if each frame is 1ms
-    // prevents divisions by zero
-    if (frame_msec < 1)
-        frame_msec = 1;
-
-    // if running less than 5fps, truncate the extra time to prevent
-    // unexpected moves after a hitch
-    if (frame_msec > 200)
-        frame_msec = 200;
-
-    old_com_frameTime = com_frameTime;
     // Com_Frame has just read the input (Platform_Frame)
-    s_inputNsec = Platform_InputNanoseconds();
-    s_frameNsec = Q_min(Q_max(s_inputNsec - s_lastInputNsec, MIN_INPUT_NSEC), MAX_INPUT_NSEC);
-    s_lastInputNsec = s_inputNsec;
+    CL_InputRead(com_frameTime, Platform_InputNanoseconds());
+    CL_UpdateViewAngles();
 
     // generate a command for this frame
+    CL_CommandStart(true);
     cl.cmdNumber++;
     cmdNum = cl.cmdNumber & CMD_MASK;
     cl.cmds[cmdNum] = CL_CreateCmd();
@@ -1160,32 +460,9 @@ CL_InitInput
 */
 void CL_InitInput(void)
 {
-    Cmd_AddCommand("centerview", IN_CenterView);
+    CL_InitCommonInput();
 
-    Cmd_AddCommand("+moveup", IN_UpDown);
-    Cmd_AddCommand("-moveup", IN_UpUp);
-    Cmd_AddCommand("+movedown", IN_DownDown);
-    Cmd_AddCommand("-movedown", IN_DownUp);
-    Cmd_AddCommand("+left", IN_LeftDown);
-    Cmd_AddCommand("-left", IN_LeftUp);
-    Cmd_AddCommand("+right", IN_RightDown);
-    Cmd_AddCommand("-right", IN_RightUp);
-    Cmd_AddCommand("+forward", IN_ForwardDown);
-    Cmd_AddCommand("-forward", IN_ForwardUp);
-    Cmd_AddCommand("+back", IN_BackDown);
-    Cmd_AddCommand("-back", IN_BackUp);
-    Cmd_AddCommand("+lookup", IN_LookupDown);
-    Cmd_AddCommand("-lookup", IN_LookupUp);
-    Cmd_AddCommand("+lookdown", IN_LookdownDown);
-    Cmd_AddCommand("-lookdown", IN_LookdownUp);
-    Cmd_AddCommand("+strafe", IN_StrafeDown);
-    Cmd_AddCommand("-strafe", IN_StrafeUp);
-    Cmd_AddCommand("+moveleft", IN_MoveleftDown);
-    Cmd_AddCommand("-moveleft", IN_MoveleftUp);
-    Cmd_AddCommand("+moveright", IN_MoverightDown);
-    Cmd_AddCommand("-moveright", IN_MoverightUp);
-    Cmd_AddCommand("+speed", IN_SpeedDown);
-    Cmd_AddCommand("-speed", IN_SpeedUp);
+    // the single player's own commands (the three games' common ones: CL_InitCommonInput)
     Cmd_AddCommand("useGivenForce", IN_UseGivenForce);
     // buttons
     Cmd_AddCommand("+attack", IN_Button0Down); // attack
@@ -1215,47 +492,7 @@ void CL_InitInput(void)
     Cmd_AddCommand("+block", IN_Button8Down); // manual blocking
     Cmd_AddCommand("-block", IN_Button8Up);
 #endif
-
-    Cmd_AddCommand("+button0", IN_Button0Down);
-    Cmd_AddCommand("-button0", IN_Button0Up);
-    Cmd_AddCommand("+button1", IN_Button1Down);
-    Cmd_AddCommand("-button1", IN_Button1Up);
-    Cmd_AddCommand("+button2", IN_Button2Down);
-    Cmd_AddCommand("-button2", IN_Button2Up);
-    Cmd_AddCommand("+button3", IN_Button3Down);
-    Cmd_AddCommand("-button3", IN_Button3Up);
-    Cmd_AddCommand("+button4", IN_Button4Down);
-    Cmd_AddCommand("-button4", IN_Button4Up);
-    Cmd_AddCommand("+button5", IN_Button5Down);
-    Cmd_AddCommand("-button5", IN_Button5Up);
-    Cmd_AddCommand("+button6", IN_Button6Down);
-    Cmd_AddCommand("-button6", IN_Button6Up);
-    Cmd_AddCommand("+button7", IN_Button7Down);
-    Cmd_AddCommand("-button7", IN_Button7Up);
-    Cmd_AddCommand("+button8", IN_Button8Down);
-    Cmd_AddCommand("-button8", IN_Button8Up);
-    Cmd_AddCommand("+button9", IN_Button9Down);
-    Cmd_AddCommand("-button9", IN_Button9Up);
-    Cmd_AddCommand("+button10", IN_Button10Down);
-    Cmd_AddCommand("-button10", IN_Button10Up);
-    Cmd_AddCommand("+button11", IN_Button11Down);
-    Cmd_AddCommand("-button11", IN_Button11Up);
-    Cmd_AddCommand("+button12", IN_Button12Down);
-    Cmd_AddCommand("-button12", IN_Button12Up);
-    Cmd_AddCommand("+button13", IN_Button13Down);
-    Cmd_AddCommand("-button13", IN_Button13Up);
-    Cmd_AddCommand("+button14", IN_Button14Down);
-    Cmd_AddCommand("-button14", IN_Button14Up);
-    Cmd_AddCommand("+button15", IN_Button15Down);
-    Cmd_AddCommand("-button15", IN_Button15Up);
-
-    // can add up to button31 this just brings the number of available binds up to par with MP
-
     // end buttons
-    Cmd_AddCommand("+mlook", IN_MLookDown);
-    Cmd_AddCommand("-mlook", IN_MLookUp);
 
     cl_nodelta = Cvar_Get("cl_nodelta", "0", cvarFlags_t::CVAR_NONE);
-    cl_debugMove = Cvar_Get("cl_debugMove", "0", cvarFlags_t::CVAR_NONE);
-    in_joystick = Cvar_Get("in_joystick", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_LATCH);
 }

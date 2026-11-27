@@ -30,6 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <qcommon/qcommon.h>
 #include <rd-common/tr_public.h>
 #include <shared/client/engine/keys.h>
+#include <shared/client/engine/input.h>
 #include <shared/sound/engine/engine.h>
 #include <game/bg_public.h>
 #include <cgame/cg_public.h>
@@ -522,13 +523,14 @@ void CL_CursorButton(fakeAscii_t key);
 //
 // cl_input
 //
-typedef struct kbutton_s {
-    int down[2];      // key nums holding it down
-    int64_t downtime; // when it went down, in nanoseconds on the client's clock; 0 when not known
-    int64_t nsec;     // nanoseconds down since the keys were last read, when it went down and up in between
-    bool active;      // current state
-    bool wasPressed;  // set when down, not cleared when up
-} kbutton_t;
+// the input's values of this game (src/shared/client/engine/input.h): the factor of the keys' turn while the cgame
+// overrides the view (a vehicle's), and the movement a key gives while walking (127 running)
+#ifdef VEH_CONTROL_SCHEME_4
+inline constexpr float CL_OVERRIDE_MOUSE_SENSITIVITY = 5.0f; // 20.0f = 180 degree turn in one mouse swipe across keyboard
+#else                                                        // VEH_CONTROL_SCHEME_4
+inline constexpr float CL_OVERRIDE_MOUSE_SENSITIVITY = 10.0f; // 20.0f = 180 degree turn in one mouse swipe across keyboard
+#endif                                                       // VEH_CONTROL_SCHEME_4
+inline constexpr int CL_WALK_MOVESPEED = 46;
 
 void CL_InitInput(void);
 void CL_ShutdownInput(void);
@@ -537,7 +539,6 @@ void CL_ClearState(void);
 
 void CL_WritePacket(void);
 
-float CL_KeyState(kbutton_t* key, int64_t span);
 bool CL_PendingCmd(usercmd_t* cmd);
 const char* Key_KeynumToString(fakeAscii_t keynum /*, bool bTranslate */); // note: translate is only called for menu display not configs
 
