@@ -1250,6 +1250,7 @@ void R_FontList_f(void);
 void R_InitFogTable(void);
 float R_FogFactor(float s, float t);
 void R_InitImages(void);
+void R_SizeGlowImages(void);
 void R_DeleteTextures(void);
 float R_SumOfUsedImages(bool bUseFormat);
 void R_InitSkins(void);

@@ -100,6 +100,9 @@ extern "C" Q_EXPORT intptr_t QDECL vmMain(int command, intptr_t arg0, intptr_t a
     case cgameExport_t::CG_DRAW_ACTIVE_FRAME:
         CG_DrawActiveFrame(arg0, (stereoFrame_t)arg1);
         return 0;
+    case cgameExport_t::CG_DISPLAY_CHANGED:
+        cgi_GetGlconfig(&cgs.glconfig);
+        return 0;
     case cgameExport_t::CG_CROSSHAIR_PLAYER:
         return CG_CrosshairPlayer();
     case cgameExport_t::CG_CAMERA_POS:

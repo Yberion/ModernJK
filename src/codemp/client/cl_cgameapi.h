@@ -31,6 +31,8 @@ void CGVM_CharEvent(int character);
 enum class fakeAscii_t; // shared/qcommon/q_keycodes.h
 void CGVM_KeyEvent(fakeAscii_t key, bool down);
 void CGVM_MouseEvent(int x, int y);
+// the picture's size changed
+void CGVM_DisplayChanged(void);
 enum class cgameEvent_t; // cg_public.h
 void CGVM_EventHandling(cgameEvent_t type);
 contentsFlags_t CGVM_PointContents(void);

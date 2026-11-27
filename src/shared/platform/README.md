@@ -4,7 +4,7 @@ The client's door to the system, for every engine of the project that opens a wi
 
 ## In the game
 
-What a player touches before anything is drawn: the window that fills the screen without changing its mode, so that alt-tab is instant; the switch to a window or to another screen from the menus, without the picture going away; the key pressed between two frames, dated when it was pressed and not when the frame read it; the mouse turning the view by the device's own counts, without the system's acceleration; the pointer of the menus, the system's own with the game's image.
+What a player touches before anything is drawn: the window that fills the screen without changing its mode, so that alt-tab is instant; the switch to a window, to another screen or to another size, from the menus or with Alt+Enter, applied at the next frame without the game starting its renderer and its modules again; the key pressed between two frames, dated when it was pressed and not when the frame read it; the mouse turning the view by the device's own counts, without the system's acceleration; the pointer of the menus, the system's own with the game's image.
 
 ## Folders
 

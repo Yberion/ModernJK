@@ -103,6 +103,13 @@ void CGVM_MouseEvent(int x, int y)
     cge->MouseEvent(x, y);
 }
 
+void CGVM_DisplayChanged(void)
+{
+    VMSwap v(cgvm);
+
+    cge->DisplayChanged();
+}
+
 void CGVM_EventHandling(cgameEvent_t type)
 {
     VMSwap v(cgvm);

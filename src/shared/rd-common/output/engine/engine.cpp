@@ -121,6 +121,15 @@ void Output_DrawScene()
     stage.DrawScene();
 }
 
+void Output_Resize()
+{
+    std::optional<Output>& running = Running();
+
+    if (running && !running->stage.Apply(ReadSettings())) {
+        Q_PrintlnWarning("the scene's images could not be made at {} by {}", glConfig.vidWidth, glConfig.vidHeight);
+    }
+}
+
 void Output_MakeReadable(render_output::Buffers buffers, int x, int y, int width, int height)
 {
     if (std::optional<Output>& running = Running()) {

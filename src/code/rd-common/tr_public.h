@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <ghoul2/G2.h>
 #include <ghoul2/ghoul2_gore.h>
 
-inline constexpr int REF_API_VERSION = 20;
+inline constexpr int REF_API_VERSION = 21;
 
 typedef struct {
     // the renderer's messages and errors, formatted by the engine (q_fmt.h)
@@ -147,6 +147,9 @@ typedef struct {
     // and height, which can be used by the client to intelligently
     // size display elements
     void (*BeginRegistration)(glconfig_t* config);
+    // the display changed (its size, its state): the renderer asks it again, makes the images of the window's size
+    // again when its size changed, keeps the textures and the rest, and returns the configuration as BeginRegistration
+    void (*DisplayChanged)(glconfig_t* config);
     qhandle_t (*RegisterModel)(const char* name);
     qhandle_t (*RegisterSkin)(const char* name);
     int (*GetAnimationCFG)(const char* psCFGFilename, char* psDest, int iDestSize);

@@ -213,7 +213,8 @@ public:
     // The input of a window, which must outlive this object; the mouse starts as the pointer, the text input off.
     explicit Input(Window& window);
 
-    // Everything that happened since the call before, in order; valid until the next call.
+    // Everything that happened since the call before, in order; valid until the next call. The mouse is given back
+    // to the view when SDL gave up its focus while the window keeps the keyboard's (the README's rules).
     [[nodiscard]] std::span<const Event> Poll();
 
     // Gives the mouse to the view or to the pointer; asked again for the mode it has, it does nothing. False when

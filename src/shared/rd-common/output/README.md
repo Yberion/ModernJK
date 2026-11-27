@@ -26,6 +26,7 @@ The brightness slider of the setup menus (`r_gamma`) changes the picture at once
 - OpenGL reads no multisampled framebuffer object (`glReadPixels`, `glCopyTexSubImage2D`): a read of the picture is preceded by `MakeReadable`, which resolves the region read into the single-sampled copy and binds that copy for reading, and followed by `DrawScene`.
 - `Present` leaves the renderer's state of OpenGL as it was (`glPushAttrib` of what it changes, the active texture unit read and set back), and the window's framebuffer bound, for the swap and for a capture to read.
 - `Create` and `Apply` bind the scene; a refusal of the driver is a result the caller reads (`[[nodiscard]]`), the stage keeping its images as they were. No exception of its own.
+- The stage's textures are named by the driver (`glGenTextures`), and so is every texture of the renderers: a name a program chooses itself can be one the driver has given another texture of the context (Mesa gives the name after the highest in use), whose images it would then replace.
 
 ## Example
 

@@ -38,6 +38,9 @@ void Output_Shutdown();
 // Binds the scene for drawing: called where an image starts. The settings changed since are applied first.
 void Output_DrawScene();
 
+// Makes the scene's images again at glConfig's size, between two images, once the window's size changed.
+void Output_Resize();
+
 // Makes a region of the picture drawn so far readable (glReadPixels, glCopyTexSubImage2D), then Output_DrawScene
 // after the read.
 void Output_MakeReadable(render_output::Buffers buffers, int x, int y, int width, int height);

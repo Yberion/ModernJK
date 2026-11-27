@@ -111,6 +111,7 @@ void _UI_DrawTopBottom(float x, float y, float w, float h, float size);
 void _UI_DrawSides(float x, float y, float w, float h, float size);
 void UI_CheckVid1Data(const char* menuTo, const char* warningMenuName);
 void UI_GetVideoSetup(void);
+static void UI_GetDisplaySetup(void);
 void UI_UpdateVideoSetup(void);
 static void UI_UpdateCharacterCvars(void);
 static void UI_GetCharacterCvars(void);
@@ -786,6 +787,21 @@ static int CreateNextSaveName(char* fileName)
     return false;
 }
 
+// Whether the video page changed a renderer setting that takes effect only when the renderer starts again.
+static bool UI_VideoNeedsRestart(void)
+{
+    static constexpr const char* restartSettings[] = {"r_picmip",       "r_texturebits",    "r_detailtextures", "r_ext_compress_textures",
+                                                      "r_subdivisions", "r_allowExtensions"};
+
+    for (const char* setting : restartSettings) {
+        if (Cvar_VariableValue(Q_Format("ui_{}", setting).c_str()) != Cvar_VariableValue(setting)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /*
 ===============
 UI_DeferMenuScript
@@ -803,6 +819,17 @@ static bool UI_DeferMenuScript(const char** args)
     }
 
     // Handle the custom cases
+    // "Apply" on the video page: when no setting needs the renderer to start again, the settings are applied at once
+    // and the rest of the script, the question that tells of the restart and of the return to the main menu, is left out
+    if (!Q_stricmp(name, "VideoApply")) {
+        if (UI_VideoNeedsRestart()) {
+            return false;
+        }
+
+        UI_UpdateVideoSetup();
+        return true;
+    }
+
     if (!Q_stricmp(name, "VideoSetup")) {
         const char* warningMenuName;
         bool deferred;
@@ -2401,6 +2428,48 @@ void UI_Shutdown(void)
 
 /*
 =================
+UI_ReadDisplayConfig
+
+The rendering configuration, with the scales of the menus' 640 by 480 to the picture: at the start, and again when the
+display changed
+=================
+*/
+static void UI_ReadDisplayConfig(void)
+{
+    trap_GetGlconfig(&uiInfo.uiDC.glconfig);
+
+    // for 640x480 virtualized screen
+    uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0 / 480.0);
+    uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * (1.0 / 640.0);
+    if (uiInfo.uiDC.glconfig.vidWidth * 480 > uiInfo.uiDC.glconfig.vidHeight * 640) {
+        // wide screen
+        uiInfo.uiDC.bias = 0.5 * (uiInfo.uiDC.glconfig.vidWidth - (uiInfo.uiDC.glconfig.vidHeight * (640.0 / 480.0)));
+    }
+    else {
+        // no wide screen
+        uiInfo.uiDC.bias = 0;
+    }
+}
+
+/*
+=================
+_UI_DisplayChanged
+
+The display changed: its size read again; the video page's display rows show it, unless the page has a change of its
+own to apply, which "Apply" sets as the page shows it
+=================
+*/
+void _UI_DisplayChanged(void)
+{
+    UI_ReadDisplayConfig();
+
+    if (Cvar_VariableIntegerValue("ui_r_modified") == 0) {
+        UI_GetDisplaySetup();
+    }
+}
+
+/*
+=================
 UI_Init
 =================
 */
@@ -2425,19 +2494,7 @@ void _UI_Init(bool inGameLoad)
     UI_InitMemory();
 
     // cache redundant calulations
-    trap_GetGlconfig(&uiInfo.uiDC.glconfig);
-
-    // for 640x480 virtualized screen
-    uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0 / 480.0);
-    uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * (1.0 / 640.0);
-    if (uiInfo.uiDC.glconfig.vidWidth * 480 > uiInfo.uiDC.glconfig.vidHeight * 640) {
-        // wide screen
-        uiInfo.uiDC.bias = 0.5 * (uiInfo.uiDC.glconfig.vidWidth - (uiInfo.uiDC.glconfig.vidHeight * (640.0 / 480.0)));
-    }
-    else {
-        // no wide screen
-        uiInfo.uiDC.bias = 0;
-    }
+    UI_ReadDisplayConfig();
 
     Init_Display(&uiInfo.uiDC);
 
@@ -3867,11 +3924,15 @@ UI_UpdateVideoSetup
 
 Copies the temporary user interface version of the video cvars into
 their real counterparts.  This is to create a interface which allows
-you to discard your changes if you did something you didnt want
+you to discard your changes if you did something you didnt want.
+The renderer starts again only when a setting that needs it changed:
+the display's are applied at the next frame, the others at once.
 =================
 */
 void UI_UpdateVideoSetup(void)
 {
+    const bool restart = UI_VideoNeedsRestart();
+
     Cvar_Set("r_displayState", Cvar_VariableString("ui_r_displayState"));
     Cvar_Set("r_screen", Cvar_VariableString("ui_r_screen"));
     Cvar_Set("r_windowWidth", Cvar_VariableString("ui_r_windowWidth"));
@@ -3890,7 +3951,36 @@ void UI_UpdateVideoSetup(void)
     //	Cvar_Set ( "cg_shadows", Cvar_VariableString ( "ui_cg_shadows" ) );
     Cvar_Set("ui_r_modified", "0");
 
-    Cbuf_ExecuteText(cbufExec_t::EXEC_APPEND, "vid_restart;");
+    if (restart) {
+        Cbuf_ExecuteText(cbufExec_t::EXEC_APPEND, "vid_restart;");
+    }
+}
+
+/*
+=================
+UI_GetDisplaySetup
+
+The display's settings into the video page's display rows: when the page opens, and when the display changed while
+the page has no change of its own to apply (Alt+Enter, the console)
+=================
+*/
+static void UI_GetDisplaySetup(void)
+{
+    // Make sure the cvars are registered as read only.
+    Cvar_Register(nullptr, "ui_r_displayState", "1", cvarFlags_t::CVAR_ROM);
+    Cvar_Register(nullptr, "ui_r_screen", "0", cvarFlags_t::CVAR_ROM);
+    Cvar_Register(nullptr, "ui_r_windowWidth", "1280", cvarFlags_t::CVAR_ROM);
+    Cvar_Register(nullptr, "ui_r_windowHeight", "720", cvarFlags_t::CVAR_ROM);
+    Cvar_Register(nullptr, "ui_r_exclusiveMode", "", cvarFlags_t::CVAR_ROM);
+    Cvar_Register(nullptr, "ui_r_refreshChoice", "0", cvarFlags_t::CVAR_ROM);
+
+    // the state as the engine reads it, so that a value it takes as borderless fullscreen shows as such
+    Cvar_SetValue("ui_r_displayState", platform::DisplayStateSetting(platform::DisplayStateOf(Cvar_VariableIntegerValue("r_displayState"))));
+    Cvar_Set("ui_r_screen", Cvar_VariableString("r_screen"));
+    Cvar_Set("ui_r_windowWidth", Cvar_VariableString("r_windowWidth"));
+    Cvar_Set("ui_r_windowHeight", Cvar_VariableString("r_windowHeight"));
+    Cvar_Set("ui_r_exclusiveMode", Cvar_VariableString("r_exclusiveMode"));
+    UI_SetRefreshChoice(UI_DisplayChoice());
 }
 
 /*
@@ -3905,13 +3995,9 @@ void UI_GetVideoSetup(void)
 {
     Cvar_Register(nullptr, "ui_r_glCustom", "4", cvarFlags_t::CVAR_ARCHIVE);
 
+    UI_GetDisplaySetup();
+
     // Make sure the cvars are registered as read only.
-    Cvar_Register(nullptr, "ui_r_displayState", "1", cvarFlags_t::CVAR_ROM);
-    Cvar_Register(nullptr, "ui_r_screen", "0", cvarFlags_t::CVAR_ROM);
-    Cvar_Register(nullptr, "ui_r_windowWidth", "1280", cvarFlags_t::CVAR_ROM);
-    Cvar_Register(nullptr, "ui_r_windowHeight", "720", cvarFlags_t::CVAR_ROM);
-    Cvar_Register(nullptr, "ui_r_exclusiveMode", "", cvarFlags_t::CVAR_ROM);
-    Cvar_Register(nullptr, "ui_r_refreshChoice", "0", cvarFlags_t::CVAR_ROM);
     Cvar_Register(nullptr, "ui_r_lodbias", "0", cvarFlags_t::CVAR_ROM);
     Cvar_Register(nullptr, "ui_r_picmip", "0", cvarFlags_t::CVAR_ROM);
     Cvar_Register(nullptr, "ui_r_texturebits", "0", cvarFlags_t::CVAR_ROM);
@@ -3926,13 +4012,6 @@ void UI_GetVideoSetup(void)
     Cvar_Register(nullptr, "ui_r_modified", "0", cvarFlags_t::CVAR_ROM);
 
     // Copy over the real video cvars into their temporary counterparts
-    // the state as the engine reads it, so that a value it takes as borderless fullscreen shows as such
-    Cvar_SetValue("ui_r_displayState", platform::DisplayStateSetting(platform::DisplayStateOf(Cvar_VariableIntegerValue("r_displayState"))));
-    Cvar_Set("ui_r_screen", Cvar_VariableString("r_screen"));
-    Cvar_Set("ui_r_windowWidth", Cvar_VariableString("r_windowWidth"));
-    Cvar_Set("ui_r_windowHeight", Cvar_VariableString("r_windowHeight"));
-    Cvar_Set("ui_r_exclusiveMode", Cvar_VariableString("r_exclusiveMode"));
-    UI_SetRefreshChoice(UI_DisplayChoice());
     Cvar_Set("ui_r_lodbias", Cvar_VariableString("r_lodbias"));
     Cvar_Set("ui_r_picmip", Cvar_VariableString("r_picmip"));
     Cvar_Set("ui_r_texturebits", Cvar_VariableString("r_texturebits"));

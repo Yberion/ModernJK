@@ -26,12 +26,15 @@ A key is the key of the player's layout, not its place: the key marked Z is Z on
 - `named`: one of the keys every keyboard has and that type nothing (Escape, the arrows, F1 to F12, the modifiers of each side, the keypad's);
 - `id`: a number for the key whatever it is, the same for the same key, which `KeyName` turns into the system's name for it ("F13", "Left Windows"). A program can bind a key the layer does not name by that name, and `KeyFromName` tells whether a text read from a configuration is such a name.
 
+On X11 and Wayland a layout can give a key that types nothing a symbol the layer does not name: Alt Gr on the right Alt of most European layouts (the level 3 shift), the level 5 shift, Compose, Meta, Hyper. Such a key is named by its place, as SDL names it on Windows and macOS, where a layout does not rename those keys: Alt Gr is `RightAlt`. A key the player's layout made into one the layer names (Caps Lock made a Ctrl) keeps that name.
+
 `console` is apart: true for the key under Escape, found by its place, so that one key opens the console on every layout. `numLock` tells whether the keypad types digits, for a program that takes them as digits in a text field and as keys in game.
 
 ## Rules
 
 - A character comes from a `TextEvent` only, never from a key: the layout, its dead keys and the system's input method make the text. The text input is on while something takes characters (`SetTextInput(true)`: the console, the chat, a menu's field) and off in game.
 - `MouseMode::Game` is SDL's relative mode of the window: the pointer hidden and kept in the window, the motion read raw. Nothing is thrown away at a change of mode, and the pointer is never moved by the program.
+- In `MouseMode::Game`, when SDL gives up the mouse's focus while the window keeps the keyboard's (`SDL_EVENT_WINDOW_MOUSE_LEAVE`, which Windows causes when it deactivates the window for an instant, during a change of the display), `Poll` turns the relative mode off and on again, which takes the focus back from the keyboard's: SDL otherwise takes it back only on a motion of the pointer itself, which the relative mode never lets happen, and the system's arrow stays drawn over the view. SDL drops the motion it has not handed over yet at that instant and puts the pointer back at its place.
 - In `MouseMode::Pointer` the pointer is free to leave the window, unless the program keeps it in (`SetPointerConfined(true)`): a program in exclusive fullscreen does, since a click on another screen would take its focus and minimize it.
 - The wheel's direction is the wheel's own: a system that flips it ("natural scrolling") is turned back. Less than a notch makes no event.
 - Another window's events are dropped. The quit comes once, for the window's close button and for the system's own requests.
@@ -65,4 +68,4 @@ for (const platform::Event& event : input.Poll()) {
 
 ## Tests
 
-`test/platform/input.cpp`, on SDL's dummy video driver, with events pushed into SDL's queue at chosen times: a letter, an accented letter of a layout, the space, named keys, the keypad with num lock, the key under Escape by its place, a key the layer does not name with the system's name; a text of two characters as two events; the mouse as the pointer and as the view, a button, the wheel by notches and flipped; the window's events in order, another window's dropped; the screens' and the quit's; the text input on and off.
+`test/platform/input.cpp`, on SDL's dummy video driver, with events pushed into SDL's queue at chosen times: a letter, an accented letter of a layout, the space, named keys, the keypad with num lock, the key under Escape by its place, a key the layer does not name with the system's name; a key of a symbol the layer does not name taken by its place (Alt Gr as the right Alt, the level 5 shift on Caps Lock, Compose on the menu key) and one the layout made a Ctrl kept; a text of two characters as two events; the mouse as the pointer and as the view, a button, the wheel by notches and flipped; the window's events in order, another window's dropped; the screens' and the quit's; the text input on and off.

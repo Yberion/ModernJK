@@ -662,8 +662,6 @@ typedef std::map<const char*, image_t*, CStringComparator> AllocatedImages_t;
 AllocatedImages_t AllocatedImages;
 AllocatedImages_t::iterator itAllocatedImages;
 
-int giTextureBindNum = 1024; // will be set to this anyway at runtime, but wtf?
-
 int R_Images_StartIteration(void)
 {
     itAllocatedImages = AllocatedImages.begin();
@@ -755,7 +753,6 @@ void R_Images_Clear(void)
     }
 
     AllocatedImages.clear();
-    giTextureBindNum = 1024;
 }
 
 void RE_RegisterImages_Info_f(void)
@@ -895,7 +892,8 @@ image_t* R_CreateImage(const char* name, const byte* pic, int width, int height,
 
     // image->imgfileSize=fileSize;
 
-    image->texnum = 1024 + giTextureBindNum++; // ++ is of course staggeringly important...
+    // a name the driver gives, so that no other texture of the context has it (the output stage asks the driver too)
+    qglGenTextures(1, &image->texnum);
 
     // record which map it was used on...
     //
@@ -1167,6 +1165,47 @@ static void R_CreateDefaultImage(void)
 
 /*
 ==================
+R_SizeGlowImages
+
+The dynamic glow's images at the window's size, when the renderer starts and when the window's size changed: bound to
+their own target only, which the renderer enables nowhere else, so that its texturing state stays as it was
+==================
+*/
+void R_SizeGlowImages(void)
+{
+    // the scene glow image - AReis
+    qglBindTexture(GL_TEXTURE_RECTANGLE_ARB, tr.screenGlow);
+    qglTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA16, glConfig.vidWidth, glConfig.vidHeight, 0, GL_RGB, GL_FLOAT, nullptr);
+    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    // the scene image - AReis
+    qglBindTexture(GL_TEXTURE_RECTANGLE_ARB, tr.sceneImage);
+    qglTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA16, glConfig.vidWidth, glConfig.vidHeight, 0, GL_RGB, GL_FLOAT, nullptr);
+    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    // the minimized scene blur image
+    if (r_DynamicGlowWidth->integer > glConfig.vidWidth) {
+        r_DynamicGlowWidth->integer = glConfig.vidWidth;
+    }
+    if (r_DynamicGlowHeight->integer > glConfig.vidHeight) {
+        r_DynamicGlowHeight->integer = glConfig.vidHeight;
+    }
+    qglBindTexture(GL_TEXTURE_RECTANGLE_ARB, tr.blurImage);
+    qglTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA16, r_DynamicGlowWidth->integer, r_DynamicGlowHeight->integer, 0, GL_RGB, GL_FLOAT, nullptr);
+    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
+/*
+==================
 R_CreateBuiltinImages
 ==================
 */
@@ -1186,42 +1225,11 @@ void R_CreateBuiltinImages(void)
 
     tr.screenImage = R_CreateImage("*screen", (byte*)data, 8, 8, GL_RGBA, false, false, false, GL_REPEAT);
 
-    // Create the scene glow image. - AReis
-    tr.screenGlow = 1024 + giTextureBindNum++;
-    qglDisable(GL_TEXTURE_2D);
-    qglEnable(GL_TEXTURE_RECTANGLE_ARB);
-    qglBindTexture(GL_TEXTURE_RECTANGLE_ARB, tr.screenGlow);
-    qglTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA16, glConfig.vidWidth, glConfig.vidHeight, 0, GL_RGB, GL_FLOAT, nullptr);
-    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    // Create the scene image. - AReis
-    tr.sceneImage = 1024 + giTextureBindNum++;
-    qglBindTexture(GL_TEXTURE_RECTANGLE_ARB, tr.sceneImage);
-    qglTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA16, glConfig.vidWidth, glConfig.vidHeight, 0, GL_RGB, GL_FLOAT, nullptr);
-    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    // Create the minimized scene blur image.
-    if (r_DynamicGlowWidth->integer > glConfig.vidWidth) {
-        r_DynamicGlowWidth->integer = glConfig.vidWidth;
-    }
-    if (r_DynamicGlowHeight->integer > glConfig.vidHeight) {
-        r_DynamicGlowHeight->integer = glConfig.vidHeight;
-    }
-    tr.blurImage = 1024 + giTextureBindNum++;
-    qglBindTexture(GL_TEXTURE_RECTANGLE_ARB, tr.blurImage);
-    qglTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA16, r_DynamicGlowWidth->integer, r_DynamicGlowHeight->integer, 0, GL_RGB, GL_FLOAT, nullptr);
-    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    qglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    qglDisable(GL_TEXTURE_RECTANGLE_ARB);
-    qglEnable(GL_TEXTURE_2D);
+    // the dynamic glow's images, of the window's size
+    qglGenTextures(1, &tr.screenGlow);
+    qglGenTextures(1, &tr.sceneImage);
+    qglGenTextures(1, &tr.blurImage);
+    R_SizeGlowImages();
 
     // with overbright bits active, we need an image which is some fraction of full color,
     // for default lightmaps, etc

@@ -1397,10 +1397,9 @@ void CL_KeyDownEvent(fakeAscii_t key, int64_t time)
     }
 
     if (cl_allowAltEnter->integer && Key_AltDown() && key == fakeAscii_t::A_ENTER) {
-        // between a window and borderless fullscreen; the window stays the same one, the renderer starts again at
-        // the new size
+        // between a window and borderless fullscreen, applied once the frame's events are read: the window stays the
+        // same one, the renderer and the modules take its new size without starting again
         Cvar_SetValue("r_displayState", Cvar_VariableIntegerValue("r_displayState") == 0 ? 1 : 0);
-        Cbuf_AddText("vid_restart\n");
         return;
     }
 

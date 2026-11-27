@@ -4829,6 +4829,23 @@ static void UI_Update(const char* name)
 
 int gUISelectedMap = 0;
 
+// Whether the video page changed a renderer setting that takes effect only when the renderer starts again.
+static bool UI_VideoNeedsRestart(void)
+{
+    static constexpr const char* restartSettings[] = {"r_picmip",       "r_texturebits",    "r_detailtextures", "r_ext_compress_textures",
+                                                      "r_subdivisions", "r_allowExtensions"};
+
+    for (const char* setting : restartSettings) {
+        if (trap->Cvar_VariableValue(Q_Format("ui_{}", setting).c_str()) != trap->Cvar_VariableValue(setting)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void UI_UpdateVideoSetup(void);
+
 /*
 ===============
 UI_DeferMenuScript
@@ -4846,6 +4863,17 @@ static bool UI_DeferMenuScript(char** args)
     }
 
     // Handle the custom cases
+    // "Apply" on the video page: when no setting needs the renderer to start again, the settings are applied at once
+    // and the rest of the script, the question that tells of the restart and of the return to the main menu, is left out
+    if (!Q_stricmp(name, "VideoApply")) {
+        if (UI_VideoNeedsRestart()) {
+            return false;
+        }
+
+        UI_UpdateVideoSetup();
+        return true;
+    }
+
     if (!Q_stricmp(name, "VideoSetup")) {
         const char* warningMenuName;
         bool deferred;
@@ -4884,11 +4912,15 @@ UI_UpdateVideoSetup
 
 Copies the temporary user interface version of the video cvars into
 their real counterparts.  This is to create a interface which allows
-you to discard your changes if you did something you didnt want
+you to discard your changes if you did something you didnt want.
+The renderer starts again only when a setting that needs it changed:
+the display's are applied at the next frame, the others at once.
 =================
 */
 void UI_UpdateVideoSetup(void)
 {
+    const bool restart = UI_VideoNeedsRestart();
+
     trap->Cvar_Set("r_displayState", UI_Cvar_VariableString("ui_r_displayState"));
     trap->Cvar_Set("r_screen", UI_Cvar_VariableString("ui_r_screen"));
     trap->Cvar_Set("r_windowWidth", UI_Cvar_VariableString("ui_r_windowWidth"));
@@ -4907,7 +4939,37 @@ void UI_UpdateVideoSetup(void)
     trap->Cvar_Set("cg_shadows", UI_Cvar_VariableString("ui_cg_shadows"));
     trap->Cvar_Set("ui_r_modified", "0");
 
-    trap->Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, "vid_restart;");
+    if (restart) {
+        trap->Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, "vid_restart;");
+    }
+}
+
+/*
+=================
+UI_GetDisplaySetup
+
+The display's settings into the video page's display rows: when the page opens, and when the display changed while
+the page has no change of its own to apply (Alt+Enter, the console)
+=================
+*/
+static void UI_GetDisplaySetup(void)
+{
+    // Make sure the cvars are registered as read only.
+    trap->Cvar_Register(nullptr, "ui_r_displayState", "1", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
+    trap->Cvar_Register(nullptr, "ui_r_screen", "0", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
+    trap->Cvar_Register(nullptr, "ui_r_windowWidth", "1280", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
+    trap->Cvar_Register(nullptr, "ui_r_windowHeight", "720", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
+    trap->Cvar_Register(nullptr, "ui_r_exclusiveMode", "", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
+    trap->Cvar_Register(nullptr, "ui_r_refreshChoice", "0", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
+
+    // the state as the engine reads it, so that a value it takes as borderless fullscreen shows as such
+    const platform::DisplayState state = platform::DisplayStateOf(static_cast<int>(trap->Cvar_VariableValue("r_displayState")));
+    trap->Cvar_SetValue("ui_r_displayState", platform::DisplayStateSetting(state));
+    trap->Cvar_Set("ui_r_screen", UI_Cvar_VariableString("r_screen"));
+    trap->Cvar_Set("ui_r_windowWidth", UI_Cvar_VariableString("r_windowWidth"));
+    trap->Cvar_Set("ui_r_windowHeight", UI_Cvar_VariableString("r_windowHeight"));
+    trap->Cvar_Set("ui_r_exclusiveMode", UI_Cvar_VariableString("r_exclusiveMode"));
+    UI_SetRefreshChoice(UI_DisplayChoice());
 }
 
 /*
@@ -4922,13 +4984,9 @@ void UI_GetVideoSetup(void)
 {
     trap->Cvar_Register(nullptr, "ui_r_glCustom", "4", cvarFlags_t::CVAR_INTERNAL | cvarFlags_t::CVAR_ARCHIVE);
 
+    UI_GetDisplaySetup();
+
     // Make sure the cvars are registered as read only.
-    trap->Cvar_Register(nullptr, "ui_r_displayState", "1", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
-    trap->Cvar_Register(nullptr, "ui_r_screen", "0", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
-    trap->Cvar_Register(nullptr, "ui_r_windowWidth", "1280", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
-    trap->Cvar_Register(nullptr, "ui_r_windowHeight", "720", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
-    trap->Cvar_Register(nullptr, "ui_r_exclusiveMode", "", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
-    trap->Cvar_Register(nullptr, "ui_r_refreshChoice", "0", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
     trap->Cvar_Register(nullptr, "ui_r_lodbias", "0", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
     trap->Cvar_Register(nullptr, "ui_r_picmip", "0", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
     trap->Cvar_Register(nullptr, "ui_r_texturebits", "0", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
@@ -4943,14 +5001,6 @@ void UI_GetVideoSetup(void)
     trap->Cvar_Register(nullptr, "ui_r_modified", "0", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_INTERNAL);
 
     // Copy over the real video cvars into their temporary counterparts
-    // the state as the engine reads it, so that a value it takes as borderless fullscreen shows as such
-    const platform::DisplayState state = platform::DisplayStateOf(static_cast<int>(trap->Cvar_VariableValue("r_displayState")));
-    trap->Cvar_SetValue("ui_r_displayState", platform::DisplayStateSetting(state));
-    trap->Cvar_Set("ui_r_screen", UI_Cvar_VariableString("r_screen"));
-    trap->Cvar_Set("ui_r_windowWidth", UI_Cvar_VariableString("r_windowWidth"));
-    trap->Cvar_Set("ui_r_windowHeight", UI_Cvar_VariableString("r_windowHeight"));
-    trap->Cvar_Set("ui_r_exclusiveMode", UI_Cvar_VariableString("r_exclusiveMode"));
-    UI_SetRefreshChoice(UI_DisplayChoice());
     trap->Cvar_Set("ui_r_lodbias", UI_Cvar_VariableString("r_lodbias"));
     trap->Cvar_Set("ui_r_picmip", UI_Cvar_VariableString("r_picmip"));
     trap->Cvar_Set("ui_r_texturebits", UI_Cvar_VariableString("r_texturebits"));
@@ -9422,6 +9472,48 @@ static qhandle_t UI_RegisterShaderNoMip(const char* name)
 
 /*
 =================
+UI_ReadGlconfig
+
+The rendering configuration, with the scales of the menus' 640 by 480 to the picture: at the start, and again when the
+display changed
+=================
+*/
+static void UI_ReadGlconfig(void)
+{
+    trap->GetGlconfig(&uiInfo.uiDC.glconfig);
+
+    // for 640x480 virtualized screen
+    uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0 / 480.0);
+    uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * (1.0 / 640.0);
+    if (uiInfo.uiDC.glconfig.vidWidth * 480 > uiInfo.uiDC.glconfig.vidHeight * 640) {
+        // wide screen
+        uiInfo.uiDC.bias = 0.5 * (uiInfo.uiDC.glconfig.vidWidth - (uiInfo.uiDC.glconfig.vidHeight * (640.0 / 480.0)));
+    }
+    else {
+        // no wide screen
+        uiInfo.uiDC.bias = 0;
+    }
+}
+
+/*
+=================
+UI_DisplayChanged
+
+The display changed: its size read again; the video page's display rows show it, unless the page has a change of its
+own to apply, which "Apply" sets as the page shows it
+=================
+*/
+static void UI_DisplayChanged(void)
+{
+    UI_ReadGlconfig();
+
+    if (trap->Cvar_VariableValue("ui_r_modified") == 0) {
+        UI_GetDisplaySetup();
+    }
+}
+
+/*
+=================
 UI_Init
 =================
 */
@@ -9455,19 +9547,7 @@ void UI_Init(bool inGameLoad)
     UI_InitMemory();
 
     // cache redundant calulations
-    trap->GetGlconfig(&uiInfo.uiDC.glconfig);
-
-    // for 640x480 virtualized screen
-    uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0 / 480.0);
-    uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * (1.0 / 640.0);
-    if (uiInfo.uiDC.glconfig.vidWidth * 480 > uiInfo.uiDC.glconfig.vidHeight * 640) {
-        // wide screen
-        uiInfo.uiDC.bias = 0.5 * (uiInfo.uiDC.glconfig.vidWidth - (uiInfo.uiDC.glconfig.vidHeight * (640.0 / 480.0)));
-    }
-    else {
-        // no wide screen
-        uiInfo.uiDC.bias = 0;
-    }
+    UI_ReadGlconfig();
 
     // UI_Load();
     uiInfo.uiDC.registerShaderNoMip = UI_RegisterShaderNoMip;
@@ -10188,6 +10268,7 @@ extern "C" Q_EXPORT uiExport_t* QDECL GetModuleAPI(int apiVersion, uiImport_t* i
     uie.KeyEvent = UI_KeyEvent;
     uie.CharEvent = UI_CharEvent;
     uie.MouseEvent = UI_MouseEvent;
+    uie.DisplayChanged = UI_DisplayChanged;
     uie.Refresh = UI_Refresh;
     uie.IsFullscreen = Menus_AnyFullScreenVisible;
     uie.SetActiveMenu = UI_SetActiveMenu;

@@ -49,6 +49,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <initializer_list>
 #include <optional>
 #include <span>
 #include <string>
@@ -112,6 +113,8 @@ struct Layer {
     fakeAscii_t lastKeyDown = fakeAscii_t::A_NULL;
     // when the input was last read
     platform::Time inputTime{};
+    // the system changed the window's size in pixels since the last frame (a screen of another scale, a compositor)
+    bool resized = false;
     // what the system refused last time, so that a refusal repeated at every frame is told once
     bool mouseRefused = false;
     bool confineRefused = false;
@@ -142,15 +145,30 @@ void Report(bool done, bool& refused, const char* what)
     refused = !done;
 }
 
-// Registers the display's settings.
+// Registers the display's settings, applied when they change (Platform_Frame).
 Settings RegisterSettings()
 {
-    return {.displayState = Cvar_Get("r_displayState", "1", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH),
-            .screen = Cvar_Get("r_screen", "0", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH),
-            .windowWidth = Cvar_Get("r_windowWidth", "1280", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH),
-            .windowHeight = Cvar_Get("r_windowHeight", "720", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH),
-            .exclusiveMode = Cvar_Get("r_exclusiveMode", "", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_LATCH),
+    return {.displayState = Cvar_Get("r_displayState", "1", cvarFlags_t::CVAR_ARCHIVE),
+            .screen = Cvar_Get("r_screen", "0", cvarFlags_t::CVAR_ARCHIVE),
+            .windowWidth = Cvar_Get("r_windowWidth", "1280", cvarFlags_t::CVAR_ARCHIVE),
+            .windowHeight = Cvar_Get("r_windowHeight", "720", cvarFlags_t::CVAR_ARCHIVE),
+            .exclusiveMode = Cvar_Get("r_exclusiveMode", "", cvarFlags_t::CVAR_ARCHIVE),
             .swapInterval = Cvar_Get("r_swapInterval", "0", cvarFlags_t::CVAR_ARCHIVE_ND)};
+}
+
+// Whether one of the settings the window takes changed since the call before; their flags cleared.
+bool TakeModified(const Settings& cvars)
+{
+    bool modified = false;
+
+    for (cvar_t* const cvar : {cvars.displayState, cvars.screen, cvars.windowWidth, cvars.windowHeight, cvars.exclusiveMode}) {
+        if (cvar->modified) {
+            modified = true;
+            cvar->modified = false;
+        }
+    }
+
+    return modified;
 }
 
 // The swap r_swapInterval names: 0 at once, a negative value the adaptive sync, any other the vertical sync.
@@ -171,6 +189,24 @@ platform::WindowSettings ReadSettings(const Settings& cvars)
             .width = cvars.windowWidth->integer,
             .height = cvars.windowHeight->integer,
             .exclusive = platform::ParseMode(cvars.exclusiveMode->string)};
+}
+
+// Applies the display's settings to the window when they differ from what it has: true when they did, the window
+// then perhaps of another size.
+bool ApplySettings(Layer& layer)
+{
+    const platform::WindowSettings wanted = ReadSettings(layer.cvars);
+
+    if (wanted == layer.settings) {
+        return false;
+    }
+
+    if (!layer.window.Apply(wanted)) {
+        Q_PrintlnWarning("the display's settings could not be applied");
+    }
+
+    layer.settings = wanted;
+    return true;
 }
 
 // The engine's key of one the layer names.
@@ -496,6 +532,7 @@ void OnWindow(Layer& layer, const platform::WindowEvent& event)
         layer.screens = platform::Screens(layer.screenModes);
         break;
     case platform::WindowChange::PixelSizeChanged:
+        layer.resized = true;
         break;
     }
 }
@@ -637,6 +674,16 @@ void Platform_Frame()
     for (const platform::Event& event : events) {
         std::visit(dispatch, event);
     }
+
+    // after the events, so that Alt+Enter and the menus' Apply take effect at this frame: a display's setting changed
+    // (the console, a configuration, the menus) applied to the window, or the window's size changed by the system;
+    // the client then draws the next image at the window's size
+    const bool applied = TakeModified(layer.cvars) && ApplySettings(layer);
+    const bool resized = std::exchange(layer.resized, false);
+
+    if (applied || resized) {
+        CL_DisplayChanged();
+    }
 }
 
 bool Platform_IsKeyName(const char* name)
@@ -710,19 +757,10 @@ void Platform_Display(glconfig_s* glConfig)
 
     Layer& layer = *running;
 
-    // the renderer starts, at the program's start or at a restart of the video: the display's settings changed since
-    // are applied to the window, which stays the same one. A latched setting takes its new value when it is
-    // registered again.
-    layer.cvars = RegisterSettings();
+    // the renderer starts, or asks again once the display changed: a setting changed since the last frame (set with a
+    // restart of the video in one command) is applied to the window first, which stays the same one
     layer.screens = platform::Screens(layer.screenModes);
-
-    if (const platform::WindowSettings wanted = ReadSettings(layer.cvars); wanted != layer.settings) {
-        if (!layer.window.Apply(wanted)) {
-            Q_PrintlnWarning("the display's settings could not be applied");
-        }
-
-        layer.settings = wanted;
-    }
+    ApplySettings(layer);
 
     const platform::PixelSize size = layer.window.Size();
     glConfig->vidWidth = size.width;

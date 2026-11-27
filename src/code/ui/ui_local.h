@@ -210,6 +210,7 @@ extern uiInfo_t uiInfo;
 // ui_main.cpp
 //
 void _UI_Init(bool inGameLoad);
+void _UI_DisplayChanged(void);
 void _UI_DrawRect(float x, float y, float width, float height, float size, const float* color);
 void _UI_MouseEvent(int x, int y);
 void _UI_KeyEvent(fakeAscii_t key, bool down);

@@ -1699,16 +1699,19 @@ void RE_Shutdown(bool destroyWindow, bool restarting)
                 qglDeleteProgramsARB(1, &tr.glowPShader);
             }
         }
-
-        // Release the scene glow texture.
-        qglDeleteTextures(1, &tr.screenGlow);
-
-        // Release the scene texture.
-        qglDeleteTextures(1, &tr.sceneImage);
-
-        // Release the blur texture.
-        qglDeleteTextures(1, &tr.blurImage);
     }
+
+    // the dynamic glow's images, which each start of the renderer makes whether the glow is on or not; their names
+    // cleared, since the driver may give them to another texture before the next start
+    // Release the scene glow texture.
+    qglDeleteTextures(1, &tr.screenGlow);
+
+    // Release the scene texture.
+    qglDeleteTextures(1, &tr.sceneImage);
+
+    // Release the blur texture.
+    qglDeleteTextures(1, &tr.blurImage);
+    tr.screenGlow = tr.sceneImage = tr.blurImage = 0;
 
     R_ShutdownWorldEffects();
     R_ShutdownFonts();
@@ -1732,6 +1735,33 @@ void RE_Shutdown(bool destroyWindow, bool restarting)
     }
 
     tr.registered = false;
+}
+
+/*
+=============
+RE_DisplayChanged
+
+The display changed: asked again; the images of the window's size made again when its size changed, the textures and
+the rest kept
+=============
+*/
+static void RE_DisplayChanged(glconfig_t* glconfigOut)
+{
+    const int width = glConfig.vidWidth;
+    const int height = glConfig.vidHeight;
+    ri.Platform_Display(&glConfig);
+
+    // no size while the system cannot tell it: the images stay as they are
+    if (glConfig.vidWidth < 1 || glConfig.vidHeight < 1) {
+        glConfig.vidWidth = width;
+        glConfig.vidHeight = height;
+    }
+    else if (glConfig.vidWidth != width || glConfig.vidHeight != height) {
+        Output_Resize();
+        R_SizeGlowImages();
+    }
+
+    *glconfigOut = glConfig;
 }
 
 /*
@@ -1882,6 +1912,7 @@ extern "C" Q_EXPORT refexport_t* QDECL GetRefAPI(int apiVersion, refimport_t* re
     REX(Shutdown);
 
     REX(BeginRegistration);
+    REX(DisplayChanged);
     REX(RegisterModel);
     REX(RegisterSkin);
     REX(GetAnimationCFG);

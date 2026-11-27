@@ -947,9 +947,8 @@ void cgi_R_SetRangeFog(float range);
 void cgi_R_LAGoggles(void);
 void cgi_R_Scissor(float x, float y, float w, float h);
 
-// The glconfig_t will not change during the life of a cgame.
-// If it needs to change, the entire cgame will be restarted, because
-// all the qhandle_t are then invalid.
+// The glconfig_t, read at the start and again when the picture's size changed (CG_DISPLAY_CHANGED); the qhandle_t
+// stay valid.
 void cgi_GetGlconfig(glconfig_t* glconfig);
 
 // the gamestate should be grabbed at startup, and whenever a

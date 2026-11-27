@@ -55,6 +55,7 @@ After SF.12 of the C++ Core Guidelines:
 - **Explicit state over sentinel values.** A value that means two things (a count that is also "not set", a time that is also "never") becomes an enumeration or a flag, not a magic number or a clamp.
 - **Enumerations typed in their storage.** The fields, parameters and returns hold the `enum class` itself; a conversion to or from an integer happens only at a boundary: a file, a cvar, the network, a module interface (to an integer with C++23's `std::to_underlying`); a format string takes the enumeration as it is (section 13). Look for the hidden integers too, not only what the compiler reports.
 - **One definition for the trees.** A set that the multiplayer and a single player share (constants, flags, limits) has one definition in `src/shared/qcommon`, included by each tree, never two copies.
+- **Names from the API that hands them out.** An OpenGL object's name (a texture, a framebuffer, a renderbuffer, a program) is asked of the driver (`glGen*`, `glCreateProgram`), never chosen by the code: a name chosen by hand can be one the driver has given another object of the context, whose content it then replaces (27 November 2026; [progress/step-15-platform.md](docs/modernization/progress/step-15-platform.md) section 16.6).
 
 ## 7. Math and random numbers
 

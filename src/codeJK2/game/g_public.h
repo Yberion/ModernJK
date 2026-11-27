@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <shared/qcommon/q_sound.h>
 
-inline constexpr int GAME_API_VERSION = 12;
+inline constexpr int GAME_API_VERSION = 13;
 
 // entity->svFlags
 // the server does not know how to interpret most of the values

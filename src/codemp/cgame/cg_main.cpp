@@ -2327,6 +2327,21 @@ void BG_VehicleLoadParms(void);
 
 /*
 =================
+CG_DisplayChanged
+
+The rendering configuration from the client system, with the scales of the 640 by 480 screen to the picture: at the
+start, and again when the picture's size changed
+=================
+*/
+static void CG_DisplayChanged(void)
+{
+    trap->GetGlconfig(&cgs.glconfig);
+    cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
+    cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
+}
+
+/*
+=================
 CG_Init
 
 Called after every level change or subsystem restart
@@ -2487,9 +2502,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
     // old servers
 
     // get the rendering configuration from the client system
-    trap->GetGlconfig(&cgs.glconfig);
-    cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
-    cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
+    CG_DisplayChanged();
 
     // get the gamestate from the client system
     trap->GetGameState(&cgs.gameState);
@@ -2905,6 +2918,7 @@ extern "C" Q_EXPORT cgameExport_t* QDECL GetModuleAPI(int apiVersion, cgameImpor
     cge.KeyEvent = CG_KeyEvent;
     cge.CharEvent = CG_CharEvent;
     cge.MouseEvent = _CG_MouseEvent;
+    cge.DisplayChanged = CG_DisplayChanged;
     cge.EventHandling = CG_EventHandling;
     cge.PointContents = C_PointContents;
     cge.GetLerpOrigin = C_GetLerpOrigin;

@@ -35,7 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 enum class ragCallbackType_t; // cgame/cg_public.h
 
-inline constexpr int REF_API_VERSION = 11;
+inline constexpr int REF_API_VERSION = 12;
 
 //
 // these are the functions exported by the refresh module
@@ -57,6 +57,9 @@ typedef struct refexport_s {
     // and height, which can be used by the client to intelligently
     // size display elements
     void (*BeginRegistration)(glconfig_t* config);
+    // the display changed (its size, its state): the renderer asks it again, makes the images of the window's size
+    // again when its size changed, keeps the textures and the rest, and returns the configuration as BeginRegistration
+    void (*DisplayChanged)(glconfig_t* config);
     qhandle_t (*RegisterModel)(const char* name);
     qhandle_t (*RegisterServerModel)(const char* name);
     qhandle_t (*RegisterSkin)(const char* name);

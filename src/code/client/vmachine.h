@@ -60,8 +60,9 @@ enum class cgameExport_t {
     CG_DRAW_DATAPAD_OBJECTIVES,
     CG_DRAW_DATAPAD_WEAPONS,
     CG_DRAW_DATAPAD_INVENTORY,
-    CG_DRAW_DATAPAD_FORCEPOWERS
-
+    CG_DRAW_DATAPAD_FORCEPOWERS,
+    // the picture's size changed: the cgame reads the rendering configuration again
+    CG_DISPLAY_CHANGED
 };
 
 /*

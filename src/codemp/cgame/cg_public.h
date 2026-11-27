@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <ghoul2/G2.h>
 
-inline constexpr int CGAME_API_VERSION = 6;
+inline constexpr int CGAME_API_VERSION = 7;
 
 enum class uiMenuCommand_t; // ui_public.h
 enum class fakeAscii_t;     // shared/qcommon/q_keycodes.h
@@ -451,6 +451,8 @@ typedef struct cgameExport_s {
     void (*CharEvent)(int character);
     // the pointer's place in the window, in pixels from its top left corner
     void (*MouseEvent)(int x, int y);
+    // the picture's size changed: read again with GetGlconfig
+    void (*DisplayChanged)(void);
     void (*EventHandling)(cgameEvent_t type);
     contentsFlags_t (*PointContents)(void);
     void (*GetLerpOrigin)(void);

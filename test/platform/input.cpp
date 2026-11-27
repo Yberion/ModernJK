@@ -21,7 +21,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // The tests of src/shared/platform/input, with events pushed into SDL's queue at chosen times: the keys (a letter, a
 // named key, the keypad with num lock, the key under Escape by its place, a key the layer does not name with the
 // system's name, an accented letter of a layout), each with its own time; a text of two characters as two events;
-// the mouse as the pointer (a place) and as the view (a motion in floats), its buttons, its wheel by whole notches
+// the mouse as the pointer (a place) and as the view (a motion in floats), the view keeping it when SDL gives up its
+// focus, its buttons, its wheel by whole notches
 // and by its own direction; the window's events, another window's left out; the screens' and the quit's; the order
 // kept; the text input turned on and off.
 #include "platform.h"
@@ -154,6 +155,27 @@ void CheckKeys(platform::Input& input)
         CHECK(platform::KeyFromName("f13") == key->id);
         CHECK(!platform::KeyFromName("no such key"));
     }
+
+    // X11's and Wayland's layouts: Alt Gr (the level 3 shift, SDLK_MODE) at the right Alt's place is the right Alt, as on
+    // Windows; the level 5 shift at Caps Lock's place is Caps Lock; Compose at the menu key's place takes that place's code
+    if (const auto key = Key(input, SDL_SCANCODE_RALT, SDLK_MODE, SDL_KMOD_MODE, true, 12)) {
+        CHECK(key->named == platform::NamedKey::RightAlt);
+        CHECK_EQUAL(key->id, SDLK_RALT);
+    }
+
+    if (const auto key = Key(input, SDL_SCANCODE_CAPSLOCK, SDLK_LEVEL5_SHIFT, SDL_KMOD_NONE, true, 13)) {
+        CHECK(key->named == platform::NamedKey::CapsLock);
+    }
+
+    if (const auto key = Key(input, SDL_SCANCODE_APPLICATION, SDLK_MULTI_KEY_COMPOSE, SDL_KMOD_NONE, true, 14)) {
+        CHECK(key->named == platform::NamedKey::None);
+        CHECK_EQUAL(key->id, SDLK_APPLICATION);
+    }
+
+    // a key the player's layout made into one the layer names keeps it: Caps Lock made a Ctrl
+    if (const auto key = Key(input, SDL_SCANCODE_CAPSLOCK, SDLK_LCTRL, SDL_KMOD_LCTRL, true, 15)) {
+        CHECK(key->named == platform::NamedKey::LeftCtrl);
+    }
 }
 
 // a text of two characters, of two and three bytes in UTF-8, as two events of the text's time
@@ -212,11 +234,24 @@ void CheckMouse(platform::Input& input, SDL_Window* window)
         CHECK(view->time == 50ns);
     }
 
+    // SDL's mouse focus given up while the mouse turns the view and the window has the keyboard (the dummy driver
+    // gives both to a window shown): the view keeps the mouse, SDL its focus, and nothing is handed over
+    PushWindow(SDL_EVENT_WINDOW_MOUSE_LEAVE, SDL_GetWindowID(window), 0, 0);
+    CHECK(input.Poll().empty());
+    CHECK(SDL_GetWindowRelativeMouseMode(window));
+    CHECK(SDL_GetMouseFocus() == window);
+    CHECK(input.Poll().empty());
+
     // given back to the pointer, the mouse tells where the pointer is before it moves, once
     CHECK(input.SetMouseMode(platform::MouseMode::Pointer));
     CHECK(!SDL_GetWindowRelativeMouseMode(window));
     static_cast<void>(Only<platform::PointerMotion>(input.Poll()));
     CHECK(input.Poll().empty());
+
+    // the pointer leaving the window as the pointer is no change of the mode
+    PushWindow(SDL_EVENT_WINDOW_MOUSE_LEAVE, SDL_GetWindowID(window), 0, 0);
+    CHECK(input.Poll().empty());
+    CHECK(!SDL_GetWindowRelativeMouseMode(window));
 
     // the pointer kept in the window and freed
     CHECK(!SDL_GetWindowMouseGrab(window));

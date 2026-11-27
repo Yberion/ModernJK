@@ -37,5 +37,7 @@ void UI_SetActiveMenu(const char* menuname, const char* menuID);
 void UI_UpdateConnectionMessageString(char* string);
 bool UI_ConsoleCommand(void);
 bool _UI_IsFullscreen(void);
+// the picture's size changed: the menus read it again and scale their 640 by 480 to it
+void UI_DisplayChanged(void);
 
 #endif //__CLIENTUI_H__

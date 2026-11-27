@@ -47,8 +47,9 @@ void Platform_Shutdown();
 // window has the focus, and to the system's pointer everywhere else (a menu, the console, a level loading, no
 // focus), turns the text input on while something takes characters, then hands every event since the call before to
 // the client (CL_KeyEvent, CL_CharEvent, CL_MouseEvent, CL_PointerEvent), each key with the time it moved at and the
-// mouse's motion with its fractions, and the window's own (the focus, minimized, quit). Nothing before the window is
-// open.
+// mouse's motion with its fractions, and the window's own (the focus, minimized, quit). Then applies the display's
+// settings changed since (Alt+Enter, the menus' Apply, the console) to the window, and tells the client
+// (CL_DisplayChanged) when it did or when the system changed the window's size. Nothing before the window is open.
 void Platform_Frame();
 
 // Whether a text is the name of a key the engine has no code of its own for, as the engine writes such a key in a
@@ -75,8 +76,8 @@ std::span<const platform::Screen> Platform_Screens();
 [[nodiscard]] std::int64_t Platform_InputNanoseconds();
 
 // For the renderer, each doing nothing before the window is open. The display as it is: the size in pixels, the
-// bits, whether it fills the screen; the display's settings changed since the renderer last started are applied to
-// the window first.
+// refresh rate, whether it fills the screen; a display's setting changed since the last frame is applied to the
+// window first. Asked when the renderer starts and when the display changed.
 void Platform_Display(glconfig_s* glConfig);
 // The image drawn is shown, r_swapInterval applied when it changed.
 void Platform_Present();

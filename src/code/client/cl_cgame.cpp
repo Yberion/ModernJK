@@ -433,6 +433,20 @@ void CL_ShutdownCGame(void)
     //	cgvm = nullptr;
 }
 
+/*
+====================
+CL_CGameDisplayChanged
+
+The cgame reads the picture's size again
+====================
+*/
+void CL_CGameDisplayChanged(void)
+{
+    if (cgvm.entryPoint) {
+        VM_Call(cgameExport_t::CG_DISPLAY_CHANGED);
+    }
+}
+
 #ifdef JK2_MODE
 /*
 ====================

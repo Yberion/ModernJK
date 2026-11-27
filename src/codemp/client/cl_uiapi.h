@@ -27,6 +27,8 @@ void UIVM_CharEvent(int character);
 enum class fakeAscii_t; // shared/qcommon/q_keycodes.h
 void UIVM_KeyEvent(fakeAscii_t key, bool down);
 void UIVM_MouseEvent(int dx, int dy);
+// the picture's size changed
+void UIVM_DisplayChanged(void);
 void UIVM_Refresh(int realtime);
 bool UIVM_IsFullscreen(void);
 void UIVM_SetActiveMenu(uiMenuCommand_t menu);

@@ -595,6 +595,9 @@ void CL_MouseEvent(float dx, float dy);
 void CL_PointerEvent(float x, float y);
 // whether the mouse turns the view; false while the system's pointer is free, for a menu or the console
 bool CL_MouseTurnsView(void);
+// the display changed (its settings applied, or the window's size changed by the system): the renderer asks it again,
+// the menus' pointer takes the new size when it changed, the UI and the cgame read the display again
+void CL_DisplayChanged(void);
 
 void CL_JoystickEvent(int axis, int value, int time);
 

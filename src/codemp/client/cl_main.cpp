@@ -2180,6 +2180,37 @@ static void CL_SetPointerImage(void)
 
 /*
 ============
+CL_DisplayChanged
+============
+*/
+void CL_DisplayChanged(void)
+{
+    if (!cls.rendererStarted) {
+        return;
+    }
+
+    const int width = cls.glconfig.vidWidth;
+    const int height = cls.glconfig.vidHeight;
+    re->DisplayChanged(&cls.glconfig);
+
+    // the pointer's image is shown at a size in the window's pixels
+    if (cls.glconfig.vidWidth != width || cls.glconfig.vidHeight != height) {
+        CL_SetPointerImage();
+    }
+
+    // also at the same size in another state (a window as large as its screen made borderless fullscreen): the video
+    // menu's display rows show the state
+    if (cls.uiStarted) {
+        UIVM_DisplayChanged();
+    }
+
+    if (cls.cgameStarted) {
+        CGVM_DisplayChanged();
+    }
+}
+
+/*
+============
 CL_InitRenderer
 ============
 */

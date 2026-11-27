@@ -236,6 +236,21 @@ bool UI_ConsoleCommand(void)
 UI_Init
 =================
 */
+// The rendering configuration, with the scales of the 640 by 480 screen to the picture.
+static void UI_ReadGlconfig(void)
+{
+    ui.GetGlconfig(&uis.glconfig);
+
+    uis.scaley = uis.glconfig.vidHeight * (1.0 / 480.0);
+    uis.scalex = uis.glconfig.vidWidth * (1.0 / 640.0);
+}
+
+void UI_DisplayChanged(void)
+{
+    UI_ReadGlconfig();
+    _UI_DisplayChanged();
+}
+
 void UI_Init(int apiVersion, uiimport_t* uiimport, bool inGameLoad)
 {
     ui = *uiimport;
@@ -245,10 +260,7 @@ void UI_Init(int apiVersion, uiimport_t* uiimport, bool inGameLoad)
     }
 
     // get static data (glconfig, media)
-    ui.GetGlconfig(&uis.glconfig);
-
-    uis.scaley = uis.glconfig.vidHeight * (1.0 / 480.0);
-    uis.scalex = uis.glconfig.vidWidth * (1.0 / 640.0);
+    UI_ReadGlconfig();
 
     Menu_Cache();
 

@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <span>
 
-inline constexpr int UI_API_VERSION = 8;
+inline constexpr int UI_API_VERSION = 9;
 
 enum class fakeAscii_t; // shared/qcommon/q_keycodes.h
 
@@ -241,6 +241,8 @@ typedef struct uiExport_s {
     void (*CharEvent)(int character);
     // the pointer's place in the window, in pixels from its top left corner
     void (*MouseEvent)(int x, int y);
+    // the picture's size changed: read again with GetGlconfig
+    void (*DisplayChanged)(void);
     void (*Refresh)(int realtime);
     bool (*IsFullscreen)(void);
     void (*SetActiveMenu)(uiMenuCommand_t menu);

@@ -420,6 +420,8 @@ void CIN_CloseAllVideos(void);
 bool CL_InitCGameVM(void* gameLibrary);
 void CL_InitCGame(void);
 void CL_ShutdownCGame(void);
+// the picture's size changed: the cgame reads it again
+void CL_CGameDisplayChanged(void);
 bool CL_GameCommand(void);
 void CL_CGameRendering(stereoFrame_t stereo);
 void CL_SetCGameTime(void);

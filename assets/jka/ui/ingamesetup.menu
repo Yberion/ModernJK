@@ -1451,14 +1451,16 @@
 			}	  	  
 			action
 			{
-				play			"sound/interface/button1.wav" ; 
+				play			"sound/interface/button1.wav" ;
+				hide			applybutton_glow ;
+				hide			applyChanges ;
+				// without a setting that needs the video to restart, applied at once: the page stays and the rest is left out
+				defer			VideoApply ;
 				show			setup_background ;
 				show			vidrestart ;
 				setfocus 		vidrestart_no ;
 				hide			video ;
 				hide			video2 ;
-				hide			applybutton_glow ;
-				hide 			applyChanges ;
 			}
 		}
 

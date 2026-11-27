@@ -163,13 +163,25 @@ char32_t SymbolOf(SDL_Keycode key) noexcept
     return character ? static_cast<char32_t>(key) : U'\0';
 }
 
+// The key of SDL a key event stands for. X11's and Wayland's layouts give some keys that type no character a symbol the
+// layer does not name (Alt Gr, the level 3 shift, on the right Alt of most European layouts; the level 5 shift, Compose,
+// Meta, Hyper): such a key takes the code of its place, as SDL gives it on Windows and macOS, where a layout does not
+// rename those keys. A key made into one the layer names (Caps Lock made a Ctrl by the player's layout) keeps it.
+SDL_Keycode KeyCodeOf(const SDL_KeyboardEvent& event) noexcept
+{
+    const bool unnamed = NamedOf(event.key) == NamedKey::None && SymbolOf(event.key) == U'\0';
+    // SDL_SCANCODE_TO_KEYCODE, the scancode converted explicitly (the macro's implicit one fails GCC's -Wsign-conversion)
+    return unnamed && event.scancode != SDL_SCANCODE_UNKNOWN ? static_cast<SDL_Keycode>(event.scancode) | SDLK_SCANCODE_MASK : event.key;
+}
+
 // A key pressed or released, as the layer hands it over.
 KeyEvent KeyOf(const SDL_KeyboardEvent& event) noexcept
 {
+    const SDL_Keycode key = KeyCodeOf(event);
     return {.time = TimeOf(event.timestamp),
-            .named = NamedOf(event.key),
-            .symbol = SymbolOf(event.key),
-            .id = event.key,
+            .named = NamedOf(key),
+            .symbol = SymbolOf(key),
+            .id = key,
             .console = event.scancode == SDL_SCANCODE_GRAVE,
             .numLock = (event.mod & SDL_KMOD_NUM) != 0,
             .down = event.down,
@@ -269,6 +281,8 @@ std::span<const Event> Input::Poll()
     }
 
     pointerPending_ = false;
+    // SDL's mouse focus as the window's events tell it: given up last, or taken back since
+    bool mouseLeft = false;
 
     for (SDL_Event event{}; SDL_PollEvent(&event);) {
         switch (event.type) {
@@ -305,13 +319,27 @@ std::span<const Event> Input::Poll()
         default:
             // the window's own events, another window's left out
             if (event.type >= SDL_EVENT_WINDOW_FIRST && event.type <= SDL_EVENT_WINDOW_LAST && event.window.windowID == id) {
-                if (const std::optional<WindowEvent> change = WindowEventOf(event.window)) {
+                if (event.type == SDL_EVENT_WINDOW_MOUSE_LEAVE || event.type == SDL_EVENT_WINDOW_MOUSE_ENTER) {
+                    mouseLeft = event.type == SDL_EVENT_WINDOW_MOUSE_LEAVE;
+                }
+                else if (const std::optional<WindowEvent> change = WindowEventOf(event.window)) {
                     events_.emplace_back(*change);
                 }
             }
 
             break;
         }
+    }
+
+    // In relative mode SDL gives the mouse's focus up when the window is deactivated, and takes it back only on a
+    // motion of the pointer itself, which never comes while the mode holds the pointer in the window: the system's
+    // arrow then stays drawn over the view, after a change of the display that deactivated the window for an instant.
+    // Turned off and on again, the mode takes the focus from the keyboard's (SDL_SetRelativeMouseMode).
+    const bool focusLost = mouseLeft && mode_ == MouseMode::Game && SDL_GetKeyboardFocus() == window_;
+
+    // a refusal leaves the mode as SDL has it, which SetMouseMode asks for again
+    if (focusLost && !(SDL_SetWindowRelativeMouseMode(window_, false) && SDL_SetWindowRelativeMouseMode(window_, true))) {
+        mode_ = SDL_GetWindowRelativeMouseMode(window_) ? MouseMode::Game : MouseMode::Pointer;
     }
 
     return events_;

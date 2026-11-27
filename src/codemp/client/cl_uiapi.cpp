@@ -78,6 +78,13 @@ void UIVM_MouseEvent(int x, int y)
     uie->MouseEvent(x, y);
 }
 
+void UIVM_DisplayChanged(void)
+{
+    VMSwap v(uivm);
+
+    uie->DisplayChanged();
+}
+
 void UIVM_Refresh(int realtime)
 {
     VMSwap v(uivm);
