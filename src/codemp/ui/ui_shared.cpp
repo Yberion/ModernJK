@@ -384,10 +384,10 @@ void LerpColor(vec4_t a, vec4_t b, vec4_t c, float t)
 Float_Parse
 =================
 */
-bool Float_Parse(char** p, float* f)
+bool Float_Parse(const char** p, float* f)
 {
     char* token;
-    token = COM_ParseExt((const char**)p, false);
+    token = COM_ParseExt(p, false);
     if (token && token[0] != 0) {
         *f = Q_atof(token);
         return true;
@@ -431,7 +431,7 @@ bool PC_Float_Parse(int handle, float* f)
 Color_Parse
 =================
 */
-bool Color_Parse(char** p, vec4_t* c)
+bool Color_Parse(const char** p, vec4_t* c)
 {
     int i;
     float f;
@@ -469,10 +469,10 @@ bool PC_Color_Parse(int handle, vec4_t* c)
 Int_Parse
 =================
 */
-bool Int_Parse(char** p, int* i)
+bool Int_Parse(const char** p, int* i)
 {
     char* token;
-    token = COM_ParseExt((const char**)p, false);
+    token = COM_ParseExt(p, false);
 
     if (token && token[0] != 0) {
         *i = atoi(token);
@@ -515,7 +515,7 @@ bool PC_Int_Parse(int handle, int* i)
 Rect_Parse
 =================
 */
-bool Rect_Parse(char** p, rectDef_t* r)
+bool Rect_Parse(const char** p, rectDef_t* r)
 {
     if (Float_Parse(p, &r->x)) {
         if (Float_Parse(p, &r->y)) {
@@ -553,11 +553,11 @@ bool PC_Rect_Parse(int handle, rectDef_t* r)
 String_Parse
 =================
 */
-bool String_Parse(char** p, const char** out)
+bool String_Parse(const char** p, const char** out)
 {
     char* token;
 
-    token = COM_ParseExt((const char**)p, false);
+    token = COM_ParseExt(p, false);
     if (token && token[0] != 0) {
         *(out) = String_Alloc(token);
         return *(out) != nullptr;
@@ -963,7 +963,7 @@ itemDef_t* Menu_GetMatchingItemByNumber(menuDef_t* menu, int index, const char* 
     return nullptr;
 }
 
-bool Script_SetColor(itemDef_t* item, char** args)
+bool Script_SetColor(itemDef_t* item, const char** args)
 {
     const char* name;
     int i;
@@ -998,7 +998,7 @@ bool Script_SetColor(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_SetAsset(itemDef_t* item, char** args)
+bool Script_SetAsset(itemDef_t* item, const char** args)
 {
     const char* name;
     // expecting name to set asset to
@@ -1010,7 +1010,7 @@ bool Script_SetAsset(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_SetBackground(itemDef_t* item, char** args)
+bool Script_SetBackground(itemDef_t* item, const char** args)
 {
     const char* name;
     // expecting name to set asset to
@@ -1020,13 +1020,13 @@ bool Script_SetBackground(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_SetItemRectCvar(itemDef_t* item, char** args)
+bool Script_SetItemRectCvar(itemDef_t* item, const char** args)
 {
     const char* itemName;
     const char* cvarName;
     char cvarBuf[1024];
     const char* holdVal;
-    char* holdBuf;
+    const char* holdBuf;
     itemDef_t* item2 = nullptr;
     menuDef_t* menu;
 
@@ -1076,7 +1076,7 @@ bool Script_SetItemRectCvar(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_SetItemBackground(itemDef_t* item, char** args)
+bool Script_SetItemBackground(itemDef_t* item, const char** args)
 {
     const char* itemName;
     const char* name;
@@ -1088,7 +1088,7 @@ bool Script_SetItemBackground(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_SetItemText(itemDef_t* item, char** args)
+bool Script_SetItemText(itemDef_t* item, const char** args)
 {
     const char* itemName;
     const char* text;
@@ -1116,7 +1116,7 @@ itemDef_t* Menu_FindItemByName(menuDef_t* menu, const char* p)
     return nullptr;
 }
 
-bool Script_SetTeamColor(itemDef_t* item, char** args)
+bool Script_SetTeamColor(itemDef_t* item, const char** args)
 {
     if (DC->getTeamColor) {
         int i;
@@ -1129,7 +1129,7 @@ bool Script_SetTeamColor(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_SetItemColor(itemDef_t* item, char** args)
+bool Script_SetItemColor(itemDef_t* item, const char** args)
 {
     const char* itemname;
     const char* name;
@@ -1183,10 +1183,11 @@ bool Script_SetItemColor(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_SetItemColorCvar(itemDef_t* item, char** args)
+bool Script_SetItemColorCvar(itemDef_t* item, const char** args)
 {
     const char* itemname;
-    char *colorCvarName, *holdBuf, *holdVal;
+    char *colorCvarName, *holdVal;
+    const char* holdBuf;
     char cvarBuf[1024];
     const char* name;
     vec4_t color = {0.0f};
@@ -1257,7 +1258,7 @@ bool Script_SetItemColorCvar(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_SetItemRect(itemDef_t* item, char** args)
+bool Script_SetItemRect(itemDef_t* item, const char** args)
 {
     const char* itemname;
     rectDef_t* out;
@@ -1452,7 +1453,7 @@ void Menus_CloseAll()
     FPMessageTime = 0;
 }
 
-bool Script_Show(itemDef_t* item, char** args)
+bool Script_Show(itemDef_t* item, const char** args)
 {
     const char* name;
     if (String_Parse(args, &name)) {
@@ -1461,7 +1462,7 @@ bool Script_Show(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_Hide(itemDef_t* item, char** args)
+bool Script_Hide(itemDef_t* item, const char** args)
 {
     const char* name;
     if (String_Parse(args, &name)) {
@@ -1470,7 +1471,7 @@ bool Script_Hide(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_FadeIn(itemDef_t* item, char** args)
+bool Script_FadeIn(itemDef_t* item, const char** args)
 {
     const char* name;
     if (String_Parse(args, &name)) {
@@ -1480,7 +1481,7 @@ bool Script_FadeIn(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_FadeOut(itemDef_t* item, char** args)
+bool Script_FadeOut(itemDef_t* item, const char** args)
 {
     const char* name;
     if (String_Parse(args, &name)) {
@@ -1489,7 +1490,7 @@ bool Script_FadeOut(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_Open(itemDef_t* item, char** args)
+bool Script_Open(itemDef_t* item, const char** args)
 {
     const char* name;
     if (String_Parse(args, &name)) {
@@ -1498,7 +1499,7 @@ bool Script_Open(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_Close(itemDef_t* item, char** args)
+bool Script_Close(itemDef_t* item, const char** args)
 {
     const char* name;
     if (String_Parse(args, &name)) {
@@ -1604,10 +1605,10 @@ Defers the rest of the script based on the defer condition.  The deferred
 portion of the script can later be run with the "rundeferred"
 =================
 */
-bool Script_Defer(itemDef_t* item, char** args)
+bool Script_Defer(itemDef_t* item, const char** args)
 {
     // Should the script be deferred?
-    if (DC->deferScript((char**)args)) {
+    if (DC->deferScript(args)) {
         // Need the item the script was being run on
         ui_deferredScriptItem = item;
 
@@ -1630,7 +1631,7 @@ Runs the last deferred script, there can only be one script deferred at a
 time so be careful of recursion
 =================
 */
-bool Script_RunDeferred(itemDef_t* item, char** args)
+bool Script_RunDeferred(itemDef_t* item, const char** args)
 {
     // Make sure there is something to run.
     if (!ui_deferredScript[0] || !ui_deferredScriptItem) {
@@ -1643,7 +1644,7 @@ bool Script_RunDeferred(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_Transition(itemDef_t* item, char** args)
+bool Script_Transition(itemDef_t* item, const char** args)
 {
     const char* name;
     rectDef_t rectFrom, rectTo;
@@ -1696,7 +1697,7 @@ void Menu_ItemDisable(menuDef_t* menu, const char* name, bool disableFlag)
 }
 
 // Set item disable flags
-bool Script_Disable(itemDef_t* item, char** args)
+bool Script_Disable(itemDef_t* item, const char** args)
 {
     char* name;
     int value;
@@ -1722,7 +1723,7 @@ bool Script_Disable(itemDef_t* item, char** args)
 }
 
 // Scale the given item instantly.
-bool Script_Scale(itemDef_t* item, char** args)
+bool Script_Scale(itemDef_t* item, const char** args)
 {
     const char* name;
     float scale;
@@ -1761,7 +1762,7 @@ bool Script_Scale(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_Orbit(itemDef_t* item, char** args)
+bool Script_Orbit(itemDef_t* item, const char** args)
 {
     const char* name;
     float cx, cy, x, y;
@@ -1776,7 +1777,7 @@ bool Script_Orbit(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_SetFocus(itemDef_t* item, char** args)
+bool Script_SetFocus(itemDef_t* item, const char** args)
 {
     const char* name;
     itemDef_t* focusItem;
@@ -1799,7 +1800,7 @@ bool Script_SetFocus(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_SetPlayerModel(itemDef_t* item, char** args)
+bool Script_SetPlayerModel(itemDef_t* item, const char** args)
 {
     const char* name;
     if (String_Parse(args, &name)) {
@@ -1836,7 +1837,7 @@ uses current origin instead of specifing a starting origin
 transition2		lfvscr		25 0 202 264  20 25
 =================
 */
-bool Script_Transition2(itemDef_t* item, char** args)
+bool Script_Transition2(itemDef_t* item, const char** args)
 {
     const char* name;
     rectDef_t rectTo;
@@ -1868,7 +1869,7 @@ uses current origin instead of specifing a starting origin
 transition3		lfvscr		(min extent) (max extent) (fovx,y)  20 25
 =================
 */
-bool Script_Transition3(itemDef_t* item, char** args)
+bool Script_Transition3(itemDef_t* item, const char** args)
 {
     const char *name = nullptr, *value = nullptr;
     float minx, miny, minz, maxx, maxy, maxz, fovtx, fovty;
@@ -1920,7 +1921,7 @@ bool Script_Transition3(itemDef_t* item, char** args)
 }
 #endif
 
-bool Script_SetCvar(itemDef_t* item, char** args)
+bool Script_SetCvar(itemDef_t* item, const char** args)
 {
     const char *cvar, *val;
     if (String_Parse(args, &cvar) && String_Parse(args, &val)) {
@@ -1929,7 +1930,7 @@ bool Script_SetCvar(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_SetCvarToCvar(itemDef_t* item, char** args)
+bool Script_SetCvarToCvar(itemDef_t* item, const char** args)
 {
     const char *cvar, *val;
     if (String_Parse(args, &cvar) && String_Parse(args, &val)) {
@@ -1940,7 +1941,7 @@ bool Script_SetCvarToCvar(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_Exec(itemDef_t* item, char** args)
+bool Script_Exec(itemDef_t* item, const char** args)
 {
     const char* val;
     if (String_Parse(args, &val)) {
@@ -1949,7 +1950,7 @@ bool Script_Exec(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_Play(itemDef_t* item, char** args)
+bool Script_Play(itemDef_t* item, const char** args)
 {
     const char* val;
     if (String_Parse(args, &val)) {
@@ -1958,7 +1959,7 @@ bool Script_Play(itemDef_t* item, char** args)
     return true;
 }
 
-bool Script_playLooped(itemDef_t* item, char** args)
+bool Script_playLooped(itemDef_t* item, const char** args)
 {
     const char* val;
     if (String_Parse(args, &val)) {
@@ -1967,6 +1968,12 @@ bool Script_playLooped(itemDef_t* item, char** args)
     }
     return true;
 }
+
+// a command of the menus' scripts: its name, and its handler, false when the script stops there
+typedef struct commandDef_s {
+    const char* name;
+    bool (*handler)(itemDef_t* item, const char** args);
+} commandDef_t;
 
 commandDef_t commandList[] = {
     {"fadein", &Script_FadeIn},                       // group/name
@@ -2079,7 +2086,8 @@ int scriptCommandCount = sizeof(commandList) / sizeof(commandDef_t);
 
 void Item_RunScript(itemDef_t* item, const char* s)
 {
-    char script[2048], *p;
+    char script[2048];
+    const char* p;
     int i;
     bool bRan;
 
@@ -2124,7 +2132,8 @@ void Item_RunScript(itemDef_t* item, const char* s)
 
 bool Item_EnableShowViaCvar(itemDef_t* item, itemCvarFlags_t flag)
 {
-    char script[2048], *p;
+    char script[2048];
+    const char* p;
     if (item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest) {
         char buff[2048];
         DC->getCVarString(item->cvarTest, buff, sizeof(buff));
@@ -7088,7 +7097,7 @@ bool ItemParse_rectcvar(itemDef_t* item, int handle)
 {
     char cvarBuf[1024];
     const char* holdVal;
-    char* holdBuf;
+    const char* holdBuf;
 
     // get Cvar name
     pc_token_t token;

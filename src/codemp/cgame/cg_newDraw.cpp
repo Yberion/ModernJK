@@ -888,9 +888,13 @@ void CG_ShowResponseHead(void)
     cg.voiceTime = cg.time;
 }
 
-void CG_RunMenuScript(char** args) {}
+// the cgame's menus run no script command of their own
+bool CG_RunMenuScript(const char** args)
+{
+    return true;
+}
 
-bool CG_DeferMenuScript(char** args)
+bool CG_DeferMenuScript(const char** args)
 {
     return false;
 }

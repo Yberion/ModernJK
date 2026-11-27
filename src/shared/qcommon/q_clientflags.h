@@ -25,8 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 // q_clientflags.h -- the flags of the cinematics, of cgame's local entities and camera overrides, of the menus' model
-// items: one definition for the trees that share them (multiplayer, and Jedi Academy's and Jedi Outcast's single
-// player).
+// items, and the menus' fonts: one definition for the trees that share them (multiplayer, and Jedi Academy's and Jedi
+// Outcast's single player).
 
 #include "q_enum.h"
 
@@ -72,3 +72,6 @@ enum class itemModelFlags_t {
     ITF_ISANYSABER = (ITF_ISSABER | ITF_ISSABER2), // either saber
 };
 template <> inline constexpr bool enableEnumFlags<itemModelFlags_t> = true;
+
+// the font of a menu's or cgame's text, the handle registered for it chosen by MenuFontToHandle
+enum class menuFont_t { FONT_NONE, FONT_SMALL = 1, FONT_MEDIUM, FONT_LARGE, FONT_SMALL2 };

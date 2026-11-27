@@ -1838,9 +1838,6 @@ enum class ForceReload_e {
 
 };
 
-// the font of a menu's or cgame's text, the handle registered for it chosen by MenuFontToHandle
-enum class menuFont_t { FONT_NONE, FONT_SMALL = 1, FONT_MEDIUM, FONT_LARGE, FONT_SMALL2 };
-
 void NET_AddrToString(char* out, size_t size, void* addr);
 
 bool Q_InBitflags(const uint32_t* bits, int index, uint32_t bitsPerByte);

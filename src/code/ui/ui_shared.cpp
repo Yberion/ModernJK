@@ -937,7 +937,7 @@ Hacks to fix issues with Team Arena menu scripts
 static void Item_ApplyHacks(itemDef_t* item)
 {
     if (item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp(item->window.name, "voice") && item->cvar && !Q_stricmp(item->cvar, "g_subtitles")) {
-        multiDef_t* multiPtr = (multiDef_t*)item->typeData;
+        multiDef_t* multiPtr = item->typeData.multi;
         int i;
         bool found = false;
         for (i = 0; i < multiPtr->count; i++) {
@@ -962,7 +962,7 @@ static void Item_ApplyHacks(itemDef_t* item)
     if (item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp(item->window.name, "video_mode") && item->cvar &&
         !Q_stricmp(item->cvar, "r_ext_texture_filter_anisotropic")) {
         {
-            memset(item->typeData, 0, sizeof(multiDef_t));
+            memset(item->typeData.data, 0, sizeof(multiDef_t));
         }
         editFieldDef_t* editPtr = nullptr;
 
@@ -971,7 +971,7 @@ static void Item_ApplyHacks(itemDef_t* item)
 
         Item_ValidateTypeData(item);
 
-        editPtr = (editFieldDef_t*)item->typeData;
+        editPtr = item->typeData.edit;
         editPtr->minVal = 0.5f;
         editPtr->maxVal = cls.glconfig.maxTextureFilterAnisotropy;
         editPtr->defVal = 1.0f;
@@ -1669,9 +1669,9 @@ void Menu_SetItemText(const menuDef_t* menu, const char* itemName, const char* t
             if (text[0] == '*') {
                 item->cvar = text + 1;
                 // Just copying what was in ItemParse_cvar()
-                if (item->typeData) {
+                if (item->typeData.data) {
                     editFieldDef_t* editPtr;
-                    editPtr = (editFieldDef_t*)item->typeData;
+                    editPtr = item->typeData.edit;
                     editPtr->minVal = -1;
                     editPtr->maxVal = -1;
                     editPtr->defVal = -1;
@@ -1680,7 +1680,7 @@ void Menu_SetItemText(const menuDef_t* menu, const char* itemName, const char* t
             else {
                 if (item->type == ITEM_TYPE_TEXTSCROLL) {
                     char cvartext[1024];
-                    textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
+                    textScrollDef_t* scrollPtr = item->typeData.textscroll;
                     if (scrollPtr) {
                         scrollPtr->startPos = 0;
                         scrollPtr->endPos = 0;
@@ -1752,7 +1752,7 @@ void Menu_Transition3ItemByName(menuDef_t* menu, const char* p, const float minx
         item = Menu_GetMatchingItemByNumber(menu, i, p);
         if (item != nullptr) {
             if (item->type == ITEM_TYPE_MODEL) {
-                modelptr = (modelDef_t*)item->typeData;
+                modelptr = item->typeData.model;
 
                 item->window.flags |= (windowFlags_t::WINDOW_INTRANSITIONMODEL | windowFlags_t::WINDOW_VISIBLE);
                 item->window.offsetTime = time;
@@ -2671,6 +2671,12 @@ bool Script_Orbit(itemDef_t* item, const char** args)
     return true;
 }
 
+// a command of the menus' scripts: its name, and its handler, false when the script stops there
+typedef struct commandDef_s {
+    const char* name;
+    bool (*handler)(itemDef_t* item, const char** args);
+} commandDef_t;
+
 commandDef_t commandList[] = {{"activate", &Script_Activate},                   // menu
                               {"close", &Script_Close},                         // menu
                               {"exec", &Script_Exec},                           // group/name
@@ -2730,7 +2736,7 @@ const char* Item_Multi_Setting(itemDef_t* item)
     char buff[1024];
     float value = 0;
     int i;
-    multiDef_t* multiPtr = (multiDef_t*)item->typeData;
+    multiDef_t* multiPtr = item->typeData.multi;
     if (multiPtr) {
         if (multiPtr->strDef) {
             if (item->cvar) {
@@ -2915,7 +2921,7 @@ bool ItemParse_asset_model_go(itemDef_t* item, const char* name)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
-    modelPtr = (modelDef_t*)item->typeData;
+    modelPtr = item->typeData.model;
 
     if (!Q_stricmp(&name[strlen(name) - 4], ".glm")) { // it's a ghoul2 model then
         if (item->ghoul2.size() && item->ghoul2[0].mModelindex >= 0) {
@@ -2987,7 +2993,7 @@ bool ItemParse_model_origin(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
-    modelPtr = (modelDef_t*)item->typeData;
+    modelPtr = item->typeData.model;
 
     if (PC_ParseFloat(&modelPtr->origin[0])) {
         if (PC_ParseFloat(&modelPtr->origin[1])) {
@@ -3009,7 +3015,7 @@ bool ItemParse_model_fovx(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
-    modelPtr = (modelDef_t*)item->typeData;
+    modelPtr = item->typeData.model;
 
     if (PC_ParseFloat(&modelPtr->fov_x)) {
         return false;
@@ -3027,7 +3033,7 @@ bool ItemParse_model_fovy(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
-    modelPtr = (modelDef_t*)item->typeData;
+    modelPtr = item->typeData.model;
 
     if (PC_ParseFloat(&modelPtr->fov_y)) {
         return false;
@@ -3045,7 +3051,7 @@ bool ItemParse_model_rotation(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
-    modelPtr = (modelDef_t*)item->typeData;
+    modelPtr = item->typeData.model;
 
     if (PC_ParseInt(&modelPtr->rotationSpeed)) {
         return false;
@@ -3063,7 +3069,7 @@ bool ItemParse_model_angle(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
-    modelPtr = (modelDef_t*)item->typeData;
+    modelPtr = item->typeData.model;
 
     if (PC_ParseInt(&modelPtr->angle)) {
         return false;
@@ -3076,7 +3082,7 @@ bool ItemParse_model_g2mins(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
-    modelPtr = (modelDef_t*)item->typeData;
+    modelPtr = item->typeData.model;
 
     if (!PC_ParseFloat(&modelPtr->g2mins[0])) {
         if (!PC_ParseFloat(&modelPtr->g2mins[1])) {
@@ -3093,7 +3099,7 @@ bool ItemParse_model_g2maxs(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
-    modelPtr = (modelDef_t*)item->typeData;
+    modelPtr = item->typeData.model;
 
     if (!PC_ParseFloat(&modelPtr->g2maxs[0])) {
         if (!PC_ParseFloat(&modelPtr->g2maxs[1])) {
@@ -3111,7 +3117,7 @@ bool ItemParse_model_g2skin_go(itemDef_t* item, const char* skinName)
     modelDef_t* modelPtr;
 
     Item_ValidateTypeData(item);
-    modelPtr = (modelDef_t*)item->typeData;
+    modelPtr = item->typeData.model;
 
     if (!skinName || !skinName[0]) { // it was parsed cor~rectly so still return true.
         modelPtr->g2skin = 0;
@@ -3144,7 +3150,7 @@ bool ItemParse_model_g2anim_go(itemDef_t* item, const char* animName)
     modelDef_t* modelPtr;
 
     Item_ValidateTypeData(item);
-    modelPtr = (modelDef_t*)item->typeData;
+    modelPtr = item->typeData.model;
 
     if (!animName || !animName[0]) { // it was parsed correctly so still return true.
         return true;
@@ -3269,7 +3275,7 @@ bool ItemParse_notselectable(itemDef_t* item)
 {
     listBoxDef_t* listPtr;
     Item_ValidateTypeData(item);
-    listPtr = (listBoxDef_t*)item->typeData;
+    listPtr = item->typeData.listbox;
 
     if (item->type == ITEM_TYPE_LISTBOX && listPtr) {
         listPtr->notselectable = true;
@@ -3287,7 +3293,7 @@ bool ItemParse_scrollhidden(itemDef_t* item)
 {
     listBoxDef_t* listPtr;
     Item_ValidateTypeData(item);
-    listPtr = (listBoxDef_t*)item->typeData;
+    listPtr = item->typeData.listbox;
 
     if (item->type == ITEM_TYPE_LISTBOX && listPtr) {
         listPtr->scrollhidden = true;
@@ -3376,7 +3382,7 @@ bool ItemParse_elementwidth(itemDef_t* item)
     listBoxDef_t* listPtr;
 
     Item_ValidateTypeData(item);
-    listPtr = (listBoxDef_t*)item->typeData;
+    listPtr = item->typeData.listbox;
     if (PC_ParseFloat(&listPtr->elementWidth)) {
         return false;
     }
@@ -3395,7 +3401,7 @@ bool ItemParse_elementheight(itemDef_t* item)
     listBoxDef_t* listPtr;
 
     Item_ValidateTypeData(item);
-    listPtr = (listBoxDef_t*)item->typeData;
+    listPtr = item->typeData.listbox;
     if (PC_ParseFloat(&listPtr->elementHeight)) {
         return false;
     }
@@ -3428,11 +3434,11 @@ bool ItemParse_elementtype(itemDef_t* item)
     listBoxDef_t* listPtr;
 
     Item_ValidateTypeData(item);
-    if (!item->typeData) {
+    if (!item->typeData.data) {
         return false;
     }
 
-    listPtr = (listBoxDef_t*)item->typeData;
+    listPtr = item->typeData.listbox;
     if (PC_ParseInt(&listPtr->elementStyle)) {
         return false;
     }
@@ -3451,11 +3457,11 @@ bool ItemParse_columns(itemDef_t* item)
     listBoxDef_t* listPtr;
 
     Item_ValidateTypeData(item);
-    if (!item->typeData) {
+    if (!item->typeData.data) {
         return false;
     }
 
-    listPtr = (listBoxDef_t*)item->typeData;
+    listPtr = item->typeData.listbox;
     if (!PC_ParseInt(&num)) {
         if (num > MAX_LB_COLUMNS) {
             num = MAX_LB_COLUMNS;
@@ -3814,11 +3820,11 @@ bool ItemParse_doubleClick(itemDef_t* item)
     listBoxDef_t* listPtr;
 
     Item_ValidateTypeData(item);
-    if (!item->typeData) {
+    if (!item->typeData.data) {
         return false;
     }
 
-    listPtr = (listBoxDef_t*)item->typeData;
+    listPtr = item->typeData.listbox;
 
     if (!PC_Script_Parse(&listPtr->doubleClick)) {
         return false;
@@ -3998,7 +4004,7 @@ bool ItemParse_cvar(itemDef_t* item)
         return false;
     }
 
-    if (item->typeData) {
+    if (item->typeData.data) {
         switch (item->type) {
         case ITEM_TYPE_EDITFIELD:
         case ITEM_TYPE_NUMERICFIELD:
@@ -4007,7 +4013,7 @@ bool ItemParse_cvar(itemDef_t* item)
         case ITEM_TYPE_SLIDER:
         case ITEM_TYPE_TEXT:
         case ITEM_TYPE_TEXTSCROLL:
-            editPtr = (editFieldDef_t*)item->typeData;
+            editPtr = item->typeData.edit;
             editPtr->minVal = -1;
             editPtr->maxVal = -1;
             editPtr->defVal = -1;
@@ -4028,14 +4034,14 @@ bool ItemParse_maxChars(itemDef_t* item)
     int maxChars;
 
     Item_ValidateTypeData(item);
-    if (!item->typeData) {
+    if (!item->typeData.data) {
         return false;
     }
 
     if (PC_ParseInt(&maxChars)) {
         return false;
     }
-    editPtr = (editFieldDef_t*)item->typeData;
+    editPtr = item->typeData.edit;
     editPtr->maxChars = maxChars;
     return true;
 }
@@ -4051,14 +4057,14 @@ bool ItemParse_maxPaintChars(itemDef_t* item)
     int maxChars;
 
     Item_ValidateTypeData(item);
-    if (!item->typeData) {
+    if (!item->typeData.data) {
         return false;
     }
 
     if (PC_ParseInt(&maxChars)) {
         return false;
     }
-    editPtr = (editFieldDef_t*)item->typeData;
+    editPtr = item->typeData.edit;
     editPtr->maxPaintChars = maxChars;
     return true;
 }
@@ -4069,7 +4075,7 @@ bool ItemParse_lineHeight(itemDef_t* item)
     int height;
 
     Item_ValidateTypeData(item);
-    if (!item->typeData) {
+    if (!item->typeData.data) {
         return false;
     }
 
@@ -4077,7 +4083,7 @@ bool ItemParse_lineHeight(itemDef_t* item)
         return false;
     }
 
-    scrollPtr = (textScrollDef_t*)item->typeData;
+    scrollPtr = item->typeData.textscroll;
     scrollPtr->lineHeight = height;
 
     return true;
@@ -4093,10 +4099,10 @@ bool ItemParse_cvarFloat(itemDef_t* item)
     editFieldDef_t* editPtr;
 
     Item_ValidateTypeData(item);
-    if (!item->typeData) {
+    if (!item->typeData.data) {
         return false;
     }
-    editPtr = (editFieldDef_t*)item->typeData;
+    editPtr = item->typeData.edit;
     if (PC_ParseStringMem((const char**)&item->cvar) && !PC_ParseFloat(&editPtr->defVal) && !PC_ParseFloat(&editPtr->minVal) &&
         !PC_ParseFloat(&editPtr->maxVal)) {
         if (!Q_stricmp(item->cvar, "r_ext_texture_filter_anisotropic")) { // hehe, hook up the correct max value here.
@@ -4120,10 +4126,10 @@ bool ItemParse_cvarStrList(itemDef_t* item)
     int pass;
 
     Item_ValidateTypeData(item);
-    if (!item->typeData) {
+    if (!item->typeData.data) {
         return false;
     }
-    multiPtr = (multiDef_t*)item->typeData;
+    multiPtr = item->typeData.multi;
     multiPtr->count = 0;
     multiPtr->strDef = true;
 
@@ -4199,10 +4205,10 @@ bool ItemParse_cvarFloatList(itemDef_t* item)
     multiDef_t* multiPtr;
 
     Item_ValidateTypeData(item);
-    if (!item->typeData) {
+    if (!item->typeData.data) {
         return false;
     }
-    multiPtr = (multiDef_t*)item->typeData;
+    multiPtr = item->typeData.multi;
     multiPtr->count = 0;
     multiPtr->strDef = false;
 
@@ -4351,34 +4357,34 @@ Item_ValidateTypeData
 */
 void Item_ValidateTypeData(itemDef_t* item)
 {
-    if (item->typeData) {
+    if (item->typeData.data) {
         return;
     }
 
     if (item->type == ITEM_TYPE_LISTBOX) {
-        item->typeData = UI_Alloc(sizeof(listBoxDef_t));
-        memset(item->typeData, 0, sizeof(listBoxDef_t));
+        item->typeData.data = UI_Alloc(sizeof(listBoxDef_t));
+        memset(item->typeData.data, 0, sizeof(listBoxDef_t));
     }
     else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_BIND ||
              item->type == ITEM_TYPE_SLIDER || item->type == ITEM_TYPE_TEXT) {
-        item->typeData = UI_Alloc(sizeof(editFieldDef_t));
-        memset(item->typeData, 0, sizeof(editFieldDef_t));
+        item->typeData.data = UI_Alloc(sizeof(editFieldDef_t));
+        memset(item->typeData.data, 0, sizeof(editFieldDef_t));
         if (item->type == ITEM_TYPE_EDITFIELD) {
-            if (!((editFieldDef_t*)item->typeData)->maxPaintChars) {
-                ((editFieldDef_t*)item->typeData)->maxPaintChars = MAX_EDITFIELD;
+            if (!(item->typeData.edit)->maxPaintChars) {
+                (item->typeData.edit)->maxPaintChars = MAX_EDITFIELD;
             }
         }
     }
     else if (item->type == ITEM_TYPE_MULTI) {
-        item->typeData = UI_Alloc(sizeof(multiDef_t));
+        item->typeData.data = UI_Alloc(sizeof(multiDef_t));
     }
     else if (item->type == ITEM_TYPE_MODEL) {
-        item->typeData = UI_Alloc(sizeof(modelDef_t));
-        memset(item->typeData, 0, sizeof(modelDef_t));
-        ((modelDef_t*)item->typeData)->g2anim = animNumber_t::ANIM_NONE; // until a model_g2anim names one
+        item->typeData.data = UI_Alloc(sizeof(modelDef_t));
+        memset(item->typeData.data, 0, sizeof(modelDef_t));
+        (item->typeData.model)->g2anim = animNumber_t::ANIM_NONE; // until a model_g2anim names one
     }
     else if (item->type == ITEM_TYPE_TEXTSCROLL) {
-        item->typeData = UI_Alloc(sizeof(textScrollDef_t));
+        item->typeData.data = UI_Alloc(sizeof(textScrollDef_t));
     }
 }
 
@@ -4839,7 +4845,7 @@ static void Item_TextScroll_BuildLines(itemDef_t* item)
 {
     // new asian-aware line breaker...  (pasted from elsewhere late @ night, hence aliasing-vars ;-)
     //
-    textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
+    textScrollDef_t* scrollPtr = item->typeData.textscroll;
     const char* psText = item->text; // for copy/paste ease
     int iBoxWidth = item->window.rect.w - SCROLLBAR_SIZE - 10;
 
@@ -4912,7 +4918,7 @@ static void Item_TextScroll_BuildLines(itemDef_t* item)
                 scrollPtr->pLines[scrollPtr->iLineCount] = String_Alloc(sLineForDisplay);
                 break; // print this line
             }
-            else if (DC->textWidth(sLineForDisplay, item->textscale, item->font) >= iBoxWidth) {
+            else if (DC->textWidthHandle(sLineForDisplay, item->textscale, item->font) >= iBoxWidth) {
                 // reached screen edge, so cap off string at bytepos after last good position...
                 //
                 if (uiLetter > 255 && bIsTrailingPunctuation && !ui.Language_UsesSpaces()) {
@@ -4973,7 +4979,7 @@ void Item_InitControls(itemDef_t* item)
         return;
     }
     if (item->type == ITEM_TYPE_LISTBOX) {
-        listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
+        listBoxDef_t* listPtr = item->typeData.listbox;
         item->cursorPos = 0;
         if (listPtr) {
             listPtr->cursorPos = 0;
@@ -5340,7 +5346,7 @@ void Item_SetScreenCoords(itemDef_t* item, float x, float y)
 
     switch (item->type) {
     case ITEM_TYPE_TEXTSCROLL: {
-        textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
+        textScrollDef_t* scrollPtr = item->typeData.textscroll;
         if (scrollPtr) {
             scrollPtr->startPos = 0;
             scrollPtr->endPos = 0;
@@ -5662,8 +5668,8 @@ void Menu_PaintAll(void)
 
     if (uis.debugMode) {
         vec4_t v = {1, 1, 1, 1};
-        DC->drawText(5, 25, .75, v, Q_Format("({},{})", DC->cursorx, DC->cursory).c_str(), 0, 0, DC->Assets.qhMediumFont);
-        DC->drawText(5, 10, .75, v, Q_Format("fps: {:f}", DC->FPS).c_str(), 0, 0, DC->Assets.qhMediumFont);
+        DC->drawTextWidth(5, 25, .75, v, Q_Format("({},{})", DC->cursorx, DC->cursory).c_str(), 0, 0, DC->Assets.qhMediumFont);
+        DC->drawTextWidth(5, 10, .75, v, Q_Format("fps: {:f}", DC->FPS).c_str(), 0, 0, DC->Assets.qhMediumFont);
     }
 }
 
@@ -5866,7 +5872,7 @@ void Item_SetTextExtents(itemDef_t* item, int* width, int* height, const char* t
     if (*width == 0 || (item->type == ITEM_TYPE_OWNERDRAW && item->textalignment == ITEM_ALIGN_CENTER) || HasStringLanguageChanged(item)) {
         int originalWidth;
 
-        originalWidth = DC->textWidth(textPtr, item->textscale, item->font);
+        originalWidth = DC->textWidthHandle(textPtr, item->textscale, item->font);
 
         if (item->type == ITEM_TYPE_OWNERDRAW && (item->textalignment == ITEM_ALIGN_CENTER || item->textalignment == ITEM_ALIGN_RIGHT)) {
             originalWidth += DC->ownerDrawWidth(item->window.ownerDraw, item->textscale);
@@ -5874,11 +5880,11 @@ void Item_SetTextExtents(itemDef_t* item, int* width, int* height, const char* t
         else if (item->type == ITEM_TYPE_EDITFIELD && item->textalignment == ITEM_ALIGN_CENTER && item->cvar) {
             char buff[256];
             DC->getCVarString(item->cvar, buff, 256);
-            originalWidth += DC->textWidth(buff, item->textscale, item->font);
+            originalWidth += DC->textWidthHandle(buff, item->textscale, item->font);
         }
 
-        *width = DC->textWidth(textPtr, item->textscale, item->font);
-        *height = DC->textHeight(textPtr, item->textscale, item->font);
+        *width = DC->textWidthHandle(textPtr, item->textscale, item->font);
+        *height = DC->textHeightHandle(textPtr, item->textscale, item->font);
 
         item->textRect.w = *width;
         item->textRect.h = *height;
@@ -6001,12 +6007,12 @@ void Item_Text_Wrapped_Paint(itemDef_t* item)
     while (p && *p) {
         strncpy(buff, start, p - start + 1);
         buff[p - start] = '\0';
-        DC->drawText(x, y, item->textscale, color, buff, 0, item->textStyle, item->font);
+        DC->drawTextWidth(x, y, item->textscale, color, buff, 0, item->textStyle, item->font);
         y += height + 5;
         start += p - start + 1;
         p = strchr(p + 1, '\r');
     }
-    DC->drawText(x, y, item->textscale, color, start, 0, item->textStyle, item->font);
+    DC->drawTextWidth(x, y, item->textscale, color, start, 0, item->textStyle, item->font);
 }
 
 /*
@@ -6062,7 +6068,7 @@ void Item_Text_Paint(itemDef_t* item)
     }
 
     Item_TextColor(item, &color);
-    DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, textPtr, 0, item->textStyle, item->font);
+    DC->drawTextWidth(item->textRect.x, item->textRect.y, item->textscale, color, textPtr, 0, item->textStyle, item->font);
 
     if (item->text2) // Is there a second line of text?
     {
@@ -6073,8 +6079,8 @@ void Item_Text_Paint(itemDef_t* item)
         }
 
         Item_TextColor(item, &color);
-        DC->drawText(item->textRect.x + item->text2alignx, item->textRect.y + item->text2aligny, item->textscale, color, textPtr, 0, item->textStyle,
-                     item->font);
+        DC->drawTextWidth(item->textRect.x + item->text2alignx, item->textRect.y + item->text2aligny, item->textscale, color, textPtr, 0, item->textStyle,
+                          item->font);
     }
 }
 
@@ -6117,7 +6123,7 @@ void Item_TextField_Paint(itemDef_t* item)
     vec4_t newColor, lowLight;
     int offset;
     menuDef_t* parent = (menuDef_t*)item->parent;
-    editFieldDef_t* editPtr = (editFieldDef_t*)item->typeData;
+    editFieldDef_t* editPtr = item->typeData.edit;
 
     Item_Text_Paint(item);
 
@@ -6141,12 +6147,13 @@ void Item_TextField_Paint(itemDef_t* item)
     offset = 8; //(item->text && *item->text) ? 8 : 0;
     if (Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS) && g_editingField) {
         char cursor = DC->getOverstrikeMode() ? '_' : '|';
-        DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset,
-                               item->cursorPos - editPtr->paintOffset, cursor, /*editPtr->maxPaintChars*/ item->window.rect.w, item->textStyle, item->font);
+        DC->drawTextWithCursorWidth(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset,
+                                    item->cursorPos - editPtr->paintOffset, cursor, /*editPtr->maxPaintChars*/ item->window.rect.w, item->textStyle,
+                                    item->font);
     }
     else {
-        DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset,
-                     /*editPtr->maxPaintChars*/ item->window.rect.w, item->textStyle, item->font);
+        DC->drawTextWidth(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset,
+                          /*editPtr->maxPaintChars*/ item->window.rect.w, item->textStyle, item->font);
     }
 }
 
@@ -6155,7 +6162,7 @@ void Item_TextScroll_Paint(itemDef_t* item)
     char cvartext[1024];
     float x, y, size, count, thumb;
     int i;
-    textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
+    textScrollDef_t* scrollPtr = item->typeData.textscroll;
 
     size = item->window.rect.h - 2;
 
@@ -6204,7 +6211,7 @@ void Item_TextScroll_Paint(itemDef_t* item)
             continue;
         }
 
-        DC->drawText(x + 4, y, item->textscale, item->window.foreColor, text, 0, item->textStyle, item->font);
+        DC->drawTextWidth(x + 4, y, item->textscale, item->window.foreColor, text, 0, item->textStyle, item->font);
 
         size -= scrollPtr->lineHeight;
         if (size < scrollPtr->lineHeight) {
@@ -6229,7 +6236,7 @@ void Item_ListBox_Paint(itemDef_t* item)
     int count, i, thumb;
     qhandle_t image;
     qhandle_t optionalImage;
-    listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
+    listBoxDef_t* listPtr = item->typeData.listbox;
 
     // the listbox is horizontal or vertical and has a fixed size scroll bar going either direction
     // elements are enumerated from the DC and either text or image handles are acquired from the DC as well
@@ -6378,7 +6385,7 @@ void Item_ListBox_Paint(itemDef_t* item)
                 if (listPtr->numColumns > 0) {
                     int j;
                     for (j = 0; j < listPtr->numColumns; j++) {
-                        text = DC->feederItemText(item->special, i, j, &optionalImage);
+                        text = DC->feederItemText(item->special, i, j, &optionalImage, nullptr, nullptr);
                         if (text[0] == '@') {
                             text = SE_GetString(&text[1]);
                         }
@@ -6402,19 +6409,19 @@ void Item_ListBox_Paint(itemDef_t* item)
                             int textyOffset;
                             textyOffset = 0;
 
-                            DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight + textyOffset, item->textscale, *color, text,
-                                         listPtr->columnInfo[j].maxChars, item->textStyle, item->font);
+                            DC->drawTextWidth(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight + textyOffset, item->textscale, *color, text,
+                                              listPtr->columnInfo[j].maxChars, item->textStyle, item->font);
                         }
                     }
                 }
                 else {
 
-                    text = DC->feederItemText(item->special, i, 0, &optionalImage);
+                    text = DC->feederItemText(item->special, i, 0, &optionalImage, nullptr, nullptr);
                     if (optionalImage >= 0) {
                         // DC->drawHandlePic(x + 4 + listPtr->elementHeight, y, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
                     }
                     else if (text) {
-                        DC->drawText(x + 4, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, item->textStyle, item->font);
+                        DC->drawTextWidth(x + 4, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, item->textStyle, item->font);
                     }
                 }
 
@@ -6513,7 +6520,7 @@ void Item_Bind_Paint(itemDef_t* item)
     int maxChars = 0, textHeight, yAdj, startingXPos;
 
     menuDef_t* parent = (menuDef_t*)item->parent;
-    editFieldDef_t* editPtr = (editFieldDef_t*)item->typeData;
+    editFieldDef_t* editPtr = item->typeData.edit;
 
     if (editPtr) {
         maxChars = editPtr->maxPaintChars;
@@ -6546,27 +6553,27 @@ void Item_Bind_Paint(itemDef_t* item)
 
         // If the text runs past the limit bring the scale down until it fits.
         textScale = item->textscale;
-        textWidth = DC->textWidth(g_nameBind, (float)textScale, uiInfo.uiDC.Assets.qhMediumFont);
+        textWidth = DC->textWidthHandle(g_nameBind, (float)textScale, uiInfo.uiDC.Assets.qhMediumFont);
 
         startingXPos = (item->textRect.x + item->textRect.w + 8);
 
         while ((startingXPos + textWidth) >= SCREEN_WIDTH) {
             textScale -= .05f;
-            textWidth = DC->textWidth(g_nameBind, (float)textScale, uiInfo.uiDC.Assets.qhMediumFont);
+            textWidth = DC->textWidthHandle(g_nameBind, (float)textScale, uiInfo.uiDC.Assets.qhMediumFont);
         }
 
         // Try to adjust it's y placement if the scale has changed.
         yAdj = 0;
         if (textScale != item->textscale) {
-            textHeight = DC->textHeight(g_nameBind, item->textscale, uiInfo.uiDC.Assets.qhMediumFont);
-            yAdj = textHeight - DC->textHeight(g_nameBind, textScale, uiInfo.uiDC.Assets.qhMediumFont);
+            textHeight = DC->textHeightHandle(g_nameBind, item->textscale, uiInfo.uiDC.Assets.qhMediumFont);
+            yAdj = textHeight - DC->textHeightHandle(g_nameBind, textScale, uiInfo.uiDC.Assets.qhMediumFont);
         }
 
-        DC->drawText(startingXPos, item->textRect.y + yAdj, textScale, newColor, g_nameBind, maxChars /*item->textRect.w*/, item->textStyle, item->font);
+        DC->drawTextWidth(startingXPos, item->textRect.y + yAdj, textScale, newColor, g_nameBind, maxChars /*item->textRect.w*/, item->textStyle, item->font);
     }
     else {
-        DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? "FIXME 1" : "FIXME 0", maxChars /*item->textRect.w*/,
-                     item->textStyle, item->font);
+        DC->drawTextWidth(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? "FIXME 1" : "FIXME 0", maxChars /*item->textRect.w*/,
+                          item->textStyle, item->font);
     }
 }
 
@@ -6691,7 +6698,7 @@ void UI_TalkingHead(itemDef_t* item)
         }//talking
     */
     if (facial_timer < DC->realTime) { // restart the base anim
-        //		modelDef_t *modelPtr = (modelDef_t*)item->typeData;
+        //		modelDef_t *modelPtr = item->typeData.model;
         // ItemParse_model_g2anim_go( item, "BOTH_STAND5IDLE1" );
         //		facial_timer = DC->realTime + Q_flrand(2000.0, 7000.0) + DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
     }
@@ -6714,7 +6721,7 @@ void Item_Model_Paint(itemDef_t* item)
     refEntity_t ent;
     vec3_t mins, maxs, origin;
     vec3_t angles;
-    const modelDef_t* modelPtr = (modelDef_t*)item->typeData;
+    const modelDef_t* modelPtr = item->typeData.model;
 
     if (modelPtr == nullptr) {
         return;
@@ -6804,7 +6811,7 @@ void Item_Model_Paint(itemDef_t* item)
     // a moves datapad anim is playing
     if (uiInfo.moveAnimTime && (uiInfo.moveAnimTime < uiInfo.uiDC.realTime)) {
         modelDef_t* modelPtr;
-        modelPtr = (modelDef_t*)item->typeData;
+        modelPtr = item->typeData.model;
         if (modelPtr) {
             // HACKHACKHACK: check for any multi-part anim sequences, and play the next anim, if needbe
             switch (modelPtr->g2anim) {
@@ -6969,7 +6976,7 @@ void Item_OwnerDraw_Paint(itemDef_t* item)
 
     parent = (menuDef_t*)item->parent;
 
-    if (DC->ownerDrawItem) {
+    if (DC->ownerDrawItemHandle) {
         vec4_t color, lowLight;
         Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, true, parent->fadeAmount);
         memcpy(&color, &item->window.foreColor, sizeof(color));
@@ -7012,14 +7019,14 @@ void Item_OwnerDraw_Paint(itemDef_t* item)
             Item_Text_Paint(item);
 
             // +8 is an offset kludge to properly align owner draw items that have text combined with them
-            DC->ownerDrawItem(item->textRect.x + item->textRect.w + 8, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny,
-                              item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color,
-                              item->window.background, item->textStyle, item->font);
+            DC->ownerDrawItemHandle(item->textRect.x + item->textRect.w + 8, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny,
+                                    item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color,
+                                    item->window.background, item->textStyle, item->font);
         }
         else {
-            DC->ownerDrawItem(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, item->textalignx, item->textaligny,
-                              item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color,
-                              item->window.background, item->textStyle, item->font);
+            DC->ownerDrawItemHandle(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, item->textalignx, item->textaligny,
+                                    item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color,
+                                    item->window.background, item->textStyle, item->font);
         }
     }
 }
@@ -7048,10 +7055,10 @@ void Item_YesNo_Paint(itemDef_t* item)
     Item_TextColor(item, &color);
     if (item->text) {
         Item_Text_Paint(item);
-        DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, color, yesnovalue, 0, item->textStyle, item->font);
+        DC->drawTextWidth(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, color, yesnovalue, 0, item->textStyle, item->font);
     }
     else {
-        DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, yesnovalue, 0, item->textStyle, item->font);
+        DC->drawTextWidth(item->textRect.x, item->textRect.y, item->textscale, color, yesnovalue, 0, item->textStyle, item->font);
     }
 }
 
@@ -7074,17 +7081,17 @@ void Item_Multi_Paint(itemDef_t* item)
     Item_TextColor(item, &color);
     if (item->text) {
         Item_Text_Paint(item);
-        DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, color, text, 0, item->textStyle, item->font);
+        DC->drawTextWidth(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, color, text, 0, item->textStyle, item->font);
     }
     else {
         // JLF added xoffset
-        DC->drawText(item->textRect.x + item->xoffset, item->textRect.y, item->textscale, color, text, 0, item->textStyle, item->font);
+        DC->drawTextWidth(item->textRect.x + item->xoffset, item->textRect.y, item->textscale, color, text, 0, item->textStyle, item->font);
     }
 }
 
 int Item_TextScroll_MaxScroll(itemDef_t* item)
 {
-    textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
+    textScrollDef_t* scrollPtr = item->typeData.textscroll;
 
     int count = scrollPtr->iLineCount;
     int max = count - (int)(item->window.rect.h / scrollPtr->lineHeight) + 1;
@@ -7099,7 +7106,7 @@ int Item_TextScroll_MaxScroll(itemDef_t* item)
 int Item_TextScroll_ThumbPosition(itemDef_t* item)
 {
     float max, pos, size;
-    textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
+    textScrollDef_t* scrollPtr = item->typeData.textscroll;
 
     max = Item_TextScroll_MaxScroll(item);
     size = item->window.rect.h - (SCROLLBAR_SIZE * 2) - 2;
@@ -7140,7 +7147,7 @@ windowFlags_t Item_TextScroll_OverLB(itemDef_t* item, float x, float y)
     textScrollDef_t* scrollPtr;
     int thumbstart;
 
-    scrollPtr = (textScrollDef_t*)item->typeData;
+    scrollPtr = item->typeData.textscroll;
 
     // Scroll bar isn't drawing so ignore this input
     if (((scrollPtr->iLineCount * scrollPtr->lineHeight) <= (item->window.rect.h - 2)) && (item->type == ITEM_TYPE_TEXTSCROLL)) {
@@ -7231,7 +7238,7 @@ Item_Slider_ThumbPosition
 float Item_Slider_ThumbPosition(itemDef_t* item)
 {
     float value, range, x;
-    editFieldDef_t* editDef = (editFieldDef_t*)item->typeData;
+    editFieldDef_t* editDef = item->typeData.edit;
 
     if (item->text) {
         x = item->textRect.x + item->textRect.w + 8;
@@ -7449,7 +7456,7 @@ static bool Item_Paint(itemDef_t* item, bool bDraw)
             //				vec3_t g2mins2, g2maxs2, g2minsEffect, g2maxsEffect;
             //	float fov_x2, fov_y2, fov_Effectx, fov_Effecty;
 
-            modelDef_t* modelptr = (modelDef_t*)item->typeData;
+            modelDef_t* modelptr = item->typeData.model;
 
             if (DC->realTime > item->window.nextTime) {
                 int done = 0;
@@ -7694,7 +7701,7 @@ static bool Item_Paint(itemDef_t* item, bool bDraw)
                 float fDescScaleCopy = fDescScale;
                 while (1) {
                     // FIXME - add some type of parameter in the menu file like descfont to specify the font for the descriptions for this menu.
-                    textWidth = DC->textWidth(textPtr, fDescScale, UI_MenuFontToReal(4)); //  item->font);
+                    textWidth = DC->textWidthHandle(textPtr, fDescScale, UI_MenuFontToReal(4)); //  item->font);
 
                     if (parent->descAlignment == ITEM_ALIGN_RIGHT) {
                         xPos = parent->descX - textWidth; // Right justify
@@ -7720,13 +7727,13 @@ static bool Item_Paint(itemDef_t* item, bool bDraw)
                     //
                     int iYadj = 0;
                     if (fDescScale != fDescScaleCopy) {
-                        int iOriginalTextHeight = DC->textHeight(textPtr, fDescScaleCopy, uiInfo.uiDC.Assets.qhMediumFont);
-                        iYadj = iOriginalTextHeight - DC->textHeight(textPtr, fDescScale, uiInfo.uiDC.Assets.qhMediumFont);
+                        int iOriginalTextHeight = DC->textHeightHandle(textPtr, fDescScaleCopy, uiInfo.uiDC.Assets.qhMediumFont);
+                        iYadj = iOriginalTextHeight - DC->textHeightHandle(textPtr, fDescScale, uiInfo.uiDC.Assets.qhMediumFont);
                     }
 
                     // FIXME - add some type of parameter in the menu file like descfont to specify the font for the descriptions for this menu.
-                    DC->drawText(xPos, parent->descY + iYadj, fDescScale, parent->descColor, textPtr, 0, parent->descTextStyle,
-                                 UI_MenuFontToReal(4)); // item->font);
+                    DC->drawTextWidth(xPos, parent->descY + iYadj, fDescScale, parent->descColor, textPtr, 0, parent->descTextStyle,
+                                      UI_MenuFontToReal(4)); // item->font);
                     break;
                 }
             }
@@ -8021,9 +8028,9 @@ void Item_Text_AutoWrapped_Paint(itemDef_t* item)
     Item_TextColor(item, &color);
     // Item_SetTextExtents(item, &width, &height, textPtr);
     if (item->value == 0) {
-        item->value = (int)(0.5 + (float)DC->textWidth(textPtr, item->textscale, item->font) / item->window.rect.w);
+        item->value = (int)(0.5 + (float)DC->textWidthHandle(textPtr, item->textscale, item->font) / item->window.rect.w);
     }
-    height = DC->textHeight(textPtr, item->textscale, item->font);
+    height = DC->textHeightHandle(textPtr, item->textscale, item->font);
     item->special = 0;
 
     y = item->textaligny;
@@ -8040,7 +8047,7 @@ void Item_Text_AutoWrapped_Paint(itemDef_t* item)
             newLinePtr = p + 1;
             newLineWidth = textWidth;
         }
-        textWidth = DC->textWidth(buff, item->textscale, 0);
+        textWidth = DC->textWidthHandle(buff, item->textscale, 0);
         if ((newLine && textWidth >= item->window.rect.w - item->textalignx) || *p == '\n' || *p == '\0') {
             if (line > item->cursorPos) // scroll
             {
@@ -8063,7 +8070,7 @@ void Item_Text_AutoWrapped_Paint(itemDef_t* item)
                         item->special = 1;
                         strcat(buff, "..."); // uhh, let's render some ellipses
                     }
-                    DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, item->textStyle, item->font);
+                    DC->drawTextWidth(item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, item->textStyle, item->font);
                 }
                 y += height + 4;
                 if (y > item->window.rect.h - height) { // reached the bottom of the box, so stop
@@ -8112,7 +8119,7 @@ static bool Rect_ContainsPoint(rectDef_t* rect, float x, float y)
 
 bool Item_TextScroll_HandleKey(itemDef_t* item, fakeAscii_t key, bool down, bool force)
 {
-    textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
+    textScrollDef_t* scrollPtr = item->typeData.textscroll;
     int max;
     int viewmax;
 
@@ -8232,7 +8239,7 @@ Item_ListBox_MaxScroll
 */
 int Item_ListBox_MaxScroll(itemDef_t* item)
 {
-    listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
+    listBoxDef_t* listPtr = item->typeData.listbox;
     int count = DC->feederCount(item->special);
     int max;
 
@@ -8257,7 +8264,7 @@ Item_ListBox_ThumbPosition
 int Item_ListBox_ThumbPosition(itemDef_t* item)
 {
     float max, pos, size;
-    listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
+    listBoxDef_t* listPtr = item->typeData.listbox;
 
     max = Item_ListBox_MaxScroll(item);
     if (Any(item->window.flags & windowFlags_t::WINDOW_HORIZONTAL)) {
@@ -8363,7 +8370,7 @@ Item_ListBox_MouseEnter
 void Item_ListBox_MouseEnter(itemDef_t* item, float x, float y)
 {
     rectDef_t r;
-    listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
+    listBoxDef_t* listPtr = item->typeData.listbox;
 
     item->window.flags &= ~(windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB |
                             windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN);
@@ -8986,7 +8993,7 @@ bool Item_TextField_HandleChar(itemDef_t* item, int ch)
 {
     char buff[1024];
     int len;
-    editFieldDef_t* editPtr = (editFieldDef_t*)item->typeData;
+    editFieldDef_t* editPtr = item->typeData.edit;
 
     if (item->cvar) {
 
@@ -9060,7 +9067,7 @@ bool Item_TextField_HandleKey(itemDef_t* item, fakeAscii_t key)
     char buff[1024];
     int len;
     itemDef_t* newItem = nullptr;
-    editFieldDef_t* editPtr = (editFieldDef_t*)item->typeData;
+    editFieldDef_t* editPtr = item->typeData.edit;
 
     if (item->cvar) {
 
@@ -9171,7 +9178,7 @@ static void Scroll_TextScroll_ThumbFunc(void* p)
     int pos;
     int max;
 
-    textScrollDef_t* scrollPtr = (textScrollDef_t*)si->item->typeData;
+    textScrollDef_t* scrollPtr = si->item->typeData.textscroll;
 
     if (DC->cursory != si->yStart) {
         r.x = si->item->window.rect.x + si->item->window.rect.w - SCROLLBAR_SIZE - 1;
@@ -9361,7 +9368,7 @@ Item_ListBox_HandleKey
 */
 bool Item_ListBox_HandleKey(itemDef_t* item, fakeAscii_t key, bool down, bool force)
 {
-    listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
+    listBoxDef_t* listPtr = item->typeData.listbox;
     int count = DC->feederCount(item->special);
     int max, viewmax;
     if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS))) {
@@ -9635,7 +9642,7 @@ static void Scroll_ListBox_ThumbFunc(void* p)
     rectDef_t r;
     int pos, max;
 
-    listBoxDef_t* listPtr = (listBoxDef_t*)si->item->typeData;
+    listBoxDef_t* listPtr = si->item->typeData.listbox;
     if (Any(si->item->window.flags & windowFlags_t::WINDOW_HORIZONTAL)) {
         if (DC->cursorx == si->xStart) {
             return;
@@ -9720,7 +9727,7 @@ static void Scroll_Slider_ThumbFunc(void* p)
 {
     float x, value, cursorx;
     scrollInfo_t* si = (scrollInfo_t*)p;
-    editFieldDef_t* editDef = (struct editFieldDef_s*)si->item->typeData;
+    editFieldDef_t* editDef = (struct editFieldDef_s*)si->item->typeData.data;
 
     if (si->item->text) {
         x = si->item->textRect.x + si->item->textRect.w + 8;
@@ -9847,7 +9854,7 @@ int Item_Multi_FindCvarByValue(itemDef_t* item)
     char buff[1024];
     float value = 0;
     int i;
-    multiDef_t* multiPtr = (multiDef_t*)item->typeData;
+    multiDef_t* multiPtr = item->typeData.multi;
     if (multiPtr) {
         if (multiPtr->strDef) {
             DC->getCVarString(item->cvar, buff, sizeof(buff));
@@ -9878,7 +9885,7 @@ Item_Multi_CountSettings
 */
 int Item_Multi_CountSettings(itemDef_t* item)
 {
-    multiDef_t* multiPtr = (multiDef_t*)item->typeData;
+    multiDef_t* multiPtr = item->typeData.multi;
     if (multiPtr == nullptr) {
         return 0;
     }
@@ -9935,7 +9942,7 @@ Item_Multi_HandleKey
 */
 bool Item_Multi_HandleKey(itemDef_t* item, fakeAscii_t key)
 {
-    multiDef_t* multiPtr = (multiDef_t*)item->typeData;
+    multiDef_t* multiPtr = item->typeData.multi;
     if (multiPtr) {
         if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS)) {
             // Raz: Scroll on multi buttons!
@@ -10018,7 +10025,7 @@ bool Item_Slider_HandleKey(itemDef_t* item, fakeAscii_t key, bool down)
     if (Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS) && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
 
         if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3) {
-            editFieldDef_t* editDef = (editFieldDef_s*)item->typeData;
+            editFieldDef_t* editDef = (editFieldDef_s*)item->typeData.data;
             if (editDef) {
                 rectDef_t testRect;
                 width = SLIDER_WIDTH;

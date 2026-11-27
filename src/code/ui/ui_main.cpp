@@ -638,7 +638,7 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
     Text_Paint(x + iNextXpos, y, scale, color, Q_Format("{}", cursor).c_str(), iMaxPixelWidth, style | ITEM_TEXTSTYLE_BLINK, iFontIndex);
 }
 
-const char* UI_FeederItemText(float feederID, int index, int column, qhandle_t* handle)
+const char* UI_FeederItemText(float feederID, int index, int column, qhandle_t* handle, qhandle_t* handle2, qhandle_t* handle3)
 {
     *handle = -1;
 
@@ -1066,7 +1066,7 @@ static bool UI_RunMenuScript(const char** args)
             if (menu) {
                 item = (itemDef_s*)Menu_FindItemByName(menu, "item_desc");
                 if (item) {
-                    listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
+                    listBoxDef_t* listPtr = item->typeData.listbox;
                     if (listPtr) {
                         listPtr->cursorPos = 0;
                         listPtr->startPos = 0;
@@ -1109,7 +1109,7 @@ static bool UI_RunMenuScript(const char** args)
             if (menu) {
                 item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)menu, "character");
                 if (item) {
-                    modelPtr = (modelDef_t*)item->typeData;
+                    modelPtr = item->typeData.model;
                     if (modelPtr) {
                         uiInfo.movesBaseAnim = datapadMoveTitleBaseAnims[uiInfo.movesTitleIndex];
                         ItemParse_model_g2anim_go(item, uiInfo.movesBaseAnim);
@@ -1671,7 +1671,8 @@ static int UI_FeederCount(float feederID)
 UI_FeederSelection
 =================
 */
-static void UI_FeederSelection(float feederID, int index, itemDef_t* item)
+// an item of a list chosen; true: the list takes it
+static bool UI_FeederSelection(float feederID, int index, itemDef_t* item)
 {
     if (feederID == FEEDER_SAVEGAMES) {
         s_savegame.currentLine = index;
@@ -1688,7 +1689,7 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t* item)
         if (menu) {
             item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)menu, "character");
             if (item) {
-                modelPtr = (modelDef_t*)item->typeData;
+                modelPtr = item->typeData.model;
                 if (modelPtr) {
                     if (datapadMoveData[uiInfo.movesTitleIndex][index].anim) {
                         ItemParse_model_g2anim_go(item, datapadMoveData[uiInfo.movesTitleIndex][index].anim);
@@ -1752,7 +1753,7 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t* item)
         if (menu) {
             item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)menu, "character");
             if (item) {
-                modelPtr = (modelDef_t*)item->typeData;
+                modelPtr = item->typeData.model;
                 if (modelPtr) {
                     ItemParse_model_g2anim_go(item, uiInfo.movesBaseAnim);
                     uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
@@ -1806,6 +1807,7 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t* item)
             uiInfo.demoIndex = index;
         }
     */
+    return true;
 }
 
 void Key_KeynumToStringBuf(fakeAscii_t keynum, char* buf, int buflen);
@@ -2498,11 +2500,11 @@ void _UI_Init(bool inGameLoad)
 
     Init_Display(&uiInfo.uiDC);
 
-    uiInfo.uiDC.drawText = &Text_Paint;
+    uiInfo.uiDC.drawTextWidth = &Text_Paint;
     uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
     uiInfo.uiDC.drawRect = &_UI_DrawRect;
     uiInfo.uiDC.drawSides = &_UI_DrawSides;
-    uiInfo.uiDC.drawTextWithCursor = &Text_PaintWithCursor;
+    uiInfo.uiDC.drawTextWithCursorWidth = &Text_PaintWithCursor;
     uiInfo.uiDC.executeText = &Cbuf_ExecuteText;
     uiInfo.uiDC.drawTopBottom = &_UI_DrawTopBottom;
     uiInfo.uiDC.feederCount = &UI_FeederCount;
@@ -2517,7 +2519,7 @@ void _UI_Init(bool inGameLoad)
     uiInfo.uiDC.modelBounds = &trap_R_ModelBounds;
     uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;
     uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
-    uiInfo.uiDC.ownerDrawItem = &UI_OwnerDraw;
+    uiInfo.uiDC.ownerDrawItemHandle = &UI_OwnerDraw;
     uiInfo.uiDC.sound = &SND_Api();
     uiInfo.uiDC.registerModel = ui.R_RegisterModel;
     uiInfo.uiDC.clearScene = &trap_R_ClearScene;
@@ -2530,8 +2532,8 @@ void _UI_Init(bool inGameLoad)
     uiInfo.uiDC.setCVar = Cvar_Set;
     uiInfo.uiDC.setOverstrikeMode = &trap_Key_SetOverstrikeMode;
     uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
-    uiInfo.uiDC.textHeight = &Text_Height;
-    uiInfo.uiDC.textWidth = &Text_Width;
+    uiInfo.uiDC.textHeightHandle = &Text_Height;
+    uiInfo.uiDC.textWidthHandle = &Text_Width;
     uiInfo.uiDC.feederItemImage = &UI_FeederItemImage;
     uiInfo.uiDC.feederItemText = &UI_FeederItemText;
     uiInfo.uiDC.ownerDrawHandleKey = &UI_OwnerDrawHandleKey;
@@ -3374,9 +3376,9 @@ static void UI_Version(rectDef_t* rect, float scale, vec4_t color, int iFontInde
 {
     int width;
 
-    width = DC->textWidth(JK_VERSION, scale, 0);
+    width = DC->textWidthHandle(JK_VERSION, scale, 0);
 
-    DC->drawText(rect->x - width, rect->y, scale, color, JK_VERSION, 0, ITEM_TEXTSTYLE_SHADOWED, iFontIndex);
+    DC->drawTextWidth(rect->x - width, rect->y, scale, color, JK_VERSION, 0, ITEM_TEXTSTYLE_SHADOWED, iFontIndex);
 }
 
 /*
@@ -5026,7 +5028,7 @@ static void UI_ResetCharacterListBoxes(void)
     if (menu) {
         item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)menu, "headlistbox");
         if (item) {
-            listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
+            listBoxDef_t* listPtr = item->typeData.listbox;
             if (listPtr) {
                 listPtr->cursorPos = 0;
             }
@@ -5035,7 +5037,7 @@ static void UI_ResetCharacterListBoxes(void)
 
         item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)menu, "torsolistbox");
         if (item) {
-            listPtr = (listBoxDef_t*)item->typeData;
+            listPtr = item->typeData.listbox;
             if (listPtr) {
                 listPtr->cursorPos = 0;
             }
@@ -5044,7 +5046,7 @@ static void UI_ResetCharacterListBoxes(void)
 
         item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)menu, "lowerlistbox");
         if (item) {
-            listPtr = (listBoxDef_t*)item->typeData;
+            listPtr = item->typeData.listbox;
             if (listPtr) {
                 listPtr->cursorPos = 0;
             }
@@ -5053,7 +5055,7 @@ static void UI_ResetCharacterListBoxes(void)
 
         item = (itemDef_t*)Menu_FindItemByName((menuDef_t*)menu, "colorbox");
         if (item) {
-            listPtr = (listBoxDef_t*)item->typeData;
+            listPtr = item->typeData.listbox;
             if (listPtr) {
                 listPtr->cursorPos = 0;
             }
@@ -5979,7 +5981,7 @@ void UI_AdjustSaveGameListBox(int currentLine)
     if (menu) {
         item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)menu, "loadgamelist");
         if (item) {
-            listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
+            listBoxDef_t* listPtr = item->typeData.listbox;
             if (listPtr) {
                 listPtr->cursorPos = currentLine;
             }

@@ -4853,12 +4853,12 @@ UI_DeferMenuScript
 Return true if the menu script should be deferred for later
 ===============
 */
-static bool UI_DeferMenuScript(char** args)
+static bool UI_DeferMenuScript(const char** args)
 {
     const char* name;
 
     // Whats the reason for being deferred?
-    if (!String_Parse((char**)args, &name)) {
+    if (!String_Parse(args, &name)) {
         return false;
     }
 
@@ -4879,7 +4879,7 @@ static bool UI_DeferMenuScript(char** args)
         bool deferred;
 
         // No warning menu specified
-        if (!String_Parse((char**)args, &warningMenuName)) {
+        if (!String_Parse(args, &warningMenuName)) {
             return false;
         }
 
@@ -5140,7 +5140,7 @@ void UI_SetSiegeObjectiveGraphicPos(menuDef_t* menu, const char* itemName, const
     itemDef_t* item;
     char cvarBuf[1024];
     const char* holdVal;
-    char* holdBuf;
+    const char* holdBuf;
 
     item = Menu_FindItemByName(menu, itemName);
 
@@ -5789,7 +5789,7 @@ static int g_siegedFeederForcedSet = 0;
 void UI_UpdateCvarsForClass(const team_t team, const siegePlayerClassFlags_t baseClass, const int index)
 {
     siegeClass_t* holdClass = nullptr;
-    char* holdBuf;
+    const char* holdBuf;
 
     // Is it a valid team
     if ((team == SIEGETEAM_TEAM1) || (team == SIEGETEAM_TEAM2)) {
@@ -5860,7 +5860,8 @@ void UI_UpdateSiegeStatusIcons(void)
     }
 }
 
-static void UI_RunMenuScript(char** args)
+// a menu's script command of the UI's own; true: the script goes on
+static bool UI_RunMenuScript(const char** args)
 {
     const char *name, *name2;
     char buff[1024];
@@ -6910,6 +6911,7 @@ static void UI_RunMenuScript(char** args)
             Q_Println("unknown UI script {}", name);
         }
     }
+    return true;
 }
 
 static void UI_GetTeamColor(vec4_t* color) {}
@@ -8772,7 +8774,7 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t* item)
     return true;
 }
 
-static bool GameType_Parse(char** p, bool join)
+static bool GameType_Parse(const char** p, bool join)
 {
     char* token;
 
@@ -8843,7 +8845,7 @@ static bool GameType_Parse(char** p, bool join)
     return false;
 }
 
-static bool MapList_Parse(char** p)
+static bool MapList_Parse(const char** p)
 {
     char* token;
 
@@ -8912,7 +8914,7 @@ static bool MapList_Parse(char** p)
 static void UI_ParseGameInfo(const char* teamFile)
 {
     char* token;
-    char* p;
+    const char* p;
     char* buff = nullptr;
     // int mode = 0; TTimo: unused
 

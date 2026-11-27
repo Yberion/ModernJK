@@ -1799,6 +1799,7 @@ The cost: none at run time measured or expected; the console's line drawn at eac
 | A button's share of a span | `CL_KeyState`, `IN_KeyDown`, `IN_KeyUp` in each tree; `kbutton_t` in each `client.h` | `src/shared/client/button.h`, with its tests; `kbutton_t` defined once |
 | A text field's editing and the keys' names | in the engines' code | `src/shared/client` (`field.h`, `keynames.h`): a static library independent of the engines, after the C++ Core Guidelines, with its tests (`modernjk.client`) |
 | `field_t` | defined in each tree's `qcommon.h` | one definition, `src/shared/client/field.h` |
+| The menus' types | each tree's `ui/ui_shared.h`, `menuFont_t` in the multiplayer's `q_shared.h` | `src/shared/ui/ui_shared.h`, the union of the two games' types; each tree's `ui/ui_shared.h` gives its game's values (the sliders' size, an item's Ghoul2 instance, the single player's Ghoul2 functions); `menuFont_t` in `src/shared/qcommon/q_clientflags.h`; the multiplayer's menu scripts read through `const char**` |
 | The single player's `Cmd_AddCommand` | without a command's description, the file system's code taking one through `files_engine.h` | a form taking the description, which it ignores, in its `qcommon.h` |
 | The multiplayer's cgame interface | `IncomingConsoleCommand`, `TCGIncomingConsoleCommand`; `CGAME_API_VERSION` 7 | removed; `CGAME_API_VERSION` 8 |
 
