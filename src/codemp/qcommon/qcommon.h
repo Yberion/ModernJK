@@ -559,12 +559,7 @@ Edit fields and command line history/completion
 ==============================================================
 */
 
-typedef struct field_s {
-    int cursor;
-    int scroll;
-    int widthInChars;
-    char buffer[MAX_EDIT_LINE];
-} field_t;
+#include <shared/client/field.h>
 
 void Field_Clear(field_t* edit);
 void Field_AutoComplete(field_t* edit);

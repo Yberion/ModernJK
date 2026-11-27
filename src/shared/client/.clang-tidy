@@ -1,0 +1,42 @@
+# clang-tidy checks of the clients' code that needs no engine (field, keynames), the platform layer's: C++ Core
+# Guidelines, bugs, performance, portability, part of modernize and readability (after cpp-best-practices/cmake_template);
+# every finding is an error. engine/ is left out: it is the engines' own code made one, in the engines' style
+# (GUIDELINES section 5). Disabled checks and why:
+#  - magic numbers: the constants (the keys' codes, the sizes) are written where they matter;
+#  - pro-bounds-constant-array-index, pro-bounds-avoid-unchecked-container-access: they ask for .at() or gsl::at,
+#    which throw; this code throws no exception of its own, std::span / std::array indices are checked in debug builds;
+#  - braces around single statements, one declaration per line, upper-case literal suffixes, #pragma once:
+#    presentation only (every target compiler supports #pragma once);
+#  - enum size: Enum.7 of the C++ Core Guidelines asks for an enumeration's underlying type only when necessary,
+#    and none here is stored in numbers that would make it so;
+#  - identifier length, trailing return types, cognitive complexity, trailing commas: style only.
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  cppcoreguidelines-*,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
+  misc-*,
+  -misc-non-private-member-variables-in-classes,
+  -misc-include-cleaner,
+  -misc-no-recursion,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  performance-*,
+  -performance-enum-size,
+  portability-*,
+  -portability-avoid-pragma-once,
+  readability-*,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -readability-function-cognitive-complexity,
+  -readability-braces-around-statements,
+  -readability-isolate-declaration,
+  -readability-uppercase-literal-suffix,
+  -readability-trailing-comma
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*shared/client/[^/]+\.h$'
+FormatStyle: none

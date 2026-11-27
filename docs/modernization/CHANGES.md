@@ -194,6 +194,12 @@ Each line links to its section.
 | [41. The display's rows in the setup menus](#41-the-displays-rows-in-the-setup-menus) | a video mode among eight fixed sizes, a colour depth and full screen on or off, which the quality presets also changed | the display (window, borderless, exclusive), the screen, the resolution and the refresh rate from the screen's own modes; the presets leave the display alone |
 | [42. The picture's output stage](#42-the-pictures-output-stage) | the brightness by the screen's ramp, for the whole desktop, given back at each alt-tab and missing from the screenshots (on this branch since section 39, baked into the textures after a restart of the video), with bands in the dark tones once raised; the multisampling in the console only, after a restart; Alt+Enter and a new resolution restarting the renderer and the modules | the game draws into an image of its own and one pass draws it into the window with the brightness, at once, on the whole picture and in the screenshots, the dark tones kept (16 bits a channel, a faint fixed dither); the multisampling an Anti-aliasing row of the menus, applied at once; a change of the display applied at the next image without a restart |
 
+**The three games written once**
+
+| change | before | now |
+|---|---|---|
+| [43. The keys written once for the three games](#43-the-keys-written-once-for-the-three-games) | the keys, the console's line and the binds written twice, once for the multiplayer and once for the single player, which differed: the single player's right Shift, Ctrl and Alt named as the left ones, so their binds came back on the left keys; Home in a long console line leaving the cursor out of sight in the single player, Ctrl-E hiding the line's last character in the three games | one code for the three games: the right keys named apart everywhere, the cursor kept in view after every key, the console's line the same in the three games |
+
 **Reference**: [27. Settings and commands](#27-settings-and-commands), [28. Build, tests and repository](#28-build-tests-and-repository), [29. Name: ModernJK](#29-name-modernjk), [30. Compatibility](#30-compatibility), [31. C++20, 64-bit Windows, Linux and macOS](#31-c20-64-bit-windows-linux-and-macos), [32. Not changed yet](#32-not-changed-yet).
 
 ## A. Responsiveness and equality
@@ -1754,5 +1760,45 @@ The cost, measured on 27 November 2026 against the build before this work (NVIDI
 | The tests | | `modernjk.rd-common` (`test/rd-common`); by hand, `modernjk_test_rd_common real` draws the 256 levels of grey through the pass on the system's driver and reads them back: exact at `r_gamma` 1, within one level of the curve otherwise |
 
 The work: [progress/step-15-platform.md](progress/step-15-platform.md) section 16.
+
+</details>
+
+
+## J. The three games written once
+
+### 43. The keys written once for the three games
+
+**Before.** The clients' keys (their states, their binds, the console's line and its history, the chat's line, the keys' names) were written twice: once in the multiplayer's client and once in the single player's, which builds Jedi Academy and Jedi Outcast. The two copies had drifted apart, and a fix made in one was missing from the other.
+
+**Now.** One code for the three games (`src/shared/client`), compiled by each client; each tree keeps only where a key goes beside the console (its own modules, its own menus, a video playing).
+
+**Why.** A change made once, the same behaviour for every player of the three games (decided 26 and 27 November 2026; [progress/step-15-platform.md](progress/step-15-platform.md) section 17).
+
+**Gain.**
+
+| fix | before | now |
+|---|---|---|
+| The right Shift, Ctrl and Alt in the single player | named `SHIFT`, `CTRL` and `ALT`, as the left ones: the right Ctrl bound to crouch worked until the game was started again, then the left Ctrl crouched instead of firing and the right one did nothing (reproduced in Jedi Academy) | `RSHIFT`, `RCTRL` and `RALT`, as in the multiplayer: each bind comes back on its key |
+| Home and End in a console line longer than the console, in the single player | Home took the cursor to the line's start without showing it: the line stayed scrolled, the cursor out of sight (read in the code) | the line's start shown, the cursor on it, as in the multiplayer |
+| Ctrl-E in a long console line, in the three games | the line's last character hidden, the cursor one column past the line shown | the last characters shown, the cursor after them, as End does |
+| Ctrl-E in a short console line, then a line typed past the console's width, in the three games | the line scrolled from a negative place, and the characters drawn at its start read from the memory before the line (read in the code) | the line scrolled from its start |
+| A character typed in the middle of a long console line, in the three games | the text left of the cursor moved by one at each character, the cursor staying in its column | the cursor moves, the text stays, until the cursor reaches the console's edge |
+| A control character in the clipboard pasted into the console, in the three games | acted as its key: a Ctrl-C emptied the line, a Ctrl-V pasted again without end | left out: only the printable characters are typed in |
+| The cgame's filter of the commands, in the multiplayer | each command typed or run by a key copied into the memory shared with the cgame, which could refuse it or put another in its place; the game's cgame accepted every one | removed: a copy and a call into the cgame less for each command |
+
+The cost: none at run time measured or expected; the console's line drawn at each frame reads the line once and copies the characters shown, as before.
+
+<details>
+<summary>Technical details</summary>
+
+| | before | now |
+|---|---|---|
+| The keys' code | `src/codemp/client/cl_keys.cpp` and `keys.h`, `src/code/client/cl_keys.cpp` and `keys.h` | `src/shared/client/engine/cl_keys.cpp` and `keys.h`, compiled by each client against its own `<client/client.h>`; each tree's `client/cl_keys.cpp` holds six small functions: what a key does during a video, what Escape closes or opens, whether the client's own menu takes the keys, where a key and a character go beside the console |
+| A text field's editing and the keys' names | in the engines' code | `src/shared/client` (`field.h`, `keynames.h`): a static library independent of the engines, after the C++ Core Guidelines, with its tests (`modernjk.client`) |
+| `field_t` | defined in each tree's `qcommon.h` | one definition, `src/shared/client/field.h` |
+| The single player's `Cmd_AddCommand` | without a command's description, the file system's code taking one through `files_engine.h` | a form taking the description, which it ignores, in its `qcommon.h` |
+| The multiplayer's cgame interface | `IncomingConsoleCommand`, `TCGIncomingConsoleCommand`; `CGAME_API_VERSION` 7 | removed; `CGAME_API_VERSION` 8 |
+
+The work: [progress/step-15-platform.md](progress/step-15-platform.md) section 17.
 
 </details>

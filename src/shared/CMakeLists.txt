@@ -92,6 +92,11 @@ if(modernjk_BUILD_MP_CLIENT OR modernjk_BUILD_SP OR BUILD_TESTING)
 	add_subdirectory(rd-common/output)
 endif()
 
+# The clients' keys, the same in the three games: what needs no engine, and the engines' own code made one
+if(modernjk_BUILD_MP_CLIENT OR modernjk_BUILD_SP OR modernjk_BUILD_JK2 OR BUILD_TESTING)
+	add_subdirectory(client)
+endif()
+
 # The sounds a cgame plays, the same in the three games: compiled by each cgame against its own headers
 # (<cgame/cg_local.h>), the tree's own part in its cgame/cg_sound.cpp
 add_library(modernjk_cgame_sound INTERFACE)

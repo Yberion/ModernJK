@@ -42,7 +42,6 @@ void CGVM_Trace(void);
 void CGVM_G2Trace(void);
 void CGVM_G2Mark(void);
 int CGVM_RagCallback(ragCallbackType_t callType);
-bool CGVM_IncomingConsoleCommand(void);
 bool CGVM_NoUseableForce(void);
 void CGVM_GetOrigin(int entID, vec3_t out);
 void CGVM_GetAngles(int entID, vec3_t out);

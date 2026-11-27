@@ -2794,29 +2794,6 @@ static void _CG_MouseEvent(int x, int y)
     CG_MouseEvent(x, y);
 }
 
-static bool CG_IncomingConsoleCommand(void)
-{
-    // rww - let mod authors filter client console messages so they can cut them off if they want.
-    // return true if the command is ok. Otherwise, you can set char 0 on the command str to 0 and return
-    // false to not execute anything, or you can fill conCommand in with something valid and return 0
-    // in order to have that string executed in place. Some example code:
-#if 0
-	TCGIncomingConsoleCommand *icc = &cg.sharedBuffer.icc;
-	if ( strstr( icc->conCommand, "wait" ) )
-	{ //filter out commands contaning wait
-		Q_Println("You can't use commands containing the string wait with MyMod v1.0");
-		icc->conCommand[0] = 0;
-		return false;
-	}
-	else if ( strstr( icc->conCommand, "blah" ) )
-	{ //any command containing the string "blah" is redirected to "quit"
-		strcpy( icc->conCommand, "quit" );
-		return false;
-	}
-#endif
-    return true;
-}
-
 static void CG_GetOrigin(int entID, vec3_t out)
 {
     VectorCopy(cg_entities[entID].currentState.pos.trBase, out);
@@ -2927,7 +2904,6 @@ extern "C" Q_EXPORT cgameExport_t* QDECL GetModuleAPI(int apiVersion, cgameImpor
     cge.G2Trace = C_G2Trace;
     cge.G2Mark = C_G2Mark;
     cge.RagCallback = CG_RagCallback;
-    cge.IncomingConsoleCommand = CG_IncomingConsoleCommand;
     cge.NoUseableForce = CG_NoUseableForce;
     cge.GetOrigin = CG_GetOrigin;
     cge.GetAngles = CG_GetAngles;

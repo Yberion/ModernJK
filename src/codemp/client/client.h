@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <qcommon/q_shared.h>
 #include <qcommon/qcommon.h>
 #include <rd-common/tr_public.h>
-#include "keys.h"
+#include <shared/client/engine/keys.h>
 #include <shared/sound/engine/engine.h>
 #include <game/bg_public.h>
 #include <cgame/cg_public.h>
@@ -540,6 +540,14 @@ void CL_WritePacket(void);
 float CL_KeyState(kbutton_t* key, int64_t span);
 bool CL_PendingCmd(usercmd_t* cmd);
 const char* Key_KeynumToString(fakeAscii_t keynum /*, bool bTranslate */); // note: translate is only called for menu display not configs
+
+//
+// cl_keys.cpp
+//
+// the chat's line, to everyone, to the team (chat_team) or to one player (chat_playerNum, -1 for none)
+extern field_t chatField;
+extern bool chat_team;
+extern int chat_playerNum;
 
 //
 // cl_parse.c

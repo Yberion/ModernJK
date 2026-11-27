@@ -123,7 +123,7 @@ if(modernjk_BUILD_MP_CLIENT)
 	if(WIN32)
 		target_sources(modernjk PRIVATE win32/modernjk.rc)
 	endif()
-	target_link_libraries(modernjk PRIVATE mp_engine_common modernjk_sys_platform modernjk_sound_engine modernjk_options
+	target_link_libraries(modernjk PRIVATE mp_engine_common modernjk_sys_platform modernjk_client_engine modernjk_sound_engine modernjk_options
 		modernjk_warnings modernjk_defines)
 	install(TARGETS modernjk RUNTIME DESTINATION "${modernjk_INSTALL_JKA}")
 endif()

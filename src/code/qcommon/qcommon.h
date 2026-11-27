@@ -282,6 +282,11 @@ typedef void (*callbackFunc_t)(const char* s);
 void Cmd_Init(void);
 
 void Cmd_AddCommand(const char* cmd_name, xcommand_t function);
+// the single player keeps no description of a command: the code it shares with the multiplayer gives one
+inline void Cmd_AddCommand(const char* cmd_name, xcommand_t function, const char*)
+{
+    Cmd_AddCommand(cmd_name, function);
+}
 // called by the init functions of other parts of the program to
 // register commands and functions to call for them.
 // The cmd_name is referenced later, so it should not be in temp memory
@@ -424,12 +429,7 @@ Edit fields and command line history/completion
 ==============================================================
 */
 
-typedef struct {
-    int cursor;
-    int scroll;
-    int widthInChars;
-    char buffer[MAX_EDIT_LINE];
-} field_t;
+#include <shared/client/field.h>
 
 void Field_Clear(field_t* edit);
 void Field_AutoComplete(field_t* edit);

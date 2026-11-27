@@ -166,13 +166,6 @@ int CGVM_RagCallback(ragCallbackType_t callType)
     return cge->RagCallback(callType);
 }
 
-bool CGVM_IncomingConsoleCommand(void)
-{
-    VMSwap v(cgvm);
-
-    return cge->IncomingConsoleCommand();
-}
-
 bool CGVM_NoUseableForce(void)
 {
     VMSwap v(cgvm);

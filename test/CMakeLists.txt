@@ -61,6 +61,14 @@ endif()
 
 # The tests of src/shared/platform and of SDL 3 as it is built for the client, on its dummy video driver (no screen
 # needed)
+add_executable(modernjk_test_client client/main.cpp client/field.cpp client/keynames.cpp)
+target_include_directories(modernjk_test_client PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src")
+target_link_libraries(modernjk_test_client PRIVATE modernjk_client modernjk_options modernjk_warnings modernjk_defines
+	vendored::fmt)
+if(MINGW)
+	target_link_options(modernjk_test_client PRIVATE -static)
+endif()
+add_test(NAME modernjk.client COMMAND modernjk_test_client)
 if(TARGET modernjk_platform)
 	add_executable(modernjk_test_platform platform/main.cpp platform/input.cpp platform/menus.cpp platform/real.cpp
 		platform/sdl.cpp platform/window.cpp)

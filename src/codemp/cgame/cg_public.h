@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <ghoul2/G2.h>
 
-inline constexpr int CGAME_API_VERSION = 7;
+inline constexpr int CGAME_API_VERSION = 8;
 
 enum class uiMenuCommand_t; // ui_public.h
 enum class fakeAscii_t;     // shared/qcommon/q_keycodes.h
@@ -114,11 +114,6 @@ typedef struct TCGG2Mark_s {
     float size;
     vec3_t start, dir;
 } TCGG2Mark;
-
-// CG_INCOMING_CONSOLE_COMMAND
-typedef struct TCGIncomingConsoleCommand_s {
-    char conCommand[1024];
-} TCGIncomingConsoleCommand;
 
 // CG_FX_CAMERASHAKE
 typedef struct TCGCameraShake_s {
@@ -461,7 +456,6 @@ typedef struct cgameExport_s {
     void (*G2Trace)(void);
     void (*G2Mark)(void);
     int (*RagCallback)(ragCallbackType_t callType);
-    bool (*IncomingConsoleCommand)(void);
     bool (*NoUseableForce)(void);
     void (*GetOrigin)(int entID, vec3_t out);
     void (*GetAngles)(int entID, vec3_t out);

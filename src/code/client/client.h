@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <qcommon/q_shared.h>
 #include <qcommon/qcommon.h>
 #include <rd-common/tr_public.h>
-#include "keys.h"
+#include <shared/client/engine/keys.h>
 #include <shared/sound/engine/engine.h>
 #include <cgame/cg_public.h>
 
