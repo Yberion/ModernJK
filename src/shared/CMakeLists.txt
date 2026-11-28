@@ -102,6 +102,11 @@ endif()
 add_library(modernjk_cgame_sound INTERFACE)
 target_sources(modernjk_cgame_sound INTERFACE cgame/cg_sound.cpp)
 
+# The menus' reader, the same in the three games: compiled by each menus' module (the multiplayer's UI and cgame, the
+# single player's engine) against its own headers (<ui/ui_shared.h>), the tree's own part in its ui/ui_shared.cpp
+add_library(modernjk_ui_reader INTERFACE)
+target_sources(modernjk_ui_reader INTERFACE ui/ui_parse.cpp)
+
 # The display's rows of the setup menus, the same in the three games, without SDL: compiled by each engine that opens
 # a window and by the multiplayer's UI module
 add_library(modernjk_platform_menus INTERFACE)

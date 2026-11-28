@@ -1053,39 +1053,39 @@ intptr_t CL_CgameSystemCalls(intptr_t* args)
         return 0;
 
     case cgameImport_t::CG_UI_MENU_NEW:
-        Menu_New((char*)VMA(1));
+        Menu_New();
         return 0;
 
     case cgameImport_t::CG_UI_PARSE_INT:
-        PC_ParseInt((int*)VMA(1));
-        return 0;
+        return PC_ParseInt((int*)VMA(1));
 
     case cgameImport_t::CG_UI_PARSE_STRING:
-        PC_ParseString((const char**)VMA(1));
-        return 0;
+        return PC_ParseString((const char**)VMA(1));
 
     case cgameImport_t::CG_UI_PARSE_FLOAT:
-        PC_ParseFloat((float*)VMA(1));
-        return 0;
+        return PC_ParseFloat((float*)VMA(1));
 
     case cgameImport_t::CG_UI_STARTPARSESESSION:
-        return (PC_StartParseSession((char*)VMA(1), (char**)VMA(2)));
+        // the file is the reader's: the cgame's buffer is given back empty
+        *(char**)VMA(2) = nullptr;
+        return PC_StartParseSession((const char*)VMA(1));
 
     case cgameImport_t::CG_UI_ENDPARSESESSION:
-        PC_EndParseSession((char*)VMA(1));
+        PC_EndParseSession();
         return 0;
 
-    case cgameImport_t::CG_UI_PARSEEXT:
-        char** holdPtr;
-
-        holdPtr = (char**)VMA(1);
+    case cgameImport_t::CG_UI_PARSEEXT: {
+        const char** holdPtr = (const char**)VMA(1);
 
         if (!holdPtr) {
             Q_Error(errorParm_t::ERR_FATAL, "CG_UI_PARSEEXT: NULL holdPtr");
         }
 
-        *holdPtr = PC_ParseExt();
+        // an empty token at the file's end, which the cgame tests
+        const char* token = PC_ParseExt();
+        *holdPtr = token ? token : "";
         return 0;
+    }
 
     case cgameImport_t::CG_UI_MENUCLOSE_ALL:
         Menus_CloseAll();

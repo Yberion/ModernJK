@@ -306,58 +306,24 @@ void String_Init()
     }
 }
 
-#if 0
 /*
 =================
-PC_SourceWarning
+UI_ReadMenuFile
 =================
 */
-void PC_VSourceWarning(int handle, fmt::string_view format, fmt::format_args args);
-template <typename... T> void PC_SourceWarning(int handle, fmt::format_string<T...> format, T&&... args)
+bool UI_ReadMenuFile(const char* fileName, std::string& text)
 {
-    PC_VSourceWarning(handle, format.get(), Q_FormatArgs(args...));
-}
-
-void PC_VSourceWarning(int handle, fmt::string_view format, fmt::format_args args)
-{
-	int line;
-	char filename[128];
-		static char string[4096];
-
-	Q_VFormatToCut(string, format, args);
-
-	filename[0] = '\0';
-	line = 0;
-	trap->PC_SourceFileAndLine(handle, filename, &line);
-
-	Q_PrintlnWarning("{}, line {}: {}", filename, line, string);
-}
-#endif
-
-/*
-=================
-PC_SourceError
-=================
-*/
-void PC_VSourceError(int handle, fmt::string_view format, fmt::format_args args);
-template <typename... T> void PC_SourceError(int handle, fmt::format_string<T...> format, T&&... args)
-{
-    PC_VSourceError(handle, format.get(), Q_FormatArgs(args...));
-}
-
-void PC_VSourceError(int handle, fmt::string_view format, fmt::format_args args)
-{
-    int line;
-    char filename[128];
-    static char string[4096];
-
-    Q_VFormatToCut(string, format, args);
-
-    filename[0] = '\0';
-    line = 0;
-    trap->PC_SourceFileAndLine(handle, filename, &line);
-
-    Q_PrintlnError("{}, line {}: {}", filename, line, string);
+    fileHandle_t f;
+    const int len = trap->FS_Open(fileName, &f, fsMode_t::FS_READ);
+    if (!f) {
+        return false;
+    }
+    text.resize(len > 0 ? len : 0);
+    if (len > 0) {
+        trap->FS_Read(text.data(), len, f);
+    }
+    trap->FS_Close(f);
+    return len > 0;
 }
 
 /*
@@ -399,35 +365,6 @@ bool Float_Parse(const char** p, float* f)
 
 /*
 =================
-PC_Float_Parse
-=================
-*/
-bool PC_Float_Parse(int handle, float* f)
-{
-    pc_token_t token;
-    int negative = false;
-
-    if (!trap->PC_ReadToken(handle, &token))
-        return false;
-
-    if (token.string[0] == '-') {
-        if (!trap->PC_ReadToken(handle, &token))
-            return false;
-        negative = true;
-    }
-    if (token.type != tokenType_t::TT_NUMBER) {
-        PC_SourceError(handle, "expected float but found {}", token.string);
-        return false;
-    }
-    if (negative)
-        *f = -token.floatvalue;
-    else
-        *f = token.floatvalue;
-    return true;
-}
-
-/*
-=================
 Color_Parse
 =================
 */
@@ -438,25 +375,6 @@ bool Color_Parse(const char** p, vec4_t* c)
 
     for (i = 0; i < 4; i++) {
         if (!Float_Parse(p, &f)) {
-            return false;
-        }
-        (*c)[i] = f;
-    }
-    return true;
-}
-
-/*
-=================
-PC_Color_Parse
-=================
-*/
-bool PC_Color_Parse(int handle, vec4_t* c)
-{
-    int i;
-    float f;
-
-    for (i = 0; i < 4; i++) {
-        if (!PC_Float_Parse(handle, &f)) {
             return false;
         }
         (*c)[i] = f;
@@ -485,33 +403,6 @@ bool Int_Parse(const char** p, int* i)
 
 /*
 =================
-PC_Int_Parse
-=================
-*/
-bool PC_Int_Parse(int handle, int* i)
-{
-    pc_token_t token;
-    int negative = false;
-
-    if (!trap->PC_ReadToken(handle, &token))
-        return false;
-    if (token.string[0] == '-') {
-        if (!trap->PC_ReadToken(handle, &token))
-            return false;
-        negative = true;
-    }
-    if (token.type != tokenType_t::TT_NUMBER) {
-        PC_SourceError(handle, "expected integer but found {}", token.string);
-        return false;
-    }
-    *i = token.intvalue;
-    if (negative)
-        *i = -*i;
-    return true;
-}
-
-/*
-=================
 Rect_Parse
 =================
 */
@@ -521,25 +412,6 @@ bool Rect_Parse(const char** p, rectDef_t* r)
         if (Float_Parse(p, &r->y)) {
             if (Float_Parse(p, &r->w)) {
                 if (Float_Parse(p, &r->h)) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-/*
-=================
-PC_Rect_Parse
-=================
-*/
-bool PC_Rect_Parse(int handle, rectDef_t* r)
-{
-    if (PC_Float_Parse(handle, &r->x)) {
-        if (PC_Float_Parse(handle, &r->y)) {
-            if (PC_Float_Parse(handle, &r->w)) {
-                if (PC_Float_Parse(handle, &r->h)) {
                     return true;
                 }
             }
@@ -561,70 +433,6 @@ bool String_Parse(const char** p, const char** out)
     if (token && token[0] != 0) {
         *(out) = String_Alloc(token);
         return *(out) != nullptr;
-    }
-    return false;
-}
-
-/*
-=================
-PC_String_Parse
-=================
-*/
-bool PC_String_Parse(int handle, const char** out)
-{
-    static const char* squiggy = "}";
-    pc_token_t token;
-
-    if (!trap->PC_ReadToken(handle, &token)) {
-        return false;
-    }
-
-    // Save some memory by not return the end squiggy as an allocated string
-    if (!Q_stricmp(token.string, "}")) {
-        *(out) = squiggy;
-    }
-    else {
-        *(out) = String_Alloc(token.string);
-    }
-    return true;
-}
-
-/*
-=================
-PC_Script_Parse
-=================
-*/
-bool PC_Script_Parse(int handle, const char** out)
-{
-    char script[2048];
-    pc_token_t token;
-
-    script[0] = 0;
-    // scripts start with { and have ; separated command lists.. commands are command, arg..
-    // basically we want everything between the { } as it will be interpreted at run time
-
-    if (!trap->PC_ReadToken(handle, &token))
-        return false;
-    if (Q_stricmp(token.string, "{") != 0) {
-        return false;
-    }
-
-    while (1) {
-        if (!trap->PC_ReadToken(handle, &token))
-            return false;
-
-        if (Q_stricmp(token.string, "}") == 0) {
-            *out = String_Alloc(script);
-            return true;
-        }
-
-        if (token.string[1] != '\0') {
-            Q_strcat(script, 2048, Q_Format("\"{}\"", token.string).c_str());
-        }
-        else {
-            Q_strcat(script, 2048, token.string);
-        }
-        Q_strcat(script, 2048, " ");
     }
     return false;
 }
@@ -6536,7 +6344,7 @@ constexpr int KEYWORDHASH_SIZE = 512;
 namespace {
 typedef struct keywordHash_s {
     const char* keyword;
-    bool (*func)(itemDef_t* item, int handle);
+    bool (*func)(itemDef_t* item);
     struct keywordHash_s* next;
 } keywordHash_t;
 } // namespace
@@ -6570,7 +6378,7 @@ static void KeywordHash_Add(keywordHash_t* table[], keywordHash_t* key)
     table[hash] = key;
 }
 
-static keywordHash_t* KeywordHash_Find(keywordHash_t* table[], char* keyword)
+static keywordHash_t* KeywordHash_Find(keywordHash_t* table[], const char* keyword)
 {
     keywordHash_t* key;
     int hash;
@@ -6590,29 +6398,29 @@ Item Keyword Parse functions
 */
 
 // name <string>
-bool ItemParse_name(itemDef_t* item, int handle)
+bool ItemParse_name(itemDef_t* item)
 {
-    if (!PC_String_Parse(handle, &item->window.name)) {
+    if (!PC_ParseStringMem(&item->window.name)) {
         return false;
     }
     return true;
 }
 
 // name <string>
-bool ItemParse_focusSound(itemDef_t* item, int handle)
+bool ItemParse_focusSound(itemDef_t* item)
 {
-    pc_token_t token;
-    if (!trap->PC_ReadToken(handle, &token)) {
+    const char* token;
+    if (!PC_ParseString(&token)) {
         return false;
     }
-    item->focusSound = DC->sound->Register(token.string);
+    item->focusSound = DC->sound->Register(token);
     return true;
 }
 
 // text <string>
-bool ItemParse_text(itemDef_t* item, int handle)
+bool ItemParse_text(itemDef_t* item)
 {
-    if (!PC_String_Parse(handle, &item->text)) {
+    if (!PC_ParseStringMem(&item->text)) {
         return false;
     }
     return true;
@@ -6624,10 +6432,10 @@ ItemParse_descText
     text <string>
 ===============
 */
-bool ItemParse_descText(itemDef_t* item, int handle)
+bool ItemParse_descText(itemDef_t* item)
 {
 
-    if (!PC_String_Parse(handle, &item->descText)) {
+    if (!PC_ParseStringMem(&item->descText)) {
         return false;
     }
 
@@ -6640,10 +6448,10 @@ ItemParse_text
     text <string>
 ===============
 */
-bool ItemParse_text2(itemDef_t* item, int handle)
+bool ItemParse_text2(itemDef_t* item)
 {
 
-    if (!PC_String_Parse(handle, &item->text2)) {
+    if (!PC_ParseStringMem(&item->text2)) {
         return false;
     }
 
@@ -6655,9 +6463,9 @@ bool ItemParse_text2(itemDef_t* item, int handle)
 ItemParse_text2alignx
 ===============
 */
-bool ItemParse_text2alignx(itemDef_t* item, int handle)
+bool ItemParse_text2alignx(itemDef_t* item)
 {
-    if (!PC_Float_Parse(handle, &item->text2alignx)) {
+    if (!PC_ParseFloat(&item->text2alignx)) {
         return false;
     }
     return true;
@@ -6668,18 +6476,18 @@ bool ItemParse_text2alignx(itemDef_t* item, int handle)
 ItemParse_text2aligny
 ===============
 */
-bool ItemParse_text2aligny(itemDef_t* item, int handle)
+bool ItemParse_text2aligny(itemDef_t* item)
 {
-    if (!PC_Float_Parse(handle, &item->text2aligny)) {
+    if (!PC_ParseFloat(&item->text2aligny)) {
         return false;
     }
     return true;
 }
 
 // group <string>
-bool ItemParse_group(itemDef_t* item, int handle)
+bool ItemParse_group(itemDef_t* item)
 {
-    if (!PC_String_Parse(handle, &item->window.group)) {
+    if (!PC_ParseStringMem(&item->window.group)) {
         return false;
     }
     return true;
@@ -6841,19 +6649,19 @@ bool ItemParse_asset_model_go(itemDef_t* item, const char* name, int* runTimeLen
     return true;
 }
 
-bool ItemParse_asset_model(itemDef_t* item, int handle)
+bool ItemParse_asset_model(itemDef_t* item)
 {
     int animRunLength;
-    pc_token_t token;
+    const char* token;
 
     Item_ValidateTypeData(item);
 
-    if (!trap->PC_ReadToken(handle, &token)) {
+    if (!PC_ParseString(&token)) {
         return false;
     }
 
 #ifdef UI_BUILD
-    if (!Q_stricmp(token.string, "ui_char_model")) {
+    if (!Q_stricmp(token, "ui_char_model")) {
         char modelPath[MAX_QPATH] = {0};
         char ui_char_model[MAX_QPATH] = {0};
         trap->Cvar_VariableStringBuffer("ui_char_model", ui_char_model, sizeof(ui_char_model));
@@ -6861,30 +6669,30 @@ bool ItemParse_asset_model(itemDef_t* item, int handle)
         return (ItemParse_asset_model_go(item, modelPath, &animRunLength));
     }
 #endif
-    return (ItemParse_asset_model_go(item, token.string, &animRunLength));
+    return (ItemParse_asset_model_go(item, token, &animRunLength));
 }
 
 // asset_shader <string>
-bool ItemParse_asset_shader(itemDef_t* item, int handle)
+bool ItemParse_asset_shader(itemDef_t* item)
 {
-    pc_token_t token;
-    if (!trap->PC_ReadToken(handle, &token)) {
+    const char* token;
+    if (!PC_ParseString(&token)) {
         return false;
     }
-    item->asset = DC->registerShaderNoMip(token.string);
+    item->asset = DC->registerShaderNoMip(token);
     return true;
 }
 
 // model_origin <number> <number> <number>
-bool ItemParse_model_origin(itemDef_t* item, int handle)
+bool ItemParse_model_origin(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (PC_Float_Parse(handle, &modelPtr->origin[0])) {
-        if (PC_Float_Parse(handle, &modelPtr->origin[1])) {
-            if (PC_Float_Parse(handle, &modelPtr->origin[2])) {
+    if (PC_ParseFloat(&modelPtr->origin[0])) {
+        if (PC_ParseFloat(&modelPtr->origin[1])) {
+            if (PC_ParseFloat(&modelPtr->origin[2])) {
                 return true;
             }
         }
@@ -6893,67 +6701,67 @@ bool ItemParse_model_origin(itemDef_t* item, int handle)
 }
 
 // model_fovx <number>
-bool ItemParse_model_fovx(itemDef_t* item, int handle)
+bool ItemParse_model_fovx(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (!PC_Float_Parse(handle, &modelPtr->fov_x)) {
+    if (!PC_ParseFloat(&modelPtr->fov_x)) {
         return false;
     }
     return true;
 }
 
 // model_fovy <number>
-bool ItemParse_model_fovy(itemDef_t* item, int handle)
+bool ItemParse_model_fovy(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (!PC_Float_Parse(handle, &modelPtr->fov_y)) {
+    if (!PC_ParseFloat(&modelPtr->fov_y)) {
         return false;
     }
     return true;
 }
 
 // model_rotation <integer>
-bool ItemParse_model_rotation(itemDef_t* item, int handle)
+bool ItemParse_model_rotation(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (!PC_Int_Parse(handle, &modelPtr->rotationSpeed)) {
+    if (!PC_ParseInt(&modelPtr->rotationSpeed)) {
         return false;
     }
     return true;
 }
 
 // model_angle <integer>
-bool ItemParse_model_angle(itemDef_t* item, int handle)
+bool ItemParse_model_angle(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (!PC_Int_Parse(handle, &modelPtr->angle)) {
+    if (!PC_ParseInt(&modelPtr->angle)) {
         return false;
     }
     return true;
 }
 
 // model_g2mins <number> <number> <number>
-bool ItemParse_model_g2mins(itemDef_t* item, int handle)
+bool ItemParse_model_g2mins(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (PC_Float_Parse(handle, &modelPtr->g2mins[0])) {
-        if (PC_Float_Parse(handle, &modelPtr->g2mins[1])) {
-            if (PC_Float_Parse(handle, &modelPtr->g2mins[2])) {
+    if (PC_ParseFloat(&modelPtr->g2mins[0])) {
+        if (PC_ParseFloat(&modelPtr->g2mins[1])) {
+            if (PC_ParseFloat(&modelPtr->g2mins[2])) {
                 return true;
             }
         }
@@ -6962,15 +6770,15 @@ bool ItemParse_model_g2mins(itemDef_t* item, int handle)
 }
 
 // model_g2maxs <number> <number> <number>
-bool ItemParse_model_g2maxs(itemDef_t* item, int handle)
+bool ItemParse_model_g2maxs(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (PC_Float_Parse(handle, &modelPtr->g2maxs[0])) {
-        if (PC_Float_Parse(handle, &modelPtr->g2maxs[1])) {
-            if (PC_Float_Parse(handle, &modelPtr->g2maxs[2])) {
+    if (PC_ParseFloat(&modelPtr->g2maxs[0])) {
+        if (PC_ParseFloat(&modelPtr->g2maxs[1])) {
+            if (PC_ParseFloat(&modelPtr->g2maxs[2])) {
                 return true;
             }
         }
@@ -6979,15 +6787,15 @@ bool ItemParse_model_g2maxs(itemDef_t* item, int handle)
 }
 
 // model_g2scale <number> <number> <number>
-bool ItemParse_model_g2scale(itemDef_t* item, int handle)
+bool ItemParse_model_g2scale(itemDef_t* item)
 {
     modelDef_t* modelPtr;
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (PC_Float_Parse(handle, &modelPtr->g2scale[0])) {
-        if (PC_Float_Parse(handle, &modelPtr->g2scale[1])) {
-            if (PC_Float_Parse(handle, &modelPtr->g2scale[2])) {
+    if (PC_ParseFloat(&modelPtr->g2scale[0])) {
+        if (PC_ParseFloat(&modelPtr->g2scale[1])) {
+            if (PC_ParseFloat(&modelPtr->g2scale[2])) {
                 return true;
             }
         }
@@ -6995,54 +6803,54 @@ bool ItemParse_model_g2scale(itemDef_t* item, int handle)
     return false;
 }
 
-bool ItemParse_model_g2skin(itemDef_t* item, int handle)
+bool ItemParse_model_g2skin(itemDef_t* item)
 {
     modelDef_t* modelPtr;
-    pc_token_t token;
+    const char* token;
 
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (!trap->PC_ReadToken(handle, &token)) {
+    if (!PC_ParseString(&token)) {
         return false;
     }
 
-    if (!token.string[0]) { // it was parsed correctly so still return true.
+    if (!token[0]) { // it was parsed correctly so still return true.
         return true;
     }
 
-    modelPtr->g2skin = trap->R_RegisterSkin(token.string);
+    modelPtr->g2skin = trap->R_RegisterSkin(token);
 
     return true;
 }
 
 // model_g2anim <number>
-bool ItemParse_model_g2anim(itemDef_t* item, int handle)
+bool ItemParse_model_g2anim(itemDef_t* item)
 {
     modelDef_t* modelPtr;
-    pc_token_t token;
+    const char* token;
     animNumber_t i = animNumber_t::FACE_TALK0;
 
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (!trap->PC_ReadToken(handle, &token)) {
+    if (!PC_ParseString(&token)) {
         return false;
     }
 
-    if (!token.string[0]) { // it was parsed correctly so still return true.
+    if (!token[0]) { // it was parsed correctly so still return true.
         return true;
     }
 
     while (i < animNumber_t::MAX_ANIMATIONS) {
-        if (!Q_stricmp(token.string, BG_AnimName(i))) { // found it
+        if (!Q_stricmp(token, BG_AnimName(i))) { // found it
             modelPtr->g2anim = i;
             return true;
         }
         i++;
     }
 
-    Q_Println("Could not find '{}' in the anim table", token.string);
+    Q_Println("Could not find '{}' in the anim table", token);
     return true;
 }
 
@@ -7093,20 +6901,20 @@ bool ItemParse_model_g2anim_go(itemDef_t* item, const char* animName)
 }
 
 // Get the cvar, get the values and stuff them in the rect structure.
-bool ItemParse_rectcvar(itemDef_t* item, int handle)
+bool ItemParse_rectcvar(itemDef_t* item)
 {
     char cvarBuf[1024];
     const char* holdVal;
     const char* holdBuf;
 
     // get Cvar name
-    pc_token_t token;
-    if (!trap->PC_ReadToken(handle, &token)) {
+    const char* token;
+    if (!PC_ParseString(&token)) {
         return false;
     }
 
     // get cvar data
-    DC->getCVarString(token.string, cvarBuf, sizeof(cvarBuf));
+    DC->getCVarString(token, cvarBuf, sizeof(cvarBuf));
 
     holdBuf = cvarBuf;
     if (String_Parse(&holdBuf, &holdVal)) {
@@ -7128,9 +6936,9 @@ bool ItemParse_rectcvar(itemDef_t* item, int handle)
 }
 
 // rect <rectangle>
-bool ItemParse_rect(itemDef_t* item, int handle)
+bool ItemParse_rect(itemDef_t* item)
 {
-    if (!PC_Rect_Parse(handle, &item->window.rectClient)) {
+    if (!PC_ParseRect(&item->window.rectClient)) {
         return false;
     }
     return true;
@@ -7142,24 +6950,24 @@ ItemParse_flag
     flag <flag string>
 ===============
 */
-bool ItemParse_flag(itemDef_t* item, int handle)
+bool ItemParse_flag(itemDef_t* item)
 {
     int i;
-    pc_token_t token;
+    const char* token;
 
-    if (!trap->PC_ReadToken(handle, &token)) {
+    if (!PC_ParseString(&token)) {
         return false;
     }
 
     for (i = 0; itemFlags[i].string; i++) {
-        if (Q_stricmp(token.string, itemFlags[i].string) == 0) {
+        if (Q_stricmp(token, itemFlags[i].string) == 0) {
             item->window.flags |= itemFlags[i].value;
             break;
         }
     }
 
     if (itemFlags[i].string == nullptr) {
-        Q_Println(S_COLOR_YELLOW "Unknown item style value '{}'", token.string);
+        Q_Println(S_COLOR_YELLOW "Unknown item style value '{}'", token);
     }
 
     return true;
@@ -7171,9 +6979,9 @@ ItemParse_style
     style <integer>
 ===============
 */
-bool ItemParse_style(itemDef_t* item, int handle)
+bool ItemParse_style(itemDef_t* item)
 {
-    if (!PC_Int_Parse(handle, &item->window.style)) {
+    if (!PC_ParseInt(&item->window.style)) {
         Q_Println(S_COLOR_YELLOW "Unknown item style value");
         return false;
     }
@@ -7182,14 +6990,14 @@ bool ItemParse_style(itemDef_t* item, int handle)
 }
 
 // decoration
-bool ItemParse_decoration(itemDef_t* item, int handle)
+bool ItemParse_decoration(itemDef_t* item)
 {
     item->window.flags |= windowFlags_t::WINDOW_DECORATION;
     return true;
 }
 
 // notselectable
-bool ItemParse_notselectable(itemDef_t* item, int handle)
+bool ItemParse_notselectable(itemDef_t* item)
 {
     listBoxDef_t* listPtr;
     Item_ValidateTypeData(item);
@@ -7206,7 +7014,7 @@ ItemParse_scrollhidden
     scrollhidden
 ===============
 */
-bool ItemParse_scrollhidden(itemDef_t* item, int handle)
+bool ItemParse_scrollhidden(itemDef_t* item)
 {
     listBoxDef_t* listPtr;
     Item_ValidateTypeData(item);
@@ -7219,21 +7027,21 @@ bool ItemParse_scrollhidden(itemDef_t* item, int handle)
 }
 
 // manually wrapped
-bool ItemParse_wrapped(itemDef_t* item, int handle)
+bool ItemParse_wrapped(itemDef_t* item)
 {
     item->window.flags |= windowFlags_t::WINDOW_WRAPPED;
     return true;
 }
 
 // auto wrapped
-bool ItemParse_autowrapped(itemDef_t* item, int handle)
+bool ItemParse_autowrapped(itemDef_t* item)
 {
     item->window.flags |= windowFlags_t::WINDOW_AUTOWRAPPED;
     return true;
 }
 
 // horizontalscroll
-bool ItemParse_horizontalscroll(itemDef_t* item, int handle)
+bool ItemParse_horizontalscroll(itemDef_t* item)
 {
     item->window.flags |= windowFlags_t::WINDOW_HORIZONTAL;
     return true;
@@ -7245,9 +7053,9 @@ ItemParse_type
     type <integer>
 ===============
 */
-bool ItemParse_type(itemDef_t* item, int handle)
+bool ItemParse_type(itemDef_t* item)
 {
-    if (!PC_Int_Parse(handle, &item->type)) {
+    if (!PC_ParseInt(&item->type)) {
         return false;
     }
     Item_ValidateTypeData(item);
@@ -7256,13 +7064,13 @@ bool ItemParse_type(itemDef_t* item, int handle)
 
 // elementwidth, used for listbox image elements
 // uses textalignx for storage
-bool ItemParse_elementwidth(itemDef_t* item, int handle)
+bool ItemParse_elementwidth(itemDef_t* item)
 {
     listBoxDef_t* listPtr;
 
     Item_ValidateTypeData(item);
     listPtr = item->typeData.listbox;
-    if (!listPtr || !PC_Float_Parse(handle, &listPtr->elementWidth)) {
+    if (!listPtr || !PC_ParseFloat(&listPtr->elementWidth)) {
         return false;
     }
     return true;
@@ -7270,22 +7078,22 @@ bool ItemParse_elementwidth(itemDef_t* item, int handle)
 
 // elementheight, used for listbox image elements
 // uses textaligny for storage
-bool ItemParse_elementheight(itemDef_t* item, int handle)
+bool ItemParse_elementheight(itemDef_t* item)
 {
     listBoxDef_t* listPtr;
 
     Item_ValidateTypeData(item);
     listPtr = item->typeData.listbox;
-    if (!listPtr || !PC_Float_Parse(handle, &listPtr->elementHeight)) {
+    if (!listPtr || !PC_ParseFloat(&listPtr->elementHeight)) {
         return false;
     }
     return true;
 }
 
 // feeder <float>
-bool ItemParse_feeder(itemDef_t* item, int handle)
+bool ItemParse_feeder(itemDef_t* item)
 {
-    if (!PC_Float_Parse(handle, &item->special)) {
+    if (!PC_ParseFloat(&item->special)) {
         return false;
     }
     return true;
@@ -7293,34 +7101,34 @@ bool ItemParse_feeder(itemDef_t* item, int handle)
 
 // elementtype, used to specify what type of elements a listbox contains
 // uses textstyle for storage
-bool ItemParse_elementtype(itemDef_t* item, int handle)
+bool ItemParse_elementtype(itemDef_t* item)
 {
     listBoxDef_t* listPtr;
 
     Item_ValidateTypeData(item);
     listPtr = item->typeData.listbox;
-    if (!listPtr || !PC_Int_Parse(handle, &listPtr->elementStyle)) {
+    if (!listPtr || !PC_ParseInt(&listPtr->elementStyle)) {
         return false;
     }
     return true;
 }
 
 // columns sets a number of columns and an x pos and width per..
-bool ItemParse_columns(itemDef_t* item, int handle)
+bool ItemParse_columns(itemDef_t* item)
 {
     int i;
     listBoxDef_t* listPtr;
 
     Item_ValidateTypeData(item);
     listPtr = item->typeData.listbox;
-    if (listPtr && PC_Int_Parse(handle, &listPtr->numColumns)) {
+    if (listPtr && PC_ParseInt(&listPtr->numColumns)) {
         if (listPtr->numColumns > MAX_LB_COLUMNS) {
             listPtr->numColumns = MAX_LB_COLUMNS;
         }
         for (i = 0; i < listPtr->numColumns; i++) {
             int pos, width, maxChars;
 
-            if (PC_Int_Parse(handle, &pos) && PC_Int_Parse(handle, &width) && PC_Int_Parse(handle, &maxChars)) {
+            if (PC_ParseInt(&pos) && PC_ParseInt(&width) && PC_ParseInt(&maxChars)) {
                 listPtr->columnInfo[i].pos = pos;
                 listPtr->columnInfo[i].width = width;
                 listPtr->columnInfo[i].maxChars = maxChars;
@@ -7336,27 +7144,27 @@ bool ItemParse_columns(itemDef_t* item, int handle)
     return true;
 }
 
-bool ItemParse_border(itemDef_t* item, int handle)
+bool ItemParse_border(itemDef_t* item)
 {
-    if (!PC_Int_Parse(handle, &item->window.border)) {
+    if (!PC_ParseInt(&item->window.border)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_bordersize(itemDef_t* item, int handle)
+bool ItemParse_bordersize(itemDef_t* item)
 {
-    if (!PC_Float_Parse(handle, &item->window.borderSize)) {
+    if (!PC_ParseFloat(&item->window.borderSize)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_visible(itemDef_t* item, int handle)
+bool ItemParse_visible(itemDef_t* item)
 {
     int i;
 
-    if (!PC_Int_Parse(handle, &i)) {
+    if (!PC_ParseInt(&i)) {
         return false;
     }
     if (i) {
@@ -7365,18 +7173,18 @@ bool ItemParse_visible(itemDef_t* item, int handle)
     return true;
 }
 
-bool ItemParse_ownerdraw(itemDef_t* item, int handle)
+bool ItemParse_ownerdraw(itemDef_t* item)
 {
-    if (!PC_Int_Parse(handle, &item->window.ownerDraw)) {
+    if (!PC_ParseInt(&item->window.ownerDraw)) {
         return false;
     }
     item->type = ITEM_TYPE_OWNERDRAW;
     return true;
 }
 
-bool ItemParse_align(itemDef_t* item, int handle)
+bool ItemParse_align(itemDef_t* item)
 {
-    if (!PC_Int_Parse(handle, &item->alignment)) {
+    if (!PC_ParseInt(&item->alignment)) {
         return false;
     }
     return true;
@@ -7389,11 +7197,11 @@ ItemParse_isCharacter
 Sets item flag showing this is a character
 ===============
 */
-bool ItemParse_isCharacter(itemDef_t* item, int handle)
+bool ItemParse_isCharacter(itemDef_t* item)
 {
     int flag;
 
-    if (PC_Int_Parse(handle, &flag)) {
+    if (PC_ParseInt(&flag)) {
         if (flag) {
             item->flags |= itemModelFlags_t::ITF_ISCHARACTER;
         }
@@ -7410,9 +7218,9 @@ bool ItemParse_isCharacter(itemDef_t* item, int handle)
 ItemParse_textalign
 ===============
 */
-bool ItemParse_textalign(itemDef_t* item, int handle)
+bool ItemParse_textalign(itemDef_t* item)
 {
-    if (!PC_Int_Parse(handle, &item->textalignment)) {
+    if (!PC_ParseInt(&item->textalignment)) {
         Q_Println(S_COLOR_YELLOW "Unknown text alignment value");
 
         return false;
@@ -7421,33 +7229,33 @@ bool ItemParse_textalign(itemDef_t* item, int handle)
     return true;
 }
 
-bool ItemParse_textalignx(itemDef_t* item, int handle)
+bool ItemParse_textalignx(itemDef_t* item)
 {
-    if (!PC_Float_Parse(handle, &item->textalignx)) {
+    if (!PC_ParseFloat(&item->textalignx)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_textaligny(itemDef_t* item, int handle)
+bool ItemParse_textaligny(itemDef_t* item)
 {
-    if (!PC_Float_Parse(handle, &item->textaligny)) {
+    if (!PC_ParseFloat(&item->textaligny)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_textscale(itemDef_t* item, int handle)
+bool ItemParse_textscale(itemDef_t* item)
 {
-    if (!PC_Float_Parse(handle, &item->textscale)) {
+    if (!PC_ParseFloat(&item->textscale)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_textstyle(itemDef_t* item, int handle)
+bool ItemParse_textstyle(itemDef_t* item)
 {
-    if (!PC_Int_Parse(handle, &item->textStyle)) {
+    if (!PC_ParseInt(&item->textStyle)) {
         return false;
     }
     return true;
@@ -7459,9 +7267,9 @@ ItemParse_invertyesno
 ===============
 */
 // JLFYESNO MPMOVED
-bool ItemParse_invertyesno(itemDef_t* item, int handle)
+bool ItemParse_invertyesno(itemDef_t* item)
 {
-    if (!PC_Int_Parse(handle, &item->invertYesNo)) {
+    if (!PC_ParseInt(&item->invertYesNo)) {
         return false;
     }
     return true;
@@ -7472,21 +7280,21 @@ bool ItemParse_invertyesno(itemDef_t* item, int handle)
 ItemParse_xoffset (used for yes/no and multi)
 ===============
 */
-bool ItemParse_xoffset(itemDef_t* item, int handle)
+bool ItemParse_xoffset(itemDef_t* item)
 {
-    if (PC_Int_Parse(handle, &item->xoffset)) {
+    if (PC_ParseInt(&item->xoffset)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_backcolor(itemDef_t* item, int handle)
+bool ItemParse_backcolor(itemDef_t* item)
 {
     int i;
     float f;
 
     for (i = 0; i < 4; i++) {
-        if (!PC_Float_Parse(handle, &f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         item->window.backColor[i] = f;
@@ -7494,13 +7302,13 @@ bool ItemParse_backcolor(itemDef_t* item, int handle)
     return true;
 }
 
-bool ItemParse_forecolor(itemDef_t* item, int handle)
+bool ItemParse_forecolor(itemDef_t* item)
 {
     int i;
     float f;
 
     for (i = 0; i < 4; i++) {
-        if (!PC_Float_Parse(handle, &f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
 
@@ -7515,13 +7323,13 @@ bool ItemParse_forecolor(itemDef_t* item, int handle)
     return true;
 }
 
-bool ItemParse_bordercolor(itemDef_t* item, int handle)
+bool ItemParse_bordercolor(itemDef_t* item)
 {
     int i;
     float f;
 
     for (i = 0; i < 4; i++) {
-        if (!PC_Float_Parse(handle, &f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         item->window.borderColor[i] = f;
@@ -7529,122 +7337,122 @@ bool ItemParse_bordercolor(itemDef_t* item, int handle)
     return true;
 }
 
-bool ItemParse_outlinecolor(itemDef_t* item, int handle)
+bool ItemParse_outlinecolor(itemDef_t* item)
 {
-    if (!PC_Color_Parse(handle, &item->window.outlineColor)) {
+    if (!PC_ParseColor(&item->window.outlineColor)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_background(itemDef_t* item, int handle)
+bool ItemParse_background(itemDef_t* item)
 {
-    pc_token_t token;
+    const char* token;
 
-    if (!trap->PC_ReadToken(handle, &token)) {
+    if (!PC_ParseString(&token)) {
         return false;
     }
-    item->window.background = DC->registerShaderNoMip(token.string);
+    item->window.background = DC->registerShaderNoMip(token);
     return true;
 }
 
-bool ItemParse_cinematic(itemDef_t* item, int handle)
+bool ItemParse_cinematic(itemDef_t* item)
 {
-    if (!PC_String_Parse(handle, &item->window.cinematicName)) {
+    if (!PC_ParseStringMem(&item->window.cinematicName)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_doubleClick(itemDef_t* item, int handle)
+bool ItemParse_doubleClick(itemDef_t* item)
 {
     listBoxDef_t* listPtr;
 
     Item_ValidateTypeData(item);
     listPtr = item->typeData.listbox;
 
-    if (!listPtr || !PC_Script_Parse(handle, &listPtr->doubleClick)) {
+    if (!listPtr || !PC_Script_Parse(&listPtr->doubleClick)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_onFocus(itemDef_t* item, int handle)
+bool ItemParse_onFocus(itemDef_t* item)
 {
-    if (!PC_Script_Parse(handle, &item->onFocus)) {
+    if (!PC_Script_Parse(&item->onFocus)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_leaveFocus(itemDef_t* item, int handle)
+bool ItemParse_leaveFocus(itemDef_t* item)
 {
-    if (!PC_Script_Parse(handle, &item->leaveFocus)) {
+    if (!PC_Script_Parse(&item->leaveFocus)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_mouseEnter(itemDef_t* item, int handle)
+bool ItemParse_mouseEnter(itemDef_t* item)
 {
-    if (!PC_Script_Parse(handle, &item->mouseEnter)) {
+    if (!PC_Script_Parse(&item->mouseEnter)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_mouseExit(itemDef_t* item, int handle)
+bool ItemParse_mouseExit(itemDef_t* item)
 {
-    if (!PC_Script_Parse(handle, &item->mouseExit)) {
+    if (!PC_Script_Parse(&item->mouseExit)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_mouseEnterText(itemDef_t* item, int handle)
+bool ItemParse_mouseEnterText(itemDef_t* item)
 {
-    if (!PC_Script_Parse(handle, &item->mouseEnterText)) {
+    if (!PC_Script_Parse(&item->mouseEnterText)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_mouseExitText(itemDef_t* item, int handle)
+bool ItemParse_mouseExitText(itemDef_t* item)
 {
-    if (!PC_Script_Parse(handle, &item->mouseExitText)) {
+    if (!PC_Script_Parse(&item->mouseExitText)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_action(itemDef_t* item, int handle)
+bool ItemParse_action(itemDef_t* item)
 {
-    if (!PC_Script_Parse(handle, &item->action)) {
+    if (!PC_Script_Parse(&item->action)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_special(itemDef_t* item, int handle)
+bool ItemParse_special(itemDef_t* item)
 {
-    if (!PC_Float_Parse(handle, &item->special)) {
+    if (!PC_ParseFloat(&item->special)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_cvarTest(itemDef_t* item, int handle)
+bool ItemParse_cvarTest(itemDef_t* item)
 {
-    if (!PC_String_Parse(handle, &item->cvarTest)) {
+    if (!PC_ParseStringMem(&item->cvarTest)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_cvar(itemDef_t* item, int handle)
+bool ItemParse_cvar(itemDef_t* item)
 {
     Item_ValidateTypeData(item);
-    if (!PC_String_Parse(handle, &item->cvar)) {
+    if (!PC_ParseStringMem(&item->cvar)) {
         return false;
     }
 
@@ -7666,58 +7474,58 @@ bool ItemParse_cvar(itemDef_t* item, int handle)
     return true;
 }
 
-bool ItemParse_font(itemDef_t* item, int handle)
+bool ItemParse_font(itemDef_t* item)
 {
     int font;
 
     Item_ValidateTypeData(item);
-    if (!PC_Int_Parse(handle, &font)) {
+    if (!PC_ParseInt(&font)) {
         return false;
     }
     item->iMenuFont = static_cast<menuFont_t>(font);
     return true;
 }
 
-bool ItemParse_maxChars(itemDef_t* item, int handle)
+bool ItemParse_maxChars(itemDef_t* item)
 {
     editFieldDef_t* editPtr;
 
     Item_ValidateTypeData(item);
     editPtr = (editFieldDef_t*)item->typeData.edit;
 
-    if (!editPtr || !PC_Int_Parse(handle, &editPtr->maxChars)) {
+    if (!editPtr || !PC_ParseInt(&editPtr->maxChars)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_maxPaintChars(itemDef_t* item, int handle)
+bool ItemParse_maxPaintChars(itemDef_t* item)
 {
     editFieldDef_t* editPtr;
 
     Item_ValidateTypeData(item);
     editPtr = (editFieldDef_t*)item->typeData.edit;
 
-    if (!editPtr || !PC_Int_Parse(handle, &editPtr->maxPaintChars)) {
+    if (!editPtr || !PC_ParseInt(&editPtr->maxPaintChars)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_maxLineChars(itemDef_t* item, int handle)
+bool ItemParse_maxLineChars(itemDef_t* item)
 {
     textScrollDef_t* scrollPtr;
 
     Item_ValidateTypeData(item);
     scrollPtr = item->typeData.textscroll;
 
-    if (!scrollPtr || !PC_Int_Parse(handle, &scrollPtr->maxLineChars)) {
+    if (!scrollPtr || !PC_ParseInt(&scrollPtr->maxLineChars)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_lineHeight(itemDef_t* item, int handle)
+bool ItemParse_lineHeight(itemDef_t* item)
 {
     textScrollDef_t* scrollPtr;
     int height;
@@ -7725,14 +7533,14 @@ bool ItemParse_lineHeight(itemDef_t* item, int handle)
     Item_ValidateTypeData(item);
     scrollPtr = item->typeData.textscroll;
 
-    if (!scrollPtr || !PC_Int_Parse(handle, &height)) {
+    if (!scrollPtr || !PC_ParseInt(&height)) {
         return false;
     }
     scrollPtr->lineHeight = height;
     return true;
 }
 
-bool ItemParse_cvarFloat(itemDef_t* item, int handle)
+bool ItemParse_cvarFloat(itemDef_t* item)
 {
     editFieldDef_t* editPtr;
 
@@ -7742,8 +7550,7 @@ bool ItemParse_cvarFloat(itemDef_t* item, int handle)
     if (!editPtr)
         return false;
 
-    if (PC_String_Parse(handle, &item->cvar) && PC_Float_Parse(handle, &editPtr->defVal) && PC_Float_Parse(handle, &editPtr->minVal) &&
-        PC_Float_Parse(handle, &editPtr->maxVal)) {
+    if (PC_ParseStringMem(&item->cvar) && PC_ParseFloat(&editPtr->defVal) && PC_ParseFloat(&editPtr->minVal) && PC_ParseFloat(&editPtr->maxVal)) {
         return true;
     }
     return false;
@@ -7754,9 +7561,9 @@ char currLanguage[32][128];
 static const char languageString[32] = "@MENUS_MYLANGUAGE";
 #endif
 
-bool ItemParse_cvarStrList(itemDef_t* item, int handle)
+bool ItemParse_cvarStrList(itemDef_t* item)
 {
-    pc_token_t token;
+    const char* token;
     multiDef_t* multiPtr;
     int pass;
 
@@ -7769,11 +7576,11 @@ bool ItemParse_cvarStrList(itemDef_t* item, int handle)
     multiPtr->count = 0;
     multiPtr->strDef = true;
 
-    if (!trap->PC_ReadToken(handle, &token)) {
+    if (!PC_ParseString(&token)) {
         return false;
     }
 
-    if (!Q_stricmp(token.string, "feeder") && item->special == FEEDER_PLAYER_SPECIES) {
+    if (!Q_stricmp(token, "feeder") && item->special == FEEDER_PLAYER_SPECIES) {
 #ifndef _CGAME
         for (; multiPtr->count < uiInfo.playerSpeciesCount; multiPtr->count++) {
             char speciesName[MAX_QPATH];
@@ -7785,7 +7592,7 @@ bool ItemParse_cvarStrList(itemDef_t* item, int handle)
         return true;
     }
     // languages
-    if (!Q_stricmp(token.string, "feeder") && item->special == FEEDER_LANGUAGES) {
+    if (!Q_stricmp(token, "feeder") && item->special == FEEDER_LANGUAGES) {
 #ifdef UI_BUILD
         for (; multiPtr->count < uiInfo.languageCount; multiPtr->count++) {
             // The displayed text
@@ -7799,7 +7606,7 @@ bool ItemParse_cvarStrList(itemDef_t* item, int handle)
         return true;
     }
 
-    if (*token.string != '{') {
+    if (*token != '{') {
         return false;
     }
 
@@ -7807,8 +7614,8 @@ bool ItemParse_cvarStrList(itemDef_t* item, int handle)
     while (1) {
         char* psString;
 
-        if (!PC_String_Parse(handle, (const char**)&psString)) {
-            PC_SourceError(handle, "end of file inside menu item");
+        if (!PC_ParseStringMem((const char**)&psString)) {
+            PC_ParseWarning("end of file inside menu item");
             return false;
         }
 
@@ -7839,9 +7646,9 @@ bool ItemParse_cvarStrList(itemDef_t* item, int handle)
     return false;
 }
 
-bool ItemParse_cvarFloatList(itemDef_t* item, int handle)
+bool ItemParse_cvarFloatList(itemDef_t* item)
 {
-    pc_token_t token;
+    const char* token;
     multiDef_t* multiPtr;
 
     Item_ValidateTypeData(item);
@@ -7853,19 +7660,19 @@ bool ItemParse_cvarFloatList(itemDef_t* item, int handle)
     multiPtr->count = 0;
     multiPtr->strDef = false;
 
-    if (!trap->PC_ReadToken(handle, &token)) {
+    if (!PC_ParseString(&token)) {
         return false;
     }
 
-    if (*token.string != '{') {
+    if (*token != '{') {
         return false;
     }
 
     while (1) {
         char* string;
 
-        if (!PC_String_Parse(handle, (const char**)&string)) {
-            PC_SourceError(handle, "end of file inside menu item");
+        if (!PC_ParseStringMem((const char**)&string)) {
+            PC_ParseWarning("end of file inside menu item");
             return false;
         }
 
@@ -7881,7 +7688,7 @@ bool ItemParse_cvarFloatList(itemDef_t* item, int handle)
         }
 
         multiPtr->cvarList[multiPtr->count] = string;
-        if (!PC_Float_Parse(handle, &multiPtr->cvarValue[multiPtr->count])) {
+        if (!PC_ParseFloat(&multiPtr->cvarValue[multiPtr->count])) {
             return false;
         }
 
@@ -7893,11 +7700,11 @@ bool ItemParse_cvarFloatList(itemDef_t* item, int handle)
     return false;
 }
 
-bool ItemParse_addColorRange(itemDef_t* item, int handle)
+bool ItemParse_addColorRange(itemDef_t* item)
 {
     colorRangeDef_t color;
 
-    if (PC_Float_Parse(handle, &color.low) && PC_Float_Parse(handle, &color.high) && PC_Color_Parse(handle, &color.color)) {
+    if (PC_ParseFloat(&color.low) && PC_ParseFloat(&color.high) && PC_ParseColor(&color.color)) {
         if (item->numColors < MAX_COLOR_RANGES) {
             memcpy(&item->colorRanges[item->numColors], &color, sizeof(color));
             item->numColors++;
@@ -7907,46 +7714,46 @@ bool ItemParse_addColorRange(itemDef_t* item, int handle)
     return false;
 }
 
-bool ItemParse_ownerdrawFlag(itemDef_t* item, int handle)
+bool ItemParse_ownerdrawFlag(itemDef_t* item)
 {
     int i;
-    if (!PC_Int_Parse(handle, &i)) {
+    if (!PC_ParseInt(&i)) {
         return false;
     }
     item->window.ownerDrawFlags |= i;
     return true;
 }
 
-bool ItemParse_enableCvar(itemDef_t* item, int handle)
+bool ItemParse_enableCvar(itemDef_t* item)
 {
-    if (PC_Script_Parse(handle, &item->enableCvar)) {
+    if (PC_Script_Parse(&item->enableCvar)) {
         item->cvarFlags = itemCvarFlags_t::CVAR_ENABLE;
         return true;
     }
     return false;
 }
 
-bool ItemParse_disableCvar(itemDef_t* item, int handle)
+bool ItemParse_disableCvar(itemDef_t* item)
 {
-    if (PC_Script_Parse(handle, &item->enableCvar)) {
+    if (PC_Script_Parse(&item->enableCvar)) {
         item->cvarFlags = itemCvarFlags_t::CVAR_DISABLE;
         return true;
     }
     return false;
 }
 
-bool ItemParse_showCvar(itemDef_t* item, int handle)
+bool ItemParse_showCvar(itemDef_t* item)
 {
-    if (PC_Script_Parse(handle, &item->enableCvar)) {
+    if (PC_Script_Parse(&item->enableCvar)) {
         item->cvarFlags = itemCvarFlags_t::CVAR_SHOW;
         return true;
     }
     return false;
 }
 
-bool ItemParse_hideCvar(itemDef_t* item, int handle)
+bool ItemParse_hideCvar(itemDef_t* item)
 {
-    if (PC_Script_Parse(handle, &item->enableCvar)) {
+    if (PC_Script_Parse(&item->enableCvar)) {
         item->cvarFlags = itemCvarFlags_t::CVAR_HIDE;
         return true;
     }
@@ -7958,21 +7765,21 @@ bool ItemParse_hideCvar(itemDef_t* item, int handle)
 ItemParse_align
 ===============
 */
-bool ItemParse_Appearance_slot(itemDef_t* item, int handle)
+bool ItemParse_Appearance_slot(itemDef_t* item)
 {
-    if (!PC_Int_Parse(handle, &item->appearanceSlot)) {
+    if (!PC_ParseInt(&item->appearanceSlot)) {
         return false;
     }
     return true;
 }
 
-bool ItemParse_isSaber(itemDef_t* item, int handle)
+bool ItemParse_isSaber(itemDef_t* item)
 {
 #ifndef _CGAME
 
     int i;
 
-    if (PC_Int_Parse(handle, &i)) {
+    if (PC_ParseInt(&i)) {
         if (i) {
             item->flags |= itemModelFlags_t::ITF_ISSABER;
             UI_CacheSaberGlowGraphics();
@@ -7990,11 +7797,11 @@ bool ItemParse_isSaber(itemDef_t* item, int handle)
     return false;
 }
 
-bool ItemParse_isSaber2(itemDef_t* item, int handle)
+bool ItemParse_isSaber2(itemDef_t* item)
 {
 #ifndef _CGAME
     int i;
-    if (PC_Int_Parse(handle, &i)) {
+    if (PC_ParseInt(&i)) {
         if (i) {
             item->flags |= itemModelFlags_t::ITF_ISSABER2;
             UI_CacheSaberGlowGraphics();
@@ -8161,38 +7968,40 @@ static void Item_ApplyHacks(itemDef_t* item)
 Item_Parse
 ===============
 */
-bool Item_Parse(int handle, itemDef_t* item)
+bool Item_Parse(itemDef_t* item)
 {
-    pc_token_t token;
     keywordHash_t* key;
+    const char* token;
 
-    if (!trap->PC_ReadToken(handle, &token))
-        return false;
-
-    if (*token.string != '{') {
+    if (!PC_ParseString(&token)) {
         return false;
     }
+
+    if (*token != '{') {
+        return false;
+    }
+
     while (1) {
-        if (!trap->PC_ReadToken(handle, &token)) {
-            PC_SourceError(handle, "end of file inside menu item");
+        if (!PC_ParseString(&token)) {
+            PC_ParseWarning("End of file inside menu item");
             return false;
         }
 
-        if (*token.string == '}') {
+        if (*token == '}') {
             return true;
         }
 
-        key = KeywordHash_Find(itemParseKeywordHash, token.string);
+        key = KeywordHash_Find(itemParseKeywordHash, token);
         if (!key) {
-            PC_SourceError(handle, "unknown menu item keyword {}", token.string);
+            PC_ParseWarning(Q_Format("Unknown item keyword '{}'", token).c_str());
             continue;
         }
-        if (!key->func(item, handle)) {
-            PC_SourceError(handle, "couldn't parse menu item keyword {}", token.string);
+
+        if (!key->func(item)) {
+            PC_ParseWarning(Q_Format("Couldn't parse item keyword '{}'", key->keyword).c_str());
             return false;
         }
     }
-    return false;
 }
 
 static void Item_TextScroll_BuildLines(itemDef_t* item)
@@ -8414,10 +8223,10 @@ Menu Keyword Parse functions
 ===============
 */
 
-bool MenuParse_font(itemDef_t* item, int handle)
+bool MenuParse_font(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
-    if (!PC_String_Parse(handle, &menu->font)) {
+    if (!PC_ParseStringMem(&menu->font)) {
         return false;
     }
     if (!DC->Assets.fontRegistered) {
@@ -8428,10 +8237,10 @@ bool MenuParse_font(itemDef_t* item, int handle)
     return true;
 }
 
-bool MenuParse_name(itemDef_t* item, int handle)
+bool MenuParse_name(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
-    if (!PC_String_Parse(handle, &menu->window.name)) {
+    if (!PC_ParseStringMem(&menu->window.name)) {
         return false;
     }
     if (Q_stricmp(menu->window.name, "main") == 0) {
@@ -8441,21 +8250,21 @@ bool MenuParse_name(itemDef_t* item, int handle)
     return true;
 }
 
-bool MenuParse_fullscreen(itemDef_t* item, int handle)
+bool MenuParse_fullscreen(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
     byteAlias_t fullscreen;
-    if (!PC_Int_Parse(handle, &fullscreen.i)) {
+    if (!PC_ParseInt(&fullscreen.i)) {
         return false;
     }
     menu->fullScreen = fullscreen.i != 0;
     return true;
 }
 
-bool MenuParse_rect(itemDef_t* item, int handle)
+bool MenuParse_rect(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
-    if (!PC_Rect_Parse(handle, &menu->window.rect)) {
+    if (!PC_ParseRect(&menu->window.rect)) {
         return false;
     }
     return true;
@@ -8466,11 +8275,11 @@ bool MenuParse_rect(itemDef_t* item, int handle)
 MenuParse_style
 =================
 */
-bool MenuParse_style(itemDef_t* item, int handle)
+bool MenuParse_style(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Int_Parse(handle, &menu->window.style)) {
+    if (!PC_ParseInt(&menu->window.style)) {
         Q_Println(S_COLOR_YELLOW "Unknown menu style value");
         return false;
     }
@@ -8478,12 +8287,12 @@ bool MenuParse_style(itemDef_t* item, int handle)
     return true;
 }
 
-bool MenuParse_visible(itemDef_t* item, int handle)
+bool MenuParse_visible(itemDef_t* item)
 {
     int i;
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Int_Parse(handle, &i)) {
+    if (!PC_ParseInt(&i)) {
         return false;
     }
     if (i) {
@@ -8492,19 +8301,19 @@ bool MenuParse_visible(itemDef_t* item, int handle)
     return true;
 }
 
-bool MenuParse_onOpen(itemDef_t* item, int handle)
+bool MenuParse_onOpen(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
-    if (!PC_Script_Parse(handle, &menu->onOpen)) {
+    if (!PC_Script_Parse(&menu->onOpen)) {
         return false;
     }
     return true;
 }
 
-bool MenuParse_onClose(itemDef_t* item, int handle)
+bool MenuParse_onClose(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
-    if (!PC_Script_Parse(handle, &menu->onClose)) {
+    if (!PC_Script_Parse(&menu->onClose)) {
         return false;
     }
     return true;
@@ -8516,51 +8325,51 @@ bool MenuParse_onClose(itemDef_t* item, int handle)
 MenuParse_onAccept
 =================
 */
-bool MenuParse_onAccept(itemDef_t* item, int handle)
+bool MenuParse_onAccept(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Script_Parse(handle, &menu->onAccept)) {
+    if (!PC_Script_Parse(&menu->onAccept)) {
         return false;
     }
     return true;
 }
 
-bool MenuParse_onESC(itemDef_t* item, int handle)
+bool MenuParse_onESC(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
-    if (!PC_Script_Parse(handle, &menu->onESC)) {
+    if (!PC_Script_Parse(&menu->onESC)) {
         return false;
     }
     return true;
 }
 
-bool MenuParse_border(itemDef_t* item, int handle)
+bool MenuParse_border(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
-    if (!PC_Int_Parse(handle, &menu->window.border)) {
+    if (!PC_ParseInt(&menu->window.border)) {
         return false;
     }
     return true;
 }
 
-bool MenuParse_borderSize(itemDef_t* item, int handle)
+bool MenuParse_borderSize(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
-    if (!PC_Float_Parse(handle, &menu->window.borderSize)) {
+    if (!PC_ParseFloat(&menu->window.borderSize)) {
         return false;
     }
     return true;
 }
 
-bool MenuParse_backcolor(itemDef_t* item, int handle)
+bool MenuParse_backcolor(itemDef_t* item)
 {
     int i;
     float f;
     menuDef_t* menu = (menuDef_t*)item;
 
     for (i = 0; i < 4; i++) {
-        if (!PC_Float_Parse(handle, &f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         menu->window.backColor[i] = f;
@@ -8573,11 +8382,11 @@ bool MenuParse_backcolor(itemDef_t* item, int handle)
 MenuParse_descAlignment
 =================
 */
-bool MenuParse_descAlignment(itemDef_t* item, int handle)
+bool MenuParse_descAlignment(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Int_Parse(handle, &menu->descAlignment)) {
+    if (!PC_ParseInt(&menu->descAlignment)) {
         Q_Println(S_COLOR_YELLOW "Unknown desc alignment value");
         return false;
     }
@@ -8590,11 +8399,11 @@ bool MenuParse_descAlignment(itemDef_t* item, int handle)
 MenuParse_descX
 =================
 */
-bool MenuParse_descX(itemDef_t* item, int handle)
+bool MenuParse_descX(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Int_Parse(handle, &menu->descX)) {
+    if (!PC_ParseInt(&menu->descX)) {
         return false;
     }
     return true;
@@ -8605,11 +8414,11 @@ bool MenuParse_descX(itemDef_t* item, int handle)
 MenuParse_descY
 =================
 */
-bool MenuParse_descY(itemDef_t* item, int handle)
+bool MenuParse_descY(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Int_Parse(handle, &menu->descY)) {
+    if (!PC_ParseInt(&menu->descY)) {
         return false;
     }
     return true;
@@ -8620,11 +8429,11 @@ bool MenuParse_descY(itemDef_t* item, int handle)
 MenuParse_descScale
 =================
 */
-bool MenuParse_descScale(itemDef_t* item, int handle)
+bool MenuParse_descScale(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Float_Parse(handle, &menu->descScale)) {
+    if (!PC_ParseFloat(&menu->descScale)) {
         return false;
     }
     return true;
@@ -8635,14 +8444,14 @@ bool MenuParse_descScale(itemDef_t* item, int handle)
 MenuParse_descColor
 =================
 */
-bool MenuParse_descColor(itemDef_t* item, int handle)
+bool MenuParse_descColor(itemDef_t* item)
 {
     int i;
     float f;
     menuDef_t* menu = (menuDef_t*)item;
 
     for (i = 0; i < 4; i++) {
-        if (!PC_Float_Parse(handle, &f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         menu->descColor[i] = f;
@@ -8650,14 +8459,14 @@ bool MenuParse_descColor(itemDef_t* item, int handle)
     return true;
 }
 
-bool MenuParse_forecolor(itemDef_t* item, int handle)
+bool MenuParse_forecolor(itemDef_t* item)
 {
     int i;
     float f;
     menuDef_t* menu = (menuDef_t*)item;
 
     for (i = 0; i < 4; i++) {
-        if (!PC_Float_Parse(handle, &f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         if (f < 0) { // special case for player color
@@ -8670,14 +8479,14 @@ bool MenuParse_forecolor(itemDef_t* item, int handle)
     return true;
 }
 
-bool MenuParse_bordercolor(itemDef_t* item, int handle)
+bool MenuParse_bordercolor(itemDef_t* item)
 {
     int i;
     float f;
     menuDef_t* menu = (menuDef_t*)item;
 
     for (i = 0; i < 4; i++) {
-        if (!PC_Float_Parse(handle, &f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         menu->window.borderColor[i] = f;
@@ -8685,14 +8494,14 @@ bool MenuParse_bordercolor(itemDef_t* item, int handle)
     return true;
 }
 
-bool MenuParse_focuscolor(itemDef_t* item, int handle)
+bool MenuParse_focuscolor(itemDef_t* item)
 {
     int i;
     float f;
     menuDef_t* menu = (menuDef_t*)item;
 
     for (i = 0; i < 4; i++) {
-        if (!PC_Float_Parse(handle, &f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         menu->focusColor[i] = f;
@@ -8700,13 +8509,13 @@ bool MenuParse_focuscolor(itemDef_t* item, int handle)
     return true;
 }
 
-bool MenuParse_disablecolor(itemDef_t* item, int handle)
+bool MenuParse_disablecolor(itemDef_t* item)
 {
     int i;
     float f;
     menuDef_t* menu = (menuDef_t*)item;
     for (i = 0; i < 4; i++) {
-        if (!PC_Float_Parse(handle, &f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         menu->disableColor[i] = f;
@@ -8714,68 +8523,68 @@ bool MenuParse_disablecolor(itemDef_t* item, int handle)
     return true;
 }
 
-bool MenuParse_outlinecolor(itemDef_t* item, int handle)
+bool MenuParse_outlinecolor(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
-    if (!PC_Color_Parse(handle, &menu->window.outlineColor)) {
+    if (!PC_ParseColor(&menu->window.outlineColor)) {
         return false;
     }
     return true;
 }
 
-bool MenuParse_background(itemDef_t* item, int handle)
+bool MenuParse_background(itemDef_t* item)
 {
-    pc_token_t token;
+    const char* token;
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!trap->PC_ReadToken(handle, &token)) {
+    if (!PC_ParseString(&token)) {
         return false;
     }
-    menu->window.background = DC->registerShaderNoMip(token.string);
+    menu->window.background = DC->registerShaderNoMip(token);
     return true;
 }
 
-bool MenuParse_cinematic(itemDef_t* item, int handle)
+bool MenuParse_cinematic(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_String_Parse(handle, &menu->window.cinematicName)) {
+    if (!PC_ParseStringMem(&menu->window.cinematicName)) {
         return false;
     }
     return true;
 }
 
-bool MenuParse_ownerdrawFlag(itemDef_t* item, int handle)
+bool MenuParse_ownerdrawFlag(itemDef_t* item)
 {
     int i;
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Int_Parse(handle, &i)) {
+    if (!PC_ParseInt(&i)) {
         return false;
     }
     menu->window.ownerDrawFlags |= i;
     return true;
 }
 
-bool MenuParse_ownerdraw(itemDef_t* item, int handle)
+bool MenuParse_ownerdraw(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Int_Parse(handle, &menu->window.ownerDraw)) {
+    if (!PC_ParseInt(&menu->window.ownerDraw)) {
         return false;
     }
     return true;
 }
 
 // decoration
-bool MenuParse_popup(itemDef_t* item, int handle)
+bool MenuParse_popup(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
     menu->window.flags |= windowFlags_t::WINDOW_POPUP;
     return true;
 }
 
-bool MenuParse_outOfBounds(itemDef_t* item, int handle)
+bool MenuParse_outOfBounds(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
@@ -8783,53 +8592,53 @@ bool MenuParse_outOfBounds(itemDef_t* item, int handle)
     return true;
 }
 
-bool MenuParse_soundLoop(itemDef_t* item, int handle)
+bool MenuParse_soundLoop(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_String_Parse(handle, &menu->soundName)) {
+    if (!PC_ParseStringMem(&menu->soundName)) {
         return false;
     }
     return true;
 }
 
-bool MenuParse_fadeClamp(itemDef_t* item, int handle)
+bool MenuParse_fadeClamp(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Float_Parse(handle, &menu->fadeClamp)) {
+    if (!PC_ParseFloat(&menu->fadeClamp)) {
         return false;
     }
     return true;
 }
 
-bool MenuParse_fadeAmount(itemDef_t* item, int handle)
+bool MenuParse_fadeAmount(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Float_Parse(handle, &menu->fadeAmount)) {
+    if (!PC_ParseFloat(&menu->fadeAmount)) {
         return false;
     }
     return true;
 }
 
-bool MenuParse_fadeCycle(itemDef_t* item, int handle)
+bool MenuParse_fadeCycle(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Int_Parse(handle, &menu->fadeCycle)) {
+    if (!PC_ParseInt(&menu->fadeCycle)) {
         return false;
     }
     return true;
 }
 
-bool MenuParse_itemDef(itemDef_t* item, int handle)
+bool MenuParse_itemDef(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
     if (menu->itemCount < MAX_MENUITEMS) {
         itemDef_t* newItem = menu->items[menu->itemCount] = (itemDef_t*)UI_Alloc(sizeof(itemDef_t));
         Item_Init(newItem);
-        if (!Item_Parse(handle, newItem)) {
+        if (!Item_Parse(newItem)) {
             return false;
         }
         Item_InitControls(newItem);
@@ -8844,11 +8653,11 @@ bool MenuParse_itemDef(itemDef_t* item, int handle)
 MenuParse_focuscolor
 =================
 */
-bool MenuParse_appearanceIncrement(itemDef_t* item, int handle)
+bool MenuParse_appearanceIncrement(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (!PC_Float_Parse(handle, &menu->appearanceIncrement)) {
+    if (!PC_ParseFloat(&menu->appearanceIncrement)) {
         return false;
     }
     return true;
@@ -8915,38 +8724,45 @@ void Menu_SetupKeywordHash(void)
 Menu_Parse
 ===============
 */
-bool Menu_Parse(int handle, menuDef_t* menu)
+bool Menu_Parse(menuDef_t* menu)
 {
-    pc_token_t token;
     keywordHash_t* key;
+    const char* token2;
 
-    if (!trap->PC_ReadToken(handle, &token))
-        return false;
-    if (*token.string != '{') {
+    token2 = PC_ParseExt();
+
+    if (!token2) {
         return false;
     }
 
+    if (*token2 != '{') {
+        PC_ParseWarning("Misplaced {");
+        return false;
+    }
     while (1) {
-        if (!trap->PC_ReadToken(handle, &token)) {
-            PC_SourceError(handle, "end of file inside menu");
+
+        token2 = PC_ParseExt();
+        if (!token2) {
+            PC_ParseWarning("End of file inside menu.");
             return false;
         }
 
-        if (*token.string == '}') {
+        if (*token2 == '}') {
             return true;
         }
 
-        key = KeywordHash_Find(menuParseKeywordHash, token.string);
+        key = KeywordHash_Find(menuParseKeywordHash, token2);
+
         if (!key) {
-            PC_SourceError(handle, "unknown menu keyword {}", token.string);
+            PC_ParseWarning(Q_Format("Unknown menu keyword {}", token2).c_str());
             continue;
         }
-        if (!key->func((itemDef_t*)menu, handle)) {
-            PC_SourceError(handle, "couldn't parse menu keyword {}", token.string);
+
+        if (!key->func((itemDef_t*)menu)) {
+            PC_ParseWarning(Q_Format("Couldn't parse menu keyword {}", key->keyword).c_str());
             return false;
         }
     }
-    return false;
 }
 
 /*
@@ -8954,13 +8770,13 @@ bool Menu_Parse(int handle, menuDef_t* menu)
 Menu_New
 ===============
 */
-void Menu_New(int handle)
+void Menu_New()
 {
     menuDef_t* menu = &Menus[menuCount];
 
     if (menuCount < MAX_MENUS) {
         Menu_Init(menu);
-        if (Menu_Parse(handle, menu)) {
+        if (Menu_Parse(menu)) {
             Menu_PostParse(menu);
             menuCount++;
         }

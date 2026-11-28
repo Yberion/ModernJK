@@ -147,16 +147,6 @@ typedef struct itemFlagsDef_s {
 
 itemFlagsDef_t itemFlags[] = {{"WINDOW_INACTIVE", windowFlags_t::WINDOW_INACTIVE}, {nullptr, windowFlags_t::WINDOW_NONE}};
 
-const char* styles[] = {
-    "WINDOW_STYLE_EMPTY", "WINDOW_STYLE_FILLED", "WINDOW_STYLE_GRADIENT", "WINDOW_STYLE_SHADER", "WINDOW_STYLE_TEAMCOLOR", "WINDOW_STYLE_CINEMATIC", nullptr};
-
-const char* types[] = {"ITEM_TYPE_TEXT",      "ITEM_TYPE_BUTTON",       "ITEM_TYPE_RADIOBUTTON", "ITEM_TYPE_CHECKBOX",
-                       "ITEM_TYPE_EDITFIELD", "ITEM_TYPE_COMBO",        "ITEM_TYPE_LISTBOX",     "ITEM_TYPE_MODEL",
-                       "ITEM_TYPE_OWNERDRAW", "ITEM_TYPE_NUMERICFIELD", "ITEM_TYPE_SLIDER",      "ITEM_TYPE_YESNO",
-                       "ITEM_TYPE_MULTI",     "ITEM_TYPE_BIND",         "ITEM_TYPE_TEXTSCROLL",  nullptr};
-
-const char* alignment[] = {"ITEM_ALIGN_LEFT", "ITEM_ALIGN_CENTER", "ITEM_ALIGN_RIGHT", nullptr};
-
 /*
 ==================
 Init_Display
@@ -183,114 +173,6 @@ void Window_Init(Window* w)
     w->borderSize = 1;
     w->foreColor[0] = w->foreColor[1] = w->foreColor[2] = w->foreColor[3] = 1.0;
     w->cinematic = -1;
-}
-
-/*
-=================
-PC_SourceError
-=================
-*/
-void PC_VSourceError(int handle, fmt::string_view format, fmt::format_args args);
-template <typename... T> void PC_SourceError(int handle, fmt::format_string<T...> format, T&&... args)
-{
-    PC_VSourceError(handle, format.get(), Q_FormatArgs(args...));
-}
-
-void PC_VSourceError(int handle, fmt::string_view format, fmt::format_args args)
-{
-    int line;
-    char filename[128];
-    static char string[4096];
-
-    Q_VFormatToCut(string, format, args);
-
-    filename[0] = '\0';
-    line = 0;
-
-    Q_PrintlnError("{}, line {}: {}", filename, line, string);
-}
-
-/*
-=================
-PC_ParseStringMem
-=================
-*/
-bool PC_ParseStringMem(const char** out)
-{
-    const char* temp;
-
-    if (PC_ParseString(&temp)) {
-        return false;
-    }
-
-    *(out) = String_Alloc(temp);
-
-    return true;
-}
-
-/*
-=================
-PC_ParseRect
-=================
-*/
-bool PC_ParseRect(rectDef_t* r)
-{
-    if (!PC_ParseFloat(&r->x)) {
-        if (!PC_ParseFloat(&r->y)) {
-            if (!PC_ParseFloat(&r->w)) {
-                if (!PC_ParseFloat(&r->h)) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-/*
-=================
-PC_Script_Parse
-=================
-*/
-bool PC_Script_Parse(const char** out)
-{
-    char script[4096];
-    //	pc_token_t token;
-    char* token2;
-
-    script[0] = 0;
-    // scripts start with { and have ; separated command lists.. commands are command, arg..
-    // basically we want everything between the { } as it will be interpreted at run time
-
-    token2 = PC_ParseExt();
-    if (!token2) {
-        return false;
-    }
-
-    if (*token2 != '{') {
-        return false;
-    }
-
-    while (1) {
-        token2 = PC_ParseExt();
-        if (!token2) {
-            return false;
-        }
-
-        if (*token2 == '}') // End of the script?
-        {
-            *out = String_Alloc(script);
-            return true;
-        }
-
-        if (*(token2 + 1) != '\0') {
-            Q_strcat(script, sizeof(script), Q_Format("\"{}\"", token2).c_str());
-        }
-        else {
-            Q_strcat(script, sizeof(script), token2);
-        }
-        Q_strcat(script, sizeof(script), " ");
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -349,7 +231,7 @@ bool MenuParse_fullscreen(itemDef_t* item)
     menuDef_t* menu = (menuDef_t*)item;
     int fullScreen;
 
-    if (PC_ParseInt(&fullScreen)) {
+    if (!PC_ParseInt(&fullScreen)) {
         return false;
     }
     menu->fullScreen = fullScreen != 0;
@@ -379,25 +261,11 @@ MenuParse_style
 */
 bool MenuParse_style(itemDef_t* item)
 {
-    int i;
-    const char* tempStr;
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseString(&tempStr)) {
+    if (!PC_ParseInt(&menu->window.style)) {
+        Q_Println(S_COLOR_YELLOW "Unknown menu style value");
         return false;
-    }
-
-    i = 0;
-    while (styles[i]) {
-        if (Q_stricmp(tempStr, styles[i]) == 0) {
-            menu->window.style = i;
-            break;
-        }
-        i++;
-    }
-
-    if (styles[i] == nullptr) {
-        PC_ParseWarning(Q_Format("Unknown menu style value '{}'", tempStr).c_str());
     }
     return true;
 }
@@ -412,7 +280,7 @@ bool MenuParse_visible(itemDef_t* item)
     int i;
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseInt(&i)) {
+    if (!PC_ParseInt(&i)) {
         return false;
     }
 
@@ -432,7 +300,7 @@ bool MenuParse_ignoreescape(itemDef_t* item)
     int i;
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseInt(&i)) {
+    if (!PC_ParseInt(&i)) {
         return false;
     }
 
@@ -512,7 +380,7 @@ bool MenuParse_border(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseInt(&menu->window.border)) {
+    if (!PC_ParseInt(&menu->window.border)) {
         return false;
     }
     return true;
@@ -527,7 +395,7 @@ bool MenuParse_borderSize(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseFloat(&menu->window.borderSize)) {
+    if (!PC_ParseFloat(&menu->window.borderSize)) {
         return false;
     }
     return true;
@@ -545,7 +413,7 @@ bool MenuParse_backcolor(itemDef_t* item)
     menuDef_t* menu = (menuDef_t*)item;
 
     for (i = 0; i < 4; i++) {
-        if (PC_ParseFloat(&f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         menu->window.backColor[i] = f;
@@ -565,7 +433,7 @@ bool MenuParse_forecolor(itemDef_t* item)
     menuDef_t* menu = (menuDef_t*)item;
 
     for (i = 0; i < 4; i++) {
-        if (PC_ParseFloat(&f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         if (f < 0) { // special case for player color
@@ -590,7 +458,7 @@ bool MenuParse_bordercolor(itemDef_t* item)
     menuDef_t* menu = (menuDef_t*)item;
 
     for (i = 0; i < 4; i++) {
-        if (PC_ParseFloat(&f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         menu->window.borderColor[i] = f;
@@ -610,7 +478,7 @@ bool MenuParse_focuscolor(itemDef_t* item)
     menuDef_t* menu = (menuDef_t*)item;
 
     for (i = 0; i < 4; i++) {
-        if (PC_ParseFloat(&f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         menu->focusColor[i] = f;
@@ -627,7 +495,7 @@ bool MenuParse_appearanceIncrement(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseFloat(&menu->appearanceIncrement)) {
+    if (!PC_ParseFloat(&menu->appearanceIncrement)) {
         return false;
     }
     return true;
@@ -641,26 +509,11 @@ MenuParse_descAlignment
 bool MenuParse_descAlignment(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
-    const char* tempStr;
-    int i;
 
-    if (PC_ParseString(&tempStr)) {
+    if (!PC_ParseInt(&menu->descAlignment)) {
+        Q_Println(S_COLOR_YELLOW "Unknown desc alignment value");
         return false;
     }
-
-    i = 0;
-    while (alignment[i]) {
-        if (Q_stricmp(tempStr, alignment[i]) == 0) {
-            menu->descAlignment = i;
-            break;
-        }
-        i++;
-    }
-
-    if (alignment[i] == nullptr) {
-        PC_ParseWarning(Q_Format("Unknown desc alignment value '{}'", tempStr).c_str());
-    }
-
     return true;
 }
 
@@ -673,7 +526,7 @@ bool MenuParse_descTextStyle(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseInt(&menu->descTextStyle)) {
+    if (!PC_ParseInt(&menu->descTextStyle)) {
         return false;
     }
     return true;
@@ -687,7 +540,7 @@ bool MenuParse_descX(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseInt(&menu->descX)) {
+    if (!PC_ParseInt(&menu->descX)) {
         return false;
     }
     return true;
@@ -702,7 +555,7 @@ bool MenuParse_descY(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseInt(&menu->descY)) {
+    if (!PC_ParseInt(&menu->descY)) {
         return false;
     }
     return true;
@@ -717,7 +570,7 @@ bool MenuParse_descScale(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseFloat(&menu->descScale)) {
+    if (!PC_ParseFloat(&menu->descScale)) {
         return false;
     }
     return true;
@@ -735,7 +588,7 @@ bool MenuParse_descColor(itemDef_t* item)
     menuDef_t* menu = (menuDef_t*)item;
 
     for (i = 0; i < 4; i++) {
-        if (PC_ParseFloat(&f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         menu->descColor[i] = f;
@@ -755,7 +608,7 @@ bool MenuParse_disablecolor(itemDef_t* item)
     menuDef_t* menu = (menuDef_t*)item;
 
     for (i = 0; i < 4; i++) {
-        if (PC_ParseFloat(&f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         menu->disableColor[i] = f;
@@ -772,7 +625,7 @@ bool MenuParse_outlinecolor(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseColor(&menu->window.outlineColor)) {
+    if (!PC_ParseColor(&menu->window.outlineColor)) {
         return false;
     }
     return true;
@@ -788,7 +641,7 @@ bool MenuParse_background(itemDef_t* item)
     const char* buff;
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseString(&buff)) {
+    if (!PC_ParseString(&buff)) {
         return false;
     }
 
@@ -821,7 +674,7 @@ bool MenuParse_ownerdrawFlag(itemDef_t* item)
     int i;
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseInt(&i)) {
+    if (!PC_ParseInt(&i)) {
         return false;
     }
     menu->window.ownerDrawFlags |= i;
@@ -837,7 +690,7 @@ bool MenuParse_ownerdraw(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseInt(&menu->window.ownerDraw)) {
+    if (!PC_ParseInt(&menu->window.ownerDraw)) {
         return false;
     }
     return true;
@@ -892,7 +745,7 @@ bool MenuParse_fadeClamp(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseFloat(&menu->fadeClamp)) {
+    if (!PC_ParseFloat(&menu->fadeClamp)) {
         return false;
     }
     return true;
@@ -907,7 +760,7 @@ bool MenuParse_fadeAmount(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseFloat(&menu->fadeAmount)) {
+    if (!PC_ParseFloat(&menu->fadeAmount)) {
         return false;
     }
     return true;
@@ -922,7 +775,7 @@ bool MenuParse_fadeCycle(itemDef_t* item)
 {
     menuDef_t* menu = (menuDef_t*)item;
 
-    if (PC_ParseInt(&menu->fadeCycle)) {
+    if (!PC_ParseInt(&menu->fadeCycle)) {
         return false;
     }
     return true;
@@ -2812,7 +2665,7 @@ int UI_MenuFontToReal(int menuFontIndex)
 
 bool ItemParse_font(itemDef_t* item)
 {
-    if (PC_ParseInt(&item->font)) {
+    if (!PC_ParseInt(&item->font)) {
         return false;
     }
 
@@ -2832,7 +2685,7 @@ bool ItemParse_focusSound(itemDef_t* item)
 {
     const char* temp;
 
-    if (PC_ParseString(&temp)) {
+    if (!PC_ParseString(&temp)) {
         return false;
     }
     item->focusSound = DC->sound->Register(temp);
@@ -2952,7 +2805,7 @@ bool ItemParse_asset_model(itemDef_t* item)
     const char* temp;
     Item_ValidateTypeData(item);
 
-    if (PC_ParseString(&temp)) {
+    if (!PC_ParseString(&temp)) {
         return false;
     }
     char modelPath[MAX_QPATH];
@@ -2976,7 +2829,7 @@ bool ItemParse_asset_shader(itemDef_t* item)
 {
     const char* temp;
 
-    if (PC_ParseString(&temp)) {
+    if (!PC_ParseString(&temp)) {
         return false;
     }
     item->asset = DC->registerShaderNoMip(temp);
@@ -2995,9 +2848,9 @@ bool ItemParse_model_origin(itemDef_t* item)
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (PC_ParseFloat(&modelPtr->origin[0])) {
-        if (PC_ParseFloat(&modelPtr->origin[1])) {
-            if (PC_ParseFloat(&modelPtr->origin[2])) {
+    if (!PC_ParseFloat(&modelPtr->origin[0])) {
+        if (!PC_ParseFloat(&modelPtr->origin[1])) {
+            if (!PC_ParseFloat(&modelPtr->origin[2])) {
                 return true;
             }
         }
@@ -3017,7 +2870,7 @@ bool ItemParse_model_fovx(itemDef_t* item)
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (PC_ParseFloat(&modelPtr->fov_x)) {
+    if (!PC_ParseFloat(&modelPtr->fov_x)) {
         return false;
     }
     return true;
@@ -3035,7 +2888,7 @@ bool ItemParse_model_fovy(itemDef_t* item)
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (PC_ParseFloat(&modelPtr->fov_y)) {
+    if (!PC_ParseFloat(&modelPtr->fov_y)) {
         return false;
     }
     return true;
@@ -3053,7 +2906,7 @@ bool ItemParse_model_rotation(itemDef_t* item)
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (PC_ParseInt(&modelPtr->rotationSpeed)) {
+    if (!PC_ParseInt(&modelPtr->rotationSpeed)) {
         return false;
     }
     return true;
@@ -3071,7 +2924,7 @@ bool ItemParse_model_angle(itemDef_t* item)
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (PC_ParseInt(&modelPtr->angle)) {
+    if (!PC_ParseInt(&modelPtr->angle)) {
         return false;
     }
     return true;
@@ -3084,9 +2937,9 @@ bool ItemParse_model_g2mins(itemDef_t* item)
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (!PC_ParseFloat(&modelPtr->g2mins[0])) {
-        if (!PC_ParseFloat(&modelPtr->g2mins[1])) {
-            if (!PC_ParseFloat(&modelPtr->g2mins[2])) {
+    if (PC_ParseFloat(&modelPtr->g2mins[0])) {
+        if (PC_ParseFloat(&modelPtr->g2mins[1])) {
+            if (PC_ParseFloat(&modelPtr->g2mins[2])) {
                 return true;
             }
         }
@@ -3101,9 +2954,9 @@ bool ItemParse_model_g2maxs(itemDef_t* item)
     Item_ValidateTypeData(item);
     modelPtr = item->typeData.model;
 
-    if (!PC_ParseFloat(&modelPtr->g2maxs[0])) {
-        if (!PC_ParseFloat(&modelPtr->g2maxs[1])) {
-            if (!PC_ParseFloat(&modelPtr->g2maxs[2])) {
+    if (PC_ParseFloat(&modelPtr->g2maxs[0])) {
+        if (PC_ParseFloat(&modelPtr->g2maxs[1])) {
+            if (PC_ParseFloat(&modelPtr->g2maxs[2])) {
                 return true;
             }
         }
@@ -3137,7 +2990,7 @@ bool ItemParse_model_g2skin(itemDef_t* item)
 {
     const char* skinName;
 
-    if (PC_ParseString(&skinName)) {
+    if (!PC_ParseString(&skinName)) {
         return false;
     }
 
@@ -3169,7 +3022,7 @@ bool ItemParse_model_g2anim(itemDef_t* item)
 {
     const char* animName;
 
-    if (PC_ParseString(&animName)) {
+    if (!PC_ParseString(&animName)) {
         return false;
     }
 
@@ -3202,7 +3055,7 @@ bool ItemParse_flag(itemDef_t* item)
     int i;
     const char* tempStr;
 
-    if (PC_ParseString(&tempStr)) {
+    if (!PC_ParseString(&tempStr)) {
         return false;
     }
 
@@ -3230,26 +3083,10 @@ ItemParse_style
 */
 bool ItemParse_style(itemDef_t* item)
 {
-    int i;
-    const char* tempStr;
-
-    if (PC_ParseString(&tempStr)) {
+    if (!PC_ParseInt(&item->window.style)) {
+        Q_Println(S_COLOR_YELLOW "Unknown item style value");
         return false;
     }
-
-    i = 0;
-    while (styles[i]) {
-        if (Q_stricmp(tempStr, styles[i]) == 0) {
-            item->window.style = i;
-            break;
-        }
-        i++;
-    }
-
-    if (styles[i] == nullptr) {
-        PC_ParseWarning(Q_Format("Unknown item style value '{}'", tempStr).c_str());
-    }
-
     return true;
 }
 
@@ -3345,28 +3182,10 @@ ItemParse_type
 */
 bool ItemParse_type(itemDef_t* item)
 {
-    int i;
-    const char* tempStr;
-
-    if (PC_ParseString(&tempStr)) {
+    if (!PC_ParseInt(&item->type)) {
         return false;
     }
-
-    i = 0;
-    while (types[i]) {
-        if (Q_stricmp(tempStr, types[i]) == 0) {
-            item->type = i;
-            break;
-        }
-        i++;
-    }
-
-    if (types[i] == nullptr) {
-        PC_ParseWarning(Q_Format("Unknown item type value '{}'", tempStr).c_str());
-    }
-    else {
-        Item_ValidateTypeData(item);
-    }
+    Item_ValidateTypeData(item);
     return true;
 }
 
@@ -3383,7 +3202,7 @@ bool ItemParse_elementwidth(itemDef_t* item)
 
     Item_ValidateTypeData(item);
     listPtr = item->typeData.listbox;
-    if (PC_ParseFloat(&listPtr->elementWidth)) {
+    if (!PC_ParseFloat(&listPtr->elementWidth)) {
         return false;
     }
     return true;
@@ -3402,7 +3221,7 @@ bool ItemParse_elementheight(itemDef_t* item)
 
     Item_ValidateTypeData(item);
     listPtr = item->typeData.listbox;
-    if (PC_ParseFloat(&listPtr->elementHeight)) {
+    if (!PC_ParseFloat(&listPtr->elementHeight)) {
         return false;
     }
     return true;
@@ -3416,7 +3235,7 @@ ItemParse_feeder
 */
 bool ItemParse_feeder(itemDef_t* item)
 {
-    if (PC_ParseFloat(&item->special)) {
+    if (!PC_ParseFloat(&item->special)) {
         return false;
     }
     return true;
@@ -3439,7 +3258,7 @@ bool ItemParse_elementtype(itemDef_t* item)
     }
 
     listPtr = item->typeData.listbox;
-    if (PC_ParseInt(&listPtr->elementStyle)) {
+    if (!PC_ParseInt(&listPtr->elementStyle)) {
         return false;
     }
     return true;
@@ -3462,7 +3281,7 @@ bool ItemParse_columns(itemDef_t* item)
     }
 
     listPtr = item->typeData.listbox;
-    if (!PC_ParseInt(&num)) {
+    if (PC_ParseInt(&num)) {
         if (num > MAX_LB_COLUMNS) {
             num = MAX_LB_COLUMNS;
         }
@@ -3470,7 +3289,7 @@ bool ItemParse_columns(itemDef_t* item)
         for (i = 0; i < num; i++) {
             int pos, width, maxChars;
 
-            if (!PC_ParseInt(&pos) && !PC_ParseInt(&width) && !PC_ParseInt(&maxChars)) {
+            if (PC_ParseInt(&pos) && PC_ParseInt(&width) && PC_ParseInt(&maxChars)) {
                 listPtr->columnInfo[i].pos = pos;
                 listPtr->columnInfo[i].width = width;
                 listPtr->columnInfo[i].maxChars = maxChars;
@@ -3494,7 +3313,7 @@ ItemParse_border
 */
 bool ItemParse_border(itemDef_t* item)
 {
-    if (PC_ParseInt(&item->window.border)) {
+    if (!PC_ParseInt(&item->window.border)) {
         return false;
     }
 
@@ -3508,7 +3327,7 @@ ItemParse_bordersize
 */
 bool ItemParse_bordersize(itemDef_t* item)
 {
-    if (PC_ParseFloat(&item->window.borderSize)) {
+    if (!PC_ParseFloat(&item->window.borderSize)) {
         return false;
     }
     return true;
@@ -3523,7 +3342,7 @@ bool ItemParse_visible(itemDef_t* item)
 {
     int i;
 
-    if (PC_ParseInt(&i)) {
+    if (!PC_ParseInt(&i)) {
         return false;
     }
     if (i) {
@@ -3539,7 +3358,7 @@ ItemParse_ownerdraw
 */
 bool ItemParse_ownerdraw(itemDef_t* item)
 {
-    if (PC_ParseInt(&item->window.ownerDraw)) {
+    if (!PC_ParseInt(&item->window.ownerDraw)) {
         return false;
     }
     item->type = ITEM_TYPE_OWNERDRAW;
@@ -3553,7 +3372,7 @@ ItemParse_align
 */
 bool ItemParse_align(itemDef_t* item)
 {
-    if (PC_ParseInt(&item->alignment)) {
+    if (!PC_ParseInt(&item->alignment)) {
         return false;
     }
     return true;
@@ -3566,7 +3385,7 @@ ItemParse_align
 */
 bool ItemParse_Appearance_slot(itemDef_t* item)
 {
-    if (PC_ParseInt(&item->appearanceSlot)) {
+    if (!PC_ParseInt(&item->appearanceSlot)) {
         return false;
     }
     return true;
@@ -3579,26 +3398,10 @@ ItemParse_textalign
 */
 bool ItemParse_textalign(itemDef_t* item)
 {
-    const char* tempStr;
-    int i;
-
-    if (PC_ParseString(&tempStr)) {
+    if (!PC_ParseInt(&item->textalignment)) {
+        Q_Println(S_COLOR_YELLOW "Unknown text alignment value");
         return false;
     }
-
-    i = 0;
-    while (alignment[i]) {
-        if (Q_stricmp(tempStr, alignment[i]) == 0) {
-            item->textalignment = i;
-            break;
-        }
-        i++;
-    }
-
-    if (alignment[i] == nullptr) {
-        PC_ParseWarning(Q_Format("Unknown text alignment value '{}'", tempStr).c_str());
-    }
-
     return true;
 }
 
@@ -3609,7 +3412,7 @@ ItemParse_text2alignx
 */
 bool ItemParse_text2alignx(itemDef_t* item)
 {
-    if (PC_ParseFloat(&item->text2alignx)) {
+    if (!PC_ParseFloat(&item->text2alignx)) {
         return false;
     }
     return true;
@@ -3622,7 +3425,7 @@ ItemParse_text2aligny
 */
 bool ItemParse_text2aligny(itemDef_t* item)
 {
-    if (PC_ParseFloat(&item->text2aligny)) {
+    if (!PC_ParseFloat(&item->text2aligny)) {
         return false;
     }
     return true;
@@ -3635,7 +3438,7 @@ ItemParse_textalignx
 */
 bool ItemParse_textalignx(itemDef_t* item)
 {
-    if (PC_ParseFloat(&item->textalignx)) {
+    if (!PC_ParseFloat(&item->textalignx)) {
         return false;
     }
     return true;
@@ -3648,7 +3451,7 @@ ItemParse_textaligny
 */
 bool ItemParse_textaligny(itemDef_t* item)
 {
-    if (PC_ParseFloat(&item->textaligny)) {
+    if (!PC_ParseFloat(&item->textaligny)) {
         return false;
     }
     return true;
@@ -3661,7 +3464,7 @@ ItemParse_textscale
 */
 bool ItemParse_textscale(itemDef_t* item)
 {
-    if (PC_ParseFloat(&item->textscale)) {
+    if (!PC_ParseFloat(&item->textscale)) {
         return false;
     }
     return true;
@@ -3674,7 +3477,7 @@ ItemParse_textstyle
 */
 bool ItemParse_textstyle(itemDef_t* item)
 {
-    if (PC_ParseInt(&item->textStyle)) {
+    if (!PC_ParseInt(&item->textStyle)) {
         return false;
     }
     return true;
@@ -3687,7 +3490,7 @@ ItemParse_invertyesno
 */
 bool ItemParse_invertyesno(itemDef_t* item)
 {
-    if (PC_ParseInt(&item->invertYesNo)) {
+    if (!PC_ParseInt(&item->invertYesNo)) {
         return false;
     }
     return true;
@@ -3700,7 +3503,7 @@ ItemParse_xoffset (used for yes/no and multi)
 */
 bool ItemParse_xoffset(itemDef_t* item)
 {
-    if (PC_ParseInt(&item->xoffset)) {
+    if (!PC_ParseInt(&item->xoffset)) {
         return false;
     }
     return true;
@@ -3717,7 +3520,7 @@ bool ItemParse_backcolor(itemDef_t* item)
     float f;
 
     for (i = 0; i < 4; i++) {
-        if (PC_ParseFloat(&f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         item->window.backColor[i] = f;
@@ -3736,7 +3539,7 @@ bool ItemParse_forecolor(itemDef_t* item)
     float f;
 
     for (i = 0; i < 4; i++) {
-        if (PC_ParseFloat(&f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         if (f < 0) { // special case for player color
@@ -3760,7 +3563,7 @@ bool ItemParse_bordercolor(itemDef_t* item)
     float f;
 
     for (i = 0; i < 4; i++) {
-        if (PC_ParseFloat(&f)) {
+        if (!PC_ParseFloat(&f)) {
             return false;
         }
         item->window.borderColor[i] = f;
@@ -3775,7 +3578,7 @@ ItemParse_outlinecolor
 */
 bool ItemParse_outlinecolor(itemDef_t* item)
 {
-    if (PC_ParseColor(&item->window.outlineColor)) {
+    if (!PC_ParseColor(&item->window.outlineColor)) {
         return false;
     }
     return true;
@@ -3790,7 +3593,7 @@ bool ItemParse_background(itemDef_t* item)
 {
     const char* temp;
 
-    if (PC_ParseString(&temp)) {
+    if (!PC_ParseString(&temp)) {
         return false;
     }
     item->window.background = ui.R_RegisterShaderNoMip(temp);
@@ -3971,7 +3774,7 @@ ItemParse_special
 */
 bool ItemParse_special(itemDef_t* item)
 {
-    if (PC_ParseFloat(&item->special)) {
+    if (!PC_ParseFloat(&item->special)) {
         return false;
     }
     return true;
@@ -4038,7 +3841,7 @@ bool ItemParse_maxChars(itemDef_t* item)
         return false;
     }
 
-    if (PC_ParseInt(&maxChars)) {
+    if (!PC_ParseInt(&maxChars)) {
         return false;
     }
     editPtr = item->typeData.edit;
@@ -4061,7 +3864,7 @@ bool ItemParse_maxPaintChars(itemDef_t* item)
         return false;
     }
 
-    if (PC_ParseInt(&maxChars)) {
+    if (!PC_ParseInt(&maxChars)) {
         return false;
     }
     editPtr = item->typeData.edit;
@@ -4079,7 +3882,7 @@ bool ItemParse_lineHeight(itemDef_t* item)
         return false;
     }
 
-    if (PC_ParseInt(&height)) {
+    if (!PC_ParseInt(&height)) {
         return false;
     }
 
@@ -4103,8 +3906,7 @@ bool ItemParse_cvarFloat(itemDef_t* item)
         return false;
     }
     editPtr = item->typeData.edit;
-    if (PC_ParseStringMem((const char**)&item->cvar) && !PC_ParseFloat(&editPtr->defVal) && !PC_ParseFloat(&editPtr->minVal) &&
-        !PC_ParseFloat(&editPtr->maxVal)) {
+    if (PC_ParseStringMem((const char**)&item->cvar) && PC_ParseFloat(&editPtr->defVal) && PC_ParseFloat(&editPtr->minVal) && PC_ParseFloat(&editPtr->maxVal)) {
         if (!Q_stricmp(item->cvar, "r_ext_texture_filter_anisotropic")) { // hehe, hook up the correct max value here.
             editPtr->maxVal = cls.glconfig.maxTextureFilterAnisotropy;
         }
@@ -4133,7 +3935,7 @@ bool ItemParse_cvarStrList(itemDef_t* item)
     multiPtr->count = 0;
     multiPtr->strDef = true;
 
-    if (PC_ParseString(&token)) {
+    if (!PC_ParseString(&token)) {
         return false;
     }
 
@@ -4212,7 +4014,7 @@ bool ItemParse_cvarFloatList(itemDef_t* item)
     multiPtr->count = 0;
     multiPtr->strDef = false;
 
-    if (PC_ParseString(&token)) {
+    if (!PC_ParseString(&token)) {
         return false;
     }
 
@@ -4234,7 +4036,7 @@ bool ItemParse_cvarFloatList(itemDef_t* item)
         }
 
         multiPtr->cvarList[multiPtr->count] = token; // a StringAlloc ptr
-        if (PC_ParseFloat(&multiPtr->cvarValue[multiPtr->count])) {
+        if (!PC_ParseFloat(&multiPtr->cvarValue[multiPtr->count])) {
             return false;
         }
 
@@ -4275,7 +4077,7 @@ ItemParse_ownerdrawFlag
 bool ItemParse_ownerdrawFlag(itemDef_t* item)
 {
     int i;
-    if (PC_ParseInt(&i)) {
+    if (!PC_ParseInt(&i)) {
         return false;
     }
     item->window.ownerDrawFlags |= i;
@@ -4391,7 +4193,7 @@ void Item_ValidateTypeData(itemDef_t* item)
 bool ItemParse_isCharacter(itemDef_t* item)
 {
     int i;
-    if (!PC_ParseInt(&i)) {
+    if (PC_ParseInt(&i)) {
         if (i) {
             item->flags |= itemModelFlags_t::ITF_ISCHARACTER;
         }
@@ -4409,7 +4211,7 @@ bool ItemParse_isSaber(itemDef_t* item)
     extern bool ui_saber_parms_parsed;
     extern void UI_CacheSaberGlowGraphics(void);
     int i;
-    if (!PC_ParseInt(&i)) {
+    if (PC_ParseInt(&i)) {
         if (i) {
             item->flags |= itemModelFlags_t::ITF_ISSABER;
             UI_CacheSaberGlowGraphics();
@@ -4431,7 +4233,7 @@ bool ItemParse_isSaber2(itemDef_t* item)
     extern bool ui_saber_parms_parsed;
     extern void UI_CacheSaberGlowGraphics(void);
     int i;
-    if (!PC_ParseInt(&i)) {
+    if (PC_ParseInt(&i)) {
         if (i) {
             item->flags |= itemModelFlags_t::ITF_ISSABER2;
             UI_CacheSaberGlowGraphics();
@@ -4798,7 +4600,7 @@ bool Item_Parse(itemDef_t* item)
     keywordHash_t* key;
     const char* token;
 
-    if (PC_ParseString(&token)) {
+    if (!PC_ParseString(&token)) {
         return false;
     }
 
@@ -4807,7 +4609,7 @@ bool Item_Parse(itemDef_t* item)
     }
 
     while (1) {
-        if (PC_ParseString(&token)) {
+        if (!PC_ParseString(&token)) {
             PC_ParseWarning("End of file inside menu item");
             return false;
         }
@@ -5460,14 +5262,10 @@ void Menu_Init(menuDef_t* menu)
 Menu_Parse
 ===============
 */
-bool Menu_Parse(char* inbuffer, menuDef_t* menu)
+bool Menu_Parse(menuDef_t* menu)
 {
-    //	pc_token_t token;
     keywordHash_t* key;
-    char* token2;
-    char* buffer;
-    bool nest = false;
-    buffer = inbuffer;
+    const char* token2;
 
     token2 = PC_ParseExt();
 
@@ -5491,12 +5289,6 @@ bool Menu_Parse(char* inbuffer, menuDef_t* menu)
             return true;
         }
 
-        if (nest && (*token2 == 0)) {
-            PC_EndParseSession(buffer);
-
-            nest = false;
-            continue;
-        }
         key = KeywordHash_Find(menuParseKeywordHash, token2);
 
         if (!key) {
@@ -5516,13 +5308,13 @@ bool Menu_Parse(char* inbuffer, menuDef_t* menu)
 Menu_New
 ===============
 */
-void Menu_New(char* buffer)
+void Menu_New()
 {
     menuDef_t* menu = &Menus[menuCount];
 
     if (menuCount < MAX_MENUS) {
         Menu_Init(menu);
-        if (Menu_Parse(buffer, menu)) {
+        if (Menu_Parse(menu)) {
             Menu_PostParse(menu);
             menuCount++;
         }
@@ -5549,95 +5341,19 @@ void Menus_CloseAll(void)
 
 /*
 ===============
-PC_StartParseSession
+UI_ReadMenuFile
 ===============
 */
-
-int PC_StartParseSession(const char* fileName, char** buffer)
+bool UI_ReadMenuFile(const char* fileName, std::string& text)
 {
-    int len;
-
-    // Try to open file and read it in.
-    len = ui.FS_ReadFile(fileName, (void**)buffer);
-
-    // Not there?
-    if (len > 0) {
-        COM_BeginParseSession();
-
-        Q_strncpyz(parseData[parseDataCount].fileName, fileName, sizeof(parseData[0].fileName));
-        parseData[parseDataCount].bufferStart = *buffer;
-        parseData[parseDataCount].bufferCurrent = *buffer;
+    char* buffer = nullptr;
+    const int len = ui.FS_ReadFile(fileName, (void**)&buffer);
+    if (!buffer) {
+        return false;
     }
-
-    return len;
-}
-
-/*
-===============
-PC_EndParseSession
-===============
-*/
-void PC_EndParseSession(char* buffer)
-{
-    COM_EndParseSession();
-    ui.FS_FreeFile(buffer); // let go of the buffer
-}
-
-/*
-===============
-PC_ParseWarning
-===============
-*/
-void PC_ParseWarning(const char* message)
-{
-    Q_PrintlnWarning("{} Line #{} of File '{}'", message, parseData[parseDataCount].com_lines, parseData[parseDataCount].fileName);
-}
-
-char* PC_ParseExt(void)
-{
-    if (parseDataCount < 0)
-        Q_Error(errorParm_t::ERR_FATAL, "PC_ParseExt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
-    return (COM_ParseExt(&parseData[parseDataCount].bufferCurrent, true));
-}
-
-bool PC_ParseString(const char** string)
-{
-    int hold;
-
-    if (parseDataCount < 0)
-        Q_Error(errorParm_t::ERR_FATAL, "PC_ParseString: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
-
-    hold = COM_ParseString(&parseData[parseDataCount].bufferCurrent, string);
-
-    while (hold == 0 && **string == 0) {
-        hold = COM_ParseString(&parseData[parseDataCount].bufferCurrent, string);
-    }
-
-    return (hold != 0);
-}
-
-bool PC_ParseInt(int* number)
-{
-    if (parseDataCount < 0)
-        Q_Error(errorParm_t::ERR_FATAL, "PC_ParseInt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
-
-    return (COM_ParseInt(&parseData[parseDataCount].bufferCurrent, number));
-}
-
-bool PC_ParseFloat(float* number)
-{
-    if (parseDataCount < 0)
-        Q_Error(errorParm_t::ERR_FATAL, "PC_ParseFloat: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
-
-    return (COM_ParseFloat(&parseData[parseDataCount].bufferCurrent, number));
-}
-
-bool PC_ParseColor(vec4_t* color)
-{
-    if (parseDataCount < 0)
-        Q_Error(errorParm_t::ERR_FATAL, "PC_ParseColor: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
-
-    return (COM_ParseVec4(&parseData[parseDataCount].bufferCurrent, color));
+    text.assign(buffer, len > 0 ? len : 0);
+    ui.FS_FreeFile(buffer);
+    return len > 0;
 }
 
 /*

@@ -2471,7 +2471,7 @@ CG_ParseMenu();
 */
 void CG_ParseMenu(const char* menuFile)
 {
-    char* token;
+    const char* token;
     int result;
     char *buf, *p;
 

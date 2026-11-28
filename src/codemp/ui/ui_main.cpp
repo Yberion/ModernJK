@@ -1034,70 +1034,72 @@ char* GetMenuBuffer(const char* filename)
     return buf;
 }
 
-bool Asset_Parse(int handle)
+bool Asset_Parse()
 {
-    pc_token_t token;
+    const char* token;
 
-    if (!trap->PC_ReadToken(handle, &token))
+    if (!PC_ParseString(&token))
         return false;
-    if (Q_stricmp(token.string, "{") != 0) {
+    if (Q_stricmp(token, "{") != 0) {
         return false;
     }
 
     while (1) {
-        memset(&token, 0, sizeof(pc_token_t));
-
-        if (!trap->PC_ReadToken(handle, &token))
+        if (!PC_ParseString(&token))
             return false;
 
-        if (Q_stricmp(token.string, "}") == 0) {
+        if (Q_stricmp(token, "}") == 0) {
             return true;
         }
 
         // font
-        if (Q_stricmp(token.string, "font") == 0) {
+        if (Q_stricmp(token, "font") == 0) {
             int pointSize;
-            if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) {
+            const char* fontName;
+            if (!PC_ParseStringMem(&fontName) || !PC_ParseInt(&pointSize)) {
                 return false;
             }
             // trap->R_RegisterFont(tempStr, pointSize, &uiInfo.uiDC.Assets.textFont);
-            uiInfo.uiDC.Assets.qhMediumFont = trap->R_RegisterFont(token.string);
+            uiInfo.uiDC.Assets.qhMediumFont = trap->R_RegisterFont(fontName);
             uiInfo.uiDC.Assets.fontRegistered = true;
             continue;
         }
 
-        if (Q_stricmp(token.string, "smallFont") == 0) {
+        if (Q_stricmp(token, "smallFont") == 0) {
             int pointSize;
-            if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) {
+            const char* fontName;
+            if (!PC_ParseStringMem(&fontName) || !PC_ParseInt(&pointSize)) {
                 return false;
             }
-            // trap->R_RegisterFont(token, pointSize, &uiInfo.uiDC.Assets.smallFont);
-            uiInfo.uiDC.Assets.qhSmallFont = trap->R_RegisterFont(token.string);
+            // trap->R_RegisterFont(fontName, pointSize, &uiInfo.uiDC.Assets.smallFont);
+            uiInfo.uiDC.Assets.qhSmallFont = trap->R_RegisterFont(fontName);
             continue;
         }
 
-        if (Q_stricmp(token.string, "small2Font") == 0) {
+        if (Q_stricmp(token, "small2Font") == 0) {
             int pointSize;
-            if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) {
+            const char* fontName;
+            if (!PC_ParseStringMem(&fontName) || !PC_ParseInt(&pointSize)) {
                 return false;
             }
-            // trap->R_RegisterFont(token, pointSize, &uiInfo.uiDC.Assets.smallFont);
-            uiInfo.uiDC.Assets.qhSmall2Font = trap->R_RegisterFont(token.string);
+            // trap->R_RegisterFont(fontName, pointSize, &uiInfo.uiDC.Assets.smallFont);
+            uiInfo.uiDC.Assets.qhSmall2Font = trap->R_RegisterFont(fontName);
             continue;
         }
 
-        if (Q_stricmp(token.string, "bigFont") == 0) {
+        if (Q_stricmp(token, "bigFont") == 0) {
             int pointSize;
-            if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) {
+            const char* fontName;
+            if (!PC_ParseStringMem(&fontName) || !PC_ParseInt(&pointSize)) {
                 return false;
             }
-            // trap->R_RegisterFont(token, pointSize, &uiInfo.uiDC.Assets.bigFont);
-            uiInfo.uiDC.Assets.qhBigFont = trap->R_RegisterFont(token.string);
+            // trap->R_RegisterFont(fontName, pointSize, &uiInfo.uiDC.Assets.bigFont);
+            uiInfo.uiDC.Assets.qhBigFont = trap->R_RegisterFont(fontName);
             continue;
         }
 
-        if (Q_stricmp(token.string, "cursor") == 0) {
-            if (!PC_String_Parse(handle, &uiInfo.uiDC.Assets.cursorStr)) {
+        if (Q_stricmp(token, "cursor") == 0) {
+            if (!PC_ParseStringMem(&uiInfo.uiDC.Assets.cursorStr)) {
                 Q_Println(S_COLOR_YELLOW "Bad 1st parameter for keyword 'cursor'");
                 return false;
             }
@@ -1106,159 +1108,159 @@ bool Asset_Parse(int handle)
         }
 
         // gradientbar
-        if (Q_stricmp(token.string, "gradientbar") == 0) {
-            if (!trap->PC_ReadToken(handle, &token)) {
+        if (Q_stricmp(token, "gradientbar") == 0) {
+            if (!PC_ParseString(&token)) {
                 return false;
             }
-            uiInfo.uiDC.Assets.gradientBar = trap->R_RegisterShaderNoMip(token.string);
+            uiInfo.uiDC.Assets.gradientBar = trap->R_RegisterShaderNoMip(token);
             continue;
         }
 
         // enterMenuSound
-        if (Q_stricmp(token.string, "menuEnterSound") == 0) {
-            if (!trap->PC_ReadToken(handle, &token)) {
+        if (Q_stricmp(token, "menuEnterSound") == 0) {
+            if (!PC_ParseString(&token)) {
                 return false;
             }
-            uiInfo.uiDC.Assets.menuEnterSound = trap->sound->Register(token.string);
+            uiInfo.uiDC.Assets.menuEnterSound = trap->sound->Register(token);
             continue;
         }
 
         // exitMenuSound
-        if (Q_stricmp(token.string, "menuExitSound") == 0) {
-            if (!trap->PC_ReadToken(handle, &token)) {
+        if (Q_stricmp(token, "menuExitSound") == 0) {
+            if (!PC_ParseString(&token)) {
                 return false;
             }
-            uiInfo.uiDC.Assets.menuExitSound = trap->sound->Register(token.string);
+            uiInfo.uiDC.Assets.menuExitSound = trap->sound->Register(token);
             continue;
         }
 
         // itemFocusSound
-        if (Q_stricmp(token.string, "itemFocusSound") == 0) {
-            if (!trap->PC_ReadToken(handle, &token)) {
+        if (Q_stricmp(token, "itemFocusSound") == 0) {
+            if (!PC_ParseString(&token)) {
                 return false;
             }
-            uiInfo.uiDC.Assets.itemFocusSound = trap->sound->Register(token.string);
+            uiInfo.uiDC.Assets.itemFocusSound = trap->sound->Register(token);
             continue;
         }
 
         // menuBuzzSound
-        if (Q_stricmp(token.string, "menuBuzzSound") == 0) {
-            if (!trap->PC_ReadToken(handle, &token)) {
+        if (Q_stricmp(token, "menuBuzzSound") == 0) {
+            if (!PC_ParseString(&token)) {
                 return false;
             }
-            uiInfo.uiDC.Assets.menuBuzzSound = trap->sound->Register(token.string);
+            uiInfo.uiDC.Assets.menuBuzzSound = trap->sound->Register(token);
             continue;
         }
 
-        if (Q_stricmp(token.string, "fadeClamp") == 0) {
-            if (!PC_Float_Parse(handle, &uiInfo.uiDC.Assets.fadeClamp)) {
-                return false;
-            }
-            continue;
-        }
-
-        if (Q_stricmp(token.string, "fadeCycle") == 0) {
-            if (!PC_Int_Parse(handle, &uiInfo.uiDC.Assets.fadeCycle)) {
+        if (Q_stricmp(token, "fadeClamp") == 0) {
+            if (!PC_ParseFloat(&uiInfo.uiDC.Assets.fadeClamp)) {
                 return false;
             }
             continue;
         }
 
-        if (Q_stricmp(token.string, "fadeAmount") == 0) {
-            if (!PC_Float_Parse(handle, &uiInfo.uiDC.Assets.fadeAmount)) {
+        if (Q_stricmp(token, "fadeCycle") == 0) {
+            if (!PC_ParseInt(&uiInfo.uiDC.Assets.fadeCycle)) {
                 return false;
             }
             continue;
         }
 
-        if (Q_stricmp(token.string, "shadowX") == 0) {
-            if (!PC_Float_Parse(handle, &uiInfo.uiDC.Assets.shadowX)) {
+        if (Q_stricmp(token, "fadeAmount") == 0) {
+            if (!PC_ParseFloat(&uiInfo.uiDC.Assets.fadeAmount)) {
                 return false;
             }
             continue;
         }
 
-        if (Q_stricmp(token.string, "shadowY") == 0) {
-            if (!PC_Float_Parse(handle, &uiInfo.uiDC.Assets.shadowY)) {
+        if (Q_stricmp(token, "shadowX") == 0) {
+            if (!PC_ParseFloat(&uiInfo.uiDC.Assets.shadowX)) {
                 return false;
             }
             continue;
         }
 
-        if (Q_stricmp(token.string, "shadowColor") == 0) {
-            if (!PC_Color_Parse(handle, &uiInfo.uiDC.Assets.shadowColor)) {
+        if (Q_stricmp(token, "shadowY") == 0) {
+            if (!PC_ParseFloat(&uiInfo.uiDC.Assets.shadowY)) {
+                return false;
+            }
+            continue;
+        }
+
+        if (Q_stricmp(token, "shadowColor") == 0) {
+            if (!PC_ParseColor(&uiInfo.uiDC.Assets.shadowColor)) {
                 return false;
             }
             uiInfo.uiDC.Assets.shadowFadeClamp = uiInfo.uiDC.Assets.shadowColor[3];
             continue;
         }
 
-        if (Q_stricmp(token.string, "moveRollSound") == 0) {
-            if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.moveRollSound = trap->sound->Register(token.string);
+        if (Q_stricmp(token, "moveRollSound") == 0) {
+            if (PC_ParseString(&token)) {
+                uiInfo.uiDC.Assets.moveRollSound = trap->sound->Register(token);
             }
             continue;
         }
 
-        if (Q_stricmp(token.string, "moveJumpSound") == 0) {
-            if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.moveJumpSound = trap->sound->Register(token.string);
+        if (Q_stricmp(token, "moveJumpSound") == 0) {
+            if (PC_ParseString(&token)) {
+                uiInfo.uiDC.Assets.moveJumpSound = trap->sound->Register(token);
             }
 
             continue;
         }
-        if (Q_stricmp(token.string, "datapadmoveSaberSound1") == 0) {
-            if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.datapadmoveSaberSound1 = trap->sound->Register(token.string);
-            }
-
-            continue;
-        }
-
-        if (Q_stricmp(token.string, "datapadmoveSaberSound2") == 0) {
-            if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.datapadmoveSaberSound2 = trap->sound->Register(token.string);
+        if (Q_stricmp(token, "datapadmoveSaberSound1") == 0) {
+            if (PC_ParseString(&token)) {
+                uiInfo.uiDC.Assets.datapadmoveSaberSound1 = trap->sound->Register(token);
             }
 
             continue;
         }
 
-        if (Q_stricmp(token.string, "datapadmoveSaberSound3") == 0) {
-            if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.datapadmoveSaberSound3 = trap->sound->Register(token.string);
+        if (Q_stricmp(token, "datapadmoveSaberSound2") == 0) {
+            if (PC_ParseString(&token)) {
+                uiInfo.uiDC.Assets.datapadmoveSaberSound2 = trap->sound->Register(token);
             }
 
             continue;
         }
 
-        if (Q_stricmp(token.string, "datapadmoveSaberSound4") == 0) {
-            if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.datapadmoveSaberSound4 = trap->sound->Register(token.string);
+        if (Q_stricmp(token, "datapadmoveSaberSound3") == 0) {
+            if (PC_ParseString(&token)) {
+                uiInfo.uiDC.Assets.datapadmoveSaberSound3 = trap->sound->Register(token);
             }
 
             continue;
         }
 
-        if (Q_stricmp(token.string, "datapadmoveSaberSound5") == 0) {
-            if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.datapadmoveSaberSound5 = trap->sound->Register(token.string);
+        if (Q_stricmp(token, "datapadmoveSaberSound4") == 0) {
+            if (PC_ParseString(&token)) {
+                uiInfo.uiDC.Assets.datapadmoveSaberSound4 = trap->sound->Register(token);
             }
 
             continue;
         }
 
-        if (Q_stricmp(token.string, "datapadmoveSaberSound6") == 0) {
-            if (trap->PC_ReadToken(handle, &token)) {
-                uiInfo.uiDC.Assets.datapadmoveSaberSound6 = trap->sound->Register(token.string);
+        if (Q_stricmp(token, "datapadmoveSaberSound5") == 0) {
+            if (PC_ParseString(&token)) {
+                uiInfo.uiDC.Assets.datapadmoveSaberSound5 = trap->sound->Register(token);
+            }
+
+            continue;
+        }
+
+        if (Q_stricmp(token, "datapadmoveSaberSound6") == 0) {
+            if (PC_ParseString(&token)) {
+                uiInfo.uiDC.Assets.datapadmoveSaberSound6 = trap->sound->Register(token);
             }
 
             continue;
         }
 
         // precaching various sound files used in the menus
-        if (Q_stricmp(token.string, "precacheSound") == 0) {
+        if (Q_stricmp(token, "precacheSound") == 0) {
             const char* tempStr;
-            if (PC_Script_Parse(handle, &tempStr)) {
+            if (PC_Script_Parse(&tempStr)) {
                 char* soundFile;
                 do {
                     soundFile = COM_ParseExt(&tempStr, false);
@@ -1279,96 +1281,15 @@ void UI_Report(void)
     // Font_Report();
 }
 
-void UI_ParseMenu(const char* menuFile)
-{
-    int handle;
-    pc_token_t token;
-
-    // Q_Println("Parsing menu file: {}", menuFile);
-
-    handle = trap->PC_LoadSource(menuFile);
-    if (!handle) {
-        return;
-    }
-
-    while (1) {
-        memset(&token, 0, sizeof(pc_token_t));
-        if (!trap->PC_ReadToken(handle, &token)) {
-            break;
-        }
-
-        // if ( Q_stricmp( token, "{" ) ) {
-        //	Q_Println("Missing {{ in menu file");
-        //	break;
-        // }
-
-        // if ( menuCount == MAX_MENUS ) {
-        //	Q_Println("Too many menus!");
-        //	break;
-        // }
-
-        if (token.string[0] == '}') {
-            break;
-        }
-
-        if (Q_stricmp(token.string, "assetGlobalDef") == 0) {
-            if (Asset_Parse(handle)) {
-                continue;
-            }
-            else {
-                break;
-            }
-        }
-
-        if (Q_stricmp(token.string, "menudef") == 0) {
-            // start a new menu
-            Menu_New(handle);
-        }
-    }
-    trap->PC_FreeSource(handle);
-}
-
-bool Load_Menu(int handle)
-{
-    pc_token_t token;
-
-    if (!trap->PC_ReadToken(handle, &token))
-        return false;
-    if (token.string[0] != '{') {
-        return false;
-    }
-
-    while (1) {
-
-        if (!trap->PC_ReadToken(handle, &token))
-            return false;
-
-        if (token.string[0] == 0) {
-            return false;
-        }
-
-        if (token.string[0] == '}') {
-            return true;
-        }
-
-        UI_ParseMenu(token.string);
-    }
-    return false;
-}
-
 void UI_LoadMenus(const char* menuFile, bool reset)
 {
-    pc_token_t token;
-    int handle;
+    std::string text;
     //	int start = trap->Milliseconds();
 
-    trap->PC_LoadGlobalDefines("ui/jamp/menudef.h");
-
-    handle = trap->PC_LoadSource(menuFile);
-    if (!handle) {
+    if (!UI_ReadMenuFile(menuFile, text)) {
         Q_Println(S_COLOR_YELLOW "menu file not found: {}, using default", menuFile);
-        handle = trap->PC_LoadSource("ui/jampmenus.txt");
-        if (!handle) {
+        menuFile = "ui/jampmenus.txt";
+        if (!UI_ReadMenuFile(menuFile, text)) {
             Q_Error(errorParm_t::ERR_DROP, S_COLOR_RED "default menu file not found: ui/jampmenus.txt, unable to continue!");
         }
     }
@@ -1377,32 +1298,9 @@ void UI_LoadMenus(const char* menuFile, bool reset)
         Menu_Reset();
     }
 
-    while (1) {
-        if (!trap->PC_ReadToken(handle, &token))
-            break;
-        if (token.string[0] == 0 || token.string[0] == '}') {
-            break;
-        }
-
-        if (token.string[0] == '}') {
-            break;
-        }
-
-        if (Q_stricmp(token.string, "loadmenu") == 0) {
-            if (Load_Menu(handle)) {
-                continue;
-            }
-            else {
-                break;
-            }
-        }
-    }
+    UI_ParseMenuList(menuFile, text.c_str());
 
     //	Q_Println("UI menu load time = {} milli seconds", trap->Milliseconds() - start);
-
-    trap->PC_FreeSource(handle);
-
-    trap->PC_RemoveAllGlobalDefines();
 }
 
 void UI_Load(void)

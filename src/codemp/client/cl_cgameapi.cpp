@@ -1014,13 +1014,6 @@ void CL_BindCGame(void)
         cgi.Key_GetKey = Key_GetKey;
         cgi.Key_IsDown = Key_IsDown;
         cgi.Key_SetCatcher = CL_Key_SetCatcher;
-        cgi.PC_AddGlobalDefine = botlib_export->PC_AddGlobalDefine;
-        cgi.PC_FreeSource = botlib_export->PC_FreeSourceHandle;
-        cgi.PC_LoadGlobalDefines = botlib_export->PC_LoadGlobalDefines;
-        cgi.PC_LoadSource = botlib_export->PC_LoadSourceHandle;
-        cgi.PC_ReadToken = botlib_export->PC_ReadTokenHandle;
-        cgi.PC_RemoveAllGlobalDefines = botlib_export->PC_RemoveAllGlobalDefines;
-        cgi.PC_SourceFileAndLine = botlib_export->PC_SourceFileAndLine;
         cgi.CIN_DrawCinematic = CIN_DrawCinematic;
         cgi.CIN_PlayCinematic = CIN_PlayCinematic;
         cgi.CIN_RunCinematic = CIN_RunCinematic;

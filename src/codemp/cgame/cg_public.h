@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <ghoul2/G2.h>
 
-inline constexpr int CGAME_API_VERSION = 8;
+inline constexpr int CGAME_API_VERSION = 9;
 
 enum class uiMenuCommand_t; // ui_public.h
 enum class fakeAscii_t;     // shared/qcommon/q_keycodes.h
@@ -317,15 +317,6 @@ typedef struct cgameImport_s {
     std::optional<fakeAscii_t> (*Key_GetKey)(const char* binding);
     bool (*Key_IsDown)(fakeAscii_t keynum);
     void (*Key_SetCatcher)(keyCatchFlags_t catcher);
-
-    // preprocessor (botlib_export->PC_***)
-    int (*PC_AddGlobalDefine)(char* string);
-    int (*PC_FreeSource)(int handle);
-    int (*PC_LoadGlobalDefines)(const char* filename);
-    int (*PC_LoadSource)(const char* filename);
-    int (*PC_ReadToken)(int handle, pc_token_t* pc_token);
-    void (*PC_RemoveAllGlobalDefines)(void);
-    int (*PC_SourceFileAndLine)(int handle, char* filename, int* line);
 
     // cinematics
     void (*CIN_DrawCinematic)(int handle);

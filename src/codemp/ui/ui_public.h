@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <span>
 
-inline constexpr int UI_API_VERSION = 9;
+inline constexpr int UI_API_VERSION = 10;
 
 enum class fakeAscii_t; // shared/qcommon/q_keycodes.h
 
@@ -112,14 +112,6 @@ typedef struct uiImport_s {
     bool (*Key_GetOverstrikeMode)(void);
     void (*Key_SetCatcher)(keyCatchFlags_t catcher);
     void (*Key_SetOverstrikeMode)(bool state);
-
-    int (*PC_AddGlobalDefine)(char* define);
-    int (*PC_FreeSource)(int handle);
-    int (*PC_LoadGlobalDefines)(const char* filename);
-    int (*PC_LoadSource)(const char* filename);
-    int (*PC_ReadToken)(int handle, pc_token_t* pc_token);
-    void (*PC_RemoveAllGlobalDefines)(void);
-    int (*PC_SourceFileAndLine)(int handle, char* filename, int* line);
 
     void (*CIN_DrawCinematic)(int handle);
     int (*CIN_PlayCinematic)(const char* arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits);

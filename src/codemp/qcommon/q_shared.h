@@ -465,6 +465,8 @@ bool COM_CompareExtension(const char* in, const char* ext);
 void COM_DefaultExtension(char* path, int maxSize, const char* extension);
 
 void COM_BeginParseSession(const char* name);
+// for the code shared with the single player, whose sessions nest: here a session ends when the next one begins
+inline void COM_EndParseSession(void) {}
 int COM_GetCurrentParseLine(void);
 const char* SkipWhitespace(const char* data, bool* hasNewLines);
 char* COM_Parse(const char** data_p);

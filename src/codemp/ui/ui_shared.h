@@ -23,8 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// ui_shared.h -- the multiplayer's values of the menus' shared code: the sliders' size its menus are drawn for, an item's
-// Ghoul2 instance as the handle the module is given; then the menus' types (src/shared/ui/ui_shared.h).
+// ui_shared.h -- the multiplayer's values of the menus' shared code: the sliders' size its menus are drawn for, the file
+// of its menus' names, an item's Ghoul2 instance as the handle the module is given; then the menus' types
+// (src/shared/ui/ui_shared.h).
 
 #pragma once
 
@@ -36,6 +37,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 inline constexpr double SLIDER_WIDTH = 96.0;
 inline constexpr double SLIDER_THUMB_HEIGHT = 20.0;
+
+// the names the menus' files use, defined in the game's archives
+inline constexpr const char* MENUDEF_FILE = "ui/jamp/menudef.h";
 
 // an item's Ghoul2 instance: the handle the engine gives the module
 using uiGhoul2_t = void*;

@@ -64,8 +64,6 @@ extern bool UI_SaberModelForSaber(const char* saberName, char* saberModel);
 extern bool UI_SaberSkinForSaber(const char* saberName, char* saberSkin);
 extern void UI_SaberAttachToChar(itemDef_t* item);
 
-extern bool PC_Script_Parse(const char** out);
-
 constexpr int LISTBUFSIZE = 10240;
 
 static struct {
@@ -2623,107 +2621,6 @@ static void UI_RegisterCvars(void)
 
 /*
 =================
-UI_ParseMenu
-=================
-*/
-void UI_ParseMenu(const char* menuFile)
-{
-    char *buffer, *holdBuffer, *token2;
-    int len;
-    //	pc_token_t token;
-
-    // Q_DPrintln("Parsing menu file: {}", menuFile);
-    len = PC_StartParseSession(menuFile, &buffer);
-
-    holdBuffer = buffer;
-
-    if (len <= 0) {
-        Q_Println("UI_ParseMenu: Unable to load menu {}", menuFile);
-        return;
-    }
-
-    while (1) {
-
-        token2 = PC_ParseExt();
-
-        if (!*token2) {
-            break;
-        }
-        /*
-                if ( menuCount == MAX_MENUS )
-                {
-                    PC_ParseWarning("Too many menus!");
-                    break;
-                }
-        */
-        if (*token2 == '{') {
-            continue;
-        }
-        else if (*token2 == '}') {
-            break;
-        }
-        else if (Q_stricmp(token2, "assetGlobalDef") == 0) {
-            if (Asset_Parse(&holdBuffer)) {
-                continue;
-            }
-            else {
-                break;
-            }
-        }
-        else if (Q_stricmp(token2, "menudef") == 0) {
-            // start a new menu
-            Menu_New(holdBuffer);
-            continue;
-        }
-
-        PC_ParseWarning(Q_Format("Invalid keyword '{}'", token2).c_str());
-    }
-
-    PC_EndParseSession(buffer);
-}
-
-/*
-=================
-Load_Menu
-    Load current menu file
-=================
-*/
-bool Load_Menu(const char** holdBuffer)
-{
-    const char* token2;
-
-    token2 = COM_ParseExt(holdBuffer, true);
-
-    if (!token2[0]) {
-        return false;
-    }
-
-    if (*token2 != '{') {
-        return false;
-    }
-
-    while (1) {
-        token2 = COM_ParseExt(holdBuffer, true);
-
-        if ((!token2) || (token2 == nullptr)) {
-            return false;
-        }
-
-        if (*token2 == '}') {
-            return true;
-        }
-
-        // #ifdef _DEBUG
-        //		extern void UI_Debug_AddMenuFilePath(const char *);
-        //		UI_Debug_AddMenuFilePath(token2);
-        // #endif
-        UI_ParseMenu(token2);
-    }
-    return false;
-}
-
-/*
-=================
 UI_LoadMenus
     Load all menus based on the files listed in the data file in menuFile (default "ui/menus.txt")
 =================
@@ -2735,7 +2632,6 @@ void UI_LoadMenus(const char* menuFile, bool reset)
     int start;
 
     char* buffer;
-    const char* holdBuffer;
     int len;
 
     start = Sys_Milliseconds();
@@ -2756,36 +2652,7 @@ void UI_LoadMenus(const char* menuFile, bool reset)
         Menu_Reset();
     }
 
-    const char* token2;
-    holdBuffer = buffer;
-    COM_BeginParseSession();
-    while (1) {
-        token2 = COM_ParseExt(&holdBuffer, true);
-        if (!*token2) {
-            break;
-        }
-
-        if (*token2 == 0 || *token2 == '}') // End of the menus file
-        {
-            break;
-        }
-
-        if (*token2 == '{') {
-            continue;
-        }
-        else if (Q_stricmp(token2, "loadmenu") == 0) {
-            if (Load_Menu(&holdBuffer)) {
-                continue;
-            }
-            else {
-                break;
-            }
-        }
-        else {
-            Q_Println("Unknown keyword '{}' in menus file {}", token2, menuFile);
-        }
-    }
-    COM_EndParseSession();
+    UI_ParseMenuList(menuFile, buffer);
 
     Q_Println("UI menu load time = {} milli seconds", Sys_Milliseconds() - start);
 
@@ -2835,9 +2702,9 @@ void UI_Load(void)
 Asset_Parse
 =================
 */
-bool Asset_Parse(char** buffer)
+bool Asset_Parse()
 {
-    char* token;
+    const char* token;
     const char* tempStr;
     int pointSize;
 
@@ -2865,7 +2732,7 @@ bool Asset_Parse(char** buffer)
         // fonts
         if (Q_stricmp(token, "smallFont") == 0) // legacy, really it only matters which order they are registered
         {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'smallFont'");
                 return false;
             }
@@ -2873,7 +2740,7 @@ bool Asset_Parse(char** buffer)
             UI_RegisterFont(tempStr);
 
             // not used anymore
-            if (PC_ParseInt(&pointSize)) {
+            if (!PC_ParseInt(&pointSize)) {
                 //				PC_ParseWarning("Bad 2nd parameter for keyword 'smallFont'");
             }
 
@@ -2881,7 +2748,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "mediumFont") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'font'");
                 return false;
             }
@@ -2890,7 +2757,7 @@ bool Asset_Parse(char** buffer)
             uiInfo.uiDC.Assets.fontRegistered = true;
 
             // not used
-            if (PC_ParseInt(&pointSize)) {
+            if (!PC_ParseInt(&pointSize)) {
                 //				PC_ParseWarning("Bad 2nd parameter for keyword 'font'");
             }
             continue;
@@ -2898,14 +2765,14 @@ bool Asset_Parse(char** buffer)
 
         if (Q_stricmp(token, "bigFont") == 0) // legacy
         {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'bigFont'");
                 return false;
             }
 
             UI_RegisterFont(tempStr);
 
-            if (PC_ParseInt(&pointSize)) {
+            if (!PC_ParseInt(&pointSize)) {
                 //				PC_ParseWarning("Bad 2nd parameter for keyword 'bigFont'");
             }
 
@@ -2936,7 +2803,7 @@ bool Asset_Parse(char** buffer)
 
         // gradientbar
         if (Q_stricmp(token, "gradientbar") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'gradientbar'");
                 return false;
             }
@@ -2946,7 +2813,7 @@ bool Asset_Parse(char** buffer)
 
         // enterMenuSound
         if (Q_stricmp(token, "menuEnterSound") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'menuEnterSound'");
                 return false;
             }
@@ -2957,7 +2824,7 @@ bool Asset_Parse(char** buffer)
 
         // exitMenuSound
         if (Q_stricmp(token, "menuExitSound") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'menuExitSound'");
                 return false;
             }
@@ -2967,7 +2834,7 @@ bool Asset_Parse(char** buffer)
 
         // itemFocusSound
         if (Q_stricmp(token, "itemFocusSound") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'itemFocusSound'");
                 return false;
             }
@@ -2977,7 +2844,7 @@ bool Asset_Parse(char** buffer)
 
         // menuBuzzSound
         if (Q_stricmp(token, "menuBuzzSound") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'menuBuzzSound'");
                 return false;
             }
@@ -2987,7 +2854,7 @@ bool Asset_Parse(char** buffer)
 
         // Chose a force power from the ingame force allocation screen (the one where you get to allocate a force power point)
         if (Q_stricmp(token, "forceChosenSound") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'forceChosenSound'");
                 return false;
             }
@@ -2998,7 +2865,7 @@ bool Asset_Parse(char** buffer)
 
         // Unchose a force power from the ingame force allocation screen (the one where you get to allocate a force power point)
         if (Q_stricmp(token, "forceUnchosenSound") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'forceUnchosenSound'");
                 return false;
             }
@@ -3008,7 +2875,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "datapadmoveRollSound") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveRollSound'");
                 return false;
             }
@@ -3018,7 +2885,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "datapadmoveJumpSound") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveRoll'");
                 return false;
             }
@@ -3028,7 +2895,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "datapadmoveSaberSound1") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveSaberSound1'");
                 return false;
             }
@@ -3038,7 +2905,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "datapadmoveSaberSound2") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveSaberSound2'");
                 return false;
             }
@@ -3048,7 +2915,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "datapadmoveSaberSound3") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveSaberSound3'");
                 return false;
             }
@@ -3058,7 +2925,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "datapadmoveSaberSound4") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveSaberSound4'");
                 return false;
             }
@@ -3068,7 +2935,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "datapadmoveSaberSound5") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveSaberSound5'");
                 return false;
             }
@@ -3078,7 +2945,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "datapadmoveSaberSound6") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveSaberSound6'");
                 return false;
             }
@@ -3088,7 +2955,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "cursor") == 0) {
-            if (PC_ParseString(&tempStr)) {
+            if (!PC_ParseString(&tempStr)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'cursor'");
                 return false;
             }
@@ -3097,7 +2964,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "fadeClamp") == 0) {
-            if (PC_ParseFloat(&uiInfo.uiDC.Assets.fadeClamp)) {
+            if (!PC_ParseFloat(&uiInfo.uiDC.Assets.fadeClamp)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'fadeClamp'");
                 return false;
             }
@@ -3105,7 +2972,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "fadeCycle") == 0) {
-            if (PC_ParseInt(&uiInfo.uiDC.Assets.fadeCycle)) {
+            if (!PC_ParseInt(&uiInfo.uiDC.Assets.fadeCycle)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'fadeCycle'");
                 return false;
             }
@@ -3113,7 +2980,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "fadeAmount") == 0) {
-            if (PC_ParseFloat(&uiInfo.uiDC.Assets.fadeAmount)) {
+            if (!PC_ParseFloat(&uiInfo.uiDC.Assets.fadeAmount)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'fadeAmount'");
                 return false;
             }
@@ -3121,7 +2988,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "shadowX") == 0) {
-            if (PC_ParseFloat(&uiInfo.uiDC.Assets.shadowX)) {
+            if (!PC_ParseFloat(&uiInfo.uiDC.Assets.shadowX)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'shadowX'");
                 return false;
             }
@@ -3129,7 +2996,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "shadowY") == 0) {
-            if (PC_ParseFloat(&uiInfo.uiDC.Assets.shadowY)) {
+            if (!PC_ParseFloat(&uiInfo.uiDC.Assets.shadowY)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'shadowY'");
                 return false;
             }
@@ -3137,7 +3004,7 @@ bool Asset_Parse(char** buffer)
         }
 
         if (Q_stricmp(token, "shadowColor") == 0) {
-            if (PC_ParseColor(&uiInfo.uiDC.Assets.shadowColor)) {
+            if (!PC_ParseColor(&uiInfo.uiDC.Assets.shadowColor)) {
                 PC_ParseWarning("Bad 1st parameter for keyword 'shadowColor'");
                 return false;
             }

@@ -33,6 +33,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <shared/qcommon/q_keycodes.h>
 #include <shared/sound/sound.h>
 
+#include <string>
+
 inline constexpr int MAX_MENUDEFFILE = 8192; // 4096
 inline constexpr int MAX_MENUFILE = 65536;   // 32768
 inline constexpr int MAX_MENUS = 128;        // 64
@@ -524,15 +526,9 @@ bool Int_Parse(const char** p, int* i);
 bool Rect_Parse(const char** p, rectDef_t* r);
 bool String_Parse(const char** p, const char** out);
 bool Script_Parse(const char** p, const char** out);
-bool PC_Float_Parse(int handle, float* f);
-bool PC_Color_Parse(int handle, vec4_t* c);
-bool PC_Int_Parse(int handle, int* i);
-bool PC_Rect_Parse(int handle, rectDef_t* r);
-bool PC_String_Parse(int handle, const char** out);
-bool PC_Script_Parse(int handle, const char** out);
 int Menu_Count();
-void Menu_New(int handle);   // the multiplayer's
-void Menu_New(char* buffer); // the single player's
+// a menu of the menu file being read (PC_StartParseSession), from its menuDef's keywords
+void Menu_New();
 void Menu_PaintAll();
 menuDef_t* Menus_ActivateByName(const char* p);
 void Menu_Reset(void);
@@ -567,16 +563,31 @@ void Menu_PlaySound(sfxHandle_t sfx, sound::Slot slot = sound::Slot::Menu, float
 // player's)
 void Menu_PlayVoice(sfxHandle_t sfx);
 
-// the single player's reader of the menus' files
-void PC_EndParseSession(char* buffer);
-bool PC_ParseString(const char** tempStr);
-bool PC_ParseStringMem(const char** out);
+// the menus' reader (src/shared/ui/ui_parse.cpp): a menu file read whole, then its tokens one at a time, across its
+// lines; a reader returns true when it read a value, false at the file's end. A name of the game's menudef.h
+// (MENUDEF_FILE) is read where a number is, as its value; a word it does not define, as 0 with a warning.
+[[nodiscard]] bool PC_StartParseSession(const char* fileName);
+void PC_EndParseSession();
 void PC_ParseWarning(const char* message);
-int PC_StartParseSession(const char* fileName, char** buffer);
-char* PC_ParseExt(void);
-bool PC_ParseInt(int* number);
-bool PC_ParseFloat(float* number);
-bool PC_ParseColor(vec4_t* c);
+const char* PC_ParseExt(); // the next token, a quoted one without its quotes; null at the file's end
+[[nodiscard]] bool PC_ParseString(const char** string);
+[[nodiscard]] bool PC_ParseStringMem(const char** out); // kept in the menus' strings
+[[nodiscard]] bool PC_ParseInt(int* number);
+[[nodiscard]] bool PC_ParseFloat(float* number);
+[[nodiscard]] bool PC_ParseColor(vec4_t* color);
+[[nodiscard]] bool PC_ParseRect(rectDef_t* r);
+[[nodiscard]] bool PC_Script_Parse(const char** out); // a script's text, between its { and its }
+// a menu file's assets and menus
+void UI_ParseMenu(const char* menuFile);
+// a list of menu files (ui/menus.txt and the like): the files of each of its loadMenu blocks, menudef.h's names read
+// for them
+void UI_ParseMenuList(const char* listFile, const char* text);
+
+// each tree's: a file read whole
+[[nodiscard]] bool UI_ReadMenuFile(const char* fileName, std::string& text);
+// each module's: a menu file's assetGlobalDef block
+bool Asset_Parse();
+
 void UI_Cursor_Show(bool flag);
 
 void* UI_Alloc(int size);

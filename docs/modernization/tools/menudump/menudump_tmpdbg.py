@@ -113,7 +113,10 @@ targets = [
     ('src/code/ui/ui_shared.cpp', True),
 ]
 calls = [
-    ('src/codemp/ui/ui_main.cpp', '    trap->PC_RemoveAllGlobalDefines();\n}\n', '    UI_DumpMenus_TMPDBG(menuFile);\n'),
+    # the multiplayer's UI_LoadMenus: before part 2 (botlib's precompiler), then after it
+    ('src/codemp/ui/ui_main.cpp', ('    trap->PC_RemoveAllGlobalDefines();\n}\n',
+                                   '    //	Q_Println("UI menu load time = {} milli seconds", trap->Milliseconds() - start);\n}\n'),
+     '    UI_DumpMenus_TMPDBG(menuFile);\n'),
     ('src/codemp/cgame/cg_main.cpp', '    // Q_Println("UI menu load time = {} milli seconds", cgi_Milliseconds() - start);\n}\n', '    UI_DumpMenus_TMPDBG(menuFile);\n'),
     ('src/code/ui/ui_main.cpp', '    ui.FS_FreeFile(buffer); // let go of the buffer\n}\n', '    UI_DumpMenus_TMPDBG(menuFile);\n'),
 ]
@@ -121,9 +124,9 @@ DECL = 'void UI_DumpMenus_TMPDBG(const char* where); // TMPDBG\n'
 
 for path, sp in targets:
     p = root / path
-    text = strip(p.read_text(encoding='utf-8'))
+    text = strip(p.read_text(encoding='utf-8')).rstrip('\n') + '\n'
     if not remove:
-        text = text.rstrip('\n') + '\n\n' + dump_code(sp)
+        text = text + '\n' + dump_code(sp)
     p.write_text(text, encoding='utf-8', newline='\n')
     print(('removed from ' if remove else 'added to ') + path)
 
@@ -132,6 +135,8 @@ for path, anchor, call in calls:
     text = p.read_text(encoding='utf-8')
     text = text.replace(call.rstrip('\n') + ' // TMPDBG\n', '').replace(DECL, '')
     if not remove:
+        if isinstance(anchor, tuple):
+            anchor = next(a for a in anchor if a in text)
         assert text.count(anchor) == 1, (path, anchor)
         text = text.replace(anchor, anchor[:-2] + call.rstrip('\n') + ' // TMPDBG\n}\n')
         # the declaration before the file's first function definition that calls it: at the top, after the includes

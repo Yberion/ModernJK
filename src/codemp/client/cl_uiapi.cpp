@@ -701,14 +701,6 @@ void CL_BindUI(void)
         uii.Key_SetCatcher = CL_Key_SetCatcher;
         uii.Key_SetOverstrikeMode = Key_SetOverstrikeMode;
 
-        uii.PC_AddGlobalDefine = botlib_export->PC_AddGlobalDefine;
-        uii.PC_FreeSource = botlib_export->PC_FreeSourceHandle;
-        uii.PC_LoadGlobalDefines = botlib_export->PC_LoadGlobalDefines;
-        uii.PC_LoadSource = botlib_export->PC_LoadSourceHandle;
-        uii.PC_ReadToken = botlib_export->PC_ReadTokenHandle;
-        uii.PC_RemoveAllGlobalDefines = botlib_export->PC_RemoveAllGlobalDefines;
-        uii.PC_SourceFileAndLine = botlib_export->PC_SourceFileAndLine;
-
         uii.CIN_DrawCinematic = CIN_DrawCinematic;
         uii.CIN_PlayCinematic = CIN_PlayCinematic;
         uii.CIN_RunCinematic = CIN_RunCinematic;

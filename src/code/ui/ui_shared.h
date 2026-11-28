@@ -23,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // ui_shared.h -- the single player's values of the menus' shared code (Jedi Academy's and Jedi Outcast's): the sliders'
-// size its menus are drawn for, an item's Ghoul2 instance held by value, and the Ghoul2 functions the engine gives its
-// menus; then the menus' types (src/shared/ui/ui_shared.h).
+// size its menus are drawn for, the file of its menus' names, an item's Ghoul2 instance held by value, and the Ghoul2
+// functions the engine gives its menus; then the menus' types (src/shared/ui/ui_shared.h).
 
 #pragma once
 
@@ -36,6 +36,13 @@ inline constexpr int NUM_CROSSHAIRS = 9;
 
 inline constexpr double SLIDER_WIDTH = 128.0;
 inline constexpr double SLIDER_THUMB_HEIGHT = 16.0;
+
+// the names the menus' files use, defined in the game's archives
+#ifdef JK2_MODE
+inline constexpr const char* MENUDEF_FILE = "ui/jk2mp/menudef.h";
+#else
+inline constexpr const char* MENUDEF_FILE = "ui/jamp/menudef.h";
+#endif
 
 // an item's Ghoul2 instance, held by the item
 using uiGhoul2_t = CGhoul2Info_v;

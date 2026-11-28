@@ -74,7 +74,8 @@ target_include_directories(sp_engine_common INTERFACE "${CMAKE_CURRENT_SOURCE_DI
 # _JK2EXE: the single player's engine (Jedi Academy's as well as Jedi Outcast's)
 target_compile_definitions(sp_engine_common INTERFACE _JK2EXE)
 target_link_libraries(sp_engine_common INTERFACE modernjk_version vendored::gsl_lite modernjk_shared_common
-	modernjk_filesystem modernjk_safe_string modernjk_safe_files modernjk_sys_platform modernjk_client_engine modernjk_sound_engine)
+	modernjk_filesystem modernjk_safe_string modernjk_safe_files modernjk_sys_platform modernjk_client_engine modernjk_sound_engine
+	modernjk_ui_reader)
 
 if(modernjk_BUILD_SP)
 	add_executable(modernjk_sp WIN32)

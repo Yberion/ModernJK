@@ -1091,7 +1091,7 @@ void cgi_UI_Parse_Int(int* value);
 void cgi_UI_Parse_String(char* buf);
 void cgi_UI_Parse_Float(float* value);
 int cgi_UI_StartParseSession(const char* menuFile, char** buf);
-void cgi_UI_ParseExt(char** token);
+void cgi_UI_ParseExt(const char** token);
 void cgi_UI_MenuPaintAll(void);
 void cgi_UI_MenuCloseAll(void);
 void cgi_UI_String_Init(void);

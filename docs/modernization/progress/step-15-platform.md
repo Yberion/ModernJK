@@ -1214,7 +1214,7 @@ What differs, measured as in section 17.1 with the systematic rewrites left out 
 The order, each part built, tried by hand, validated and committed:
 
 1. ✅ The types in one definition, `src/shared/ui/ui_shared.h` (`itemDef_t`, `menuDef_t`, the window, the display context), each tree's `ui_shared.cpp` compiled against it (section 17.10).
-2. ⏳ One reader for the menus (decisions 7 and 9).
+2. ✅ One reader for the menus (decisions 7, 9 and 12 to 18): written and checked on 27 November 2026, built on the VMs, tried by hand and validated on 28 November 2026 (sections 17.12 and 17.13).
 3. ⏳ `ui_shared.cpp` one code, in batches (the keyword readers, the scripts, the drawing, the keys): where the games do not contradict each other the shared code takes the union of their features; each real conflict presented with its behaviour before and after.
 4. ⏳ The changes of behaviour: the pointer in floats (decision 8), the menus' text fields as the console's (decision 4), the keyboard's navigation (below).
 
@@ -1261,7 +1261,7 @@ The VMs' Release builds the same day (logs `build/s3p1-linux-gcc-release.log`, `
 
 ### 17.11 Where to resume (27 November 2026)
 
-**The state.** Sub-steps 1 (the keys) and 2 (the input) are committed (`refactor(platform): step 15, the step's end, sub-step 1, ...` and `... sub-step 2, ...`). Sub-step 3, the menus' shared code: its plan and decisions 10 and 11 in section 17.8; part 1, the types in one definition, written, its menus' dump the same in the three games, tried by hand and built on the VMs (section 17.10), its full VM validations ALL OK the same day, then the commit, whose title is `refactor(platform): step 15, the step's end, sub-step 3, part 1, the menus' types defined once for the three games: ...`. Next, on a word: part 2, one reader for the menus (decisions 7 and 9).
+**The state.** Sub-steps 1 (the keys) and 2 (the input) are committed (`refactor(platform): step 15, the step's end, sub-step 1, ...` and `... sub-step 2, ...`). Sub-step 3, the menus' shared code: its plan and decisions 10 and 11 in section 17.8; part 1, the types in one definition, written, its menus' dump the same in the three games, tried by hand and built on the VMs (section 17.10), its full VM validations ALL OK the same day, committed the same day (`refactor(platform): step 15, the step's end, sub-step 3, part 1, the menus' types defined once for the three games: ...`). Next, on a word: part 2, one reader for the menus (decisions 7 and 9).
 
 **Part 2, as read on 27 November 2026.**
 
@@ -1282,3 +1282,93 @@ The VMs' Release builds the same day (logs `build/s3p1-linux-gcc-release.log`, `
 - Python edit scripts are written to a file and run by `python -I <file>`: `python -I -` waits on its input in Git Bash.
 
 The full VM validations of part 1 the same day (logs `build/validate-linux.log`, `build/validate-windows.log`): `validate.sh` ALL OK (GCC 15 and Clang 23: Release, Debug, AddressSanitizer, the server's preset, the Debug build with link-time optimization, the formatting) and `validate.bat` ALL OK (MSVC: Release, Debug, AddressSanitizer), `ctest` 18 of 18 in every preset that runs it, no compiler warning (a first run stopped at its check that no source changed during it: a README written under `src/` meanwhile). Part 1 is complete; part 2 next, on a word.
+
+### 17.12 Part 2: one reader for the menus, read and decided (27 November 2026)
+
+The menus of the three games read twice, the same day, by a script of the session's tools: once split as the single player's reader splits them (`COM_ParseExt`: at the spaces, a quoted string whole) and once as botlib's precompiler does (a name, a number or a sign each a token), the archives' files with `assets/`'s copies over them (the multiplayer's `ui/jampmenus.txt`, `ui/jampingame.txt` and `ui/jahud.txt`, 52 files; Jedi Academy's `ui/menus.txt` and `ui/ingame.txt`, 36; Jedi Outcast's, 21). What the one reader must do, found that way:
+
+- `menudef.h`'s names are read only where a number is (the multiplayer: `style`, `textalign`, `type`, `ownerdraw`, `descAlignment`, `elementtype`, `feeder`, `ownerdrawFlag`, `fullScreen`, `visible`), never in a text nor in a script; the cgame's `ui/hud.menu` uses none. Jedi Academy's `ui/jamp/menudef.h` holds 208 decimal values, 85 hexadecimal ones and 38 other lines (4 colours of three numbers, 34 quoted words of the voice chat), which no menu uses. The values of the single player's three tables are their indices, the same as `menudef.h`'s, and its menus write the names in their exact case.
+- 345 negative numbers in the multiplayer's menus, none in a script: botlib read a sign then the number, `COM_ParseExt` reads them whole, the same value.
+- A `;` against a word in a script: 22 in the multiplayer's menus (`show setup_background;` 16 times in `ui/jamp/rules_force.menu`, `close all;` 4 times, `uiScript loadControls;`, `uiScript saveTemplate;`), which botlib split into the word and the separator; and `forecolor 1 1 1 1;` in the three games.
+- A path without quotes in a script, which botlib cut at each `/` and `.`: in the multiplayer, the 14 rows of keys of the controls page (`play sound/interface/button1`), the double click of the moves' list of the rules and Setup's "Show driver info" button; the reference's dump holds `dclick="play" "sound" / "interface" / "button1" . "wav"`. The single player's same menus read the path whole.
+- `text ""` in `ui/jamp/ingame_controls.menu:3198` (the keys' status text): the single player's text reader skips an empty string and would take the next keyword, `rect`, as the text.
+- Words outside a menu, botlib's tokens that the multiplayer's file reader skipped: `\\ CALL VOTE MENU \\` and the like at the top of 5 of the multiplayer's files (`error`, `ingame_callvote`, `ingame_leave`, `ingame_orders`, `siege_msg`).
+- The longest script of the multiplayer's menus holds 2,033 characters: the single player's 4,096 change nothing.
+
+The rules that need no decision: a name is read only where a number is (an integer, a float, a colour, a rectangle), from `menudef.h`'s decimal and hexadecimal values, its other lines left out; the names are read again at the start of each list of menu files and kept for the files read after it (written first freed at the list's end, as the multiplayer's global definitions were; corrected the same day, section 17.13); an empty quoted string is a value; quoted strings side by side stay values of their own (decision 7); the single player's table of item flags (`flag WINDOW_INACTIVE`, two menus of Jedi Outcast) stays, its name not being in `menudef.h`; the single player's script reader no longer reads the previous token's second character to tell an empty token (the one case, `setcvar ui_saber2 ""` in Jedi Academy's `ui/saber.menu`, reads the same).
+
+Decided on 27 November 2026:
+
+| # | question | decided | not taken |
+|---|---|---|---|
+| 12 | Where the one reader is | `src/shared/ui/ui_parse.cpp`, compiled by the multiplayer's UI and cgame and by the single player's engine against their own headers, as `cg_sound.cpp`: the session (a file read whole, its name, the place read), the token readers, `menudef.h`'s names, a menu file's reader and a list of menu files'; each tree's own part is a function that reads a file whole; the line of a warning counted in the text itself. The keyword readers, `Item_Parse`, `Menu_Parse` and `Menu_New` stay in each tree's `ui_shared.cpp` until part 3, the multiplayer's without a handle | the reader copied into the multiplayer's `ui_shared.cpp`, two copies until part 3 |
+| 13 | A `;` against a word in a script | the script reader takes a `;` out of a word without quotes as a separator of its own, as botlib did: the multiplayer's scripts stay as they are; the single player's `1;` is kept as `1 ;`, the same colour read (its dumps' scripts written differently) | nothing taken out (in the multiplayer the force rules' panels without their background, `close all` closing nothing, the controls page's keys not loaded, the force template not saved); the 9 files corrected in `assets/` (a mod's menus still broken) |
+| 14 | The paths without quotes in the multiplayer's scripts | read whole, as in the single player: a click on the controls page's rows of keys, the moves' list and the driver's information plays the menus' click, where it played nothing (a fix, section 17.13 to show it before and after) | botlib's cut kept |
+| 15 | A word that `menudef.h` does not define where a number is read (a mod's mistake; the single player's menus have one, found the same day: section 17.13, decision 18) | a warning with the file and the line, the value 0, the item kept | 0 without a word (the single player's `atoi`); an error, the whole menu left out (botlib) |
+| 16 | What the readers return | true when a value was read, for each of them, `[[nodiscard]]`; false at the file's end or a script without its `{` or its `}` (a number at a line's end too, until a number was read on the next lines, section 17.13): the keyword reader then fails, with a warning, and its item and its menu are left out, as in both games today. About 130 calls of the single player adapted | the single player's mixed rule (its integer, float, text and colour readers returning true when they failed, its rectangle, script and text-kept readers when they read) |
+| 17 | Words outside a menu in a menu file | a message printed with `developer` 1 alone (`Q_DPrintln`), no setting added (GUIDELINES section 11); the warnings that change what is drawn (a keyword unknown or not read in a menu, an item left out, a name of decision 15) printed always | a warning for each word (the single player's), about 25 lines at each load; a setting of its own, `ui_developer`; every warning of the reader behind `developer` |
+
+### 17.13 Part 2: one reader for the menus, written (27 November 2026)
+
+Written, as decided in section 17.12:
+
+- `src/shared/ui/ui_parse.cpp` (the interface library `modernjk_ui_reader`, linked by the multiplayer's UI and cgame and by the single player's engine): the session (`PC_StartParseSession`, `PC_EndParseSession`, `PC_ParseWarning`), the token readers (`PC_ParseExt`, `PC_ParseString`, `PC_ParseStringMem`, `PC_ParseInt`, `PC_ParseFloat`, `PC_ParseColor`, `PC_ParseRect`, `PC_Script_Parse`), `menudef.h`'s names, a menu file's top level (`UI_ParseMenu`) and a list of menu files (`UI_ParseMenuList`), the line of a warning counted in the text. Each tree's `ui/ui_shared.h` gives `MENUDEF_FILE`, each tree's `ui/ui_shared.cpp` its `UI_ReadMenuFile`, each module its `Asset_Parse`.
+- The multiplayer: botlib's reader through a handle removed (`PC_Float_Parse`, `PC_Color_Parse`, `PC_Int_Parse`, `PC_Rect_Parse`, `PC_String_Parse`, `PC_Script_Parse`, `PC_SourceError` and the `#if 0` `PC_SourceWarning`); `Item_Parse`, `Menu_Parse` and `Menu_New` in the single player's form, the 118 keyword readers without a handle; the UI's `Asset_Parse` and the cgame's (`CG_Asset_Parse` before) on the shared reader, a font's name kept while its size is read (the reader's token is overwritten by the next one); `UI_ParseMenu`, `Load_Menu`, `CG_ParseMenu` and `CG_Load_Menu` removed for the shared ones; `UI_LoadMenus` and `CG_LoadMenus` read their list whole (`UI_ReadMenuFile`; the cgame's limit of 8 KB for a list gone) and give it to `UI_ParseMenuList`. The UI's and the cgame's imports of the precompiler removed (7 each, `ui_public.h`, `cg_public.h`, `cl_uiapi.cpp`, `cl_cgameapi.cpp`): `UI_API_VERSION` 10, `CGAME_API_VERSION` 9. The multiplayer's `q_shared.h` gains an empty `COM_EndParseSession` for the shared code (its parser keeps one session, which ends when the next begins).
+- The single player: its reader moved to the shared file; its three tables removed, its style, type and alignment readers reading an integer as the multiplayer's do; its integer, float, text and colour readers' calls adapted to decision 16 (75 tests in `ui_shared.cpp`, the others in `Asset_Parse`); `Menu_New()` and `Menu_Parse(menuDef_t*)` without the buffer they ignored nor its dead branch; `parseData_t` without `fileName`, `bufferStart` and `bufferCurrent`, which only its reader used. Its cgame reads its HUD's menus (the `loadhud` command) through the engine's calls `CG_UI_STARTPARSESESSION`, `CG_UI_PARSEEXT`, `CG_UI_MENU_NEW` and `CG_UI_ENDPARSESESSION`, now on the shared reader: the engine gives it an empty token at the file's end, which it tests (`cgi_UI_ParseExt` takes a `const char**`), and ignores an end of a session it could not begin.
+- `menudef.h`'s names read again at the start of each list of menu files (`UI_ParseMenuList`) and kept, and read by the first menu file when no list was read before it: the single player's cgame reads its HUD's files without a list, and would have found no name. Written first freed at the list's end, as the multiplayer's global definitions were.
+
+Found while writing it, in the single player's reader, none with an effect on the games' files:
+
+- `PC_ParseExt` never returned null, while its callers test it for the file's end (`Menu_Parse`, `Asset_Parse`): a menu file cut short made `Menu_Parse` read empty keywords without end, and `Load_Menu` the same on a list. Now `PC_ParseExt` returns null at the file's end, as botlib's reader returned false.
+- `ItemParse_addColorRange` tested its three readers as true when they read, while they returned true when they failed: a colour range was added only when none of its numbers was read, and its menu then left out. No menu of the three games uses it; correct with decision 16's rule.
+- A keyword that could not be read was named in its warning by the last token read, which its reader had overwritten: the warnings now name the keyword.
+
+Found by the first dump, the same day: two of the multiplayer's menus left out (`ui/jamp/serverinfo.menu` and `ui/jamp/findplayer.menu`), whose list boxes write their `columns` on several lines, which botlib read; the single player's number reader stopped at the line's end. A number is now read on the lines after its keyword, as a text already was; decision 16's false at a line's end is gone with it. A number's missing value in a file of the games has never been seen: the dumps are the same.
+
+Found by the sessions, the same day: Jedi Academy's and Jedi Outcast's menus of the saved games (`ui/loadgame.menu`, `ui/ingamesave.menu`, `ui/ingameload.menu`) write `feeder FEEDER_SAVEGAMES`, which neither game's `menudef.h` defines; the single player read it as 0 by chance (`atof` of a word), the code's value (`src/code/ui/menudef.h`), and now reads it as 0 with decision 15's warning: one line at Jedi Academy's start and two at a level's, three at Jedi Outcast's start. No other word of the three games' menus is undefined. The name is the source of the saved games' list (the single player's `UI_FeederCount`, `UI_FeederItemText` and `UI_FeederSelection` give that list's rows for the source 0): the list works as before.
+
+| # | question | decided | not taken |
+|---|---|---|---|
+| 18 | `FEEDER_SAVEGAMES`, undefined in the games' `menudef.h` (decided 27 November 2026) | the warning of decision 15 kept: the value read is 0, as before | a copy of each game's `menudef.h` in `assets/` with the name added (two files of 331 and 293 lines to keep, the warning gone); the name taken from the code's `menudef.h` when the archive's lacks it (against decision 9) |
+
+Checked the same day (llvm-mingw's clang, Release):
+
+- The menus' dump against the reference (`ModernJK_s3ref`): the same number of lines in the three games (4,849, 1,143, 1,966); in the multiplayer 15 lines differ, the 15 paths of decision 14 (`"play" "sound" / "interface" / "button1"` before, `"play" "sound/interface/button1"` now); in Jedi Academy 7 lines and in Jedi Outcast 11, the 32 and 42 `"1;"` of decision 13 written `1 ;`; nothing else, the floats included.
+- The single player's cgame: a silent session of Jedi Academy on `yavin1b` with `loadhud` twice, then with a test HUD of loose files using `menudef.h`'s names, a name it does not define and a rectangle on two lines: the undefined name warned alone, the session ended normally.
+- The menus' loading, timed around `UI_LoadMenus` and `CG_LoadMenus` (a temporary timer of the session's tools, `std::chrono::steady_clock`), 5 silent sessions of each build interleaved, the reference's trace taken out for them; the VMs were running on the machine:
+
+| list | before (median, min to max) | now |
+|---|---|---|
+| the multiplayer's `ui/jampmenus.txt` | 79.2 ms (78.8 to 81.9) | 76.7 ms (75.7 to 77.7) |
+| the multiplayer's `ui/jampingame.txt` | 11.6 ms (10.9 to 11.7) | 8.2 ms (8.0 to 8.8) |
+| the multiplayer's cgame, `ui/jahud.txt` | 4.2 ms (3.8 to 4.3) | 4.1 ms (4.0 to 4.5) |
+| Jedi Academy's `ui/menus.txt` | 136.2 ms (135.4 to 137.1) | 135.4 ms (134.0 to 140.8) |
+| Jedi Outcast's `ui/menus.txt` | 70.1 ms (69.5 to 70.5) | 69.7 ms (69.0 to 70.6) |
+
+The time goes mostly into the assets the menus register (pictures, models, fonts), not into the reading.
+
+The VMs' Release builds on 28 November 2026 (logs `build/s3p2-linux-gcc-release.log`, `build/s3p2-linux-clang-release.log`, `build/build-msvc-release.log`): GCC 15, Clang 23 and MSVC without an error nor a warning, `ctest` 18 of 18 with both Linux compilers. The presets Release, Debug and AddressSanitizer of llvm-mingw's clang the day before: every target without a warning, the seven `modernjk` tests passed in each, clang-format clean.
+
+Tried by hand on Windows on 28 November 2026 (the MSVC build), each passed:
+
+- The multiplayer's controls page: the rows show the keys bound (its `uiScript loadControls;`), a click on "Walk forward" and on "Backpedal" plays the menus' click (decision 14; nothing before), the console without `unknown UI script`.
+- The multiplayer's menus: Escape from the multiplayer menu back to the main menu alone (`close all;`), the force rules' power panel with its background (`show setup_background;`), the moves' list's double click with its click, the find player and server information windows open with their columns (the menus the first dump had lost).
+- The multiplayer in a level: the HUD as before (the cgame's menus), the in-game controls page's keys' status text under the list, a row's click, a force template saved from the player's force page (`uiScript saveTemplate;`), no warning of the reader in the console.
+- Jedi Academy's single player: the setup's categories' buttons coloured as before (the scripts' `1;`), the saved games' list with their names and dates and the preview of the one clicked, the save page in a level, a row of keys' click; in the console the three lines of decision 18 alone.
+
+Asked during the tries (28 November 2026): while a key is awaited in the single player's controls page, the other items are grey and take no focus (`Item_Bind_HandleKey` sets `WINDOW_INACTIVE` on them, `Item_TextColor` draws them grey, `Menu_HandleMouseMove` skips them, `Item_Bind_Ungrey` clears the flag); the multiplayer's copy has none of it. Part 3 brings it to the multiplayer with the union of the two games' features (section 17.8, part 3).
+
+### 17.14 Where to resume (28 November 2026)
+
+**The state.** Sub-steps 1 (the keys) and 2 (the input) are committed; sub-step 3, the menus' shared code: part 1 (the types) committed; part 2, one reader for the menus (decisions 7, 9 and 12 to 18, section 17.12), written, checked by the menus' dump, built on the VMs and tried by hand (section 17.13), its full VM validations ALL OK on 28 November 2026, then the commit, whose title is `refactor(platform): step 15, the step's end, sub-step 3, part 2, one reader for the menus in the three games: ...`. Next, on a word: part 3, `ui_shared.cpp` one code.
+
+**Part 3.** `ui_shared.cpp` one code by batches (the keyword readers, the scripts, the drawing, the keys), where the games do not contradict each other the union of their features, each real conflict presented with its behaviour before and after (section 17.8); the two meanings kept apart in part 1 (the item's font, the single player's text functions by handle and width, section 17.9); the single player's grey items while a key is awaited, for the multiplayer too (section 17.13). The keyword readers, `Item_Parse`, `Menu_Parse` and `Menu_New` of both trees now call the same reader, without a handle: the first batch. Then part 4 (section 17.11).
+
+**What a session needs to know**, beside sections 15.3, 16.7 and 17.11:
+
+- The reader's rules: `src/shared/ui/README.md`. A menu file is read through `PC_StartParseSession`; a token through `PC_ParseExt` is the reader's own buffer (`COM_ParseExt`'s), overwritten by the next read: a value kept past another read is copied (`PC_ParseStringMem`).
+- The menus' dump (`docs/modernization/tools/menudump/`) takes both forms of the multiplayer's `UI_LoadMenus`, before and after part 2; the reference `E:\Git\jka\ModernJK_s3ref` keeps its trace and its clang Release build. Its expected differences against part 2's code: the 15 paths of decision 14 in the multiplayer's dump, the `"1;"` of decision 13 written `1 ;` in the single player's (32 on 7 lines of Jedi Academy's, 42 on 11 lines of Jedi Outcast's); a check of part 3 compares against part 2's dumps instead, or reads these differences out.
+- The trace stops the single player's client when a level loads (the in-game menus' dump, the same in the reference's build): the single player's dump sessions stay in the main menu.
+- The menus' loading timed with a temporary timer around `UI_LoadMenus` and `CG_LoadMenus` (`std::chrono::steady_clock`, the session's tools `menutime_tmp.py` and `menutime.sh`), the reference's trace taken out for it and put back after.
+
+The full VM validations of part 2 on 28 November 2026 (logs `build/validate-linux.log`, `build/validate-windows.log`): `validate.sh` ALL OK (GCC 15 and Clang 23: Release, Debug, AddressSanitizer, the server's preset, the Debug build with link-time optimization, the formatting) and `validate.bat` ALL OK (MSVC: Release, Debug, AddressSanitizer), `ctest` 18 of 18 in every preset that runs it, no compiler warning. Part 2 is complete; part 3 next, on a word.

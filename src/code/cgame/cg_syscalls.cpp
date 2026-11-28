@@ -523,7 +523,7 @@ void cgi_UI_EndParseSession(char* buf)
     Q_syscall(cgameImport_t::CG_UI_ENDPARSESESSION, buf);
 }
 
-void cgi_UI_ParseExt(char** token)
+void cgi_UI_ParseExt(const char** token)
 {
     Q_syscall(cgameImport_t::CG_UI_PARSEEXT, token);
 }

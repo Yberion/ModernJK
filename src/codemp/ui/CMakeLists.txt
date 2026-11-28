@@ -35,7 +35,7 @@ add_library(ui MODULE
 set_target_properties(ui PROPERTIES OUTPUT_NAME "ui${modernjk_ARCH}" PREFIX "")
 target_include_directories(ui PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src")
 target_compile_definitions(ui PRIVATE UI_BUILD)
-target_link_libraries(ui PRIVATE modernjk_shared_common modernjk_platform_menus modernjk_version modernjk_options
+target_link_libraries(ui PRIVATE modernjk_shared_common modernjk_platform_menus modernjk_ui_reader modernjk_version modernjk_options
 	modernjk_warnings modernjk_defines)
 install(TARGETS ui LIBRARY DESTINATION "${modernjk_INSTALL_JKA}/ModernJK")
 install(TARGETS ui LIBRARY DESTINATION "${modernjk_INSTALL_JKA}/base")
